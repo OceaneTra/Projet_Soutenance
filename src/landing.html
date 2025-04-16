@@ -6,6 +6,7 @@
     <title>Soutenance Manager | Plateforme de Gestion de la commission de validation des soutenances</title>
     <link rel="stylesheet" href="./output.css">
     <link rel="stylesheet" href="./assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
    
    
 
@@ -19,7 +20,7 @@
                 <span class="font-bold text-xl text-green-500">Soutenance Manager</span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
-                <a href="#" class="nav-link text-gray-600 hover:text-gray-900 py-2">Fonctionnalités</a>
+                <a href="#features" class="nav-link text-gray-600 hover:text-gray-900 py-2">Fonctionnalités</a>
                 <a href="index.html" class="px-6 py-2 rounded-md academic-gradient text-white font-medium hover:opacity-90 transition">Commencer</a>
             </div>
             <button class="md:hidden focus:outline-none">
@@ -36,11 +37,12 @@
                     Révolutionnez la <span class="text-green-500">Gestion du comité de validation des soutenances</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-lg">
-                    Simplifiez les soumissions de thèses, automatisez les évaluations et améliorez la collaboration entre les comités avec notre plateforme académique complète.
+                    Soutenance Manager est une plateforme numérique conçue pour faciliter et optimiser la coordination des activités liées aux soutenances
+                    académiques.
                 </p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <button class="px-8 py-3 rounded-lg academic-gradient text-white font-semibold hover:opacity-90 transition flex items-center justify-center">
-                        <i class="fas fa-rocket mr-2"></i> Commencer
+                        <a href="./index.html"><i class="fas fa-rocket mr-2"></i> Commencer</a>
                     </button>
                     
                 </div>
@@ -48,9 +50,9 @@
             </div>
             <div class="lg:w-1/2 flex justify-center">
                 <div class="relative w-full max-w-xl">
-                    <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Tableau de bord académique" class="w-full floating">
+                    <img src="./assets/images/hero-illustrations.svg" alt="Tableau de bord académique" class="w-full floating">
                     <div class="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-green-100 opacity-50 -z-10"></div>
-                    <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-indigo-100 opacity-50 -z-10"></div>
+                    <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-green-100 opacity-50 -z-10"></div>
                 </div>
             </div>
         </div>
@@ -58,12 +60,12 @@
 
 
     <!-- Fonctionnalités -->
-    <section class="py-20">
+    <section class="py-20 " id="features">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <span class="inline-block px-3 py-1 text-sm academic-gradient text-white rounded-full mb-4">FONCTIONNALITÉS CLÉS</span>
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Gestion Complète des Thèses</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Tout ce dont vous avez besoin pour rationaliser l'ensemble du cycle de vie des thèses, de la soumission à la soutenance.</p>
+        
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Fonctionnalités de l'application</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Tout ce dont vous avez besoin pour gérer le comité de validation de la soumission du rapport à la soutenance.</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -72,26 +74,27 @@
                     <div class="w-14 h-14 rounded-lg academic-gradient flex items-center justify-center mb-6">
                         <i class="fas fa-file-upload text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Portail de Soumission Intuitif</h3>
-                    <p class="text-gray-600 mb-4">Les étudiants peuvent facilement soumettre leurs thèses avec tous les documents requis via notre interface conviviale.</p>
+                    <h3 class="text-xl font-semibold mb-3">Organisation centralisée</h3>
+                    <p class="text-gray-600 mb-4">Tous les dossiers, documents, et informations liés aux soutenances peuvent être centralisés dans une seule plateforme.</p>
                     <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Validation du format</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Vérification du plagiat</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Suivi des délais</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>Tous les documents dans une plateforme unique</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>Accès facile aux informations essentielles</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i>Prévention de la perte de données</li>
                     </ul>
+
                 </div>
                 
                 <!-- Feature 2 -->
                 <div class="bg-white p-8 rounded-xl shadow-md feature-card transition duration-300">
                     <div class="w-14 h-14 rounded-lg academic-gradient flex items-center justify-center mb-6">
-                        <i class="fas fa-robot text-white text-xl"></i>
+                        <i class="fa fa-hourglass text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Évaluation Automatisée</h3>
-                    <p class="text-gray-600 mb-4">Nos workflows intelligents acheminent automatiquement les soumissions aux membres du comité selon les règles de votre institution.</p>
+                    <h3 class="text-xl font-semibold mb-3">Gain de temps</h3>
+                    <p class="text-gray-600 mb-4">Automatisez les tâches administratives telles que la validation des rapports de stage, l'envoi de notifications.</p>
                     <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Grilles d'évaluation personnalisables</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Options d'évaluation en aveugle</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Analyse des scores</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Automatisation des tâches administratives</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Planification rapide des réunions et soutenances</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Concentration sur les aspects stratégiques</li>
                     </ul>
                 </div>
                 
@@ -100,174 +103,27 @@
                     <div class="w-14 h-14 rounded-lg academic-gradient flex items-center justify-center mb-6">
                         <i class="fas fa-users text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Collaboration du Comité</h3>
-                    <p class="text-gray-600 mb-4">Facilitez la communication et la coordination entre les membres du comité tout au long du processus.</p>
+                    <h3 class="text-xl font-semibold mb-3">Collaboration améliorée</h3>
+                    <p class="text-gray-600 mb-4">Facilitez la communication et la coordination entre les membres du comité, le personnel administratif et les étudiants tout au long du processus.</p>
                     <ul class="space-y-2 text-gray-600">
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Feedback annoté</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Discussions organisées</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Planification des réunions</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Échange des avis</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Partage de documents</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Suivi des rapports de chaque étudiants </li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Dashboard Preview -->
-    <section class="py-20 academic-gradient">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">Tableau de Bord Performant</h2>
-                <p class="text-indigo-100 max-w-2xl mx-auto">Surveillez toutes les activités des thèses en temps réel avec notre tableau de bord complet.</p>
-            </div>
-            <div class="flex justify-center">
-                <div class="dashboard-preview overflow-hidden max-w-5xl">
-                    <img src="https://via.placeholder.com/1200x700/4f46e5/7c3aed?text=ScholarFlow+Dashboard+Preview" alt="Aperçu du tableau de bord" class="w-full">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 text-white">
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">98%</div>
-                    <p class="text-indigo-100">Taux d'achèvement des soumissions</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">50%</div>
-                    <p class="text-indigo-100">Processus d'évaluation plus rapide</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">24/7</div>
-                    <p class="text-indigo-100">Disponibilité de la plateforme</p>
-                </div>
-            </div>
-        </div>
-    </section>
+   
 
-    <!-- Testimonials -->
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <span class="inline-block px-3 py-1 text-sm academic-gradient text-white rounded-full mb-4">TÉMOIGNAGES</span>
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Ce que disent nos partenaires académiques</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Découvrez comment les institutions ont transformé leur gestion des thèses avec ScholarFlow.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="bg-gray-50 p-8 rounded-xl">
-                    <div class="flex items-start mb-6">
-                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Dr. Sarah Johnson" class="w-12 h-12 rounded-full">
-                        <div class="ml-4">
-                            <h4 class="font-semibold">Dr. Sarah Johnson</h4>
-                            <p class="text-gray-600 text-sm">Doyenne des études supérieures, Université de Stanford</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">"ScholarFlow a révolutionné notre processus de soumission des thèses. Ce qui prenait des semaines de travail administratif se fait maintenant de manière fluide en quelques jours. Les workflows automatisés ont fait gagner des centaines d'heures à notre faculté chaque année."</p>
-                    <div class="flex items-center">
-                        <div class="text-yellow-400 mr-4">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="text-sm text-gray-500">Il y a 2 mois</span>
-                    </div>
-                </div>
-                
-                <!-- Testimonial 2 -->
-                <div class="bg-gray-50 p-8 rounded-xl">
-                    <div class="flex items-start mb-6">
-                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Prof. Michael Chen" class="w-12 h-12 rounded-full">
-                        <div class="ml-4">
-                            <h4 class="font-semibold">Prof. Michael Chen</h4>
-                            <p class="text-gray-600 text-sm">Directeur de la recherche, MIT</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">"Les outils de collaboration du comité sont exceptionnels. Pouvoir annoter des documents, discuter des évaluations et planifier des soutenances sur une seule plateforme a considérablement amélioré notre flux de travail et la qualité de nos décisions."</p>
-                    <div class="flex items-center">
-                        <div class="text-yellow-400 mr-4">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <span class="text-sm text-gray-500">Il y a 1 mois</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="py-16 bg-gray-900 text-white">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold mb-6">Prêt à transformer votre gestion des thèses ?</h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto text-gray-300">Rejoignez des centaines d'institutions académiques qui rationalisent leurs processus de recherche avec ScholarFlow.</p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button class="px-8 py-3 rounded-lg academic-gradient text-white font-semibold hover:opacity-90 transition flex items-center justify-center">
-                    <i class="fas fa-calendar-check mr-2"></i> Planifier une démo
-                </button>
-                <button class="px-8 py-3 rounded-lg bg-gray-800 text-white font-semibold hover:bg-gray-700 transition flex items-center justify-center">
-                    <i class="fas fa-envelope mr-2"></i> Contacter les ventes
-                </button>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
+    <footer class="bg-green-100 text-white py-12 shadow-sm">
         <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 rounded-lg academic-gradient flex items-center justify-center">
-                            <i class="fas fa-graduation-cap text-white"></i>
-                        </div>
-                        <span class="font-bold text-xl">ScholarFlow</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">Donner aux institutions académiques des solutions modernes de gestion des thèses.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-lg mb-4">Produit</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Fonctionnalités</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Tarifs</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Intégrations</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Feuille de route</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-lg mb-4">Ressources</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Documentation</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Guides</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Webinaires</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Référence API</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-lg mb-4">Entreprise</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">À propos</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Carrières</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Politique de confidentialité</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Conditions d'utilisation</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-gray-400 mb-4 md:mb-0">© 2023 ScholarFlow. Tous droits réservés.</p>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white">Confidentialité</a>
-                    <a href="#" class="text-gray-400 hover:text-white">Conditions</a>
-                    <a href="#" class="text-gray-400 hover:text-white">Cookies</a>
-                </div>
+            <div class="border-t  mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0 text-green-500">© 2025 Soutenance Manager. Tous droits réservés.</p>
+                
             </div>
         </div>
     </footer>
