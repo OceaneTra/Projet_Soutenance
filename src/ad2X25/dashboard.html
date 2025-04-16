@@ -1,72 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarSync | Academic Management Platform</title>
-     <link rel="stylesheet" href="./output.css">
+    <title>Soutenance Manager | Administrateur</title>
+     <link rel="stylesheet" href="../output.css">
+     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        }
-        .sidebar-item:hover .sidebar-icon {
-            transform: translateX(5px);
-        }
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.5s;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-        .document-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+    
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0">
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
-                <div class="flex items-center justify-center h-16 px-4 gradient-bg">
+                <div class="flex items-center justify-center h-16 px-4 bg-green-100">
                     <div class="flex items-center">
-                        <i class="fas fa-graduation-cap text-white text-2xl mr-2"></i>
-                        <span class="text-white font-bold text-xl">ScholarSync</span>
+                        
+                        <span class="text-green-500 font-bold text-xl">Soutenance Manager</span>
                     </div>
                 </div>
                 <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
                     <div class="space-y-1">
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-white bg-indigo-700 group">
                             <i class="fas fa-home mr-3 text-indigo-300"></i>
-                            Dashboard
+                            Tableau de bord
                         </a>
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-book mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Thesis Management
+                            Étudiants
                         </a>
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Committee
+                           Utilisateurs
+                        </a>
+                        <a href="#"
+                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                            <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                            Habilitations et mot de passe
                         </a>
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-tasks mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Evaluation Workflows
+                            Ressources humaines
                         </a>
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-calendar-alt mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Calendar
+                            Piste d'audit
                         </a>
                         <a href="#" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-comments mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Discussions
+                            Paramètres généraux
+                        </a>
+                        <a href="#"
+                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                            <i class="fas fa-comments mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                            Sauvegarde et restauration des données
                         </a>
                     </div>
                     <div class="mt-auto mb-4">
