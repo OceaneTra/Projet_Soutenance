@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once '../config/bd.php';
+   require_once '../config/bd.php';
 
     // pour codifier les grades 
     function genererCodeSpecialite($libelle) {
@@ -113,7 +113,7 @@
             </tr>
         </thead>
         <tbody>
-        <?php
+            <?php
             $stmt = $pdo->query("SELECT * FROM specialite");
             foreach ($stmt as $row) {
                 $id_specialite = $row['id_specialite'];

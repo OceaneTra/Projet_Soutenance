@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once '../config/bd.php';
+   require_once '../config/bd.php';
 
     // pour codifier les grades 
     function genererCodeTypeUtilisateur($libelle) {
@@ -75,7 +75,7 @@
             </tr>
         </thead>
         <tbody>
-        <?php
+            <?php
             $stmt = $pdo->query("SELECT * FROM type_utilisateur");
             foreach ($stmt as $row) {
                 $id_type_utilisateur = $row['id_type_utilisateur'];
