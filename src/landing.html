@@ -5,64 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soutenance Manager | Plateforme de Gestion de la commission de validation des soutenances</title>
     <link rel="stylesheet" href="./output.css">
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <link rel="stylesheet" href="./assets/css/main.css">
    
    
-   <style>
-        .academic-gradient {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        }
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .nav-link {
-            position: relative;
-        }
-        .nav-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: #4f46e5;
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover:after {
-            width: 100%;
-        }
-        .floating {
-            animation: floating 6s ease-in-out infinite;
-        }
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-        .dashboard-preview {
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-    </style>
+
 </head>
 <body class="font-sans antialiased text-gray-800 bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm fixed w-full z-50">
+    <!-- Menu de Navigation -->
+    <nav class="bg-green-100 shadow-sm fixed w-full z-50">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg academic-gradient flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-white text-lg"></i>
-                </div>
-                <span class="font-bold text-xl text-gray-800">ScholarFlow</span>
+                <div class="logo"></div>
+                <span class="font-bold text-xl text-green-500">Soutenance Manager</span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
                 <a href="#" class="nav-link text-gray-600 hover:text-gray-900 py-2">Fonctionnalités</a>
-                <a href="#" class="nav-link text-gray-600 hover:text-gray-900 py-2">Solutions</a>
-                <a href="#" class="nav-link text-gray-600 hover:text-gray-900 py-2">Tarifs</a>
-                <a href="#" class="nav-link text-gray-600 hover:text-gray-900 py-2">Ressources</a>
-                <a href="#" class="px-6 py-2 rounded-md academic-gradient text-white font-medium hover:opacity-90 transition">Démo</a>
+                <a href="index.html" class="px-6 py-2 rounded-md academic-gradient text-white font-medium hover:opacity-90 transition">Commencer</a>
             </div>
             <button class="md:hidden focus:outline-none">
                 <i class="fas fa-bars text-xl text-gray-600"></i>
@@ -73,9 +31,9 @@
     <!-- Hero Section -->
     <section class="pt-32 pb-20 px-6">
         <div class="container mx-auto flex flex-col lg:flex-row items-center">
-            <div class="lg:w-1/2 mb-12 lg:mb-0">
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
-                    Révolutionnez la <span class="text-indigo-600">Gestion des Thèses</span>
+            <div class="lg:w-1/2 mb-12 lg:mb-0 px-4">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 leading-tight mb-6">
+                    Révolutionnez la <span class="text-green-500">Gestion du comité de validation des soutenances</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-lg">
                     Simplifiez les soumissions de thèses, automatisez les évaluations et améliorez la collaboration entre les comités avec notre plateforme académique complète.
@@ -84,46 +42,22 @@
                     <button class="px-8 py-3 rounded-lg academic-gradient text-white font-semibold hover:opacity-90 transition flex items-center justify-center">
                         <i class="fas fa-rocket mr-2"></i> Commencer
                     </button>
-                    <button class="px-8 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition flex items-center justify-center">
-                        <i class="fas fa-play-circle mr-2"></i> Voir la démo
-                    </button>
+                    
                 </div>
-                <div class="mt-8 flex items-center space-x-4">
-                    <div class="flex -space-x-2">
-                        <img src="https://randomuser.me/api/portraits/women/12.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-                        <img src="https://randomuser.me/api/portraits/women/45.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-                    </div>
-                    <div class="text-gray-600">
-                        <span class="font-medium text-gray-800">500+</span> universités font confiance à ScholarFlow
-                    </div>
-                </div>
+              
             </div>
             <div class="lg:w-1/2 flex justify-center">
                 <div class="relative w-full max-w-xl">
                     <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Tableau de bord académique" class="w-full floating">
-                    <div class="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-purple-100 opacity-50 -z-10"></div>
+                    <div class="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-green-100 opacity-50 -z-10"></div>
                     <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-indigo-100 opacity-50 -z-10"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Trusted By -->
-    <section class="py-12 bg-gray-100">
-        <div class="container mx-auto px-6">
-            <p class="text-center text-gray-500 mb-8">UTILISÉ PAR LES PRINCIPALES INSTITUTIONS MONDIALES</p>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-center">
-                <img src="https://via.placeholder.com/150x60?text=Stanford" class="h-10 opacity-60 hover:opacity-100 transition">
-                <img src="https://via.placeholder.com/150x60?text=MIT" class="h-10 opacity-60 hover:opacity-100 transition">
-                <img src="https://via.placeholder.com/150x60?text=Harvard" class="h-12 opacity-60 hover:opacity-100 transition">
-                <img src="https://via.placeholder.com/150x60?text=Oxford" class="h-10 opacity-60 hover:opacity-100 transition">
-                <img src="https://via.placeholder.com/150x60?text=Cambridge" class="h-8 opacity-60 hover:opacity-100 transition">
-            </div>
-        </div>
-    </section>
 
-    <!-- Features -->
+    <!-- Fonctionnalités -->
     <section class="py-20">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
