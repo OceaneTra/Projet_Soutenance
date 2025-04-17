@@ -102,3 +102,11 @@
     display: none;
 
   }
+
+ .border-green-500{
+    border-color: #3c9e5f;
+  }
+
+  .border-green-100{
+    border-color: #e7eeea;
+  }
