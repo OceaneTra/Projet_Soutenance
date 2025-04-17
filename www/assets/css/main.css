@@ -83,3 +83,16 @@
          opacity: 0.5;
      }
  }
+ .text-green-500{
+    color: #3c9e5f;
+ }
+ .bg-green-500{
+    background-color: #3c9e5f;
+ }
+    .bg-green-100 {
+        background-color: #e7eeea;
+    }
+    
+  .text-green-100 {
+      color: #e7eeea;
+  }
