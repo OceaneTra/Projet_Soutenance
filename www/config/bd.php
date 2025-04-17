@@ -1,9 +1,9 @@
 <?php
 
-$host = 'projet_m_wah-db-1';
-$db = 'validmaster';
+$host = 'projet_soutenance'; // Nom de l'hôte de la base de données
+$db = 'soutenance_manager';
 $user = 'root'; 
-$pass = 'rootpassword';
+$pass = '';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
