@@ -96,3 +96,9 @@
   .text-green-100 {
       color: #e7eeea;
   }
+
+  ::-webkit-scrollbar{
+    scrollbar-width: 0;
+    display: none;
+
+  }
