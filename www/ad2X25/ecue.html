@@ -1,274 +1,193 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./assets/css/output.css">
-    <title>Gestion des ECUE</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Menu latéral */
-        .sidebar {
-            width: 250px;
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px 0;
-        }
-
-        .sidebar ul {
-            list-style: none;
-        }
-
-        .sidebar li {
-            padding: 15px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar li:hover {
-            background-color: #34495e;
-        }
-
-        /* Menu supérieur */
-        .topbar {
-            background-color: #3498db;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        /* Contenu principal */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        /* Filtres supérieurs */
-        .filters {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .filter-item {
-            flex: 1;
-            max-width: 200px;
-        }
-
-        .filter-item select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        /* Formulaire et tableau */
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .input-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #2980b9;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-modifier {
-            background-color: #f1c40f;
-        }
-
-        .btn-supprimer {
-            background-color: #e74c3c;
-        }
-    </style>
+    <title>Kerala User Listing Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
 </head>
-<body>
-    <!-- Menu latéral -->
-    <div class="sidebar">
-        <ul>
-            <li>Accueil</li>
-            <li>UE</li>
-            <li>ECUE</li>
-            <li>Semestres</li>
-            <li>Années Académiques</li>
-            <li>Paramètres</li>
-        </ul>
-    </div>
 
-    <div class="main-content">
-        <!-- Menu supérieur -->
-        <div class="topbar">
-            <div class="logo">Gestion des ECUE</div>
-            <div class="user-info">
-                <span>Administrateur</span>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8"> User Listing</h1>
+
+        <!-- Search and Add User (Static) -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <div class="w-full md:w-1/3 mb-4 md:mb-0">
+                <input type="text" placeholder="Search users..."
+                    class="w-full px-4 py-2 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
+            <a href="" id="addUserForm" >
+                <button  class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">
+                    Add New User
+                </button>
+            </a>
+
         </div>
 
-        <!-- Contenu principal -->
-        <div class="content">
-            <!-- Filtres -->
-            <div class="filters">
-                <div class="filter-item">
-                    <select>
-                        <option>UE</option>
-                        <!-- Options UE -->
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <select>
-                        <option>Semestre</option>
-                        <!-- Options Semestre -->
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <select>
-                        <option>Année Académique</option>
-                        <!-- Options Année Académique -->
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Formulaire d'ajout -->
-            <div class="form-container">
-                <h2>Ajouter un ECUE</h2>
-                <form>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <label for="ue">UE</label>
-                            <select id="ue">
-                                <option value="">Sélectionner UE</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="intitule">Intitulé</label>
-                            <input type="text" id="intitule">
-                        </div>
-                        <div class="input-group">
-                            <label for="coefficient">Coefficient</label>
-                            <input type="number" id="coefficient">
-                        </div>
-                    </div>
-                    <button type="submit">Ajouter</button>
-                </form>
-            </div>
-
-            <!-- Tableau des ECUE -->
-            <table>
+        <!-- User Table -->
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+            <table class="w-full table-auto">
                 <thead>
-                    <tr>
-                        <th>UE</th>
-                        <th>Intitulé</th>
-                        <th>Coefficient</th>
-                        <th>Actions</th>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">ID</th>
+                        <th class="py-3 px-6 text-left">Name</th>
+                        <th class="py-3 px-6 text-left">Email</th>
+                        <th class="py-3 px-6 text-left">Role</th>
+                        <th class="py-3 px-6 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>UE1</td>
-                        <td>Mathématiques</td>
-                        <td>3</td>
-                        <td class="actions">
-                            <button class="btn-modifier">Modifier</button>
-                            <button class="btn-supprimer">Supprimer</button>
+                <tbody class="text-gray-600 text-sm">
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">1</td>
+                        <td class="py-3 px-6 text-left">Abhiraj k</td>
+                        <td class="py-3 px-6 text-left">abhi@kerala.com</td>
+                        <td class="py-3 px-6 text-left">Admin</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <button class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
-                    <tr>
-                        <td>UE2</td>
-                        <td>Physique</td>
-                        <td>2</td>
-                        <td class="actions">
-                            <button class="btn-modifier">Modifier</button>
-                            <button class="btn-supprimer">Supprimer</button>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">2</td>
+                        <td class="py-3 px-6 text-left">Ayyam Perumal</td>
+                        <td class="py-3 px-6 text-left">ayyam@kerala.com</td>
+                        <td class="py-3 px-6 text-left">Manager</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <button class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">3</td>
+                        <td class="py-3 px-6 text-left">George Thomas</td>
+                        <td class="py-3 px-6 text-left">george@kerala.com</td>
+                        <td class="py-3 px-6 text-left">User</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <button class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">4</td>
+                        <td class="py-3 px-6 text-left">Vasudev Menon</td>
+                        <td class="py-3 px-6 text-left">vasudev@kerala.com</td>
+                        <td class="py-3 px-6 text-left">Admin</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <button class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">5</td>
+                        <td class="py-3 px-6 text-left">Mandan Pillai</td>
+                        <td class="py-3 px-6 text-left">mandan@kerala.com</td>
+                        <td class="py-3 px-6 text-left">User</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <button class="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button class="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Static Pagination -->
+        <div class="flex justify-between items-center mt-6">
+            <div>
+                <span class="text-sm text-gray-700">
+                    Showing 1 to 5 of 5 entries
+                </span>
+            </div>
+            <div class="flex space-x-2">
+                <a href="https://abhirajk.vercel.app/" target="blank">
+
+                    <button class="px-3 py-1 rounded-md bg-gray-200 text-gray-700 opacity-50">
+                        Previous
+                    </button>
+                </a>
+                <a href="https://abhirajk.vercel.app/" target="blank">
+
+                    <button class="px-3 py-1 rounded-md bg-gray-200 text-gray-700 opacity-50">
+                        Next
+                    </button>
+                </a>
+            </div>
+        </div>
     </div>
+    <script src="../assets/js/modal.js"></script>
 </body>
+
 </html>
