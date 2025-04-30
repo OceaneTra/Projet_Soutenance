@@ -1,0 +1,18 @@
+{
+  "name": "soutenance-manager",
+  "version": "1.0.0",
+  "description": "Système de gestion des soutenances académiques",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx tailwindcss -i ./ressources/css/input.css -o ./public/assets/css/styles.css --watch",
+    "build": "npx tailwindcss -i ./ressources/css/input.css -o ./public/assets/css/styles.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
+  }
+}
