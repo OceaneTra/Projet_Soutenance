@@ -1,15 +1,17 @@
 {
-  "name": "soutenance-manager",
+  "name": "votre-projet",
   "version": "1.0.0",
   "description": "Système de gestion des soutenances académiques",
   "main": "index.js",
   "scripts": {
-    "dev": "tailwindcss -i ./ressources/css/app.css -o ./public/assets/css/styles.css --watch",
-    "build": "tailwindcss -i ./ressources/css/app.css -o ./public/assets/css/styles.css --minify"
+    "tailwind:dev": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+    "start": "...",
+    "dev": "concurrently \"npm run tailwind:dev\" \"votre-commande-serveur\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
     "ansi-regex": "^6.1.0",
     "ansi-styles": "^6.2.1",
@@ -112,14 +114,14 @@
     "type": "git",
     "url": "git+https://github.com/OceaneTra/Projet_Soutenance.git"
   },
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/OceaneTra/Projet_Soutenance/issues"
   },
   "homepage": "https://github.com/OceaneTra/Projet_Soutenance#readme",
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.5"
+    "tailwindcss": "^3.x.x",
+    "postcss": "^8.x.x",
+    "autoprefixer": "^10.x.x",
+    "concurrently": "^8.x.x"
   }
 }

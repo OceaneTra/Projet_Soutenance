@@ -1,8 +1,8 @@
 <?php
 // Paramètres de connexion à la base de données
 $db_host = 'db';         // Nom du service Docker MySQL
-$db_name = 'validmaster'; // Nom de la base de données
-$db_user = 'user';       // Nom d'utilisateur (à adapter selon votre docker-compose.yml)
+$db_name = 'soutenance_manager'; // Nom de la base de données
+$db_user = 'root';       // Nom d'utilisateur (à adapter selon votre docker-compose.yml)
 $db_pass = 'password';   // Mot de passe (à adapter selon votre docker-compose.yml)
 
 // Connexion à la base de données
