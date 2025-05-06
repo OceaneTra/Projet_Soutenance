@@ -7,7 +7,9 @@ module.exports = {
     // Ajoutez ici tous les chemins vers vos templates
   ],
   theme: {
-    extend: {},
+    extend: {
+      
+    },
   },
   plugins: [
     require('tailwind-scrollbar-hide'), // Plugin pour masquer la scrollbar
