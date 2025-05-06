@@ -24,7 +24,7 @@
             </div>
             <div class="hidden md:flex items-center space-x-8">
                 <a href="#features" class="nav-link text-gray-600 hover:text-gray-900 py-2">Fonctionnalités</a>
-                <a href="#"
+                <a href="page_connexion.php"
                     class="px-6 py-2 rounded-md academic-gradient text-white font-medium hover:opacity-90 transition">Commencer</a>
             </div>
             <button class="md:hidden focus:outline-none">
@@ -49,7 +49,8 @@
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <button
                         class="px-8 py-3 rounded-lg academic-gradient text-white font-semibold hover:opacity-90 transition flex items-center justify-center">
-                        <i class="fas fa-rocket mr-2"></i> Commencer
+                        <a href="page_connexion.php"><i class="fas fa-rocket mr-2"></i> Commencer</a>
+
                     </button>
 
                 </div>
