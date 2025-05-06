@@ -6,7 +6,7 @@
   "scripts": {
     "tailwind:dev": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
     "start": "...",
-    "dev": "concurrently \"npm run tailwind:dev\" \"votre-commande-serveur\""
+    "dev": "concurrently \"npm run tailwind:dev\" \"php -S localhost:8080 -t public\""
   },
   "keywords": [],
   "author": "",

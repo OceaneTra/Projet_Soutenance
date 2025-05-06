@@ -1,20 +1,18 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-
-/* Vous pouvez ajouter vos styles personnalisés ici */
+/* Vos styles personnalisés ici */
 .academic-gradient {
     background: linear-gradient(135deg, #44cc7f 0%, #3c9e5f 100%);
 }
-
 .feature-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
-
 .nav-link {
     position: relative;
 }
-
 .nav-link:after {
     content: '';
     position: absolute;
@@ -25,95 +23,24 @@
     background-color: #3c9e5f;
     transition: width 0.3s ease;
 }
-
 .nav-link:hover:after {
     width: 100%;
 }
-
 .floating {
     animation: floating 6s ease-in-out infinite;
 }
-
 @keyframes floating {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-15px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
 }
-
 .dashboard-preview {
     border-radius: 12px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
-
 .gradient-bg {
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 }
-
 .sidebar-item:hover .sidebar-icon {
     transform: translateX(5px);
-}
-
-.progress-ring__circle {
-    transition: stroke-dashoffset 0.5s;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-}
-
-.document-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
-}
-
-.text-green-500 {
-    color: #3c9e5f;
-}
-
-.bg-green-500 {
-    background-color: #3c9e5f;
-}
-
-.bg-green-100 {
-    background-color: #e7eeea;
-}
-
-.text-green-100 {
-    color: #e7eeea;
-}
-
-::-webkit-scrollbar {
-    scrollbar-width: 0;
-    display: none;
-
-}
-
-.border-green-500 {
-    border-color: #3c9e5f;
-}
-
-.border-green-100 {
-    border-color: #e7eeea;
 }
