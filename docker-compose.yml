@@ -1,4 +1,4 @@
-version: '3'
+
 
 services:
   web:
@@ -14,10 +14,9 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: validmaster
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: soutenance_manager
+    
     ports:
       - "3306:3306"
     volumes:
@@ -28,7 +27,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_PASSWORD: password
     ports:
       - "8081:80"
     depends_on:
