@@ -49,6 +49,11 @@ class Grade {
         return $stmt->execute([$id_grade, $lib_grade]);
     }
 
+    public function updateGrade($id, $lib_grade) {
+        $stmt = $this->pdo->prepare("UPDATE grade SET lib_grade = ? WHERE id_grade = ?");
+        return $stmt->execute([$lib_grade, $id]);
+    }
+
     // Supprimer un grade
     public function deleteGrade($id) {
         $stmt = $this->pdo->prepare("DELETE FROM grade WHERE id_grade = ?");

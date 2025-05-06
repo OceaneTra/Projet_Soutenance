@@ -13,6 +13,8 @@ class AnneeAcademique {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+
     // Ajouter une nouvelle année académique
     public function addAnneeAcademique($date_deb, $date_fin) {
         // Récupération des années
@@ -25,6 +27,14 @@ class AnneeAcademique {
         $stmt = $this->pdo->prepare("INSERT INTO annee_academique (id_annee_acad, date_deb, date_fin) VALUES (?, ?, ?)");
         return $stmt->execute([$id_annee_acad, $date_deb, $date_fin]);
     }
+
+    //mettre a jour
+    public function updateAnneeAcademique($id, $date_deb, $date_fin) {
+        $stmt = $this->pdo->prepare("UPDATE annee_academique SET date_deb = ?, date_fin = ? WHERE id_annee_acad = ?");
+        return $stmt->execute([$date_deb, $date_fin, $id]);
+    }
+
+
 
     // Supprimer une année académique
     public function deleteAnneeAcademique($id) {

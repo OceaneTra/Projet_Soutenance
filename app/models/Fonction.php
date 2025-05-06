@@ -59,6 +59,12 @@ class Fonction {
         return $stmt->execute([$id_fonction, $lib_fonction]);
     }
 
+    public function updateFonction($id, $lib_fonction) {
+        $stmt = $this->pdo->prepare("UPDATE fonction SET lib_fonction = ? WHERE id_fonction = ?");
+        return $stmt->execute([$lib_fonction, $id]);
+    }
+
+
     // Supprimer une fonction
     public function deleteFonction($id) {
         $stmt = $this->pdo->prepare("DELETE FROM fonction WHERE id_fonction = ?");

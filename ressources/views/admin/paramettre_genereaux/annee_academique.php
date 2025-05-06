@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($message) && !isset($error))
         }
     }
 }
+
 ?>
 <div class="min-h-screen flex flex-col">
     <main class="flex-grow container mx-auto px-4 py-8">
@@ -78,8 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($message) && !isset($error))
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 <?php
-                if (!empty($annees)) {
-                    foreach ($annees as $annee): ?>
+                $req = $this->pdo->query("SELECT * FROM annee_academique ORDER BY date_deb DESC");
+                $req->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($req)) {
+                    foreach ($req as $annee): ?>
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <?= htmlspecialchars($annee['id_annee_acad']) ?>
