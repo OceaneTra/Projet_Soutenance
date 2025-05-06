@@ -119,9 +119,10 @@
   },
   "homepage": "https://github.com/OceaneTra/Projet_Soutenance#readme",
   "devDependencies": {
-    "tailwindcss": "^3.x.x",
-    "postcss": "^8.x.x",
     "autoprefixer": "^10.x.x",
-    "concurrently": "^8.x.x"
+    "concurrently": "^8.x.x",
+    "postcss": "^8.x.x",
+    "tailwind-scrollbar-hide": "^2.0.0",
+    "tailwindcss": "^3.x.x"
   }
 }

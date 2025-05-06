@@ -14,7 +14,7 @@
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0">
-            <div class="flex flex-col w-64 border-r border-gray-200 bg-white ">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white  ">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex items-center">
                         <span class="text-green-500 font-bold text-xl">Soutenance Manager</span>
@@ -68,17 +68,7 @@
                             Déconnexion
                         </a>
                     </div>
-                    <div class="mt-auto mb-4">
-                        <div class="p-4 bg-green-100 rounded-lg">
-                            <h4 class="text-sm font-medium text-green-500">Besoin d'aide ?</h4>
-                            <p class="mt-1 text-xs text-green-500">Contactez notre équipe d'assistance pour obtenir de
-                                l'aide .</p>
-                            <button
-                                class="mt-2 w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-500 hover:bg-green-600">
-                                Contactez l'assistance
-                            </button>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
