@@ -1,17 +1,9 @@
 <?php
-<<<<<<< HEAD
 // Configuration de la base de données
 define('DB_HOST', 'db');  // Nom du service Docker
-define('DB_NAME', 'validmaster');
+define('DB_NAME', 'soutenance_manager');
 define('DB_USER', 'root');
-define('DB_PASS', 'root'); // À adapter selon votre configuration
-=======
-// Paramètres de connexion à la base de données
-$db_host = 'db';         // Nom du service Docker MySQL
-$db_name = 'soutenance_manager'; // Nom de la base de données
-$db_user = 'root';       // Nom d'utilisateur (à adapter selon votre docker-compose.yml)
-$db_pass = 'password';   // Mot de passe (à adapter selon votre docker-compose.yml)
->>>>>>> Oceane
+define('DB_PASS', 'password'); // À adapter selon votre configuration
 
 // Vous pouvez ajouter d'autres constantes ou fonctions ici si nécessaire
 // Par exemple, une fonction pour établir une connexion PDO
