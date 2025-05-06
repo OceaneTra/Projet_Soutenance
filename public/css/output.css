@@ -1,4 +1,4 @@
-/*fichier de sortie pour Tailwind CSS */
+/*fichier d'entrée pour Tailwind CSS */
 
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
@@ -554,24 +554,6 @@ video {
   display: none;
 }
 
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-
-.text-blue-600 {
-  --tw-text-opacity: 1;
-  color: rgb(37 99 235 / var(--tw-text-opacity, 1));
-}
-
-.underline {
-  text-decoration-line: underline;
-}
-
 /* Vos styles personnalisés ici */
 
 .academic-gradient {
@@ -639,4 +621,12 @@ video {
 
 .text-green-100 {
   color: #E7EEEA;
+}
+
+.bg-green-100{
+  background-color: #E7EEEA;
+}
+
+.bg-green-500{
+  background-color: #3c9e5f;
 }

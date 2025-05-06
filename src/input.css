@@ -53,3 +53,10 @@
 .text-green-100 {
     color: #E7EEEA;
 }
+
+.bg-green-100{
+    background-color: #E7EEEA;
+}
+.bg-green-500{
+    background-color: #3c9e5f;
+}
