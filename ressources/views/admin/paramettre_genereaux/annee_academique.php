@@ -1,20 +1,33 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Années Académiques - ValidMaster</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-<div class="min-h-screen flex flex-col">
-    <header class="bg-blue-600 text-white shadow">
-        <div class="container mx-auto px-4 py-4">
-            <h1 class="text-2xl font-bold">ValidMaster - Administration</h1>
-        </div>
-    </header>
+<?php
+// Traitement du formulaire directement dans la vue - solution simple pour déboguer
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($message) && !isset($error)) {
+    $dateDebut = $_POST['date_deb'] ?? '';
+    $dateFin = $_POST['date_fin'] ?? '';
 
+    // Validation des données
+    if (empty($dateDebut) || empty($dateFin)) {
+        $error = "Tous les champs sont obligatoires.";
+    } else {
+        try {
+            // Utiliser l'instance de AnneeAcademique à partir du contrôleur
+            global $pdo;
+            $anneeAcademiqueModel = new AnneeAcademique($pdo);
+            $result = $anneeAcademiqueModel->addAnneeAcademique($dateDebut, $dateFin);
+
+            if ($result) {
+                $message = "Année académique ajoutée avec succès.";
+                // Actualiser la liste des années
+                $annees = $anneeAcademiqueModel->getAllAnneeAcademiques();
+            } else {
+                $error = "Erreur lors de l'ajout de l'année académique.";
+            }
+        } catch (Exception $e) {
+            $error = "Exception: " . $e->getMessage();
+        }
+    }
+}
+?>
+<div class="min-h-screen flex flex-col">
     <main class="flex-grow container mx-auto px-4 py-8">
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-2xl font-bold">Gestion des Années Académiques</h2>
@@ -40,14 +53,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="date_deb" class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
-                        <input type="date" id="date_deb" name="date_deb" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="date" id="date_deb" name="date_deb" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                     </div>
                     <div>
                         <label for="date_fin" class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
-                        <input type="date" id="date_fin" name="date_fin" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="date" id="date_fin" name="date_fin" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                     </div>
                 </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button type="submit" class="mt-2 w-full inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-500 hover:bg-green-600">
                     Ajouter
                 </button>
             </form>
@@ -64,30 +77,29 @@
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($annees as $annee): ?>
+                <?php
+                if (!empty($annees)) {
+                    foreach ($annees as $annee): ?>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <?= htmlspecialchars($annee['id_annee_acad']) ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <?= date('Y', strtotime($annee['date_deb'])) . '-' . date('Y', strtotime($annee['date_fin'])) ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="?route=admin/parametres/annees-academiques/modifier/<?= $annee['id_annee_acad'] ?>" class="text-indigo-600 hover:text-indigo-900 mr-2">Modifier</a>
+                                <a href="?route=admin/parametres/annees-academiques/supprimer/<?= $annee['id_annee_acad'] ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette année académique ?')">Supprimer</a>
+                            </td>
+                        </tr>
+                    <?php endforeach;
+                } else { ?>
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <?= htmlspecialchars($annee['id_annee_acad']) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <?= date('Y', strtotime($annee['date_deb'])) . '-' . date('Y', strtotime($annee['date_fin'])) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-indigo-600 hover:text-indigo-900 mr-2">Modifier</button>
-                            <button class="text-red-600 hover:text-red-900">Supprimer</button>
-                        </td>
+                        <td colspan="3" class="px-6 py-4 text-sm text-gray-500 text-center">Aucune année académique trouvée</td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
     </main>
-
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; <?= date('Y') ?> ValidMaster - Système de gestion de la commission de validation</p>
-        </div>
-    </footer>
 </div>
-</body>
-</html>
