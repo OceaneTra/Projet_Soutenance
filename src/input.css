@@ -1,3 +1,5 @@
+/*fichier d'entrée pour Tailwind CSS */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,4 +45,11 @@
 }
 .sidebar-item:hover .sidebar-icon {
     transform: translateX(5px);
+}
+
+.text-green-500 {
+    color: #3c9e5f;
+}
+.text-green-100 {
+    color: #E7EEEA;
 }

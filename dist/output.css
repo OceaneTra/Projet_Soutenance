@@ -1,3 +1,5 @@
+/*fichier de sortie pour Tailwind CSS */
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -106,9 +108,7 @@
   --tw-contain-style:  ;
 }
 
-/*
-! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com
-*/
+/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
 
 /*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
@@ -631,4 +631,12 @@ video {
 
 .sidebar-item:hover .sidebar-icon {
   transform: translateX(5px);
+}
+
+.text-green-500 {
+  color: #3c9e5f;
+}
+
+.text-green-100 {
+  color: #E7EEEA;
 }

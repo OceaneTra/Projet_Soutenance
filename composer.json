@@ -1,6 +1,6 @@
 {
     "name": "ocean/projet-soutenance",
-    "description": "Projet de soutenance",
+    "description": "Systeme de gestion de la commission de validation des soutenances",
     "type": "project",
     "require": {
         "php": "^8.2"
