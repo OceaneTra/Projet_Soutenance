@@ -18,7 +18,7 @@ class ParametresController {
 
     // Affiche le tableau de bord des paramètres
     public function dashboard() {
-        include __DIR__ . '/../../ressources/views/dashboard.php';
+        include __DIR__ . '/../../ressources/views/layout_admin.php';
     }
 
     // Gestion des années académiques
