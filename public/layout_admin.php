@@ -3,40 +3,77 @@
 // Chaque élément a un 'slug' (utilisé dans l'URL et pour le nom de fichier),
 // un 'label' (ce qui est affiché) et optionnellement une 'icon' (classe Font Awesome par exemple)
 $menuItems = [
-    ['slug' => 'dashboard',         'label' => 'Tableau de bord', 'icon' => 'fa-home'],
+    ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-home'],
     ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
-    ['slug' => 'gestion_rh',        'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
+    ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
     ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
-    ['slug' => 'gestion_habilitations', 'label' => 'Gestion des habilitations et mot de passe', 'icon' => 'fa-mask'], // ou fa-key, fa-user-shield
-    ['slug' => 'piste_audit',       'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
-    ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'], // ou fa-database
-    ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'], // ou fa-cogs
-    // Le lien de déconnexion sera géré séparément car il n'inclut pas de contenu de page
+    ['slug' => 'gestion_habilitations', 'label' => 'Gestion des habilitations et mot de passe', 'icon' => 'fa-mask'],
+    ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
+    ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
+    ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
 ];
 
-// Déterminer la page actuelle. Par défaut, ce sera 'dashboard'.
-// Il est TRÈS IMPORTANT de valider le paramètre 'page' pour éviter les inclusions de fichiers arbitraires.
-$currentPageSlug = 'dashboard'; // Page par défaut
-$allowedPages = array_column($menuItems, 'slug'); // Obtenir tous les slugs valides
-
-if (isset($_GET['page']) && in_array($_GET['page'], $allowedPages)) {
-    $currentPageSlug = $_GET['page'];
+// Déterminer la page actuelle du menu principal.
+$currentMenuSlug = 'dashboard'; // Page par défaut
+$allowedMenuPages = array_column($menuItems, 'slug');
+if (isset($_GET['page']) && in_array($_GET['page'], $allowedMenuPages)) {
+    $currentMenuSlug = $_GET['page'];
 }
 
-// Construire le chemin vers le fichier de contenu
-// Assurez-vous que vos fichiers de contenu sont dans un dossier 'partials' à côté de layout_admin.php
-// et nommés comme 'dashboard_content.php', 'gestion_etudiants_content.php', etc.
-$contentFile = '../ressources'.DIRECTORY_SEPARATOR .'views'.DIRECTORY_SEPARATOR . $currentPageSlug . '_content.php';
+// Initialiser les variables
+$currentAction = null;
+$contentFile = '';
+$currentPageLabel = '';
 
-// Trouver le label de la page actuelle pour le titre
-$currentPageLabel = 'Tableau de Bord'; // Label par défaut
-foreach ($menuItems as $item) {
-    if ($item['slug'] === $currentPageSlug) {
-        $currentPageLabel = $item['label'];
-        break;
+
+$partialsBasePath ='..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR ;
+    // Logique spécifique pour la section "Paramètres Généraux"
+if ($currentMenuSlug === 'parametres_generaux') {
+    if (isset($_GET['action'])) {
+        $allowedActions = [
+        'annees_academiques', 'grades', 'fonctions', 'specialites', 'niveaux_etude',
+        'ue', 'ecue', 'statuts_jury', 'niveaux_approbation', 'semestres',
+            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants'
+    ];
+    if (in_array($_GET['action'], $allowedActions)) {
+        $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath .'partials\parametres_generaux'.DIRECTORY_SEPARATOR . $currentAction . '.php';
+            // Pour le label, vous voudrez peut-être un mapping plus précis
+            // que de simplement formater le slug de l'action.
+            // Par exemple, récupérer le titre de la carte correspondante.
+            // Pour l'instant, on formate le slug de l'action :
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+} else {
+            // Action non valide, afficher la page des cartes par défaut ou une erreur
+            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
+            $currentPageLabel = 'Paramètres Généraux';
+            // Optionnel: afficher un message d'erreur pour action non valide
+        }
+                } else {
+        // Pas d'action spécifiée pour les paramètres généraux, afficher les cartes
+        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
+        $currentPageLabel = 'Paramètres Généraux';
+    }
+} else {
+    // Logique pour les autres pages du menu principal (dashboard, users, etc.)
+    $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
+    foreach ($menuItems as $item) {
+        if ($item['slug'] === $currentMenuSlug) {
+            $currentPageLabel = $item['label'];
+            break;
+        }
     }
 }
-?>
+
+// Si aucun label n'a été trouvé (par exemple, pour une page non listée dans $menuItems et sans action)
+if (empty($currentPageLabel)) {
+    $currentPageLabel = "Soutenance Manager"; // Ou une autre valeur par défaut appropriée
+    // Si $contentFile est aussi vide, vous pourriez vouloir charger une page 404 par défaut
+    if (empty($contentFile)) {
+        // $contentFile = $partialsBasePath . '404_content.php'; // Exemple
+    }
+}
+                ?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -45,35 +82,35 @@ foreach ($menuItems as $item) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soutenance Manager | <?php echo htmlspecialchars($currentPageLabel); ?></title>
-    <!-- Assurez-vous que ce chemin est correct. Si layout_admin.php est à la racine,
-         et votre CSS est dans public/css/, alors ce devrait être "public/css/output.css" -->
-    <link rel="stylesheet" href="./css/output.css">
+    <!-- Chemin vers output.css: si layout_admin.php est dans ressources/views/admin/
+         et output.css est dans public/css/, le chemin relatif est ../../../public/css/output.css -->
+    <link rel="stylesheet" href="../../../public/css/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0">
-            <div class="flex flex-col w-64 border-r border-gray-200 bg-white  ">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex items-center">
-                        <!-- Lien vers le tableau de bord par défaut -->
                         <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
                     </div>
                 </div>
-                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto ">
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
                     <div class="space-y-2 pb-3">
                         <?php foreach ($menuItems as $item): ?>
                         <?php
-                                $isActive = ($currentPageSlug === $item['slug']);
-                                $linkBaseClasses = "flex items-center px-2 py-3 text-sm font-medium rounded-md group";
-                                $activeClasses = "text-white bg-green-500"; // Classes si actif
-                                $inactiveClasses = "text-gray-700 hover:text-gray-900 hover:bg-gray-100"; // Classes si inactif
-                                $iconBaseClasses = "mr-3";
-                                $iconActiveClasses = "text-white";
-                                $iconInactiveClasses = "text-gray-400 group-hover:text-gray-500";
+                            // Pour l'état actif, on vérifie si le slug du menu principal correspond.
+                            // Si la page actuelle est 'parametres_generaux', elle sera active même si une action est sélectionnée.
+                            $isActive = ($currentMenuSlug === $item['slug']);
+                            $linkBaseClasses = "flex items-center px-2 py-3 text-sm font-medium rounded-md group";
+                            $activeClasses = "text-white bg-green-500";
+                            $inactiveClasses = "text-gray-700 hover:text-gray-900 hover:bg-gray-100";
+                            $iconBaseClasses = "mr-3";
+                            $iconActiveClasses = "text-white";
+                            $iconInactiveClasses = "text-gray-400 group-hover:text-gray-500";
                             ?>
                         <a href="?page=<?php echo htmlspecialchars($item['slug']); ?>"
                             class="<?php echo $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses); ?>">
@@ -82,10 +119,8 @@ foreach ($menuItems as $item) {
                             <?php echo htmlspecialchars($item['label']); ?>
                         </a>
                         <?php endforeach; ?>
-
-                        <!-- Lien de déconnexion (géré séparément) -->
-                        <a href="logout.php" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700
-                            hover:text-gray-900 hover:bg-gray-100 group">
+                        <a href="logout.php"
+                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
                             Déconnexion
                         </a>
@@ -99,10 +134,8 @@ foreach ($menuItems as $item) {
             <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-green-100 shadow-sm">
                 <div class="flex items-center">
                     <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
-                        <!-- Ajout d'un ID et marge -->
                         <i class="fas fa-bars"></i>
                     </button>
-                    <!-- Le titre de la page est maintenant dynamique -->
                     <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
                     </h1>
                 </div>
@@ -110,7 +143,6 @@ foreach ($menuItems as $item) {
                     <div class="relative">
                         <button class="flex items-center space-x-2 focus:outline-none">
                             <span class="text-m font-medium text-green-500">Bienvenue, Administrateur</span>
-                            <!-- Peut-être une icône de profil ici -->
                         </button>
                     </div>
                 </div>
@@ -118,17 +150,32 @@ foreach ($menuItems as $item) {
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
-                <!-- Ajout de padding et overflow -->
                 <?php
-                if (file_exists($contentFile)) {
+                // Bouton Retour si on est dans une action spécifique des paramètres généraux
+                if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
+                ?>
+                <div class="mb-6">
+                    <a href="?page=parametres_generaux"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Retour aux Paramètres
+                    </a>
+                </div>
+                <?php endif; ?>
+
+                <?php
+                if (!empty($contentFile) && file_exists($contentFile)) {
                     include $contentFile;
                 } else {
                     echo "<div class='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative' role='alert'>";
                     echo "<strong class='font-bold'>Erreur de contenu !</strong>";
-                    echo "<span class='block sm:inline'> Le fichier de contenu pour la page '" . htmlspecialchars($currentPageSlug) . "' n'a pas été trouvé.</span>";
-                    echo "<p class='text-sm'>Chemin vérifié : " . htmlspecialchars($contentFile) . "</p>";
+                    if (empty($contentFile)) {
+                        echo "<span class='block sm:inline'> Aucun fichier de contenu n'a été spécifié pour cette vue.</span>";
+                    } else {
+                        echo "<span class='block sm:inline'> Le fichier de contenu pour '" . htmlspecialchars($currentPageLabel) . "' n'a pas été trouvé.</span>";
+                        echo "<p class='text-sm'>Chemin vérifié : " . htmlspecialchars($contentFile) . "</p>";
+                    }
                     echo "</div>";
-                    // Vous pourriez inclure un fichier partials/404_content.php ici
                 }
                 ?>
             </div>

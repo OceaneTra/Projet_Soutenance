@@ -21,7 +21,7 @@ $cardData = [
         'icon' => 'fa-user-tie'
     ],
     [
-        'title' => 'Spécialités d\'Études',
+        'title' => 'Spécialités des enseignants',
         'description' => 'Administrer les spécialités et filières proposées.',
         'link' => '?page=parametres_generaux&action=specialites',
         'icon' => 'fa-microscope'
@@ -50,61 +50,50 @@ $cardData = [
         'link' => '?page=parametres_generaux&action=statuts_jury',
         'icon' => 'fa-gavel'
     ],
-    [
-        'title' => 'Groupes d\'Utilisateurs',
-        'description' => 'Créer et gérer des groupes d\'utilisateurs avec des permissions spécifiques.',
-        'link' => '?page=parametres_generaux&action=groupes_utilisateurs',
-        'icon' => 'fa-users-cog'
-    ],
+
     [
         'title' => 'Niveaux d\'Approbation',
         'description' => 'Définir les circuits et niveaux d\'approbation pour les documents.',
         'link' => '?page=parametres_generaux&action=niveaux_approbation',
         'icon' => 'fa-check-double'
     ],
-    [
-        'title' => 'Modèles de Documents',
-        'description' => 'Gérer les modèles de documents utilisés dans le système.',
-        'link' => '?page=parametres_generaux&action=modeles_documents',
-        'icon' => 'fa-file-alt'
+     [
+        'title' => 'Semestres',
+        'description' => 'Définir les différents semestres et UE associées.',
+        'link' => '?page=parametres_generaux&action=semestres',
+        'icon' => 'fa-graduation-cap'
     ],
-    [
-        'title' => 'Configuration Email',
-        'description' => 'Paramétrer les serveurs SMTP et les notifications par email.',
-        'link' => '?page=parametres_generaux&action=config_email',
-        'icon' => 'fa-envelope'
+     [
+        'title' => 'Niveaux d\'Accès',
+        'description' => 'Définir les différents niveaux d\'accès pour les utilisateurs',
+        'link' => '?page=parametres_generaux&action=niveaux_acces',
+        'icon' => 'fa-check-double',
     ],
-    [
-        'title' => 'Thèmes et Apparence',
-        'description' => 'Personnaliser l\'apparence visuelle de l\'application.',
-        'link' => '?page=parametres_generaux&action=themes',
-        'icon' => 'fa-palette'
+     [
+        'title' => 'Traitements',
+        'description' => 'Définir les traitements à affecter aux différents utilisateurs.',
+        'link' => '?page=parametres_generaux&action=traitements',
+        'icon' => 'fa-solid fa-server'
+    ], [
+        'title' => 'Entreprises',
+        'description' => 'Gérer les entreprises partenaires et leurs informations.',
+        'link' => '?page=parametres_generaux&action=entreprises',
+        'icon' => 'fa-solid fa-briefcase'
     ],
-    [
-        'title' => 'Intégrations Externes',
-        'description' => 'Configurer les connexions avec d\'autres services ou API.',
-        'link' => '?page=parametres_generaux&action=integrations',
-        'icon' => 'fa-plug'
+     [
+        'title' => 'Actions',
+        'description' => 'Définir les actions possibles pour les utilisateurs dans le système.',
+        'link' => '?page=parametres_generaux&action=actions',
+        'icon' => 'fa-solid fa-location-crosshairs'
     ],
-    [
-        'title' => 'Sauvegarde des Données',
-        'description' => 'Planifier et exécuter les sauvegardes de la base de données.',
-        'link' => '?page=parametres_generaux&action=sauvegarde',
-        'icon' => 'fa-database'
+     [
+        'title' => 'Fonctions',
+        'description' => 'Définir les fonctions exercées par les enseignants dans le système.',
+        'link' => '?page=parametres_generaux&action=niveaux_approbation',
+        'icon' => 'fa-solid fa-briefcase'
     ],
-    [
-        'title' => 'Piste d\'Audit',
-        'description' => 'Consulter les journaux d\'activités et les modifications du système.',
-        'link' => '?page=parametres_generaux&action=audit_log',
-        'icon' => 'fa-clipboard-list'
-    ],
-    [
-        'title' => 'Informations Système',
-        'description' => 'Voir les informations sur la version et l\'état du serveur.',
-        'link' => '?page=parametres_generaux&action=system_info',
-        'icon' => 'fa-info-circle'
-    ]
-    // Ajoutez autant de cartes que nécessaire pour atteindre 17 ou plus.
+    
+
 ];
 ?>
 
@@ -114,13 +103,13 @@ $cardData = [
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <?php foreach ($cardData as $card): ?>
         <div
-            class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg hover:transform hover:-translate-y-1">
+            class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg hover:transform hover:-translate-y-1">
             <div class="p-6 flex-grow">
                 <a href="<?php echo htmlspecialchars($card['link']); ?>" class="group">
                     <?php if (!empty($card['icon'])): ?>
                     <div
-                        class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4 mx-auto group-hover:bg-green-200 transition-colors">
-                        <i class="fas <?php echo htmlspecialchars($card['icon']); ?> text-2xl text-green-600"></i>
+                        class="flex items-center justify-center w-12 h-12  rounded-full mb-4 mx-auto transition-colors">
+                        <i class="fas <?php echo htmlspecialchars($card['icon']); ?> text-2xl text-green-500"></i>
                     </div>
                     <?php endif; ?>
                     <h5
@@ -135,13 +124,10 @@ $cardData = [
             <div class="p-4 pt-0 text-center border-t border-gray-100 dark:border-gray-700 mt-auto">
                 <!-- mt-auto pour pousser vers le bas -->
                 <a href="<?php echo htmlspecialchars($card['link']); ?>"
-                    class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-center text-white bg-green-500 rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 transition-colors w-full sm:w-auto">
+                    class="inline-flex  items-center justify-center px-4 py-2 text-sm font-medium text-center text-white bg-green-500 rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 transition-colors w-full sm:w-auto">
                     Accéder
-                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M1 5h12m0 0L9 1m4 4L9 9" />
-                    </svg>
+                    <i class=" px-2 fa fa-chevron-right"></i>
+
                 </a>
             </div>
         </div>
