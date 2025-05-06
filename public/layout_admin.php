@@ -26,7 +26,7 @@ if (isset($_GET['page']) && in_array($_GET['page'], $allowedPages)) {
 // Construire le chemin vers le fichier de contenu
 // Assurez-vous que vos fichiers de contenu sont dans un dossier 'partials' à côté de layout_admin.php
 // et nommés comme 'dashboard_content.php', 'gestion_etudiants_content.php', etc.
-$contentFile = __DIR__ . '/ressources/views/' . $currentPageSlug . '_content.php';
+$contentFile = '../ressources'.DIRECTORY_SEPARATOR .'views'.DIRECTORY_SEPARATOR . $currentPageSlug . '_content.php';
 
 // Trouver le label de la page actuelle pour le titre
 $currentPageLabel = 'Tableau de Bord'; // Label par défaut
@@ -47,7 +47,7 @@ foreach ($menuItems as $item) {
     <title>Soutenance Manager | <?php echo htmlspecialchars($currentPageLabel); ?></title>
     <!-- Assurez-vous que ce chemin est correct. Si layout_admin.php est à la racine,
          et votre CSS est dans public/css/, alors ce devrait être "public/css/output.css" -->
-    <link rel="stylesheet" href="public/css/output.css">
+    <link rel="stylesheet" href="./css/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
@@ -84,8 +84,7 @@ foreach ($menuItems as $item) {
                         <?php endforeach; ?>
 
                         <!-- Lien de déconnexion (géré séparément) -->
-                        <a href="logout.php" <!-- Mettez ici le vrai lien/script de déconnexion -->
-                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700
+                        <a href="logout.php" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700
                             hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
                             Déconnexion
