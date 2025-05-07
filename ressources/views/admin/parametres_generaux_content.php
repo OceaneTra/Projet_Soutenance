@@ -124,7 +124,7 @@ $cardData = [
             <div class="p-4 pt-0 text-center border-t border-gray-100 dark:border-gray-700 mt-auto">
                 <!-- mt-auto pour pousser vers le bas -->
                 <a href="<?php echo htmlspecialchars($card['link']); ?>"
-                    class="inline-flex  items-center justify-center px-4 py-2 text-sm font-medium text-center text-white bg-green-500 rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 transition-colors w-full sm:w-auto">
+                    class="inline-flex  items-center justify-center px-4 py-2 text-sm font-medium text-center text-white bg-green-300 rounded-md hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 transition-colors w-full sm:w-auto">
                     Accéder
                     <i class=" px-2 fa fa-chevron-right"></i>
 
