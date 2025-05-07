@@ -1,7 +1,9 @@
 <?php
-// Définir les éléments du menu
-// Chaque élément a un 'slug' (utilisé dans l'URL et pour le nom de fichier),
-// un 'label' (ce qui est affiché) et optionnellement une 'icon' (classe Font Awesome par exemple)
+
+session_start();
+
+
+// Définir les éléments du menu principal
 $menuItems = [
     ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-home'],
     ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
