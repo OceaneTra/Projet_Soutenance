@@ -1,203 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management Interface</title>
-
+    <title>Gestion des fonctions </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Le CSS Tailwind est supposé être chargé par le layout principal -->
 </head>
 
 <body class="bg-gray-100">
-    <div class="max-w-6xl mx-auto p-6">
-        <!-- Header -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-4 flex justify-between items-center">
-            <div class="flex space-x-4">
-                <button class="px-3 py-1 bg-blue-50 text-blue-600 font-medium rounded-md">Products</button>
-                <button class="px-3 py-1 text-gray-500 font-medium rounded-md">Categories</button>
-                <button class="px-3 py-1 text-gray-500 font-medium rounded-md">Collections</button>
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow container mx-auto px-4 py-5">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-700">Gestion des fonctions</h2>
             </div>
-            <button class="flex items-center justify-center bg-blue-600 text-white rounded-md px-4 py-2">
-                <span class="mr-1">+</span> New product
-            </button>
-        </div>
 
-        <!-- Filters Bar -->
-        <div class="flex justify-between mb-4 items-center">
-            <div class="flex items-center space-x-2">
-                <div class="flex items-center bg-white rounded-md border border-gray-300 px-3 py-2">
-                    <span class="text-gray-600 text-sm">Channel name</span>
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-                <div class="flex items-center bg-white rounded-md border border-gray-300 px-3 py-2">
-                    <span class="text-gray-600 text-sm">En</span>
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
+            <!-- Formulaire d'Ajout ou de Modification -->
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
+                    Ajouter une nouvelle fonction
+                </h3>
+                <form method="POST" action="?page=parametres_generaux&action=fonctions">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé de la
+                                fonction</label>
+                            <input type="text" id="fonctions" name="fonctions" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
+                        </div>
+
+                    </div>
+                    <div class="flex justify-start space-x-3">
+                        <button type="submit" name="btn_add_fonction"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 focus:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Ajouter la fonction
+                        </button>
+
+                    </div>
+                </form>
             </div>
-        </div>
 
-        <!-- Action Bar -->
-        <div class="flex justify-between mb-4 items-center">
-            <div class="flex items-center space-x-2">
-                <div class="flex items-center bg-white rounded-md border border-gray-300 px-3 py-2">
-                    <span class="text-gray-600 text-sm">Choose action</span>
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-                <div class="flex items-center text-gray-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </div>
+            <!-- Section Tableau et Actions (si on n'est pas en mode édition) -->
+
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des fonctions</h3>
+                <form method="POST" action="?page=parametres_generaux&action=fonctions" id="formListeFonctions">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Table avec largeur fixe -->
+                        <div style="width: 80%;"
+                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            <div class="overflow-x-auto w-full">
+                                <table class="w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                                <input type="checkbox" id="selectAllCheckbox"
+                                                    class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </th>
+                                            <th scope="col"
+                                                class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ID
+                                            </th>
+                                            <th scope="col"
+                                                class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Libellé de la fonction
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                <input type="checkbox" name="selected_ids[]" value=""
+                                                    class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Boutons avec largeur fixe -->
+                        <div style="width: 10%;" class="flex flex-col gap-4">
+                            <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
+                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Modifier
+                            </button>
+                            <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="flex items-center space-x-2">
-                <div class="relative">
-                    <input type="text" placeholder="Find products"
-                        class="bg-white rounded-md border border-gray-300 px-3 py-2 text-sm w-48">
-                </div>
-                <div class="flex items-center bg-white rounded-md border border-gray-300 px-3 py-2">
-                    <span class="text-gray-600 text-sm">Filter</span>
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-                <button class="bg-white rounded-md border border-gray-300 p-2">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Table -->
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table class="w-full table-fixed">
-                <thead>
-                    <tr class="bg-gray-50 text-left text-gray-500 text-sm">
-                        <th class="w-12 p-4">
-                            <input type="checkbox" class="rounded text-blue-500">
-                        </th>
-                        <th class="w-24 p-4 font-medium">Code</th>
-                        <th class="w-1/4 p-4 font-medium">Name</th>
-                        <th class="w-1/4 p-4 font-medium">Model</th>
-                        <th class="w-1/6 p-4 font-medium">Created at</th>
-                        <th class="w-1/6 p-4 font-medium">Modified at</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">827842</td>
-                        <td class="p-4 text-blue-500">This is a product</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">4.9.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">11.9.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">287364</td>
-                        <td class="p-4 text-blue-500">This is product as well</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">3.10.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">12.10.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">827842</td>
-                        <td class="p-4 text-blue-500">Product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">4.9.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">11.9.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">283761</td>
-                        <td class="p-4 text-blue-500">Another product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">3.10.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">12.10.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">827842</td>
-                        <td class="p-4 text-blue-500">Product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">4.9.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">11.9.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">283761</td>
-                        <td class="p-4 text-blue-500">Another product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">3.10.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">12.10.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">827842</td>
-                        <td class="p-4 text-blue-500">Product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">4.9.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">11.9.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">283761</td>
-                        <td class="p-4 text-blue-500">Another product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">3.10.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">12.10.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">827842</td>
-                        <td class="p-4 text-blue-500">Product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">4.9.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">11.9.2018</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><input type="checkbox" class="rounded text-blue-500"></td>
-                        <td class="p-4 text-gray-500 text-sm">283761</td>
-                        <td class="p-4 text-blue-500">Another product name</td>
-                        <td class="p-4 text-gray-500">Model name</td>
-                        <td class="p-4 text-gray-500 text-sm">3.10.2018</td>
-                        <td class="p-4 text-gray-500 text-sm">12.10.2018</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="flex justify-center mt-4 gap-2">
-            <button class="p-2 rounded border border-gray-300 bg-white">
-                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-            </button>
-            <button class="px-4 py-2 rounded border bg-blue-500 text-white">1</button>
-            <button class="p-2 rounded border border-gray-300 bg-white">
-                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-            </button>
-        </div>
+        </main>
     </div>
+
 </body>
 
 </html>

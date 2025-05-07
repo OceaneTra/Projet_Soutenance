@@ -47,7 +47,7 @@ $cardData = [
     [
         'title' => 'Statuts du Jury',
         'description' => 'Configurer les différents statuts possibles pour les membres du jury.',
-        'link' => '?page=parametres_generaux&action=statuts_jury',
+        'link' => '?page=parametres_generaux&action=statut_jury',
         'icon' => 'fa-gavel'
     ],
 

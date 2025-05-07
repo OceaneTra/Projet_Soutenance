@@ -34,7 +34,7 @@ if ($currentMenuSlug === 'parametres_generaux') {
     if (isset($_GET['action'])) {
         $allowedActions = [
         'annees_academiques', 'grades', 'fonctions','fonctions_users', 'specialites', 'niveaux_etude',
-        'ue', 'ecue', 'statuts_jury', 'niveaux_approbation', 'semestres',
+        'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
             'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants'
     ];
     if (in_array($_GET['action'], $allowedActions)) {

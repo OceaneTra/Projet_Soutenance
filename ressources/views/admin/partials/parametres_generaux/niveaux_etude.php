@@ -45,7 +45,7 @@
             <!-- Section Tableau et Actions (si on n'est pas en mode édition) -->
 
             <div class="mt-8">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des semestres</h3>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des niveaux d'études</h3>
                 <form method="POST" action="?page=parametres_generaux&action=semestres" id="formListeSemestres">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
@@ -64,7 +64,7 @@
                                             </th>
                                             <th scope="col"
                                                 class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Libellé du semestre
+                                                Libellé du niveau d'étude
                                             </th>
                                         </tr>
                                     </thead>
