@@ -1333,6 +1333,31 @@ video {
 .bg-blue-500 {
   background-color: #3b82f6;
 }
+
+/* Styles pour les onglets actifs/inactifs */
+.tab-button.active {
+  border-color: #34D399;
+  /* Vert émeraude (Tailwind's green-400) */
+  color: #059669;
+  /* Vert émeraude plus foncé (Tailwind's green-600) */
+  background-color: #D1FAE5;
+  /* Vert émeraude très clair (Tailwind's green-100) */
+}
+
+.tab-button:not(.active):hover {
+  border-color: #9CA3AF;
+  /* Gris (Tailwind's gray-400) */
+  background-color: #F3F4F6;
+  /* Gris très clair (Tailwind's gray-100) */
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
 /* Utilitaire pour masquer la scrollbar */
 
 .scrollbar-hidden::-webkit-scrollbar {
