@@ -1,86 +1,111 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Grades - ValidMaster</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Gestion des grades</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Le CSS Tailwind est supposé être chargé par le layout principal -->
 </head>
+
 <body class="bg-gray-100">
-<div class="min-h-screen flex flex-col">
-    <header class="bg-blue-600 text-white shadow">
-        <div class="container mx-auto px-4 py-4">
-            <h1 class="text-2xl font-bold">ValidMaster - Administration</h1>
-        </div>
-    </header>
-
-    <main class="flex-grow container mx-auto px-4 py-8">
-        <div class="mb-6 flex justify-between items-center">
-            <h2 class="text-2xl font-bold">Gestion des Grades</h2>
-            <a href="?route=admin/dashboard" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">Retour</a>
-        </div>
-
-        <?php if (!empty($message)): ?>
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
-                <p><?= $message ?></p>
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow container mx-auto px-4 py-5">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-700">Gestion des grades</h2>
             </div>
-        <?php endif; ?>
 
-        <?php if (!empty($error)): ?>
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-                <p><?= $error ?></p>
+            <!-- Formulaire d'Ajout ou de Modification -->
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
+                    Ajouter un nouveau grade
+                </h3>
+                <form method="POST" action="?page=parametres_generaux&action=grades">
+
+                    <input type="hidden" name="id_grade_edit">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du
+                                grade</label>
+                            <input type="text" id="" name="" required value=""
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
+                        </div>
+
+                    </div>
+                    <div class="flex justify-start space-x-3">
+                        <button type="submit" name=""
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 focus:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Ajouter le grade
+                        </button>
+
+                    </div>
+                </form>
             </div>
-        <?php endif; ?>
 
-        <!-- Formulaire d'ajout -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">Ajouter un nouveau grade</h3>
-            <form method="POST" action="?route=admin/parametres/grade">
-                <div class="mb-4">
-                    <label for="lib_grade" class="block text-sm font-medium text-gray-700 mb-1">Grade</label>
-                    <input type="text" id="lib_grade" name="lib_grade" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Ajouter
-                </button>
-            </form>
-        </div>
+            <!-- Section Tableau et Actions (si on n'est pas en mode édition) -->
 
-        <!-- Tableau des grades -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($grades as $grade): ?>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <?= htmlspecialchars($grade['id_grade']) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <?= htmlspecialchars($grade['lib_grade']) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-red-600 hover:text-red-900">Supprimer</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </main>
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des grades</h3>
+                <form method="POST" action="?page=parametres_generaux&action=grades" id="formListeGrades">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Table avec largeur fixe -->
+                        <div style="width: 80%;" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            <div class="overflow-x-auto w-full">
+                                <table class="w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                                <input type="checkbox" id="selectAllCheckbox"
+                                                    class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </th>
+                                            <th scope="col"
+                                                class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ID
+                                            </th>
+                                            <th scope="col"
+                                                class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Libellé du grade
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                <input type="checkbox" name="selected_ids[]" value=""
+                                                    class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
 
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; <?= date('Y') ?> ValidMaster - Système de gestion de la commission de validation</p>
-        </div>
-    </footer>
-</div>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Boutons avec largeur fixe -->
+                        <div style="width: 10%;" class="flex flex-col gap-4">
+                            <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
+                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Modifier
+                            </button>
+                            <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
 </body>
+
 </html>

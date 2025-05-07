@@ -17,7 +17,7 @@ $cardData = [
     [
         'title' => 'Fonctions Utilisateurs',
         'description' => 'Configurer les rôles et fonctions des utilisateurs du système.',
-        'link' => '?page=parametres_generaux&action=fonctions',
+        'link' => '?page=parametres_generaux&action=fonction_users',
         'icon' => 'fa-user-tie'
     ],
     [
@@ -89,7 +89,7 @@ $cardData = [
      [
         'title' => 'Fonctions',
         'description' => 'Définir les fonctions exercées par les enseignants dans le système.',
-        'link' => '?page=parametres_generaux&action=niveaux_approbation',
+        'link' => '?page=parametres_generaux&action=fonctions',
         'icon' => 'fa-solid fa-briefcase'
     ],
     
