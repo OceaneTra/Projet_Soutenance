@@ -23,21 +23,20 @@
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=annees_academiques">
 
-                    <input type="hidden" name="id_annee_acad_edit">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Date de début</label>
-                            <input type="date" id="" name="" required value=""
+                            <input type="date" id="date_debut" name="date_debut" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
                         </div>
                         <div>
                             <label for="" class="block text-sm font-medium text-gray-600 mb-1">Date de fin</label>
-                            <input type="date" id="" name="" required value=""
+                            <input type="date" id="date_fin" name="date_fin" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
                         </div>
                     </div>
                     <div class="flex justify-start space-x-3">
-                        <button type="submit" name=""
+                        <button type="submit" name="btn_add_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white <?= $annee_a_modifier ? 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-500' : 'bg-green-500 hover:bg-green-600 focus:ring-green-500' ?> focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas <?= $annee_a_modifier ? 'fa-save' : 'fa-plus' ?> mr-2"></i>
                             Ajouter l'année académique

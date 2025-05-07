@@ -29,7 +29,7 @@
                             <label for="annee_academique" class="block text-sm font-medium text-gray-600 mb-1">
                                 Année académique
                             </label>
-                            <select id="semestre" name="semestre" required
+                            <select id="annee_academique" name="annee_academiques" required
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
                                 <option value="">Sélectionnez une année</option>
                                 <option value="S1">2020-2021</option>
@@ -54,7 +54,7 @@
                             <label for="credits" class="block text-sm font-medium text-gray-600 mb-1">
                                 Nombre de crédits
                             </label>
-                            <input type="number" id="credits" name="credits" required min="1" max="30"
+                            <input type="number" id="credits" name="credits" required min="1" max="9"
                                 placeholder="Ex: 6"
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
                         </div>

@@ -33,7 +33,7 @@ $partialsBasePath ='..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARAT
 if ($currentMenuSlug === 'parametres_generaux') {
     if (isset($_GET['action'])) {
         $allowedActions = [
-        'annees_academiques', 'grades', 'fonctions', 'specialites', 'niveaux_etude',
+        'annees_academiques', 'grades', 'fonctions','fonctions_users', 'specialites', 'niveaux_etude',
         'ue', 'ecue', 'statuts_jury', 'niveaux_approbation', 'semestres',
             'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants'
     ];

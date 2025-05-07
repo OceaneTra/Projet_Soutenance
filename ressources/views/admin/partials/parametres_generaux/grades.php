@@ -23,18 +23,17 @@
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=grades">
 
-                    <input type="hidden" name="id_grade_edit">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du
                                 grade</label>
-                            <input type="text" id="" name="" required value=""
+                            <input type="text" id="grades" name="grades" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
                         </div>
 
                     </div>
                     <div class="flex justify-start space-x-3">
-                        <button type="submit" name=""
+                        <button type="submit" name="btn_add_grades"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 focus:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-plus mr-2"></i>
                             Ajouter le grade
