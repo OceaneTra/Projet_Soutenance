@@ -1329,6 +1329,10 @@ video {
 .bg-green-300 {
   background-color: #2ab582;
 }
+
+.bg-blue-500 {
+  background-color: #3b82f6;
+}
 /* Utilitaire pour masquer la scrollbar */
 
 .scrollbar-hidden::-webkit-scrollbar {
