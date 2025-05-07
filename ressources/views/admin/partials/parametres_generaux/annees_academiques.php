@@ -54,7 +54,8 @@
                 <form method="POST" action="?page=parametres_generaux&action=annees_academiques" id="formListeAnnees">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
-                        <div style="width: 80%;" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                        <div style="width: 80%;"
+                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
