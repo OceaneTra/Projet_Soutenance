@@ -97,18 +97,18 @@ if (empty($currentPageLabel)) {
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">
-<div class="flex h-screen overflow-hidden">
-    <!-- Sidebar -->
-    <div class="hidden md:flex md:flex-shrink-0">
-        <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
-            <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
-                <div class="flex items-center">
-                    <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
+                <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
+                    <div class="flex items-center">
+                        <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
+                    </div>
                 </div>
-            </div>
-            <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
-                <div class="space-y-2 pb-3">
-                    <?php foreach ($menuItems as $item): ?>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="space-y-2 pb-3">
+                        <?php foreach ($menuItems as $item): ?>
                         <?php
                         // Pour l'état actif, on vérifie si le slug du menu principal correspond.
                         // Si la page actuelle est 'parametres_generaux', elle sera active même si une action est sélectionnée.
@@ -121,57 +121,57 @@ if (empty($currentPageLabel)) {
                         $iconInactiveClasses = "text-gray-400 group-hover:text-gray-500";
                         ?>
                         <a href="?page=<?php echo htmlspecialchars($item['slug']); ?>"
-                           class="<?php echo $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses); ?>">
+                            class="<?php echo $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses); ?>">
                             <i
-                                    class="fas <?php echo htmlspecialchars($item['icon']); ?> <?php echo $iconBaseClasses . ' ' . ($isActive ? $iconActiveClasses : $iconInactiveClasses); ?>"></i>
+                                class="fas <?php echo htmlspecialchars($item['icon']); ?> <?php echo $iconBaseClasses . ' ' . ($isActive ? $iconActiveClasses : $iconInactiveClasses); ?>"></i>
                             <?php echo htmlspecialchars($item['label']); ?>
                         </a>
-                    <?php endforeach; ?>
-                    <a href="logout.php"
-                       class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
-                        <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                        Déconnexion
-                    </a>
+                        <?php endforeach; ?>
+                        <a href="logout.php"
+                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                            <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                            Déconnexion
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Main content -->
-    <div class="flex flex-col flex-1 overflow-hidden">
-        <!-- Top navigation -->
-        <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-green-100 shadow-sm">
-            <div class="flex items-center">
-                <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
-                </h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <button class="flex items-center space-x-2 focus:outline-none">
-                        <span class="text-m font-medium text-green-500">Bienvenue, Administrateur</span>
+        <!-- Main content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top navigation -->
+            <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-green-100 shadow-sm">
+                <div class="flex items-center">
+                    <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
+                        <i class="fas fa-bars"></i>
                     </button>
+                    <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 focus:outline-none">
+                            <span class="text-m font-medium text-green-500">Bienvenue, Administrateur</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Main content area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
-            <?php
+            <!-- Main content area -->
+            <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+                <?php
             // Bouton Retour si on est dans une action spécifique des paramètres généraux
             if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
                 ?>
                 <div class="mb-6">
                     <a href="?page=parametres_generaux"
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500  focus:ring-4 focus:outline-none focus:ring-gray-300 transition-colors">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500  focus:ring-4 focus:outline-none focus:ring-gray-300 transition-colors">
                         <i class="fas fa-arrow-left mr-2 "></i>
                         Retour aux Paramètres
                     </a>
                 </div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <?php
+                <?php
             if (!empty($contentFile) && file_exists($contentFile)) {
                 include $contentFile;
             } else {
@@ -186,18 +186,18 @@ if (empty($currentPageLabel)) {
                 echo "</div>";
             }
             ?>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
         const mobileMenuButton = document.getElementById('mobileMenuButton'); // Utilisation de l'ID
         const sidebar = document.querySelector(
             '.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64'); // Sélecteur plus précis
 
         if (mobileMenuButton && sidebar) {
-            mobileMenuButton.addEventListener('click', function () {
+            mobileMenuButton.addEventListener('click', function() {
                 sidebar.classList.toggle('hidden'); // Bascule la classe hidden sur la sidebar elle-même
                 // Si vous voulez que la sidebar se superpose sur mobile au lieu de pousser le contenu :
                 // sidebar.classList.toggle('absolute');
@@ -208,14 +208,14 @@ if (empty($currentPageLabel)) {
         // Le reste de votre JS pour les cartes et la cloche de notification peut rester ici
         const documentCards = document.querySelectorAll('.document-card');
         documentCards.forEach(card => {
-            card.addEventListener('mouseenter', function () {
+            card.addEventListener('mouseenter', function() {
                 this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
             });
         });
 
         const notificationBell = document.querySelector('.fa-bell');
         if (notificationBell) {
-            notificationBell.addEventListener('click', function () {
+            notificationBell.addEventListener('click', function() {
                 this.classList.add('animate-pulse');
                 setTimeout(() => {
                     this.classList.remove('animate-pulse');
@@ -223,7 +223,7 @@ if (empty($currentPageLabel)) {
             });
         }
     });
-</script>
+    </script>
 </body>
 
 </html>
