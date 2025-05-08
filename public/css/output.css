@@ -1352,6 +1352,19 @@ video {
 .bg-blue-700 {
   background-color: #1d4ed8;
 }
+.bg-red-300{
+  background-color: #fca5a1;
+}
+.bg-red-500{
+  background-color: #ef4444;
+}
+.bg-red-600{
+  background-color: #dc2626;
+}
+.bg-red-700{
+  background-color: #b91c1c;
+}
+
 .text-blue-500 {
   color: #3b82f6;
 }
@@ -1442,6 +1455,21 @@ video {
   /* Pour Internet Explorer et Edge (anciennes versions) */
   scrollbar-width: none;
   /* Pour Firefox */
+}
+#userModal {
+  backdrop-filter: blur(5px);
+}
+
+#userModal>div:last-child {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  #userModal>div:last-child {
+    width: 95%;
+    margin: 0 auto;
+  }
 }
 
 .hover\:bg-gray-100:hover {

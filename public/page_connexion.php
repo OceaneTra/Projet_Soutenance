@@ -61,8 +61,8 @@ session_start();
 
 
                             <div class="text-sm">
-                                <a href="jajvascript:void(0);"
-                                    class="text-green-500 underline hover:underline font-medium">
+                                <a href="reset_password.php"
+                                    class=" text-green-500 underline hover:underline font-medium">
                                     Mot de passe oublié?
                                 </a>
                             </div>
