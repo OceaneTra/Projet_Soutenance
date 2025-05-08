@@ -168,32 +168,28 @@ $users = [
         </div>
     </form>
 </div>
-<?php // Fin du formulaire sup��rieur non-modal ?>
 
-
-<?php // --- LA SUITE DE VOTRE FICHIER (Table, Modal, JavaScript) COMMENCE ICI --- ?>
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-semibold text-green-500">Liste des utilisateurs</h2>
+        <h2 class="text-xl font-semibold text-green-500 w-3">Liste des utilisateurs</h2>
         <!-- Action Bar for Table -->
+        <div class="relative mb-4 sm:mb-0 sm:w-1/3" style="width: 60%;">
+            <input type="text" id="userSearchInput" placeholder="Rechercher un utilisateur..." style="width:60%"
+                class=" px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <span class="absolute top-0 right-0 mt-2 mr-3 bg-green-500 text-white">
+                <i class="fas fa-search text-white"></i>
+            </span>
+        </div>
         <div class="mb-6 flex flex-col sm:flex-row justify-between items-center">
-            <div class="relative mb-4 sm:mb-0 w-full sm:w-1/3">
-                <input type="text" id="userSearchInput" placeholder="Rechercher un utilisateur..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                <span class="absolute top-0 right-0 mt-2 mr-3">
-                    <i class="fas fa-search text-gray-400"></i>
-                </span>
-            </div>
-            <div>
-                <button onclick="printUserList()"
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out mr-2">
-                    <i class="fas fa-print mr-2"></i>Imprimer la liste
-                </button>
-                <button onclick="exportUserListCSV()"
-                    class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out">
-                    <i class="fas fa-file-export mr-2"></i>Exporter (CSV)
-                </button>
-            </div>
+            <button onclick="printUserList()"
+                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out mr-2">
+                <i class="fas fa-print mr-2"></i>Imprimer la liste
+            </button>
+            <button onclick="exportUserListCSV()"
+                class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out">
+                <i class="fas fa-file-export mr-2"></i>Exporter (CSV)
+            </button>
+
         </div>
     </div>
 
