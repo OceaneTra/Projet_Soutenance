@@ -1,0 +1,344 @@
+<?php
+// Assurez-vous que ces variables sont initialisées si elles viennent du contrôleur
+// Pour les groupes
+$groupes = $groupes ?? [];
+$groupe_a_modifier = $groupe_a_modifier ?? null;
+$message_groupe = $_SESSION['message_groupe'] ?? '';
+$error_groupe = $_SESSION['error_groupe'] ?? '';
+unset($_SESSION['message_groupe'], $_SESSION['error_groupe']);
+
+// Pour les types/fonctions utilisateurs
+$types_utilisateurs = $types_utilisateurs ?? []; // ou $fonctions_utilisateurs
+$type_utilisateur_a_modifier = $type_utilisateur_a_modifier ?? null; // ou $fonction_utilisateur_a_modifier
+$message_type_utilisateur = $_SESSION['message_type_utilisateur'] ?? '';
+$error_type_utilisateur = $_SESSION['error_type_utilisateur'] ?? '';
+unset($_SESSION['message_type_utilisateur'], $_SESSION['error_type_utilisateur']);
+
+// Déterminer l'onglet actif (par défaut 'groupes')
+$activeTab = $_GET['tab'] ?? 'groupes';
+if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'onglet
+    $activeTab = 'groupes';
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des fonctions utilisateurs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Le CSS Tailwind est supposé être chargé par le layout principal -->
+</head>
+
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow container mx-auto px-4 py-5">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-700">Gestion des fonctions utilisateurs</h2>
+            </div>
+
+            <!-- Système d'onglets -->
+            <div class="mb-8">
+                <div class="border-b border-gray-300">
+                    <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                        <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes"
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700
+                                  <?= ($activeTab === 'groupes') ? 'active border-green-500 text-green-600 bg-green-50' : 'border-transparent hover:border-gray-300' ?>">
+                            <i class="fas fa-users-cog mr-2"></i> Groupes d'Utilisateurs
+                        </a>
+                        <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types"
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700
+                                  <?= ($activeTab === 'types') ? 'active border-green-500 text-green-600 bg-green-50' : 'border-transparent hover:border-gray-300' ?>">
+                            <i class="fas fa-user-tag mr-2"></i> Types d'Utilisateurs
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Contenu des onglets -->
+            <div>
+                <!-- Onglet Groupes d'Utilisateurs -->
+                <div id="tab-groupes"
+                    class="flex flex-col  tab-content <?= ($activeTab === 'groupes') ? 'active' : '' ?>">
+                    <?php if (!empty($message_groupe)): ?>
+                    <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm mb-6"
+                        role="alert">
+                        <p><?= htmlspecialchars($message_groupe) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($error_groupe)): ?>
+                    <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md shadow-sm mb-6"
+                        role="alert">
+                        <p><?= htmlspecialchars($error_groupe) ?></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Gestion des Groupes</h3>
+                    <!-- Formulaire d'ajout/modification pour les Groupes -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                        <h4 class="text-lg font-medium text-gray-600 mb-4">
+                            <?= $groupe_a_modifier ? 'Modifier le groupe' : 'Ajouter un nouveau groupe' ?>
+                        </h4>
+                        <form method="POST" action="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes">
+                            <?php if ($groupe_a_modifier): ?>
+                            <input type="hidden" name="id_groupe_edit"
+                                value="<?= htmlspecialchars($groupe_a_modifier->id_groupe) ?>">
+                            <!-- Adaptez le nom de la propriété ID -->
+                            <?php endif; ?>
+                            <div class="mb-4">
+                                <label for="lib_groupe" class="block text-sm font-medium text-gray-600 mb-6">Nom du
+                                    Groupe</label>
+                                <input type="text" name="lib_groupe" id="lib_groupe" required
+                                    value="<?= htmlspecialchars($groupe_a_modifier->lib_groupe ?? '') ?>"
+                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <!-- Ajoutez ici les champs pour les permissions/droits du groupe si nécessaire -->
+                            <div class="flex justify-start">
+                                <button type="submit"
+                                    name="<?= $groupe_a_modifier ? 'submit_edit_groupe' : 'submit_add_groupe' ?>"
+                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
+                                    <i class="fas <?= $groupe_a_modifier ? 'fa-save' : 'fa-plus' ?> mr-2"></i>
+                                    <?= $groupe_a_modifier ? 'Enregistrer' : 'Ajouter Groupe' ?>
+                                </button>
+                                <?php if ($groupe_a_modifier): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes"
+                                    class="ml-3 inline-flex items-center px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                                    Annuler
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tableau des Groupes -->
+                    <div class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            ID Groupe</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nom du Groupe</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php if (empty($groupes)): ?>
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-12 text-center text-gray-500">Aucun groupe
+                                            trouvé.</td>
+                                    </tr>
+                                    <?php else: ?>
+                                    <?php foreach ($groupes as $groupe): ?>
+                                    <tr>
+                                        <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                        </th>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($groupe->id_groupe) ?></td> <!-- Adaptez -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            <?= htmlspecialchars($groupe->lib_groupe) ?></td> <!-- Adaptez -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&sub_action=edit_groupe&id_groupe=<?= htmlspecialchars($groupe->id_groupe) ?>"
+                                                class="text-blue-600 hover:text-blue-900 mr-3"><i
+                                                    class="fas fa-edit"></i></a>
+                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&sub_action=delete_groupe&id_groupe=<?= htmlspecialchars($groupe->id_groupe) ?>"
+                                                class="text-red-600 hover:text-red-900"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');"><i
+                                                    class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Boutons avec largeur fixe -->
+                    <div style="width: 10%;" class="flex flex-col gap-4">
+                        <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i class="fas fa-edit mr-2"></i>Modifier
+                        </button>
+                        <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                            <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Onglet Types d'Utilisateurs -->
+                <div id="tab-types" class="tab-content <?= ($activeTab === 'types') ? 'active' : '' ?>">
+                    <?php if (!empty($message_type_utilisateur)): ?>
+                    <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm mb-6"
+                        role="alert">
+                        <p><?= htmlspecialchars($message_type_utilisateur) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($error_type_utilisateur)): ?>
+                    <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md shadow-sm mb-6"
+                        role="alert">
+                        <p><?= htmlspecialchars($error_type_utilisateur) ?></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Gestion des Types d'Utilisateurs</h3>
+                    <!-- Formulaire d'ajout/modification pour les Types d'Utilisateurs -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                        <h4 class="text-lg font-medium text-gray-600 mb-4">
+                            <?= $type_utilisateur_a_modifier ? 'Modifier le type d\'utilisateur' : 'Ajouter un nouveau type d\'utilisateur' ?>
+                        </h4>
+                        <form method="POST" action="?page=parametres_generaux&action=fonction_utilisateur&tab=types">
+                            <?php if ($type_utilisateur_a_modifier): ?>
+                            <input type="hidden" name="id_type_utilisateur_edit"
+                                value="<?= htmlspecialchars($type_utilisateur_a_modifier->id_type_utilisateur) ?>">
+                            <!-- Adaptez -->
+                            <?php endif; ?>
+                            <div class="mb-4">
+                                <label for="lib_type_utilisateur"
+                                    class="block text-sm font-medium text-gray-600 mb-1">Nom du Type
+                                    d'Utilisateur</label>
+                                <input type="text" name="lib_type_utilisateur" id="lib_type_utilisateur" required
+                                    value="<?= htmlspecialchars($type_utilisateur_a_modifier->lib_type_utilisateur ?? '') ?>"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div class="flex justify-start">
+                                <button type="submit"
+                                    name="<?= $type_utilisateur_a_modifier ? 'submit_edit_type_utilisateur' : 'submit_add_type_utilisateur' ?>"
+                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
+                                    <i class="fas <?= $type_utilisateur_a_modifier ? 'fa-save' : 'fa-plus' ?> mr-2"></i>
+                                    <?= $type_utilisateur_a_modifier ? 'Enregistrer' : 'Ajouter Type' ?>
+                                </button>
+                                <?php if ($type_utilisateur_a_modifier): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types"
+                                    class="ml-3 inline-flex items-center px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                                    Annuler
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tableau des Types d'Utilisateurs -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            ID Type</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nom du Type</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php if (empty($types_utilisateurs)): ?>
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-12 text-center text-gray-500">Aucun type
+                                            d'utilisateur trouvé.</td>
+                                    </tr>
+                                    <?php else: ?>
+                                    <?php foreach ($types_utilisateurs as $type_utilisateur): ?>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?></td>
+                                        <!-- Adaptez -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            <?= htmlspecialchars($type_utilisateur->lib_type_utilisateur) ?></td>
+                                        <!-- Adaptez -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&sub_action=edit_type_utilisateur&id_type_utilisateur=<?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?>"
+                                                class="text-blue-600 hover:text-blue-900 mr-3"><i
+                                                    class="fas fa-edit"></i></a>
+                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&sub_action=delete_type_utilisateur&id_type_utilisateur=<?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?>"
+                                                class="text-red-600 hover:text-red-900"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type d\'utilisateur ?');"><i
+                                                    class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    // Script simple pour gérer l'affichage des onglets si vous ne voulez pas de rechargement de page complet
+    // Mais la solution actuelle avec les paramètres GET pour 'tab' est plus simple côté PHP.
+    // Si vous voulez un switch d'onglet purement JS sans recharger la page :
+    /*
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab-button-js'); // Ajoutez cette classe à vos liens d'onglet
+        const tabContents = document.querySelectorAll('.tab-content-js'); // Ajoutez cette classe à vos divs de contenu d'onglet
+
+        // Fonction pour afficher l'onglet actif et masquer les autres
+        function showTab(tabId) {
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+            tabButtons.forEach(button => {
+                if (button.getAttribute('data-tab') === tabId) {
+                    button.classList.add('active', 'border-green-500', 'text-green-600', 'bg-green-50'); // Adaptez les classes actives
+                    button.classList.remove('border-transparent', 'hover:border-gray-300');
+                } else {
+                    button.classList.remove('active', 'border-green-500', 'text-green-600', 'bg-green-50');
+                    button.classList.add('border-transparent', 'hover:border-gray-300');
+                }
+            });
+        }
+
+        // Gérer le clic sur les boutons d'onglet
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Empêche le comportement de lien par défaut
+                const tabId = this.getAttribute('data-tab'); // Ex: 'tab-groupes'
+                showTab(tabId);
+                // Optionnel: Mettre à jour l'URL avec le fragment pour le bookmarking/partage
+                // window.location.hash = tabId.replace('tab-', '');
+            });
+        });
+
+        // Afficher l'onglet initial basé sur l'URL hash ou le premier par défaut
+        let initialTabId = window.location.hash.substring(1);
+        if (initialTabId) {
+            showTab('tab-' + initialTabId);
+        } else {
+            // Afficher le premier onglet par défaut si aucun hash n'est présent
+            // Ou l'onglet actif déterminé par PHP si vous mélangez les approches
+            const activePhpTab = document.querySelector('.tab-content.active');
+            if (activePhpTab) {
+                 showTab(activePhpTab.id);
+            } else if (tabButtons.length > 0) {
+                showTab(tabButtons[0].getAttribute('data-tab'));
+            }
+        }
+    });
+    */
+    </script>
+</body>
+
+</html>

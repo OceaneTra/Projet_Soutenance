@@ -1,0 +1,75 @@
+/*fichier d'entrée pour Tailwind CSS */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Vos styles personnalisés ici */
+.academic-gradient {
+    background: linear-gradient(135deg, #44cc7f 0%, #3c9e5f 100%);
+}
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.nav-link {
+    position: relative;
+}
+.nav-link:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #3c9e5f;
+    transition: width 0.3s ease;
+}
+.nav-link:hover:after {
+    width: 100%;
+}
+.floating {
+    animation: floating 6s ease-in-out infinite;
+}
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+.dashboard-preview {
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.gradient-bg {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+.sidebar-item:hover .sidebar-icon {
+    transform: translateX(5px);
+}
+
+.text-green-500 {
+    color: #3c9e5f;
+}
+.text-green-100 {
+    color: #E7EEEA;
+}
+
+.bg-green-100{
+    background-color: #E7EEEA;
+}
+.bg-green-500{
+    background-color: #3c9e5f;
+}
+
+.bg-red-100{
+    background-color: #FEE2E2;
+}
+.bg-red-500{
+    background-color: #EF4444;
+}
+.bg-orange-100{
+    background-color: #FFEDD5;
+}
+.bg-orange-500{
+    background-color: #F97316;
+}

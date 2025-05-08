@@ -1,6 +1,6 @@
 <?php
 
-class niveau
+class NiveauEtude
 {
 
 }
