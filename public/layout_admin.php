@@ -122,7 +122,7 @@ if (empty($currentPageLabel)) {
                             <?php echo htmlspecialchars($item['label']); ?>
                         </a>
                         <?php endforeach; ?>
-                        <a href="logout.php"
+                        <a href=""
                             class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
                             Déconnexion
