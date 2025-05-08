@@ -1458,10 +1458,11 @@ video {
 }
 #userModal {
   backdrop-filter: blur(5px);
+  margin-right: 50%;
 }
 
 #userModal>div:last-child {
-  max-height: 90vh;
+  max-height: 100vh;
   overflow-y: auto;
 }
 

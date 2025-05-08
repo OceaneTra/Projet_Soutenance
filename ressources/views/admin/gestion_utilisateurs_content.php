@@ -9,6 +9,9 @@ $users = [
 // Placeholder for roles/groups
 $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 ?>
+
+
+
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-semibold text-gray-800"></h1>
@@ -17,6 +20,102 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                 class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
                 <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
             </button>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center ">
+        <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId" name="userId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Nom
+                            d'utilisateur</label>
+                        <input type="text" name="username" id="username" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Email</label>
+                        <input type="email" name="email" id="email" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <label for="type_utilisateur" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Type
+                            utilisateur</label>
+                        <input type="type_utilisateur" name="type_utilisateur" id="type_utilisateur"
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+
+                    </div>
+                    <div>
+                        <label for="fonction" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Fonction</label>
+                        <select name="fonction" id="fonction" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="gu" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Groupe
+                            utilisateur</label>
+                        <select name="gu" id="gu" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="niveau_acces" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Niveau
+                            d'accès</label>
+                        <select name="niveau_acces" id="niveau_acces" required
+                            class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="hidden">
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Statut</label>
+                        <select name="status" id="status" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <option value="Actif">Actif</option>
+                            <option value="Inactif">Inactif</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-4 self-end">
+                        <button type="button" onclick="closeUserModal()"
+                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
+                            <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
         </div>
     </div>
 
@@ -129,78 +228,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
     </div>
 </div>
 
-<!-- Add/Edit User Modal -->
-<div id="userModal"
-    class="absolute inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex hidden items-center justify-center  z-100">
-    <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
-        <div class="flex justify-between items-center mb-6">
-            <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
-            <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
-        </div>
-        <form id="userForm">
-            <input type="hidden" id="userId" name="userId">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
-                    <input type="text" name="username" id="username" required
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" name="email" id="email" required
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-                    <input type="password" name="password" id="password"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    <small id="passwordHelp" class="text-xs text-gray-500">Laissez vide si vous ne souhaitez pas le
-                        modifier.</small>
-                </div>
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirmer le
-                        mot de passe</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
-                    <select name="role" id="role" required
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
-                        <?php foreach($roles as $role): ?>
-                        <option value="<?php echo htmlspecialchars($role); ?>"><?php echo htmlspecialchars($role); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                    <select name="status" id="status" required
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
-                        <option value="Actif">Actif</option>
-                        <option value="Inactif">Inactif</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-4">
-                <button type="button" onclick="closeUserModal()"
-                    class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">
-                    Annuler
-                </button>
-                <button type="submit"
-                    class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 <script>
 const userModal = document.getElementById('userModal');
@@ -209,10 +237,10 @@ const userModalTitle = document.getElementById('userModalTitle');
 const userIdField = document.getElementById('userId');
 const usernameField = document.getElementById('username');
 const emailField = document.getElementById('email');
-const passwordField = document.getElementById('password');
-const passwordHelp = document.getElementById('passwordHelp');
-const passwordConfirmationField = document.getElementById('password_confirmation');
-const roleField = document.getElementById('role');
+const fonctionField = document.getElementById('fonction');
+const niveau_acces = document.getElementById('niveau_acces');
+const guField = document.getElementById('gu');
+const typeField = document.getElementById('type_utilisateur');
 const statusField = document.getElementById('status');
 const userModalSubmitButton = document.getElementById('userModalSubmitButton');
 
@@ -224,20 +252,15 @@ function openUserModal(userData = null) {
         userIdField.value = userData.id;
         usernameField.value = userData.username;
         emailField.value = userData.email;
-        roleField.value = userData.role;
+        fonctionField.value = userData.fonction;
         statusField.value = userData.status;
-        passwordField.placeholder = "Laissez vide pour ne pas changer";
-        passwordConfirmationField.placeholder = "Laissez vide pour ne pas changer";
-        passwordField.required = false; // Not required on edit unless changing
-        passwordHelp.classList.remove('hidden');
+        typeField.value = userData.type;
+        guField.value = userData.gu;
+        niveau_acces.value = userData.niveau_acces;
     } else {
         userModalTitle.textContent = 'Ajouter un Utilisateur';
         userModalSubmitButton.textContent = 'Enregistrer';
         userIdField.value = '';
-        passwordField.placeholder = "";
-        passwordConfirmationField.placeholder = "";
-        passwordField.required = true; // Required on add
-        passwordHelp.classList.add('hidden');
     }
     userModal.classList.remove('hidden');
 }

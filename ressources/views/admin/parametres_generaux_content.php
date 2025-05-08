@@ -85,12 +85,18 @@ $cardData = [
         'description' => 'Définir les actions possibles pour les utilisateurs dans le système.',
         'link' => '?page=parametres_generaux&action=actions',
         'icon' => 'fa-solid fa-location-crosshairs'
-    ],
+     ],
      [
         'title' => 'Fonctions',
         'description' => 'Définir les fonctions exercées par les enseignants dans le système.',
         'link' => '?page=parametres_generaux&action=fonctions',
         'icon' => 'fa-solid fa-briefcase'
+    ],
+    [
+        'title' => 'Messagerie',
+        'description' => 'Définition des messages d\'erreur à afficher dans le système.',
+        'link' => '?page=parametres_generaux&action=messages',
+        'icon' => 'fa fa-envelope'
     ],
 ];
 

@@ -9,7 +9,6 @@ $menuItems = [
     ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
     ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
     ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
-    ['slug' => 'gestion_habilitations', 'label' => 'Gestion des habilitations et mot de passe', 'icon' => 'fa-mask'],
     ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
     ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
     ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
@@ -37,7 +36,7 @@ if ($currentMenuSlug === 'parametres_generaux') {
         $allowedActions = [
             'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
             'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants'
+            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants','messages',
         ];
         if (in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];
