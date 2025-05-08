@@ -4,261 +4,430 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord</title>
-    <link rel="stylesheet" href="../../../public/css/output.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Modern Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
-<script>
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                'pink': {
-                    '500': '#EC4899',
-                    '600': '#DB2777',
+
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6 bg-white rounded-3xl shadow-sm max-w-6xl">
+        <!-- Header with date range -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cloud text-white text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold">Dashboard</h1>
+            </div>
+            <div class="flex space-x-2 text-sm text-gray-500">
+                <span>10-06-2020</span>
+                <span>—</span>
+                <span>10-10-2020</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <!-- Users Projects Card -->
+            <div class="gradient-purple rounded-xl p-4 text-white">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">178+</h3>
+                        <p class="text-sm opacity-80">Users Projects</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-heart text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Products Card -->
+            <div class="gradient-blue rounded-xl p-4 text-white">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">20+</h3>
+                        <p class="text-sm opacity-80">Stock Products</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cube text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Products Card -->
+            <div class="gradient-red rounded-xl p-4 text-white">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">190+</h3>
+                        <p class="text-sm opacity-80">Sales Products</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-lock text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Applications Card -->
+            <div class="gradient-orange rounded-xl p-4 text-white">
+                <div class="flex justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">12+</h3>
+                        <p class="text-sm opacity-80">Job Applications</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-envelope text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left Column - Dashboard Stats -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-bold">Dashboard</h2>
+                        <p class="text-xs text-gray-500">Overview of Recent Month</p>
+                    </div>
+                    <div class="flex space-x-1 text-xs">
+                        <button class="px-3 py-1 rounded">DAILY</button>
+                        <button class="px-3 py-1 rounded">WEEKLY</button>
+                        <button class="px-3 py-1 rounded bg-blue-100 text-blue-600">MONTHLY</button>
+                        <button class="px-3 py-1 rounded">YEARLY</button>
+                    </div>
+                </div>
+
+                <!-- Revenue Stats -->
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold">$6468.96</h3>
+                    <p class="text-xs text-gray-500">Current Month Earnings</p>
+                </div>
+
+                <!-- Sales Stats -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold">82</h3>
+                    <p class="text-xs text-gray-500">Current Month Sales</p>
+                </div>
+
+                <!-- Summary Button -->
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm mb-6">Last Month Summary</button>
+
+                <!-- Chart -->
+                <div class="chart-container">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+
+                <!-- Bottom Stats Cards -->
+                <div class="grid grid-cols-4 gap-2 mt-4">
+                    <!-- Wallet Balance -->
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center mr-2">
+                            <i class="fas fa-wallet text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Wallet Balance</p>
+                            <p class="text-sm font-semibold">$3,567.50</p>
+                        </div>
+                    </div>
+
+                    <!-- Referral Earning -->
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center mr-2">
+                            <i class="fas fa-users text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Referral Earning</p>
+                            <p class="text-sm font-semibold">$1,599.93</p>
+                        </div>
+                    </div>
+
+                    <!-- Estimate Sales -->
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
+                            <i class="fas fa-chart-line text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Estimate Sales</p>
+                            <p class="text-sm font-semibold">$2,955.00</p>
+                        </div>
+                    </div>
+
+                    <!-- Earning -->
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center mr-2">
+                            <i class="fas fa-dollar-sign text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Earning</p>
+                            <p class="text-sm font-semibold">$93,987.54</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Analytics & Recent Activities -->
+            <div class="flex flex-col space-y-6">
+                <!-- Analytics -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="font-bold">Analytics</h2>
+                        <button class="text-gray-400">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <!-- Donut Chart -->
+                        <div class="w-40 h-40 mx-auto">
+                            <canvas id="analyticsChart"></canvas>
+                        </div>
+
+                        <!-- Percentage -->
+                        <div class="text-center">
+                            <h3 class="text-2xl font-bold">80%</h3>
+                            <p class="text-sm text-gray-500">Transactions</p>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="flex justify-center space-x-4 mt-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-indigo-600 mr-2"></div>
+                            <span class="text-xs">Sale</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                            <span class="text-xs">Distribute</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                            <span class="text-xs">Return</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h2 class="font-bold mb-4">Recent Activities</h2>
+
+                    <!-- Activity Item -->
+                    <div class="flex mb-4">
+                        <div class="text-xs text-gray-500 w-16">40 Min Ago</div>
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center mx-4">
+                            <i class="fas fa-tasks text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">Task Updated</h4>
+                            <p class="text-xs text-gray-500">Nicolas Updated a Task</p>
+                        </div>
+                    </div>
+
+                    <!-- Activity Item -->
+                    <div class="flex mb-4">
+                        <div class="text-xs text-gray-500 w-16">1 day ago</div>
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center mx-4">
+                            <i class="fas fa-handshake text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">Deal Added</h4>
+                            <p class="text-xs text-gray-500">Pamela Updated a Task</p>
+                        </div>
+                    </div>
+
+                    <!-- Activity Item -->
+                    <div class="flex">
+                        <div class="text-xs text-gray-500 w-16">40 Min Ago</div>
+                        <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center mx-4">
+                            <i class="fas fa-newspaper text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">Published Article</h4>
+                            <p class="text-xs text-gray-500">Daniel Updated an Article</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <h2 class="font-bold">Order Status</h2>
+                            <p class="text-xs text-gray-500">Overview of latest month</p>
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="w-6 h-6 bg-red-500 rounded-md flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </button>
+                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center">
+                                <i class="fas fa-list text-gray-500 text-xs"></i>
+                            </button>
+                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center">
+                                <i class="fas fa-sort text-gray-500 text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="flex justify-end mb-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search" class="bg-gray-100 rounded-md px-4 py-1 text-sm">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                <i class="fas fa-search text-gray-400 text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-gray-500 uppercase text-xs">
+                                <th class="py-2 text-left">Invoice</th>
+                                <th class="py-2 text-left">Customers</th>
+                                <th class="py-2 text-left">From</th>
+                                <th class="py-2 text-left">Price</th>
+                                <th class="py-2 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-2">12396</td>
+                                <td class="py-2">Christy Jean</td>
+                                <td class="py-2">Russia</td>
+                                <td class="py-2">$2652</td>
+                                <td class="py-2">
+                                    <button class="bg-pink-500 text-white text-xs rounded-md px-3 py-1">Process</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">12398</td>
+                                <td class="py-2">Christy Jean</td>
+                                <td class="py-2">Russia</td>
+                                <td class="py-2">$2652</td>
+                                <td class="py-2">
+                                    <button class="bg-indigo-600 text-white text-xs rounded-md px-3 py-1">Open</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-center mt-4">
+                        <div class="flex space-x-1">
+                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button
+                                class="w-6 h-6 bg-red-500 text-white rounded-md flex items-center justify-center text-xs">1</button>
+                            <button
+                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">2</button>
+                            <button
+                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">3</button>
+                            <button
+                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">4</button>
+                            <button
+                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">5</button>
+                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Area Chart for Earnings
+    const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+    const earningsChart = new Chart(earningsCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Feb', 'Mar', 'Apr', 'May'],
+            datasets: [{
+                    label: 'Earnings',
+                    data: [15, 20, 25, 30, 25, 35, 15],
+                    borderColor: '#F472B6',
+                    backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2
                 },
-                'purple': {
-                    '500': '#8B5CF6',
-                    '600': '#7C3AED',
+                {
+                    label: 'Sales',
+                    data: [10, 15, 20, 15, 25, 20, 10],
+                    borderColor: '#818CF8',
+                    backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
                 },
-                'cyan': {
-                    '500': '#06B6D4',
-                    '600': '#0891B2',
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
                 },
-                'amber': {
-                    '500': '#F59E0B',
-                    '600': '#D97706',
+                y: {
+                    min: 0,
+                    max: 35,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 0
                 }
             }
         }
-    }
-}
-</script>
+    });
 
-<style>
-.bg-gradient-pink {
-    background: linear-gradient(to right, #EC4899, #DB2777);
-}
-
-.bg-gradient-purple {
-    background: linear-gradient(to right, #8B5CF6, #7C3AED);
-}
-
-.bg-gradient-cyan {
-    background: linear-gradient(to right, #06B6D4, #0891B2);
-}
-
-.bg-gradient-amber {
-    background: linear-gradient(to right, #F59E0B, #D97706);
-}
-
-.chart-line-pink {
-    fill: rgba(236, 72, 153, 0.2);
-    stroke: #EC4899;
-}
-
-.chart-line-purple {
-    fill: rgba(139, 92, 246, 0.2);
-    stroke: #8B5CF6;
-}
-</style>
-
-<body class="bg-gray-50">
-    <div class="max-w-6xl mx-auto p-6">
-        <!-- Dashboard Header -->
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">Dashboard</h2>
-                <p class="text-sm text-gray-500">Welcome back to your dashboard</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="flex space-x-1">
-                    <button
-                        class="px-4 py-1 text-xs font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300">DAILY</button>
-                    <button
-                        class="px-4 py-1 text-xs font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300">WEEKLY</button>
-                    <button
-                        class="px-4 py-1 text-xs font-medium text-gray-800 border-b-2 border-pink-500">MONTHLY</button>
-                    <button
-                        class="px-4 py-1 text-xs font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300">YEARLY</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Metrics -->
-        <div class="grid grid-cols-3 gap-6 mb-6">
-            <div class="col-span-2">
-                <div class="bg-white p-4 rounded-lg shadow-sm">
-                    <div class="flex justify-between mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800">$3468.96</h3>
-                            <p class="text-sm text-gray-500">Current month earnings</p>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="text-xs font-medium text-green-500 mr-2">+2.45%</span>
-                            <span class="text-xs font-medium text-gray-500">vs last month</span>
-                        </div>
-                    </div>
-
-                    <!-- Chart -->
-                    <div class="h-40 w-full relative">
-                        <svg viewBox="0 0 800 200" class="w-full h-full">
-                            <path
-                                d="M0,180 C50,160 100,140 150,120 C200,100 250,80 300,60 C350,40 400,20 450,40 C500,60 550,80 600,100 C650,120 700,140 750,160 C800,180 850,200 900,180"
-                                class="chart-line-pink" fill="none" stroke-width="2" />
-                            <path
-                                d="M0,160 C50,140 100,120 150,100 C200,80 250,60 300,40 C350,20 400,0 450,20 C500,40 550,60 600,80 C650,100 700,120 750,140 C800,160 850,180 900,160"
-                                class="chart-line-purple" fill="none" stroke-width="2" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="bg-white p-4 rounded-lg shadow-sm h-full">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Traffic</h3>
-                    </div>
-
-                    <!-- Donut Chart -->
-                    <div class="flex justify-center">
-                        <svg width="120" height="120" viewBox="0 0 120 120">
-                            <circle cx="60" cy="60" r="50" fill="transparent" stroke="#8B5CF6" stroke-width="20"
-                                stroke-dasharray="314" stroke-dashoffset="0" />
-                            <circle cx="60" cy="60" r="50" fill="transparent" stroke="#EC4899" stroke-width="20"
-                                stroke-dasharray="314" stroke-dashoffset="110" />
-                            <circle cx="60" cy="60" r="50" fill="transparent" stroke="#06B6D4" stroke-width="20"
-                                stroke-dasharray="314" stroke-dashoffset="250" />
-                        </svg>
-                    </div>
-
-                    <div class="flex justify-between mt-4">
-                        <div class="text-center">
-                            <p class="text-lg font-bold">33<span class="text-sm">%</span></p>
-                            <p class="text-xs text-gray-500">New Visitors</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-lg font-bold">55<span class="text-sm">%</span></p>
-                            <p class="text-xs text-gray-500">Returning</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-lg font-bold">12<span class="text-sm">%</span></p>
-                            <p class="text-xs text-gray-500">Referrals</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-4 gap-4 mb-6">
-            <div class="bg-gradient-pink p-4 rounded-lg shadow-sm text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h4 class="text-xs font-medium opacity-80">Revenue Status</h4>
-                        <p class="text-lg font-bold mt-2">$432</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-2 h-8 w-8 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <svg class="w-full h-12" viewBox="0 0 100 30">
-                        <rect x="0" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="12" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="24" y="5" width="8" height="25" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="36" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="48" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="60" y="5" width="8" height="25" rx="2" fill="white" fill-opacity="0.8" />
-                        <rect x="72" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="84" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="bg-gradient-purple p-4 rounded-lg shadow-sm text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h4 class="text-xs font-medium opacity-80">Page Views</h4>
-                        <p class="text-lg font-bold mt-2">$432</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-2 h-8 w-8 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <svg class="w-full h-12" viewBox="0 0 100 30">
-                        <rect x="0" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="12" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="24" y="5" width="8" height="25" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="36" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="48" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="60" y="5" width="8" height="25" rx="2" fill="white" fill-opacity="0.8" />
-                        <rect x="72" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="84" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="bg-gradient-cyan p-4 rounded-lg shadow-sm text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h4 class="text-xs font-medium opacity-80">Bounce Rate</h4>
-                        <p class="text-lg font-bold mt-2">$432</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-2 h-8 w-8 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <svg class="w-full h-12" viewBox="0 0 100 30">
-                        <path d="M0,15 C10,10 20,20 30,15 C40,10 50,20 60,15 C70,10 80,20 90,15 C100,10" fill="none"
-                            stroke="white" stroke-width="2" stroke-opacity="0.8" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="bg-gradient-amber p-4 rounded-lg shadow-sm text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h4 class="text-xs font-medium opacity-80">Unique Visits</h4>
-                        <p class="text-lg font-bold mt-2">$432</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-2 h-8 w-8 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <svg class="w-full h-12" viewBox="0 0 100 30">
-                        <rect x="0" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="12" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="24" y="5" width="8" height="25" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="36" y="15" width="8" height="15" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="48" y="10" width="8" height="20" rx="2" fill="white" fill-opacity="0.4" />
-                        <rect x="60" />
-                </div>
-
-
+    // Donut Chart for Analytics
+    const analyticsCtx = document.getElementById('analyticsChart').getContext('2d');
+    const analyticsChart = new Chart(analyticsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sale', 'Distribute', 'Return'],
+            datasets: [{
+                data: [55, 25, 20],
+                backgroundColor: [
+                    '#4F46E5',
+                    '#FBBF24',
+                    '#F87171'
+                ],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    </script>
 </body>
 
 </html>

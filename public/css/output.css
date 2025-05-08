@@ -1334,6 +1334,50 @@ video {
   background-color: #3b82f6;
 }
 
+.bg-blue-100 {
+  background-color: #bfdbfe;
+}
+.bg-blue-200 {
+  background-color: #93c5fd;
+}
+.bg-blue-300 {
+  background-color: #60a5fa;
+}
+.bg-blue-400 {
+  background-color: #3b82f6;
+}
+.bg-blue-600 {
+  background-color: #2563eb;
+}
+.bg-blue-700 {
+  background-color: #1d4ed8;
+}
+
+::-webkit-scrollbar{
+  display: none;
+}
+.gradient-purple {
+  background: linear-gradient(to right, #9061F9, #A78BFA);
+}
+
+.gradient-blue {
+  background: linear-gradient(to right, #2563EB, #60A5FA);
+}
+
+.gradient-red {
+  background: linear-gradient(to right, #F87171, #FB7185);
+}
+
+.gradient-orange {
+  background: linear-gradient(to right, #FB923C, #FDBA74);
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
 /* Styles pour les onglets actifs/inactifs */
 .tab-button.active {
   border-color: #34D399;
