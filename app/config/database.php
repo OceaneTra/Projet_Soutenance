@@ -1,14 +1,19 @@
 <?php
-// Paramètres de connexion à la base de données
-$db_host = 'db';         // Nom du service Docker MySQL
-$db_name = 'soutenance_manager'; // Nom de la base de données
-$db_user = 'root';       // Nom d'utilisateur (à adapter selon votre docker-compose.yml)
-$db_pass = 'password';   // Mot de passe (à adapter selon votre docker-compose.yml)
+class Database {
+    private static $host = 'db'; // très important : utiliser le nom du service Docker
+    private static $db   = 'soutenance_manager';
+    private static $user = 'root';
+    private static $pass = 'password'; // mot de passe défini dans docker-compose.yml
+    private static $charset = 'utf8';
 
-// Connexion à la base de données
-try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Erreur de connexion à la base de données: " . $e->getMessage());
+    public static function getConnection() {
+        try {
+            $dsn = "mysql:host=" . self::$host . ";dbname=" . self::$db . ";charset=" . self::$charset;
+            $pdo = new PDO($dsn, self::$user, self::$pass);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $pdo;
+        } catch (PDOException $e) {
+            die("Erreur de connexion : " . $e->getMessage());
+        }
+    }
 }

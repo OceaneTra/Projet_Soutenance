@@ -18,7 +18,7 @@ class AnneeAcademique {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function addAnneeAcademique($date_deb, $date_fin) {
+    public function ajouterAnneeAcademique($date_deb, $date_fin) {
         $annee1 = date("Y", strtotime($date_deb));
         $annee2 = date("Y", strtotime($date_fin));
         $id_annee_acad = substr($annee2, 0, 1) . substr($annee1, 2, 2) . substr($annee2, 2, 2);
