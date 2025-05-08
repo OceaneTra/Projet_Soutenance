@@ -26,7 +26,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <!-- Unités d'Enseignement(UE) -->
                         <div>
-                            <label for="ue" class="block text-sm font-medium text-gray-600 mb-1">
+                            <label for="ue" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Unité d'Enseignement (UE)
                             </label>
                             <select id="ue" name="ue" required
@@ -41,7 +41,7 @@
 
                         <!-- Libellé UE -->
                         <div>
-                            <label for="lib_ecue" class="block text-sm font-medium text-gray-600 mb-1">
+                            <label for="lib_ecue" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Libellé de l'ECUE
                             </label>
                             <input type="text" id="lib_ue" name="lib_ue" required
@@ -51,7 +51,7 @@
 
                         <!-- Crédits -->
                         <div>
-                            <label for="credits" class="block text-sm font-medium text-gray-600 mb-1">
+                            <label for="credits" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Nombre de crédits
                             </label>
                             <input type="number" id="credits" name="credits" required min="1" max="9"
@@ -61,7 +61,7 @@
 
                         <!-- Semestre -->
                         <div>
-                            <label for="semestre" class="block text-sm font-medium text-gray-600 mb-1">
+                            <label for="semestre" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Semestre
                             </label>
                             <!--c'est en sortie-->
@@ -71,7 +71,7 @@
 
                         <!-- Niveau d'étude -->
                         <div>
-                            <label for="niveau_etude" class="block text-sm font-medium text-gray-600 mb-1">
+                            <label for="niveau_etude" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Niveau d'étude
                             </label>
                             <!--c'est en sortie-->
@@ -111,10 +111,7 @@
                                                 <input type="checkbox" id="selectAllCheckbox"
                                                     class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </th>
-                                            <th scope="col"
-                                                class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                ID
-                                            </th>
+
                                             <th scope="col"
                                                 class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Libellé de l'UE
@@ -126,6 +123,10 @@
                                             <th scope="col"
                                                 class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Crédits
+                                            </th>
+                                            <th scope="col"
+                                                class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Action
                                             </th>
                                         </tr>
                                     </thead>
@@ -159,10 +160,6 @@
                             <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                                 <i class="fas fa-trash-alt mr-2"></i>Imprimer
-                            </button>
-                            <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                <i class="fas fa-edit mr-2"></i>Modifier
                             </button>
                             <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
