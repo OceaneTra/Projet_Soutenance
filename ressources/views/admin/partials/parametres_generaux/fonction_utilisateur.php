@@ -60,7 +60,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
             <div>
                 <!-- Onglet Groupes d'Utilisateurs -->
                 <div id="tab-groupes"
-                    class="flex flex-col  tab-content <?= ($activeTab === 'groupes') ? 'active' : '' ?>">
+                    class="flex flex-col tab-content <?= ($activeTab === 'groupes') ? 'active' : '' ?>">
                     <?php if (!empty($message_groupe)): ?>
                     <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm mb-6"
                         role="alert">
@@ -111,70 +111,64 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                         </form>
                     </div>
 
-                    <!-- Tableau des Groupes -->
-                    <div class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="w-[5%] px-4 py-3 text-center">
-                                            <input type="checkbox" id="selectAllCheckbox"
-                                                class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                        </th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID Groupe</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nom du Groupe</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <?php if (empty($groupes)): ?>
-                                    <tr>
-                                        <td colspan="3" class="px-6 py-12 text-center text-gray-500">Aucun groupe
-                                            trouvé.</td>
-                                    </tr>
-                                    <?php else: ?>
-                                    <?php foreach ($groupes as $groupe): ?>
-                                    <tr>
-                                        <th scope="col" class="w-[5%] px-4 py-3 text-center">
-                                            <input type="checkbox" id="selectAllCheckbox"
-                                                class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                        </th>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?= htmlspecialchars($groupe->id_groupe) ?></td> <!-- Adaptez -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?= htmlspecialchars($groupe->lib_groupe) ?></td> <!-- Adaptez -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&sub_action=edit_groupe&id_groupe=<?= htmlspecialchars($groupe->id_groupe) ?>"
-                                                class="text-blue-600 hover:text-blue-900 mr-3"><i
-                                                    class="fas fa-edit"></i></a>
-                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&sub_action=delete_groupe&id_groupe=<?= htmlspecialchars($groupe->id_groupe) ?>"
-                                                class="text-red-600 hover:text-red-900"
-                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <!-- Boutons avec largeur fixe -->
-                    <div style="width: 10%;" class="flex flex-col gap-4">
-                        <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            <i class="fas fa-edit mr-2"></i>Modifier
-                        </button>
-                        <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                            <i class="fas fa-trash-alt mr-2"></i>Supprimer
-                        </button>
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des groupes utilisateurs</h3>
+                        <form method="POST" action="?page=parametres_generaux&action=GU" id="formListeGU">
+                            <div class="flex flex-col lg:flex-row gap-6">
+                                <!-- Table avec largeur fixe -->
+                                <div style="width: 80%;"
+                                    class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                                        <input type="checkbox" id="selectAllCheckbox"
+                                                            class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        ID
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Libellé du goupe utilisateur
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <tr class="hover:bg-gray-50 transition-colors">
+                                                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                        <input type="checkbox" name="selected_ids[]" value=""
+                                                            class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    </td>
+                                                    <td
+                                                        class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+
+                                                    </td>
+                                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Boutons avec largeur fixe -->
+                                <div style="width: 10%;" class="flex flex-col gap-4">
+                                    <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i>Modifier
+                                    </button>
+                                    <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                        <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -207,11 +201,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                             <?php endif; ?>
                             <div class="mb-4">
                                 <label for="lib_type_utilisateur"
-                                    class="block text-sm font-medium text-gray-600 mb-1">Nom du Type
+                                    class="mb-2 block text-sm font-medium text-gray-600 mb-1">Nom du Type
                                     d'Utilisateur</label>
                                 <input type="text" name="lib_type_utilisateur" id="lib_type_utilisateur" required
                                     value="<?= htmlspecialchars($type_utilisateur_a_modifier->lib_type_utilisateur ?? '') ?>"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             </div>
                             <div class="flex justify-start">
                                 <button type="submit"
@@ -231,114 +225,71 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                     </div>
 
                     <!-- Tableau des Types d'Utilisateurs -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID Type</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nom du Type</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <?php if (empty($types_utilisateurs)): ?>
-                                    <tr>
-                                        <td colspan="3" class="px-6 py-12 text-center text-gray-500">Aucun type
-                                            d'utilisateur trouvé.</td>
-                                    </tr>
-                                    <?php else: ?>
-                                    <?php foreach ($types_utilisateurs as $type_utilisateur): ?>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?></td>
-                                        <!-- Adaptez -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?= htmlspecialchars($type_utilisateur->lib_type_utilisateur) ?></td>
-                                        <!-- Adaptez -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&sub_action=edit_type_utilisateur&id_type_utilisateur=<?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?>"
-                                                class="text-blue-600 hover:text-blue-900 mr-3"><i
-                                                    class="fas fa-edit"></i></a>
-                                            <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&sub_action=delete_type_utilisateur&id_type_utilisateur=<?= htmlspecialchars($type_utilisateur->id_type_utilisateur) ?>"
-                                                class="text-red-600 hover:text-red-900"
-                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type d\'utilisateur ?');"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des types utilisateurs</h3>
+                        <form method="POST" action="?page=parametres_generaux&action=type_utilisateur"
+                            id="formListeTypeUtilisateur">
+                            <div class="flex flex-col lg:flex-row gap-6">
+                                <!-- Table avec largeur fixe -->
+                                <div style="width: 80%;"
+                                    class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                                                        <input type="checkbox" id="selectAllCheckbox"
+                                                            class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        ID
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Libellé du type utilisateur
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <tr class="hover:bg-gray-50 transition-colors">
+                                                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                        <input type="checkbox" name="selected_ids[]" value=""
+                                                            class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    </td>
+                                                    <td
+                                                        class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+
+                                                    </td>
+                                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Boutons avec largeur fixe -->
+                                <div style="width: 10%;" class="flex flex-col gap-4">
+                                    <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i>Modifier
+                                    </button>
+                                    <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                        <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    <script>
-    // Script simple pour gérer l'affichage des onglets si vous ne voulez pas de rechargement de page complet
-    // Mais la solution actuelle avec les paramètres GET pour 'tab' est plus simple côté PHP.
-    // Si vous voulez un switch d'onglet purement JS sans recharger la page :
-    /*
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabButtons = document.querySelectorAll('.tab-button-js'); // Ajoutez cette classe à vos liens d'onglet
-        const tabContents = document.querySelectorAll('.tab-content-js'); // Ajoutez cette classe à vos divs de contenu d'onglet
 
-        // Fonction pour afficher l'onglet actif et masquer les autres
-        function showTab(tabId) {
-            tabContents.forEach(content => {
-                if (content.id === tabId) {
-                    content.style.display = 'block';
-                } else {
-                    content.style.display = 'none';
-                }
-            });
-            tabButtons.forEach(button => {
-                if (button.getAttribute('data-tab') === tabId) {
-                    button.classList.add('active', 'border-green-500', 'text-green-600', 'bg-green-50'); // Adaptez les classes actives
-                    button.classList.remove('border-transparent', 'hover:border-gray-300');
-                } else {
-                    button.classList.remove('active', 'border-green-500', 'text-green-600', 'bg-green-50');
-                    button.classList.add('border-transparent', 'hover:border-gray-300');
-                }
-            });
-        }
-
-        // Gérer le clic sur les boutons d'onglet
-        tabButtons.forEach(button => {
-            button.addEventListener('click', function (event) {
-                event.preventDefault(); // Empêche le comportement de lien par défaut
-                const tabId = this.getAttribute('data-tab'); // Ex: 'tab-groupes'
-                showTab(tabId);
-                // Optionnel: Mettre à jour l'URL avec le fragment pour le bookmarking/partage
-                // window.location.hash = tabId.replace('tab-', '');
-            });
-        });
-
-        // Afficher l'onglet initial basé sur l'URL hash ou le premier par défaut
-        let initialTabId = window.location.hash.substring(1);
-        if (initialTabId) {
-            showTab('tab-' + initialTabId);
-        } else {
-            // Afficher le premier onglet par défaut si aucun hash n'est présent
-            // Ou l'onglet actif déterminé par PHP si vous mélangez les approches
-            const activePhpTab = document.querySelector('.tab-content.active');
-            if (activePhpTab) {
-                 showTab(activePhpTab.id);
-            } else if (tabButtons.length > 0) {
-                showTab(tabButtons[0].getAttribute('data-tab'));
-            }
-        }
-    });
-    */
-    </script>
 </body>
 
 </html>

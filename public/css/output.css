@@ -1334,6 +1334,10 @@ video {
   background-color: #3b82f6;
 }
 
+::-webkit-scrollbar{
+  display: none;
+}
+
 /* Styles pour les onglets actifs/inactifs */
 .tab-button.active {
   border-color: #34D399;

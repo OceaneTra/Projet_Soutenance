@@ -13,6 +13,7 @@ $menuItems = [
     ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
     ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
     ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
+    ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user'],
 ];
 
 // Déterminer la page actuelle du menu principal.
