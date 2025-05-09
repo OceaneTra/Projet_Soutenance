@@ -90,6 +90,7 @@ if (empty($currentPageLabel)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soutenance Manager | <?php echo htmlspecialchars($currentPageLabel); ?></title>
     <link rel="stylesheet" href="css/output.css">
+    <link rel="shortcut icon" href="./images/dessin.svg" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -99,7 +100,8 @@ if (empty($currentPageLabel)) {
         <div class="hidden md:flex md:flex-shrink-0">
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
-                    <div class="flex items-center">
+                    <div class="flex overflow-hidden items-center">
+
                         <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
                     </div>
                 </div>

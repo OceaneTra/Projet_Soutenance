@@ -13,6 +13,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soutenance Manager| Plateforme de Gestion de la commission de Validation des soutenances</title>
     <link rel="stylesheet" href="css/output.css">
+    <link rel="shortcut icon" href="./images/dessin.svg" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 </head>
@@ -22,10 +23,8 @@ session_start();
     <nav class="bg-white shadow-sm fixed w-full z-50">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg academic-gradient flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-white text-lg">
-                        <!--logo ici-->
-                    </i>
+                <div class="w-10 h-10  flex items-center justify-center">
+                    <img src="./images/dessin.svg" alt="logo">
                 </div>
                 <span class="font-bold text-xl text-green-500">Soutenance Manager</span>
             </div>
