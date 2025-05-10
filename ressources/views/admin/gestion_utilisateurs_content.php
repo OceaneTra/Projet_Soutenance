@@ -138,7 +138,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
             <!-- Dashboard Header -->
             <div class="bg-gradient px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
-                <button onclick="openUserModal()"
+                <button onclick="openUserModal(null)"
                     class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
                     <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
                 </button>

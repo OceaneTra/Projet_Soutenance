@@ -7,334 +7,1046 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+    .gradient-purple {
+        background: linear-gradient(135deg, #9f7aea 0%, #7f45ea 100%);
+    }
 
+    .gradient-blue {
+        background: linear-gradient(135deg, #63b3ed 0%, #4299e1 100%);
+    }
+
+    .gradient-red {
+        background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+    }
+
+    .gradient-orange {
+        background: linear-gradient(135deg, #fbd38d 0%, #ed8936 100%);
+    }
+
+    .chart-container {
+        height: 200px;
+        position: relative;
+    }
+
+    .btn-tab {
+        transition: all 0.3s ease;
+    }
+
+    .btn-tab:hover {
+        background-color: #EBF4FF;
+        color: #4F46E5;
+    }
+
+    .btn-tab.active {
+        background-color: #EBF4FF;
+        color: #4F46E5;
+        font-weight: 600;
+    }
+
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 47px;
+        top: 20px;
+        height: calc(100% - 24px);
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .activity-item {
+        position: relative;
+        z-index: 1;
+    }
+
+    .table-hover tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* For IE, Edge and Firefox */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: #374151;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Custom toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #4F46E5;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(20px);
+        -ms-transform: translateX(20px);
+        transform: translateX(20px);
+    }
+    </style>
 </head>
 
-<body class="bg-gray-100">
-    <div class="container mx-auto p-6 bg-white rounded-3xl shadow-sm max-w-6xl">
-        <!-- Header with date range -->
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-cloud text-white text-xl"></i>
-                </div>
-                <h1 class="text-xl font-bold">Dashboard</h1>
-            </div>
-            <div class="flex space-x-2 text-sm text-gray-500">
-                <span>10-06-2020</span>
-                <span>—</span>
-                <span>10-10-2020</span>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <!-- Users Projects Card -->
-            <div class="gradient-purple rounded-xl p-4 text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold">178+</h3>
-                        <p class="text-sm opacity-80">Users Projects</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-heart text-white"></i>
-                    </div>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation Sidebar -->
+    <div class="flex min-h-screen">
+        <div class="bg-indigo-800 text-white w-20 min-h-screen flex flex-col items-center py-8 hidden md:flex">
+            <div class="mb-10">
+                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cloud text-indigo-800 text-xl"></i>
                 </div>
             </div>
 
-            <!-- Stock Products Card -->
-            <div class="gradient-blue rounded-xl p-4 text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold">20+</h3>
-                        <p class="text-sm opacity-80">Stock Products</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-cube text-white"></i>
-                    </div>
-                </div>
+            <div class="flex flex-col space-y-8 items-center flex-grow">
+                <a href="#"
+                    class="w-12 h-12 bg-indigo-700 rounded-xl flex items-center justify-center text-white transition hover:bg-indigo-600">
+                    <i class="fas fa-tachometer-alt"></i>
+                </a>
+                <a href="#"
+                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
+                    <i class="fas fa-chart-pie"></i>
+                </a>
+                <a href="#"
+                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
+                    <i class="fas fa-users"></i>
+                </a>
+                <a href="#"
+                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
+                    <i class="fas fa-calendar"></i>
+                </a>
+                <a href="#"
+                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
+                    <i class="fas fa-cog"></i>
+                </a>
             </div>
 
-            <!-- Sales Products Card -->
-            <div class="gradient-red rounded-xl p-4 text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold">190+</h3>
-                        <p class="text-sm opacity-80">Sales Products</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-lock text-white"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Job Applications Card -->
-            <div class="gradient-orange rounded-xl p-4 text-white">
-                <div class="flex justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold">12+</h3>
-                        <p class="text-sm opacity-80">Job Applications</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-envelope text-white"></i>
-                    </div>
+            <div class="mt-auto">
+                <div class="w-12 h-12 bg-indigo-700 rounded-full overflow-hidden">
+                    <img src="/api/placeholder/48/48" alt="User profile" class="w-full h-full object-cover" />
                 </div>
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Left Column - Dashboard Stats -->
-            <div class="bg-white rounded-xl shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="font-bold">Dashboard</h2>
-                        <p class="text-xs text-gray-500">Overview of Recent Month</p>
-                    </div>
-                    <div class="flex space-x-1 text-xs">
-                        <button class="px-3 py-1 rounded">DAILY</button>
-                        <button class="px-3 py-1 rounded">WEEKLY</button>
-                        <button class="px-3 py-1 rounded bg-blue-100 text-blue-600">MONTHLY</button>
-                        <button class="px-3 py-1 rounded">YEARLY</button>
-                    </div>
-                </div>
-
-                <!-- Revenue Stats -->
-                <div class="mb-6">
-                    <h3 class="text-2xl font-bold">$6468.96</h3>
-                    <p class="text-xs text-gray-500">Current Month Earnings</p>
-                </div>
-
-                <!-- Sales Stats -->
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold">82</h3>
-                    <p class="text-xs text-gray-500">Current Month Sales</p>
-                </div>
-
-                <!-- Summary Button -->
-                <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm mb-6">Last Month Summary</button>
-
-                <!-- Chart -->
-                <div class="chart-container">
-                    <canvas id="earningsChart"></canvas>
-                </div>
-
-                <!-- Bottom Stats Cards -->
-                <div class="grid grid-cols-4 gap-2 mt-4">
-                    <!-- Wallet Balance -->
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center mr-2">
-                            <i class="fas fa-wallet text-white text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Wallet Balance</p>
-                            <p class="text-sm font-semibold">$3,567.50</p>
-                        </div>
-                    </div>
-
-                    <!-- Referral Earning -->
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center mr-2">
-                            <i class="fas fa-users text-white text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Referral Earning</p>
-                            <p class="text-sm font-semibold">$1,599.93</p>
-                        </div>
-                    </div>
-
-                    <!-- Estimate Sales -->
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
-                            <i class="fas fa-chart-line text-white text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Estimate Sales</p>
-                            <p class="text-sm font-semibold">$2,955.00</p>
-                        </div>
-                    </div>
-
-                    <!-- Earning -->
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center mr-2">
-                            <i class="fas fa-dollar-sign text-white text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Earning</p>
-                            <p class="text-sm font-semibold">$93,987.54</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column - Analytics & Recent Activities -->
-            <div class="flex flex-col space-y-6">
-                <!-- Analytics -->
-                <div class="bg-white rounded-xl shadow p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="font-bold">Analytics</h2>
-                        <button class="text-gray-400">
-                            <i class="fas fa-ellipsis-h"></i>
+        <!-- Main Content -->
+        <div class="flex-grow">
+            <!-- Top Navigation Bar -->
+            <header class="bg-white shadow-sm p-4">
+                <div class="container mx-auto flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <button class="md:hidden text-gray-500 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
                         </button>
+                        <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
                     </div>
 
-                    <div class="flex items-center justify-between">
-                        <!-- Donut Chart -->
-                        <div class="w-40 h-40 mx-auto">
-                            <canvas id="analyticsChart"></canvas>
+                    <div class="flex items-center space-x-4">
+                        <!-- Date Range Picker -->
+                        <div
+                            class="hidden sm:flex bg-gray-100 rounded-md px-3 py-2 space-x-2 text-sm text-gray-600 items-center">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>10-06-2020 — 10-10-2020</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </div>
 
-                        <!-- Percentage -->
-                        <div class="text-center">
-                            <h3 class="text-2xl font-bold">80%</h3>
-                            <p class="text-sm text-gray-500">Transactions</p>
+                        <!-- Notifications -->
+                        <div class="tooltip">
+                            <button
+                                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
+                            </button>
+                            <span class="tooltiptext">Notifications</span>
+                        </div>
+
+                        <!-- Messages -->
+                        <div class="tooltip">
+                            <button
+                                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                            <span class="tooltiptext">Messages</span>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-10 h-10 bg-indigo-600 rounded-full overflow-hidden block md:hidden">
+                                <img src="/api/placeholder/40/40" alt="User profile"
+                                    class="w-full h-full object-cover" />
+                            </div>
+                            <div class="hidden md:block">
+                                <h3 class="text-sm font-medium">Thomas Martin</h3>
+                                <p class="text-xs text-gray-500">Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Dashboard Content -->
+            <div class="container mx-auto p-6">
+                <!-- Welcome Section -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Bonjour, Thomas 👋</h2>
+                    <p class="text-gray-600">Voici votre résumé de performance pour cette semaine</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <!-- Users Projects Card -->
+                    <div class="gradient-purple rounded-xl p-6 text-white shadow-lg card-hover">
+                        <div class="flex justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-users text-white text-lg"></i>
+                            </div>
+                            <div class="tooltip">
+                                <button class="text-white opacity-70 hover:opacity-100">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <span class="tooltiptext">Plus d'options</span>
+                            </div>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">178<span class="text-xl font-normal">+</span></h3>
+                        <p class="text-sm opacity-80">Projets Utilisateurs</p>
+                        <div class="mt-6 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>4.7% ce mois</span>
                         </div>
                     </div>
 
-                    <!-- Legend -->
-                    <div class="flex justify-center space-x-4 mt-4">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-indigo-600 mr-2"></div>
-                            <span class="text-xs">Sale</span>
+                    <!-- Stock Products Card -->
+                    <div class="gradient-blue rounded-xl p-6 text-white shadow-lg card-hover">
+                        <div class="flex justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-cube text-white text-lg"></i>
+                            </div>
+                            <div class="tooltip">
+                                <button class="text-white opacity-70 hover:opacity-100">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <span class="tooltiptext">Plus d'options</span>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
-                            <span class="text-xs">Distribute</span>
+                        <h3 class="text-3xl font-bold mb-1">20<span class="text-xl font-normal">+</span></h3>
+                        <p class="text-sm opacity-80">Produits en Stock</p>
+                        <div class="mt-6 flex items-center text-sm">
+                            <i class="fas fa-arrow-down mr-1"></i>
+                            <span>2.3% ce mois</span>
                         </div>
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
-                            <span class="text-xs">Return</span>
+                    </div>
+
+                    <!-- Sales Products Card -->
+                    <div class="gradient-red rounded-xl p-6 text-white shadow-lg card-hover">
+                        <div class="flex justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-white text-lg"></i>
+                            </div>
+                            <div class="tooltip">
+                                <button class="text-white opacity-70 hover:opacity-100">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <span class="tooltiptext">Plus d'options</span>
+                            </div>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">190<span class="text-xl font-normal">+</span></h3>
+                        <p class="text-sm opacity-80">Ventes de Produits</p>
+                        <div class="mt-6 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>8.2% ce mois</span>
+                        </div>
+                    </div>
+
+                    <!-- Job Applications Card -->
+                    <div class="gradient-orange rounded-xl p-6 text-white shadow-lg card-hover">
+                        <div class="flex justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-briefcase text-white text-lg"></i>
+                            </div>
+                            <div class="tooltip">
+                                <button class="text-white opacity-70 hover:opacity-100">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <span class="tooltiptext">Plus d'options</span>
+                            </div>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1">12<span class="text-xl font-normal">+</span></h3>
+                        <p class="text-sm opacity-80">Candidatures</p>
+                        <div class="mt-6 flex items-center text-sm">
+                            <i class="fas fa-equals mr-1"></i>
+                            <span>Stable ce mois</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Activities -->
-                <div class="bg-white rounded-xl shadow p-6">
-                    <h2 class="font-bold mb-4">Recent Activities</h2>
-
-                    <!-- Activity Item -->
-                    <div class="flex mb-4">
-                        <div class="text-xs text-gray-500 w-16">40 Min Ago</div>
-                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center mx-4">
-                            <i class="fas fa-tasks text-white text-xs"></i>
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column - Dashboard Stats -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-800">Revenus & Ventes</h2>
+                                <p class="text-sm text-gray-500">Vue d'ensemble du mois en cours</p>
+                            </div>
+                            <div class="flex space-x-1 text-xs bg-gray-100 rounded-lg p-1">
+                                <button class="btn-tab px-3 py-1 rounded-md">JOUR</button>
+                                <button class="btn-tab px-3 py-1 rounded-md">SEMAINE</button>
+                                <button class="btn-tab active px-3 py-1 rounded-md">MOIS</button>
+                                <button class="btn-tab px-3 py-1 rounded-md">ANNÉE</button>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="text-sm font-semibold">Task Updated</h4>
-                            <p class="text-xs text-gray-500">Nicolas Updated a Task</p>
+
+                        <!-- Revenue and Sales Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-sm text-gray-500">Revenus</p>
+                                    <span
+                                        class="text-xs bg-green-100 text-green-600 py-1 px-2 rounded-full flex items-center">
+                                        <i class="fas fa-arrow-up text-xs mr-1"></i> 12.5%
+                                    </span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800">6,468.96€</h3>
+                                <p class="text-xs text-gray-500">vs 5,489.20€ mois dernier</p>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-sm text-gray-500">Ventes</p>
+                                    <span
+                                        class="text-xs bg-green-100 text-green-600 py-1 px-2 rounded-full flex items-center">
+                                        <i class="fas fa-arrow-up text-xs mr-1"></i> 5.7%
+                                    </span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800">82</h3>
+                                <p class="text-xs text-gray-500">vs 76 mois dernier</p>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-sm text-gray-500">Panier Moyen</p>
+                                    <span
+                                        class="text-xs bg-green-100 text-green-600 py-1 px-2 rounded-full flex items-center">
+                                        <i class="fas fa-arrow-up text-xs mr-1"></i> 3.2%
+                                    </span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800">78.89€</h3>
+                                <p class="text-xs text-gray-500">vs 76.45€ mois dernier</p>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="chart-container mb-6">
+                            <canvas id="earningsChart"></canvas>
+                        </div>
+
+                        <!-- Bottom Stats Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Wallet Balance -->
+                            <div class="flex items-center bg-gray-50 p-3 rounded-xl">
+                                <div
+                                    class="h-10 w-10 rounded-full bg-pink-500 flex items-center justify-center mr-3 shrink-0">
+                                    <i class="fas fa-wallet text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Solde</p>
+                                    <p class="text-sm font-semibold">3,567.50€</p>
+                                </div>
+                            </div>
+
+                            <!-- Referral Earning -->
+                            <div class="flex items-center bg-gray-50 p-3 rounded-xl">
+                                <div
+                                    class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center mr-3 shrink-0">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Parrainage</p>
+                                    <p class="text-sm font-semibold">1,599.93€</p>
+                                </div>
+                            </div>
+
+                            <!-- Estimate Sales -->
+                            <div class="flex items-center bg-gray-50 p-3 rounded-xl">
+                                <div
+                                    class="h-10 w-10 rounded-full bg-purple-500 flex items-center justify-center mr-3 shrink-0">
+                                    <i class="fas fa-chart-line text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Prévisions</p>
+                                    <p class="text-sm font-semibold">2,955.00€</p>
+                                </div>
+                            </div>
+
+                            <!-- Earning -->
+                            <div class="flex items-center bg-gray-50 p-3 rounded-xl">
+                                <div
+                                    class="h-10 w-10 rounded-full bg-blue-400 flex items-center justify-center mr-3 shrink-0">
+                                    <i class="fas fa-euro-sign text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Total</p>
+                                    <p class="text-sm font-semibold">93,987.54€</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Activity Item -->
-                    <div class="flex mb-4">
-                        <div class="text-xs text-gray-500 w-16">1 day ago</div>
-                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center mx-4">
-                            <i class="fas fa-handshake text-white text-xs"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-semibold">Deal Added</h4>
-                            <p class="text-xs text-gray-500">Pamela Updated a Task</p>
-                        </div>
-                    </div>
+                    <!-- Right Column - Analytics & Recent Activities -->
+                    <div class="lg:col-span-1">
+                        <!-- Analytics -->
+                        <div class="bg-white rounded-xl shadow-sm p-6 mb-6 card-hover">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-lg font-bold text-gray-800">Analytics</h2>
+                                <div class="flex items-center">
+                                    <label class="switch mr-3">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                    <!-- Activity Item -->
-                    <div class="flex">
-                        <div class="text-xs text-gray-500 w-16">40 Min Ago</div>
-                        <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center mx-4">
-                            <i class="fas fa-newspaper text-white text-xs"></i>
+                            <div class="flex flex-col items-center">
+                                <!-- Donut Chart -->
+                                <div class="w-40 h-40 mx-auto">
+                                    <canvas id="analyticsChart"></canvas>
+                                </div>
+
+                                <!-- Percentage -->
+                                <div class="text-center mt-4">
+                                    <h3 class="text-3xl font-bold text-gray-800">80%</h3>
+                                    <p class="text-sm text-gray-500">Taux de conversion</p>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="flex justify-center space-x-6 mt-6">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 rounded-full bg-indigo-600 mr-2"></div>
+                                    <span class="text-sm">Ventes</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 rounded-full bg-yellow-400 mr-2"></div>
+                                    <span class="text-sm">Distribution</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 rounded-full bg-red-400 mr-2"></div>
+                                    <span class="text-sm">Retours</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="text-sm font-semibold">Published Article</h4>
-                            <p class="text-xs text-gray-500">Daniel Updated an Article</p>
+
+                        <!-- Recent Activities -->
+                        <div class="bg-white rounded-xl shadow-sm p-6 mb-6 card-hover">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-lg font-bold text-gray-800">Activités Récentes</h2>
+                                <button class="text-indigo-600 text-sm hover:underline">Voir tout</button>
+                            </div>
+
+                            <div class="activity-timeline relative">
+                                <!-- Activity Item -->
+                                <div class="flex mb-6 activity-item">
+                                    <div class="flex flex-col items-center mr-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center">
+                                            <i class="fas fa-tasks text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center">
+                                            <h4 class="text-sm font-semibold text-gray-800">Tâche mise à jour</h4>
+                                            <span class="text-xs text-gray-400 ml-2">il y a 40 min</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">Nicolas a mis à jour une tâche sur le projet
+                                            "Redesign Dashboard"</p>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item -->
+                                <div class="flex mb-6 activity-item">
+                                    <div class="flex flex-col items-center mr-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                                            <i class="fas fa-handshake text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center">
+                                            <h4 class="text-sm font-semibold text-gray-800">Nouveau contrat</h4>
+                                            <span class="text-xs text-gray-400 ml-2">il y a 1 jour</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">Pamela a ajouté un nouveau contrat avec le
+                                            client Acme Inc.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item -->
+                                <div class="flex activity-item">
+                                    <div class="flex flex-col items-center mr-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center">
+                                            <i class="fas fa-newspaper text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center">
+                                            <h4 class="text-sm font-semibold text-gray-800">Article publié</h4>
+                                            <span class="text-xs text-gray-400 ml-2">il y a 2 jours</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">Daniel a publié l'article "Comment augmenter
+                                            vos ventes"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Status -->
+                        <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-800">Statut des Commandes</h2>
+                                    <p class="text-xs text-gray-500">Vue d'ensemble du mois en cours</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center text-white">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center text-gray-600">
+                                        <i class="fas fa-sync-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Search -->
+                            <div class="mb-4 relative">
+                                <input type="text" placeholder="Rechercher une commande..."
+                                    class="w-full bg-gray-100 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+
+                            <!-- Orders -->
+                            <div class="max-h-64 overflow-y-auto scrollbar-hide">
+                                <table class="w-full text-sm table-hover">
+                                    <thead class="bg-gray-50 sticky top-0">
+                                        <tr class="text-gray-500 uppercase text-xs">
+                                            <th class="py-3 pl-4 pr-2 text-left">N°</th>
+                                            <th class="py-3 px-2 text-left">Client</th>
+                                            <th class="py-3 px-2 text-left">Région</th>
+                                            <th class="py-3 px-2 text-left">Montant</th>
+                                            <th class="py-3 px-2 text-left">Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 pl-4 pr-2">12396</td>
+                                            <td class="py-3 px-2">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                                        <span class="text-xs font-medium text-purple-600">CJ</span>
+                                                    </div>
+                                                    <span>Christy Jean</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-2">Russie</td>
+                                            <td class="py-3 px-2 font-medium">2 652€</td>
+                                            <td class="py-3 px-2">
+                                                <span
+                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-600">
+                                                    En cours
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 pl-4 pr-2">12398</td>
+                                            <td class="py-3 px-2">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                        <span class="text-xs font-medium text-blue-600">LM</span>
+                                                    </div>
+                                                    <span>Luc Moreau</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-2">France</td>
+                                            <td class="py-3 px-2 font-medium">1 845€</td>
+                                            <td class="py-3 px-2">
+                                                <span
+                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-600">
+                                                    En attente
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 pl-4 pr-2">12401</td>
+                                            <td class="py-3 px-2">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                                        <span class="text-xs font-medium text-green-600">AD</span>
+                                                    </div>
+                                                    <span>Alain Dupont</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-2">Belgique</td>
+                                            <td class="py-3 px-2 font-medium">3 205€</td>
+                                            <td class="py-3 px-2">
+                                                <span
+                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600">
+                                                    Livré
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 pl-4 pr-2">12405</td>
+                                            <td class="py-3 px-2">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-2">
+                                                        <span class="text-xs font-medium text-red-600">MB</span>
+                                                    </div>
+                                                    <span>Marie Blanc</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-2">Suisse</td>
+                                            <td class="py-3 px-2 font-medium">1 276€</td>
+                                            <td class="py-3 px-2">
+                                                <span
+                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-600">
+                                                    Expédié
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex justify-between items-center mt-4">
+                                <div class="text-xs text-gray-500">
+                                    Affichage de 1-4 sur 28 commandes
+                                </div>
+                                <div class="flex space-x-1">
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                        <i class="fas fa-chevron-left text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-indigo-600 text-white">
+                                        1
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                        2
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                        3
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Order Status -->
-                <div class="bg-white rounded-xl shadow p-6">
-                    <div class="flex justify-between items-center mb-2">
-                        <div>
-                            <h2 class="font-bold">Order Status</h2>
-                            <p class="text-xs text-gray-500">Overview of latest month</p>
+                <!-- Bottom Section -->
+                <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Top Selling Products -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-gray-800">Meilleurs Produits</h2>
+                            <button class="text-indigo-600 text-sm hover:underline">Voir tout</button>
                         </div>
-                        <div class="flex space-x-1">
-                            <button class="w-6 h-6 bg-red-500 rounded-md flex items-center justify-center">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </button>
-                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center">
-                                <i class="fas fa-list text-gray-500 text-xs"></i>
-                            </button>
-                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center">
-                                <i class="fas fa-sort text-gray-500 text-xs"></i>
-                            </button>
+
+                        <div class="space-y-4">
+                            <!-- Product item -->
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-laptop text-gray-500"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between mb-1">
+                                        <h3 class="text-sm font-medium">MacBook Pro 16"</h3>
+                                        <span class="text-sm font-medium">2 499€</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-1">
+                                        <span class="text-xs text-gray-500">8 542 ventes</span>
+                                        <span class="text-xs text-gray-500">85%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product item -->
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-mobile-alt text-gray-500"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between mb-1">
+                                        <h3 class="text-sm font-medium">iPhone 14 Pro</h3>
+                                        <span class="text-sm font-medium">1 299€</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 72%"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-1">
+                                        <span class="text-xs text-gray-500">6 789 ventes</span>
+                                        <span class="text-xs text-gray-500">72%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product item -->
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-headphones text-gray-500"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between mb-1">
+                                        <h3 class="text-sm font-medium">AirPods Pro</h3>
+                                        <span class="text-sm font-medium">249€</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 62%"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-1">
+                                        <span class="text-xs text-gray-500">5 421 ventes</span>
+                                        <span class="text-xs text-gray-500">62%</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Search -->
-                    <div class="flex justify-end mb-4">
-                        <div class="relative">
-                            <input type="text" placeholder="Search" class="bg-gray-100 rounded-md px-4 py-1 text-sm">
-                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                <i class="fas fa-search text-gray-400 text-xs"></i>
+                    <!-- Team Members -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-gray-800">Équipe</h2>
+                            <button
+                                class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-plus text-xs"></i>
                             </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Team member -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                        <img src="/api/placeholder/40/40" alt="Nicolas Durand"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium">Nicolas Durand</h3>
+                                        <p class="text-xs text-gray-500">Chef de projet</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-comment-alt text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-phone text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Team member -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                        <img src="/api/placeholder/40/40" alt="Pamela Martin"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium">Pamela Martin</h3>
+                                        <p class="text-xs text-gray-500">Commerciale</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-comment-alt text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-phone text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Team member -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                        <img src="/api/placeholder/40/40" alt="Daniel Lefebvre"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium">Daniel Lefebvre</h3>
+                                        <p class="text-xs text-gray-500">Marketing</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-comment-alt text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-phone text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Team member -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                        <img src="/api/placeholder/40/40" alt="Sophie Bernard"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium">Sophie Bernard</h3>
+                                        <p class="text-xs text-gray-500">Designer UI/UX</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-comment-alt text-xs"></i>
+                                    </button>
+                                    <button
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                        <i class="fas fa-phone text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Table -->
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-gray-500 uppercase text-xs">
-                                <th class="py-2 text-left">Invoice</th>
-                                <th class="py-2 text-left">Customers</th>
-                                <th class="py-2 text-left">From</th>
-                                <th class="py-2 text-left">Price</th>
-                                <th class="py-2 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="py-2">12396</td>
-                                <td class="py-2">Christy Jean</td>
-                                <td class="py-2">Russia</td>
-                                <td class="py-2">$2652</td>
-                                <td class="py-2">
-                                    <button class="bg-pink-500 text-white text-xs rounded-md px-3 py-1">Process</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-2">12398</td>
-                                <td class="py-2">Christy Jean</td>
-                                <td class="py-2">Russia</td>
-                                <td class="py-2">$2652</td>
-                                <td class="py-2">
-                                    <button class="bg-indigo-600 text-white text-xs rounded-md px-3 py-1">Open</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <!-- Calendar -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-gray-800">Calendrier</h2>
+                            <div class="flex space-x-2">
+                                <button
+                                    class="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                    <!-- Pagination -->
-                    <div class="flex justify-center mt-4">
-                        <div class="flex space-x-1">
-                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button
-                                class="w-6 h-6 bg-red-500 text-white rounded-md flex items-center justify-center text-xs">1</button>
-                            <button
-                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">2</button>
-                            <button
-                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">3</button>
-                            <button
-                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">4</button>
-                            <button
-                                class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">5</button>
-                            <button class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center text-xs">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                        <div class="text-center mb-4">
+                            <h3 class="text-md font-medium text-gray-800">Octobre 2020</h3>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div class="grid grid-cols-7 gap-2 text-center">
+                            <!-- Day Names -->
+                            <div class="text-xs text-gray-500 font-medium">Lu</div>
+                            <div class="text-xs text-gray-500 font-medium">Ma</div>
+                            <div class="text-xs text-gray-500 font-medium">Me</div>
+                            <div class="text-xs text-gray-500 font-medium">Je</div>
+                            <div class="text-xs text-gray-500 font-medium">Ve</div>
+                            <div class="text-xs text-gray-500 font-medium">Sa</div>
+                            <div class="text-xs text-gray-500 font-medium">Di</div>
+
+                            <!-- Days -->
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-400">28</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-400">29</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-400">30</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">1</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">2</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">3</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">4</div>
+
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">5</div>
+                            <div
+                                class="h-8 flex items-center justify-center text-sm bg-indigo-100 text-indigo-600 rounded-full">
+                                6</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">7</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">8</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">9</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">10</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">11</div>
+
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">12</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">13</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">14</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">15</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">16</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">17</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">18</div>
+
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">19</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">20</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">21</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">22</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">23</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">24</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">25</div>
+
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">26</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">27</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">28</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">29</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">30</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-600">31</div>
+                            <div class="h-8 flex items-center justify-center text-sm text-gray-400">1</div>
+                        </div>
+
+                        <!-- Upcoming Events -->
+                        <div class="mt-6">
+                            <h3 class="text-sm font-medium text-gray-800 mb-3">Événements à venir</h3>
+
+                            <div class="space-y-3">
+                                <!-- Event -->
+                                <div class="flex items-center bg-indigo-50 rounded-lg p-3">
+                                    <div
+                                        class="w-8 h-8 rounded-md bg-indigo-600 flex items-center justify-center text-white mr-3">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium">Réunion équipe</h4>
+                                        <p class="text-xs text-gray-500">Aujourd'hui • 14:00</p>
+                                    </div>
+                                </div>
+
+                                <!-- Event -->
+                                <div class="flex items-center bg-pink-50 rounded-lg p-3">
+                                    <div
+                                        class="w-8 h-8 rounded-md bg-pink-500 flex items-center justify-center text-white mr-3">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium">Réunion client</h4>
+                                        <p class="text-xs text-gray-500">Demain • 10:30</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Footer -->
+            <footer class="mt-6 py-4 bg-white border-t border-gray-200">
+                <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-sm text-gray-500">© 2020 Votre Entreprise. Tous droits réservés.</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-gray-600">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-600">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-600">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-600">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 
@@ -344,21 +1056,21 @@
     const earningsChart = new Chart(earningsCtx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Feb', 'Mar', 'Apr', 'May'],
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct'],
             datasets: [{
-                    label: 'Earnings',
-                    data: [15, 20, 25, 30, 25, 35, 15],
-                    borderColor: '#F472B6',
-                    backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                    label: 'Revenus',
+                    data: [3200, 3800, 3000, 5000, 4500, 6000, 7000, 6500, 5800, 6468],
+                    borderColor: '#EC4899',
+                    backgroundColor: 'rgba(236, 72, 153, 0.1)',
                     fill: true,
                     tension: 0.4,
                     borderWidth: 2
                 },
                 {
-                    label: 'Sales',
-                    data: [10, 15, 20, 15, 25, 20, 10],
-                    borderColor: '#818CF8',
-                    backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                    label: 'Ventes',
+                    data: [2800, 3200, 2500, 4000, 3800, 5000, 5800, 5200, 4800, 5200],
+                    borderColor: '#4F46E5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
                     fill: true,
                     tension: 0.4,
                     borderWidth: 2
@@ -369,32 +1081,85 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
                 tooltip: {
                     mode: 'index',
-                    intersect: false
+                    intersect: false,
+                    padding: 10,
+                    titleColor: '#111827',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyColor: '#4B5563',
+                    bodyFont: {
+                        size: 12
+                    },
+                    backgroundColor: '#FFF',
+                    borderColor: '#E5E7EB',
+                    borderWidth: 1,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('fr-FR', {
+                                    style: 'currency',
+                                    currency: 'EUR'
+                                }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        usePointStyle: true
+                    }
                 }
             },
             scales: {
                 x: {
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
                     }
                 },
                 y: {
-                    min: 0,
-                    max: 35,
+                    beginAtZero: true,
+                    grid: {
+                        color: '#F3F4F6'
+                    },
                     ticks: {
-                        stepSize: 5
+                        font: {
+                            size: 10
+                        },
+                        callback: function(value) {
+                            return value + '€';
+                        }
                     }
                 }
             },
             elements: {
                 point: {
-                    radius: 0
+                    radius: 0,
+                    hoverRadius: 6,
+                    hitRadius: 6
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
@@ -404,7 +1169,7 @@
     const analyticsChart = new Chart(analyticsCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Sale', 'Distribute', 'Return'],
+            labels: ['Ventes', 'Distribution', 'Retours'],
             datasets: [{
                 data: [55, 25, 20],
                 backgroundColor: [
@@ -422,11 +1187,36 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    padding: 10,
+                    titleColor: '#111827',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyColor: '#4B5563',
+                    bodyFont: {
+                        size: 12
+                    },
+                    backgroundColor: '#FFF',
+                    borderColor: '#E5E7EB',
+                    borderWidth: 1,
+                    displayColors: true
                 }
             }
         }
     });
-    </script>
-</body>
 
-</html>
+    // Initialize tabs
+    document.querySelectorAll('.btn-tab').forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            document.querySelectorAll('.btn-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            button.classList.add('active');
+        });
+    });
+    </script>

@@ -5,18 +5,17 @@ session_start();
 
 // Définir les éléments du menu principal
 $menuItems = [
-    ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-home'],
-    ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
-    ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
-    ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
-    ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
-    ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
-    ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
+    ['slug' => 'candidature_soutenance', 'label' => 'Candidater à la soutenance', 'icon' => 'fa-graduation-cap'],
+    ['slug' => 'gestion_rapport', 'label' => 'Gestion des rapports/mémoires', 'icon' => 'fa-file'],
+    ['slug' => 'gestion_reclamations', 'label' => 'Réclamations', 'icon' => 'fa-circle-exclamation'],
+    ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
     ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user'],
+    
+   
 ];
 
 // Déterminer la page actuelle du menu principal.
-$currentMenuSlug = 'dashboard'; // Page par défaut
+$currentMenuSlug = 'profil'; // Page par défaut
 $allowedMenuPages = array_column($menuItems, 'slug');
 if (isset($_GET['page']) && in_array($_GET['page'], $allowedMenuPages)) {
     $currentMenuSlug = $_GET['page'];
@@ -28,36 +27,8 @@ $contentFile = '';
 $currentPageLabel = '';
 
 
-$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
-// Logique spécifique pour la section "Paramètres Généraux"
-if ($currentMenuSlug === 'parametres_generaux') {
-    include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php'; // ajuste le chemin selon ta structure
-    if (isset($_GET['action'])) {
-        $allowedActions = [
-            'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
-            'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants','messages',
-        ];
-        if (in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
-            // Pour le label, vous voudrez peut-être un mapping plus précis
-            // que de simplement formater le slug de l'action.
-            // Par exemple, récupérer le titre de la carte correspondante.
-            // Pour l'instant, on formate le slug de l'action :
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-        } else {
-            // Action non valide, afficher la page des cartes par défaut ou une erreur
-            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-            $currentPageLabel = 'Paramètres Généraux';
-            // Optionnel: afficher un message d'erreur pour action non valide
-        }
-    } else {
-        // Pas d'action spécifiée pour les paramètres généraux, afficher les cartes
-        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-        $currentPageLabel = 'Paramètres Généraux';
-    }
-} else {
+$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
+
     // Logique pour les autres pages du menu principal (dashboard, users, etc.)
     $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
     foreach ($menuItems as $item) {
@@ -66,7 +37,7 @@ if ($currentMenuSlug === 'parametres_generaux') {
             break;
         }
     }
-}
+
 
 // Si aucun label n'a été trouvé (par exemple, pour une page non listée dans $menuItems et sans action)
 if (empty($currentPageLabel)) {
@@ -76,109 +47,6 @@ if (empty($currentPageLabel)) {
         // $contentFile = $partialsBasePath . '404_content.php'; // Exemple
     }
 }
-
-// Tableau de données pour vos cartes avec des titres et descriptions personnalisés.
-// Chaque élément du tableau représente une carte.
-$cardData = [
-    [
-        'title' => 'Années Académiques',
-        'description' => 'Gérer les années académiques, les dates de début et de fin.',
-        'link' => '?page=parametres_generaux&action=annees_academiques', // Adaptez le lien
-        'icon' => './images/date-du-calendrier.png' // Optionnel: vous pouvez ajouter une icône
-    ],
-    [
-        'title' => 'Gestion des Grades',
-        'description' => 'Définir et administrer les différents grades académiques.',
-        'link' => '?page=parametres_generaux&action=grades',
-        'icon' => './images/diplome.png'
-    ],
-    [
-        'title' => 'Fonctions Utilisateurs',
-        'description' => 'Configurer les rôles et fonctions des utilisateurs du système.',
-        'link' => '?page=parametres_generaux&action=fonction_utilisateur',
-        'icon' => './images/equipe.png'
-    ],
-    [
-        'title' => 'Spécialités des enseignants',
-        'description' => 'Administrer les spécialités et filières proposées.',
-        'link' => '?page=parametres_generaux&action=specialites',
-        'icon' => './images/marche-de-niche.png'
-    ],
-    [
-        'title' => 'Niveaux d\'Étude',
-        'description' => 'Gérer les différents niveaux d\'étude (Licence, Master, etc.).',
-        'link' => '?page=parametres_generaux&action=niveaux_etude',
-        'icon' => './images/livre.png'
-    ],
-    [
-        'title' => 'Unités d\'Enseignement (UE)',
-        'description' => 'Définir les unités d\'enseignement et leurs crédits.',
-        'link' => '?page=parametres_generaux&action=ue',
-        'icon' => './images/livre-ouvert.png'
-    ],
-    [
-        'title' => 'Éléments Constitutifs (ECUE)',
-        'description' => 'Gérer les éléments constitutifs des unités d\'enseignement.',
-        'link' => '?page=parametres_generaux&action=ecue',
-        'icon' => './images/piece-de-puzzle.png'
-    ],
-    [
-        'title' => 'Statuts du Jury',
-        'description' => 'Configurer les différents statuts possibles pour les membres du jury.',
-        'link' => '?page=parametres_generaux&action=statut_jury',
-        'icon' => './images/droit.png'
-    ],
-
-    [
-        'title' => 'Niveaux d\'Approbation',
-        'description' => 'Définir les circuits et niveaux d\'approbation pour les documents.',
-        'link' => '?page=parametres_generaux&action=niveaux_approbation',
-        'icon' => './images/check.png'
-    ],
-     [
-        'title' => 'Semestres',
-        'description' => 'Définir les différents semestres et UE associées.',
-        'link' => '?page=parametres_generaux&action=semestres',
-        'icon' => './images/diplome.png'
-    ],
-     [
-        'title' => 'Niveaux d\'Accès',
-        'description' => 'Définir les différents niveaux d\'accès pour les utilisateurs',
-        'link' => '?page=parametres_generaux&action=niveaux_acces',
-        'icon' => './images/check.png',
-    ],
-     [
-        'title' => 'Traitements',
-        'description' => 'Définir les traitements à affecter aux différents utilisateurs.',
-        'link' => '?page=parametres_generaux&action=traitements',
-        'icon' => './images/bd.png'
-    ], [
-        'title' => 'Entreprises',
-        'description' => 'Gérer les entreprises partenaires et leurs informations.',
-        'link' => '?page=parametres_generaux&action=entreprises',
-        'icon' => './images/valise.png'
-    ],
-     [
-        'title' => 'Actions',
-        'description' => 'Définir les actions possibles pour les utilisateurs dans le système.',
-        'link' => '?page=parametres_generaux&action=actions',
-        'icon' => './images/cible.png'
-     ],
-     [
-        'title' => 'Fonctions',
-        'description' => 'Définir les fonctions exercées par les enseignants dans le système.',
-        'link' => '?page=parametres_generaux&action=fonctions',
-        'icon' => './images/valise.png'
-    ],
-    [
-        'title' => 'Messagerie',
-        'description' => 'Définition des messages d\'erreur à afficher dans le système.',
-        'link' => '?page=parametres_generaux&action=messages',
-        'icon' => './images/enveloppe.png'
-    ],
-];
-
-
 
 
 ?>
@@ -198,7 +66,6 @@ $cardData = [
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">
@@ -256,7 +123,7 @@ $cardData = [
                 <div class="flex items-center space-x-4">
                     <div class="relative">
                         <button class="flex items-center space-x-2 focus:outline-none">
-                            <span class="text-m font-medium text-green-500">Bienvenue, Administrateur</span>
+                            <span class="text-m font-medium text-green-500">Bienvenue, Étudiant</span>
                         </button>
                     </div>
                 </div>
@@ -264,18 +131,6 @@ $cardData = [
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
-                <?php
-            // Bouton Retour si on est dans une action spécifique des paramètres généraux
-            if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
-                ?>
-                <div class="mb-6">
-                    <a href="?page=parametres_generaux"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
-                        <i class="fas fa-arrow-left mr-2 "></i>
-                        Retour aux Paramètres
-                    </a>
-                </div>
-                <?php endif; ?>
 
                 <?php
             if (!empty($contentFile) && file_exists($contentFile)) {
@@ -306,8 +161,8 @@ $cardData = [
             mobileMenuButton.addEventListener('click', function() {
                 sidebar.classList.toggle('hidden'); // Bascule la classe hidden sur la sidebar elle-même
                 // Si vous voulez que la sidebar se superpose sur mobile au lieu de pousser le contenu :
-                // sidebar.classList.toggle('absolute');
-                // sidebar.classList.toggle('z-20'); // Pour s'assurer qu'elle est au-dessus
+                sidebar.classList.toggle('absolute');
+                sidebar.classList.toggle('z-20'); // Pour s'assurer qu'elle est au-dessus
             });
         }
 
