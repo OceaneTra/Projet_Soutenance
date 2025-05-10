@@ -8,6 +8,7 @@ $menuItems = [
     ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-home'],
     ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
     ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
+    ['slug' => 'gestion_ens', 'label' => 'Gestion des enseignants', 'icon' => 'fa-table'],
     ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
     ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
     ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],

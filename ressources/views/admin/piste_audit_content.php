@@ -44,12 +44,12 @@
             <button
                 class="bg-orange-500 text-white px-6 py-2 rounded-md text-sm  focus:outline-none focus:ring-2  focus:ring-offset-2 mr-3">Exporter</button>
 
-            <div class="flex items-center w-full ">
-                <input type="text" style="width:60%"
-                    class="w-full px-6 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2">
+            <div class="flex items-center w-full  ml-4">
+                <input type="text" style="width:60%" placeholder="recherche une connexion"
+                    class=" w-full px-6 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2">
                 <button
-                    class="rounded-md bg-green-500 text-white px-3 py-1 rounded-r text-sm border  border-l-0  focus:outline-none focus:ring-2  focus:ring-offset-2">
-                    <i class="fa fa-search py-3 "></i>
+                    class=" bg-green-500 text-white px-3 py-1 rounded-md text-sm border  border-l-0  focus:outline-none focus:ring-2  focus:ring-offset-2">
+                    <i class="fa fa-search py-3  "></i>
                 </button>
             </div>
 
