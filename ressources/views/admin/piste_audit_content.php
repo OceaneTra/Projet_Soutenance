@@ -42,10 +42,10 @@
 
         <div class="flex justify-between mb-4">
             <button
-                class="bg-orange-500 text-white px-6 py-2 rounded-md text-sm  focus:outline-none focus:ring-2  focus:ring-offset-2">Exporter</button>
+                class="bg-orange-500 text-white px-6 py-2 rounded-md text-sm  focus:outline-none focus:ring-2  focus:ring-offset-2 mr-3">Exporter</button>
 
-            <div class="flex items-center w-1/3">
-                <input type="text"
+            <div class="flex items-center w-full ">
+                <input type="text" style="width:60%"
                     class="w-full px-6 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2">
                 <button
                     class="rounded-md bg-green-500 text-white px-3 py-1 rounded-r text-sm border  border-l-0  focus:outline-none focus:ring-2  focus:ring-offset-2">

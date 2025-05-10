@@ -1,230 +1,296 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des étudiants</title>
-</head>
-
-<body>
-
-    <?php
-// Placeholder data for students
-$etudiants = [
-    ['id' => 1, 'num_etudiant' => 'E2023001', 'nom' => 'Dupont', 'prenom' => 'Jean', 'filiere' => 'Informatique', 'email' => 'jean.dupont@etu.example.com'],
-    ['id' => 2, 'num_etudiant' => 'E2023002', 'nom' => 'Martin', 'prenom' => 'Alice', 'filiere' => 'Gestion', 'email' => 'alice.martin@etu.example.com'],
+<?php
+// Placeholder data for users
+$users = [
+    ['id' => 1, 'username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'Administrateur', 'status' => 'Actif', 'created_at' => '2023-01-15'],
+    ['id' => 2, 'username' => 'editor_user', 'email' => 'editor@example.com', 'role' => 'Éditeur', 'status' => 'Actif', 'created_at' => '2023-02-20'],
+    ['id' => 3, 'username' => 'viewer_user', 'email' => 'viewer@example.com', 'role' => 'Lecteur', 'status' => 'Inactif', 'created_at' => '2023-03-10'],
 ];
-$filieres = ['Informatique', 'Gestion', 'Lettres', 'Sciences'];
+
+// Placeholder for roles/groups
+$roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 ?>
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-semibold text-gray-800">Gestion des Étudiants</h1>
-            <div>
-                <button onclick="openEtudiantModal(null)"
-                    class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
-                    <i class="fas fa-plus mr-2"></i>Ajouter un Étudiant
+
+
+
+
+<div class="relative container mx-auto px-4 py-8">
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal"
+        class="absolute inset-0 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center hidden ">
+        <div class="relative p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white 
+        left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times fa-lg"></i>
                 </button>
             </div>
-        </div>
-
-        <!-- Action Bar for Table (Search, Print, Export) - Similar to gestion_utilisateurs -->
-        <div class="mb-6 flex flex-col sm:flex-row justify-between items-center">
-            <div class="relative mb-4 sm:mb-0 w-full sm:w-1/3">
-                <input type="text" placeholder="Rechercher un étudiant..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                <span class="absolute top-0 right-0 mt-2 mr-3"><i class="fas fa-search text-gray-400"></i></span>
-            </div>
-            <div>
-                <button
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md mr-2"><i
-                        class="fas fa-print mr-2"></i>Imprimer</button>
-                <button
-                    class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md"><i
-                        class="fas fa-file-export mr-2"></i>Exporter</button>
-            </div>
-        </div>
-
-        <!-- Students Table -->
-        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                N° Étudiant</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nom</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Prénom</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Filière</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email</th>
-                            <th
-                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($etudiants as $etudiant): ?>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <?php echo htmlspecialchars($etudiant['num_etudiant']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($etudiant['nom']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($etudiant['prenom']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($etudiant['filiere']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($etudiant['email']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <button onclick='openEtudiantModal(<?php echo json_encode($etudiant); ?>)'
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3" title="Modifier"><i
-                                        class="fas fa-pencil-alt"></i></button>
-                                <button onclick="return confirm('Supprimer cet étudiant ?');"
-                                    class="text-red-600 hover:text-red-900" title="Supprimer"><i
-                                        class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination (Placeholder) -->
-            <div class="px-6 py-4 border-t border-gray-200">
-                <p class="text-sm text-gray-700">Pagination ici...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Etudiant Modal -->
-    <div id="etudiantModal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
-        <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="etudiantModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Étudiant</h3>
-                <button onclick="closeEtudiantModal()" class="text-gray-400 hover:text-gray-600"><i
-                        class="fas fa-times fa-lg"></i></button>
-            </div>
-            <form id="etudiantForm">
-                <input type="hidden" id="etudiantId" name="etudiantId">
+            <form id="userForm">
+                <input type="hidden" id="userId" name="userId">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
-                        <label for="num_etudiant" class="block text-sm font-medium text-gray-700 mb-1">N°
-                            Étudiant</label>
-                        <input type="text" name="num_etudiant" id="num_etudiant" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Nom
+                            d'utilisateur</label>
+                        <input type="text" name="username" id="username" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div>
-                        <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                        <input type="text" name="nom" id="nom" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Email</label>
+                        <input type="email" name="email" id="email" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
-                        <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-                        <input type="text" name="prenom" id="prenom" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500">
+                        <label for="type_utilisateur" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Type
+                            utilisateur</label>
+                        <input type="type_utilisateur" name="type_utilisateur" id="type_utilisateur"
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+
                     </div>
                     <div>
-                        <label for="date_naissance" class="block text-sm font-medium text-gray-700 mb-1">Date de
-                            Naissance</label>
-                        <input type="date" name="date_naissance" id="date_naissance"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 bg-white">
+                        <label for="fonction" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Fonction</label>
+                        <select name="fonction" id="fonction" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label for="adresse" class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                    <textarea name="adresse" id="adresse" rows="2"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500"></textarea>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label for="email_etu" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" name="email_etu" id="email_etu" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500">
+                        <label for="gu" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Groupe
+                            utilisateur</label>
+                        <select name="gu" id="gu" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div>
-                        <label for="telephone_etu"
-                            class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                        <input type="tel" name="telephone_etu" id="telephone_etu"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500">
+                        <label for="niveau_acces" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Niveau
+                            d'accès</label>
+                        <select name="niveau_acces" id="niveau_acces" required
+                            class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <?php foreach($roles as $role): ?>
+                            <option value="<?php echo htmlspecialchars($role); ?>">
+                                <?php echo htmlspecialchars($role); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <label for="filiere" class="block text-sm font-medium text-gray-700 mb-1">Filière</label>
-                    <select name="filiere" id="filiere" required
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 bg-white">
-                        <?php foreach($filieres as $filiere): ?>
-                        <option value="<?php echo htmlspecialchars($filiere); ?>">
-                            <?php echo htmlspecialchars($filiere); ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="hidden">
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Statut</label>
+                        <select name="status" id="status" required
+                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                            <option value="Actif">Actif</option>
+                            <option value="Inactif">Inactif</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-4 self-end">
+                        <button type="button" onclick="closeUserModal()"
+                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
+                            <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeEtudiantModal()"
-                        class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50">Annuler</button>
-                    <button type="submit"
-                        class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600"><i
-                            class="fas fa-save mr-2"></i><span
-                            id="etudiantModalSubmitButton">Enregistrer</span></button>
-                </div>
+
             </form>
         </div>
     </div>
 
-    <script>
-    // JavaScript for Etudiant Modal (similar to User Modal)
-    const etudiantModal = document.getElementById('etudiantModal');
-    const etudiantForm = document.getElementById('etudiantForm');
-    const etudiantModalTitle = document.getElementById('etudiantModalTitle');
-    const etudiantModalSubmitButton = document.getElementById('etudiantModalSubmitButton');
 
-    function openEtudiantModal(etudiantData = null) {
-        etudiantForm.reset();
-        if (etudiantData) {
-            etudiantModalTitle.textContent = 'Modifier l\'Étudiant';
-            etudiantModalSubmitButton.textContent = 'Mettre à jour';
-            // Populate form fields:
-            document.getElementById('etudiantId').value = etudiantData.id;
-            document.getElementById('num_etudiant').value = etudiantData.num_etudiant;
-            document.getElementById('nom').value = etudiantData.nom;
-            document.getElementById('prenom').value = etudiantData.prenom;
-            // ... (populate other fields like date_naissance, adresse, email_etu, telephone_etu, filiere)
-            document.getElementById('email_etu').value = etudiantData.email;
-            document.getElementById('filiere').value = etudiantData.filiere;
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-semibold text-gray-800"></h1>
+        <div class="mt-2">
+            <button onclick="openUserModal(null)"
+                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
+                <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+            </button>
+        </div>
+    </div>
 
-        } else {
-            etudiantModalTitle.textContent = 'Ajouter un Étudiant';
-            etudiantModalSubmitButton.textContent = 'Enregistrer';
-            document.getElementById('etudiantId').value = '';
-        }
-        etudiantModal.classList.remove('hidden');
+
+    <!-- Action Bar for Table -->
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 pb-4">
+        <div style="width: 40%;" class="relative  mb-4 sm:mb-0 md:w-2/3 sm:w-1/3">
+            <input type="text" placeholder="Rechercher un utilisateur..."
+                class="w-full px-4 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-green-500">
+            <span class="absolute top-0 right-0  mr-3 px-2 py-2 text-white bg-green-500 rounded">
+                <i class="fas fa-search "></i>
+            </span>
+        </div>
+        <div>
+            <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out mr-2">
+                <i class="fas fa-print mr-2"></i>Imprimer la liste
+            </button>
+            <button
+                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out">
+                <i class="fas fa-file-export mr-2"></i>Exporter (CSV)
+            </button>
+            <button
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out">
+                <i class="fas fa-trash-alt mr-2"></i>Supprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 border-collapse">
+        <div class="overflow-x-auto">
+            <table class="min-w-full w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="w-[5%] px-4 py-3 text-center">
+                            <input type="checkbox" id="selectAllCheckbox"
+                                class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom
+                            d'utilisateur</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type utilisateur
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Statut</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php if (empty($users)): ?>
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">Aucun utilisateur trouvé.</td>
+                    </tr>
+                    <?php else: ?>
+                    <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td scope="col" class="w-[5%] px-4 py-3 text-center">
+                            <input type="checkbox" id="selectAllCheckbox"
+                                class="text-center form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        </td>
+                        <td class="text-center px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <?php echo htmlspecialchars($user['id']); ?></td>
+                        <td class=" text-center px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <?php echo htmlspecialchars($user['username']); ?></td>
+                        <td class="text-center px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <?php echo htmlspecialchars($user['email']); ?></td>
+                        <td class="text-center px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <?php echo htmlspecialchars($user['role']); ?></td>
+                        <td class="text-center px-6 py-4 whitespace-nowrap text-sm">
+                            <span
+                                class="px-2 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo $user['status'] === 'Actif' ? 'bg-green-300 text-white' : 'bg-red-500 text-white'; ?>">
+                                <?php echo htmlspecialchars($user['status']); ?>
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
+                                class="text-blue-300 hover:text-blue-500 mr-3" title="Modifier">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination (Placeholder) -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            <nav class="flex items-center justify-between">
+                <p class="text-sm text-gray-700">
+                    Affichage de <span class="font-medium">1</span> à <span
+                        class="font-medium"><?php echo count($users); ?></span> sur <span
+                        class="font-medium"><?php echo count($users); ?></span> résultats
+                </p>
+                <div class="flex">
+                    <a href="#" class="px-3 py-1  text-sm text-green-500 font-semibold">Précédent</a>
+                    <a href="#"
+                        class="px-3 py-1 border-t border-b border-gray-300 text-sm hover:bg-gray-50 bg-green-100 text-green-600">1</a>
+                    <a href="#" class="px-3 py-1 border-t border-b border-gray-300 text-sm hover:bg-gray-50">2</a>
+                    <a href="#" class="px-3 py-1 text-sm text-green-500 font-semibold">Suivant</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+const userModal = document.getElementById('userModal');
+const userForm = document.getElementById('userForm');
+const userModalTitle = document.getElementById('userModalTitle');
+const userIdField = document.getElementById('userId');
+const usernameField = document.getElementById('username');
+const emailField = document.getElementById('email');
+const fonctionField = document.getElementById('fonction');
+const niveau_acces = document.getElementById('niveau_acces');
+const guField = document.getElementById('gu');
+const typeField = document.getElementById('type_utilisateur');
+const statusField = document.getElementById('status');
+const userModalSubmitButton = document.getElementById('userModalSubmitButton');
+
+function openUserModal(userData = null) {
+    userForm.reset(); // Reset form fields
+    if (userData) {
+        userModalTitle.textContent = 'Modifier l\'Utilisateur';
+        userModalSubmitButton.textContent = 'Mettre à jour';
+        userIdField.value = userData.id;
+        usernameField.value = userData.username;
+        emailField.value = userData.email;
+        fonctionField.value = userData.fonction;
+        statusField.value = userData.status;
+        typeField.value = userData.type;
+        guField.value = userData.gu;
+        niveau_acces.value = userData.niveau_acces;
+    } else {
+        userModalTitle.textContent = 'Ajouter un Utilisateur';
+        userModalSubmitButton.textContent = 'Enregistrer';
+        userIdField.value = '';
     }
+    userModal.classList.remove('hidden');
+}
 
-    function closeEtudiantModal() {
-        etudiantModal.classList.add('hidden');
+function closeUserModal() {
+    userModal.classList.add('hidden');
+}
+
+userForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    // Here you would typically send the data via AJAX
+    const formData = new FormData(userForm);
+    const data = Object.fromEntries(formData.entries());
+    console.log('Submitting user data:', data);
+    alert((data.userId ? 'Modification' : 'Ajout') + ' de l\'utilisateur ' + data.username + ' simulé.');
+    closeUserModal();
+    // Potentially reload or update the table data here
+});
+
+// Close modal if escape key is pressed
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !userModal.classList.contains('hidden')) {
+        closeUserModal();
     }
-
-    etudiantForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(etudiantForm);
-        const data = Object.fromEntries(formData.entries());
-        console.log('Submitting etudiant data:', data);
-        alert((data.etudiantId ? 'Modification' : 'Ajout') + ' de l\'étudiant ' + data.nom + ' simulé.');
-        closeEtudiantModal();
-    });
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !etudiantModal.classList.contains('hidden')) {
-            closeEtudiantModal();
-        }
-    });
-    </script>
-
-</body>
-
-</html>
+});
+</script>

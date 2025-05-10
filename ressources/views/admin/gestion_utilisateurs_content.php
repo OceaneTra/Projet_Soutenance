@@ -12,21 +12,15 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 
 
 
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-semibold text-gray-800"></h1>
-        <div class="mt-2">
-            <button onclick="openUserModal(null)"
-                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
-                <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
-            </button>
-        </div>
-    </div>
+
+
+<div class="relative container mx-auto px-4 py-8">
 
     <!-- Add/Edit User Modal -->
     <div id="userModal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center ">
-        <div class="relative mx-auto p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
+        class="absolute inset-0 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center hidden ">
+        <div class="relative p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white 
+        left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
                 <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
@@ -119,6 +113,18 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
         </div>
     </div>
 
+
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-semibold text-gray-800"></h1>
+        <div class="mt-2">
+            <button onclick="openUserModal(null)"
+                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
+                <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+            </button>
+        </div>
+    </div>
+
+
     <!-- Action Bar for Table -->
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 pb-4">
         <div style="width: 40%;" class="relative  mb-4 sm:mb-0 md:w-2/3 sm:w-1/3">
@@ -160,7 +166,8 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             d'utilisateur</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type utilisateur
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Statut</th>
