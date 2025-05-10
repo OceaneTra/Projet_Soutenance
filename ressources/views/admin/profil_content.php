@@ -21,13 +21,13 @@
 }">
     <div class="container max-w-5xl mx-auto px-4 py-10">
         <!-- Header -->
-        <header class="mb-8 text-center md:text-left fade-in">
+        <header class="mb-8 text-center md:text-left ">
             <h1 class="text-3xl font-bold text-green-500">Profil Utilisateur</h1>
             <p class="text-gray-600 mt-2">Gérez vos informations personnelles</p>
         </header>
 
         <!-- Main Content -->
-        <div class="profile-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" style="animation-delay: 0.1s;">
+        <div class="profile-card bg-white rounded-xl shadow-lg overflow-hidden ">
             <div class="md:flex">
                 <!-- Sidebar -->
                 <div class="w-full md:w-1/4 bg-green-300 text-white p-6">
@@ -149,7 +149,6 @@
                             </button>
                             <button
                                 class="btn-primary px-5 py-2 bg-green-600 rounded-lg text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition flex items-center"
-                                :class="{'opacity-50 cursor-not-allowed': !formChanged}" :disabled="!formChanged"
                                 @click="saveChanges()">
                                 <i class="fas fa-save mr-2"></i>
                                 Enregistrer
@@ -220,7 +219,9 @@
 
     </div>
 
-    <!-- Success notification -->
+
+
+    <!-- Success notification 
     <div x-show="showNotification" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 transform translate-y-2"
         x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -231,9 +232,10 @@
         <i class="fas fa-check-circle mr-2"></i>
         Profil mis à jour avec succès
     </div>
-
-    <!-- Confirmation modal -->
-    <div x-show="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+-->
+    <!-- Confirmation modal 
+    <div x-show="showConfirmation"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-6 max-w-md mx-4" @click.away="showConfirmation = false">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Confirmer les modifications?</h3>
             <p class="text-gray-600 mb-4">Êtes-vous sûr de vouloir enregistrer ces modifications?</p>
@@ -250,6 +252,7 @@
             </div>
         </div>
     </div>
+-->
 </body>
 
 </html>

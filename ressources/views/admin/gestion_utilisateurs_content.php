@@ -136,7 +136,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
         <!-- Main Content -->
         <div class="bg-white shadow-card rounded-lg overflow-hidden border border-gray-200 mb-8">
             <!-- Dashboard Header -->
-            <div class="bg-gradient px-6 py-4 flex justify-between items-center">
+            <div class=" bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
                 <button onclick="openUserModal(null)"
                     class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
@@ -396,9 +396,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
             userIdField.value = '';
         }
         userModal.classList.remove('hidden');
-        setTimeout(() => {
-            userModal.classList.add('opacity-100');
-        }, 10);
+
     }
 
     function closeUserModal() {
@@ -407,21 +405,6 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
             userModal.classList.add('hidden');
         }, 300);
     }
-
-    userForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        // Here you would typically send the data via AJAX
-        const formData = new FormData(userForm);
-        const data = Object.fromEntries(formData.entries());
-        console.log('Submitting user data:', data);
-
-        // Show success message
-        const actionType = data.userId ? 'modifié' : 'ajouté';
-        showNotification(`Utilisateur ${data.username} ${actionType} avec succès!`, 'success');
-
-        closeUserModal();
-        // Potentially reload or update the table data here
-    });
 
     // Search functionality
     searchInput.addEventListener('input', function() {
@@ -468,101 +451,4 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                 0;
         }
     });
-
-    // Delete button functionality
-    deleteButton.addEventListener('click', function() {
-        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-        if (checkedBoxes.length === 0) return;
-
-        const userIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
-        const confirmMessage = userIds.length === 1 ?
-            'Êtes-vous sûr de vouloir supprimer cet utilisateur ?' :
-            `Êtes-vous sûr de vouloir supprimer ces ${userIds.length} utilisateurs ?`;
-
-        if (confirm(confirmMessage)) {
-            // Here you would send a request to delete the users
-            console.log('Deleting users with IDs:', userIds);
-            showNotification(`${userIds.length} utilisateur(s) supprimé(s) avec succès!`, 'success');
-            // After successful deletion, you would typically reload the data
-        }
-    });
-
-    // Close modal if escape key is pressed
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !userModal.classList.contains('hidden')) {
-            closeUserModal();
-        }
-    });
-
-    // Notification system
-    function showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white flex items-center space-x-2 animate-fade-in z-50 ${
-            type === 'success' ? 'bg-green-500' : 
-            type === 'error' ? 'bg-red-500' : 
-            type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-        }`;
-
-        // Icon based on notification type
-        const iconClass = type === 'success' ? 'fa-check-circle' :
-            type === 'error' ? 'fa-exclamation-circle' :
-            type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
-
-        notification.innerHTML = `
-            <i class="fas ${iconClass}"></i>
-            <span>${message}</span>
-            <button class="ml-4 focus:outline-none hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        // Add to document
-        document.body.appendChild(notification);
-
-        // Remove notification after 5 seconds
-        setTimeout(() => {
-            notification.classList.add('opacity-0');
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 5000);
-
-        // Make notification dismissible
-        notification.querySelector('button').addEventListener('click', () => {
-            notification.classList.add('opacity-0');
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        });
-    }
-
-    // Initialize tooltips
-    const tooltipElements = document.querySelectorAll('[title]');
-    tooltipElements.forEach(el => {
-        const originalTitle = el.getAttribute('title');
-        el.setAttribute('data-tooltip', originalTitle);
-        el.removeAttribute('title');
-
-        el.addEventListener('mouseenter', function() {
-            const tooltip = document.createElement('div');
-            tooltip.className =
-                'bg-gray-800 text-white text-xs rounded px-2 py-1 absolute z-10 -mt-10 transform -translate-x-1/2 left-1/2 opacity-0 transition-opacity duration-200';
-            tooltip.textContent = this.getAttribute('data-tooltip');
-            this.appendChild(tooltip);
-
-            setTimeout(() => {
-                tooltip.classList.remove('opacity-0');
-            }, 10);
-        });
-
-        el.addEventListener('mouseleave', function() {
-            const tooltip = this.querySelector('div');
-            if (tooltip) {
-                tooltip.classList.add('opacity-0');
-                setTimeout(() => {
-                    this.removeChild(tooltip);
-                }, 200);
-            }
-        });
-    });
+    </script>
