@@ -89,11 +89,8 @@ class ParametreController
 //=============================FIN GESTION ANNEE ACADEMIQUE=============================
 
 
-
-
 //=============================GESTION GRADES=============================
-    public
-    function gestionGrade()
+    public function gestionGrade()
     {
 
         $grades_a_modifier = null;
@@ -130,5 +127,19 @@ class ParametreController
     }
 //=============================FIN GESTION GRADES=============================
 
+
+//=============================GESTION FONCTION UTILISATEUR=============================
+    public function gestionFonctionUtilisateur()
+    {
+        $groupe_a_modifier = null;
+        $type_a_modifier = null;
+
+        //Ajout ou modification
+        if(isset($_POST['submit_add_groupe'])) {
+
+        }
+
+    }
+//=============================FIN GESTION FONCTION UTILISATEUR=============================
 }
 

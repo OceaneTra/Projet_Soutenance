@@ -17,7 +17,7 @@ $cardData = [
     [
         'title' => 'Fonctions Utilisateurs',
         'description' => 'Configurer les rôles et fonctions des utilisateurs du système.',
-        'link' => '?page=parametres_generaux&action=fonction_utilisateur',
+        'link' => '?page=parametres_generaux&action=fonction_utilisateur&tab=groupes',
         'icon' => 'fa-user-tie'
     ],
     [
