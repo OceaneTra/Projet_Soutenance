@@ -38,13 +38,13 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
                             <label class="block text-sm font-medium text-gray-600 mb-3">Date de début</label>
                             <input type="date" id="date_debut" name="date_debut" required
                                 value="<?= $annee_a_modifier ? date('Y-m-d', strtotime($annee_a_modifier->date_deb)) : '' ?>"
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:border-0">
                         </div>
                         <div>
                             <label for="" class="block text-sm font-medium text-gray-600 mb-3">Date de fin</label>
                             <input type="date" id="date_fin" name="date_fin" required
                                 value="<?= $annee_a_modifier ? date('Y-m-d', strtotime($annee_a_modifier->date_fin)) : '' ?>"
-                                class="focus:outline-none  w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:outline-green-500 transition-colors">
+                                class=" focus:border-0 focus:outline-none  w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:outline-green-600 transition-colors">
                         </div>
                     </div>
                     <div class="flex justify-start space-x-3">
@@ -79,7 +79,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200 ">
                                     <thead class="bg-gray-50">

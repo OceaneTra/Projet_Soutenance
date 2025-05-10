@@ -28,7 +28,7 @@
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé de
                                 l'action</label>
                             <input type="text" id="actions" name="actions" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors focus:outline-none">
                         </div>
 
                     </div>
@@ -51,7 +51,7 @@
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">

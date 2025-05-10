@@ -43,12 +43,12 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                 <div class="border-b border-gray-300">
                     <nav class="-mb-px flex space-x-4" aria-label="Tabs">
                         <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes"
-                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm  hover:text-gray-700
                                   <?= ($activeTab === 'groupes') ? 'active border-green-500 text-green-600 bg-green-50' : 'border-transparent hover:border-gray-300' ?>">
                             <i class="fas fa-users-cog mr-2"></i> Groupes d'Utilisateurs
                         </a>
                         <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types"
-                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm hover:text-gray-700
                                   <?= ($activeTab === 'types') ? 'active border-green-500 text-green-600 bg-green-50' : 'border-transparent hover:border-gray-300' ?>">
                             <i class="fas fa-user-tag mr-2"></i> Types d'Utilisateurs
                         </a>
@@ -91,7 +91,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                                     Groupe</label>
                                 <input type="text" name="lib_groupe" id="lib_groupe" required
                                     value="<?= htmlspecialchars($groupe_a_modifier->lib_groupe ?? '') ?>"
-                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0">
                             </div>
                             <!-- Ajoutez ici les champs pour les permissions/droits du groupe si nécessaire -->
                             <div class="flex justify-start">
@@ -117,7 +117,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                             <div class="flex flex-col lg:flex-row gap-6">
                                 <!-- Table avec largeur fixe -->
                                 <div style="width: 80%;"
-                                    class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                                    class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                                     <div class="overflow-x-auto w-full">
                                         <table class="w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
@@ -157,11 +157,8 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                                 </div>
 
                                 <!-- Boutons avec largeur fixe -->
-                                <div style="width: 10%;" class="flex flex-col gap-4">
-                                    <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                        <i class="fas fa-edit mr-2"></i>Modifier
-                                    </button>
+                                <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
+
                                     <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                         class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                         <i class="fas fa-trash-alt mr-2"></i>Supprimer
@@ -201,11 +198,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                             <?php endif; ?>
                             <div class="mb-4">
                                 <label for="lib_type_utilisateur"
-                                    class="mb-2 block text-sm font-medium text-gray-600 mb-1">Nom du Type
+                                    class="mb-2 block text-sm font-medium text-gray-600 ">Nom du Type
                                     d'Utilisateur</label>
                                 <input type="text" name="lib_type_utilisateur" id="lib_type_utilisateur" required
                                     value="<?= htmlspecialchars($type_utilisateur_a_modifier->lib_type_utilisateur ?? '') ?>"
-                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0">
                             </div>
                             <div class="flex justify-start">
                                 <button type="submit"
@@ -232,7 +229,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                             <div class="flex flex-col lg:flex-row gap-6">
                                 <!-- Table avec largeur fixe -->
                                 <div style="width: 80%;"
-                                    class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                                    class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                                     <div class="overflow-x-auto w-full">
                                         <table class="w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
@@ -272,11 +269,8 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
                                 </div>
 
                                 <!-- Boutons avec largeur fixe -->
-                                <div style="width: 10%;" class="flex flex-col gap-4">
-                                    <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                        <i class="fas fa-edit mr-2"></i>Modifier
-                                    </button>
+                                <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
+
                                     <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                         class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                         <i class="fas fa-trash-alt mr-2"></i>Supprimer

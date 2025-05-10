@@ -163,7 +163,7 @@
     </div>
 
     <!-- Modal de confirmation pour la suppression -->
-    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md mx-4">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirmer la suppression</h3>
             <p class="text-gray-700 mb-6">Êtes-vous sûr de vouloir supprimer <span id="delete-count">0</span>

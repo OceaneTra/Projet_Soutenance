@@ -30,7 +30,7 @@
                                 Année académique
                             </label>
                             <select id="annee_academique" name="annee_academiques" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez une année</option>
                                 <option value="S1">2020-2021</option>
                                 <option value="S2">2021-2022</option>
@@ -46,7 +46,7 @@
                             </label>
                             <input type="text" id="lib_ue" name="lib_ue" required
                                 placeholder="Ex: Mathématiques fondamentales"
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
                         <!-- Crédits -->
@@ -56,7 +56,7 @@
                             </label>
                             <input type="number" id="credits" name="credits" required min="1" max="9"
                                 placeholder="Ex: 6"
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
                         <!-- Semestre -->
@@ -65,7 +65,7 @@
                                 Semestre
                             </label>
                             <select id="semestre" name="semestre" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez un semestre</option>
                                 <option value="S1">Semestre 1</option>
                                 <option value="S2">Semestre 2</option>
@@ -80,7 +80,7 @@
                                 Niveau d'étude
                             </label>
                             <select id="niveau" name="niveau" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez un niveau</option>
                                 <option value="L1">Licence 1</option>
                                 <option value="L2">Licence 2</option>
@@ -112,7 +112,7 @@
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">

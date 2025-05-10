@@ -30,7 +30,7 @@
                                 Unité d'Enseignement (UE)
                             </label>
                             <select id="ue" name="ue" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez une ue</option>
                                 <option value="S1">Systèmes informatiques</option>
                                 <option value="S2">Programmation linéaire</option>
@@ -46,7 +46,7 @@
                             </label>
                             <input type="text" id="lib_ue" name="lib_ue" required
                                 placeholder="Ex: Mathématiques fondamentales"
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
                         <!-- Crédits -->
@@ -56,7 +56,7 @@
                             </label>
                             <input type="number" id="credits" name="credits" required min="1" max="9"
                                 placeholder="Ex: 6"
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
                         <!-- Semestre -->
@@ -66,7 +66,7 @@
                             </label>
                             <!--c'est en sortie-->
                             <input type="text" id="semestre" name="semestre" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
                         <!-- Niveau d'étude -->
@@ -76,7 +76,7 @@
                             </label>
                             <!--c'est en sortie-->
                             <input type="text" id="niveau_etude" name="niveau_etude" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
 
@@ -86,7 +86,7 @@
 
                     <div class="flex justify-start space-x-3">
                         <button type="submit" name="submit_add_ecue"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:border-0 transition-colors">
                             <i class="fas fa-plus mr-2"></i>
                             Ajouter l'ECUE
                         </button>
@@ -102,7 +102,7 @@
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-gray-200 border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -156,11 +156,8 @@
                         </div>
 
                         <!-- Boutons avec largeur fixe -->
-                        <div style="width: 10%;" class="flex flex-col gap-4">
-                            <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
-                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                <i class="fas fa-trash-alt mr-2"></i>Imprimer
-                            </button>
+                        <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
+
                             <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                 <i class="fas fa-trash-alt mr-2"></i>Supprimer

@@ -39,7 +39,7 @@ $grade_a_modifier = $GLOBALS['grade_a_modifier'] ?? null;
                                 grade</label>
                             <input type="text" id="grades" name="grades" required
                                 value="<?= $grade_a_modifier ? htmlspecialchars($grade_a_modifier->lib_grade) : '' ?>"
-                                class=" w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
+                                class=" w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors focus:outline-none">
                         </div>
 
                     </div>
@@ -73,10 +73,10 @@ $grade_a_modifier = $GLOBALS['grade_a_modifier'] ?? null;
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
-                                <table class="w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                <table class="w-full divide-y divide-gray-200 text-center">
+                                    <thead class="bg-gray-50 text-center">
                                         <tr>
                                             <th scope="col" class="w-[5%] px-4 py-3 text-center">
                                                 <input type="checkbox" id="selectAllCheckbox"
@@ -96,8 +96,8 @@ $grade_a_modifier = $GLOBALS['grade_a_modifier'] ?? null;
                                         <?php $listeGrade = $GLOBALS['listeGrade'] ?? []; ?>
                                         <?php if (!empty($listeGrade)) : ?>
                                         <?php foreach ($listeGrade as $grade) : ?>
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                        <tr class="hover:bg-gray-50 transition-colors text-center">
+                                            <td class="px-4 py-3 whitespace-nowrap ">
                                                 <input type="checkbox" name="selected_ids[]"
                                                     value="<?= htmlspecialchars($grade->id_grade) ?>"
                                                     class="text-center row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">

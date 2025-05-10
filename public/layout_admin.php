@@ -265,7 +265,7 @@ $cardData = [
                 ?>
                 <div class="mb-6">
                     <a href="?page=parametres_generaux"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500  focus:ring-4 focus:outline-none focus:ring-gray-300 transition-colors">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
                         <i class="fas fa-arrow-left mr-2 "></i>
                         Retour aux Paramètres
                     </a>
