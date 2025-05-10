@@ -25,8 +25,8 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
     <div class="relative container mx-auto px-4 py-8">
         <!-- Add/Edit User Modal -->
         <div id="userModal"
-            class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center hidden modal-transition">
-            <div class="relative p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white fade-in transform">
+            class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex hidden items-center justify-center modal-transition">
+            <div class="relative p-8  w-full max-w-2xl shadow-2xl rounded-xl bg-white fade-in transform">
                 <div class="absolute top-0 right-0 m-3">
                     <button onclick="closeUserModal(null)"
                         class="text-gray-400 hover:text-gray-600 focus:outline-none btn-icon">
@@ -400,10 +400,8 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
     }
 
     function closeUserModal() {
-        userModal.classList.add('opacity-0');
-        setTimeout(() => {
-            userModal.classList.add('hidden');
-        }, 300);
+        userModal.classList.add('hidden');
+
     }
 
     // Search functionality
