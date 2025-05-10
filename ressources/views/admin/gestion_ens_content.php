@@ -668,3 +668,4 @@
         loadTeacherData();
         selectedCountSpan.textContent = 0;
         totalCountSpan.textContent = teachers.length;
+    }

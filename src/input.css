@@ -1,1 +1,260 @@
+/*fichier d'entrée pour Tailwind CSS */
+
 @import "tailwindcss";
+
+/* Vos styles personnalisés ici */
+
+.academic-gradient {
+    background: linear-gradient(135deg, #44cc7f 0%, #3c9e5f 100%);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #3c9e5f;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover:after {
+    width: 100%;
+}
+
+.floating {
+    animation: floating 6s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.dashboard-preview {
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.sidebar-item:hover .sidebar-icon {
+    transform: translateX(5px);
+}
+
+.text-green-500 {
+    color: #3c9e5f;
+}
+
+.text-green-100 {
+    color: #E7EEEA;
+}
+
+.bg-green-100 {
+    background-color: #E7EEEA;
+}
+
+.bg-green-500 {
+    background-color: #3c9e5f;
+}
+
+.bg-red-100 {
+    background-color: #FEE2E2;
+}
+
+.bg-red-500 {
+    background-color: #EF4444;
+}
+
+.bg-orange-100 {
+    background-color: #FFEDD5;
+}
+
+.bg-orange-500 {
+    background-color: #F97316;
+}
+
+.bg-green-300 {
+    background-color: #2ab582;
+}
+
+.bg-blue-500 {
+    background-color: #3b82f6;
+}
+
+.bg-blue-100 {
+    background-color: #bfdbfe;
+}
+
+.bg-blue-200 {
+    background-color: #93c5fd;
+}
+
+.bg-blue-300 {
+    background-color: #60a5fa;
+}
+
+.bg-blue-400 {
+    background-color: #3b82f6;
+}
+
+.bg-blue-600 {
+    background-color: #2563eb;
+}
+
+.bg-blue-700 {
+    background-color: #1d4ed8;
+}
+
+.bg-red-300 {
+    background-color: #fca5a1;
+}
+
+.bg-red-500 {
+    background-color: #ef4444;
+}
+
+.bg-red-600 {
+    background-color: #dc2626;
+}
+
+.bg-red-700 {
+    background-color: #b91c1c;
+}
+
+.text-blue-500 {
+    color: #3b82f6;
+}
+
+.text-blue-100 {
+    color: #bfdbfe;
+}
+
+.text-blue-200 {
+    color: #93c5fd;
+}
+
+.text-blue-300 {
+    color: #60a5fa;
+}
+
+.text-blue-400 {
+    color: #3b82f6;
+}
+
+.text-blue-600 {
+    color: #2563eb;
+}
+
+.text-orange-500 {
+    color: #F97316;
+}
+
+.text-orange-100 {
+    color: #FFEDD5;
+}
+
+.text-orange-200 {
+    color: #FCD34D;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.gradient-purple {
+    background: linear-gradient(to right, #9061F9, #A78BFA);
+}
+
+.gradient-blue {
+    background: linear-gradient(to right, #2563EB, #60A5FA);
+}
+
+.gradient-red {
+    background: linear-gradient(to right, #F87171, #FB7185);
+}
+
+.gradient-orange {
+    background: linear-gradient(to right, #FB923C, #FDBA74);
+}
+
+.chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+}
+
+/* Styles pour les onglets actifs/inactifs */
+.tab-button.active {
+    border-color: #34D399;
+    /* Vert émeraude (Tailwind's green-400) */
+    color: #059669;
+    /* Vert émeraude plus foncé (Tailwind's green-600) */
+    background-color: #D1FAE5;
+    /* Vert émeraude très clair (Tailwind's green-100) */
+}
+
+.tab-button:not(.active):hover {
+    border-color: #9CA3AF;
+    /* Gris (Tailwind's gray-400) */
+    background-color: #F3F4F6;
+    /* Gris très clair (Tailwind's gray-100) */
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Utilitaire pour masquer la scrollbar */
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+    /* Pour Chrome, Safari et Opera */
+}
+
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    /* Pour Internet Explorer et Edge (anciennes versions) */
+    scrollbar-width: none;
+    /* Pour Firefox */
+}
+
+
+
+#userModal>div:last-child {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+    #userModal>div:last-child {
+        width: 95%;
+
+    }
+}
+
