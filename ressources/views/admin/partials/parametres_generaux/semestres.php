@@ -88,11 +88,8 @@
                         </div>
 
                         <!-- Boutons avec largeur fixe -->
-                        <div style="width: 10%;" class="flex flex-col gap-4">
-                            <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                <i class="fas fa-edit mr-2"></i>Modifier
-                            </button>
+                        <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
+
                             <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                 <i class="fas fa-trash-alt mr-2"></i>Supprimer
