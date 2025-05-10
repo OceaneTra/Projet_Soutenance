@@ -1,3 +1,6 @@
+<?php
+$specialite_a_modifier = $GLOBALS['specialite_a_modifier']
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -19,28 +22,44 @@
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
-                    Ajouter une nouvelle spécialité
+                    <?php if (isset($_GET['id_specialite'])): ?>
+                        Modifier la spécialité
+                    <?php else: ?>
+                        Ajouter une nouvelle spécialité
+                    <?php endif; ?>
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=specialites">
-
-                    <input type="hidden" name="id_grade_edit">
+                    <?php if ($specialite_a_modifier): ?>
+                        <input type="hidden" name="id_specialite"
+                               value="<?= htmlspecialchars($specialite_a_modifier->id_specialite) ?>">
+                    <?php endif; ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé de la
                                 spécialité</label>
-                            <input type="text" id="" name="" required value=""
+                            <input type="text" id="" name="specialite" required
+                                   value="<?= $specialite_a_modifier ? htmlspecialchars($specialite_a_modifier->lib_specialite) : '' ?>"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:outline-none focus:border-0">
                         </div>
-
                     </div>
-                    <div class="flex justify-start space-x-3">
-                        <button type="submit" name=""
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 focus:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>
+                    <?php if (isset($_GET['id_specialite'])): ?>
+                        <button type="submit" name="btn_add_specialite"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-save mr-2"></i>
+                            Modifier la specialite
+                        </button>
+                        <button type="submit" name="btn_annuler"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white   bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-remove mr-2"></i>
+                            Annuler
+                        </button>
+                    <?php else: ?>
+                        <button type="submit" name="btn_add_specialite"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fa-plus fas mr-2"></i>
                             Ajouter la spécialité
                         </button>
-
-                    </div>
+                    <?php endif; ?>
                 </form>
             </div>
 
@@ -48,7 +67,7 @@
 
             <div class="mt-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des spécialités</h3>
-                <form method="POST" action="?page=parametres_generaux&action=grades" id="formListeGrades">
+                <form method="POST" action="?page=parametres_generaux&action=specialites" id="formListeGrades">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
@@ -62,29 +81,37 @@
                                                     class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </th>
                                             <th scope="col"
-                                                class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                ID
-                                            </th>
-                                            <th scope="col"
                                                 class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Libellé de la spécialité
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php $listeSpecialites = $GLOBALS['listeSpecialites'] ?? []; ?>
+                                    <?php if (!empty($listeSpecialites)) : ?>
+                                    <?php foreach ($listeSpecialites as $specialite) : ?>
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]" value=""
+                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($specialite->id_specialite) ?>"
                                                     class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-
+                                                <?= htmlspecialchars($specialite->lib_specialite) ?>
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                <a href="?page=parametres_generaux&action=specialites&id_specialite=<?= $specialite->id_specialite ?>"
+                                                   class="text-center text-orange-500 hover:underline"><i
+                                                            class="fas fa-pen"></i></a>
                                             </td>
-
                                         </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-sm text-gray-500 py-4">
+                                                Aucune spécialité enregistrée.
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>

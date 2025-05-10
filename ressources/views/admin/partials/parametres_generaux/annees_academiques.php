@@ -49,7 +49,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
                     </div>
                     <div class="flex justify-start space-x-3">
                         <?php if(isset($_GET['id_annee_acad'])): ?>
-                        <button type="submit" name="btn_edit_annees_academiques"
+                        <button type="submit" name="btn_add_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'année

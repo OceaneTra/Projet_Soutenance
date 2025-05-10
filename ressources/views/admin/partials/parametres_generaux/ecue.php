@@ -1,3 +1,6 @@
+<?php
+    $ecue_a_modifier = $GLOBALS['ecue_a_modifier'] ?? null;
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -29,22 +32,26 @@
                             <label for="ue" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Unité d'Enseignement (UE)
                             </label>
-                            <select id="ue" name="ue" required
-                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
-                                <option value="">Sélectionnez une ue</option>
-                                <option value="S1">Systèmes informatiques</option>
-                                <option value="S2">Programmation linéaire</option>
-                                <option value="S3">Base de données</option>
-                                <option value="S4">UML</option>
+                            <select id="ue" name="ue" required onchange="remplirInfosUE()"
+                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors">
+                                <option value="">Sélectionnez une UE</option>
+                                <?php foreach ($GLOBALS['listeUes'] as $ue): ?>
+                                    <option value="<?= $ue->id_ue ?>"
+                                            data-semestre="<?= htmlspecialchars($ue->lib_semestre) ?>"
+                                            data-niveau="<?= htmlspecialchars($ue->lib_niv_etude) ?>"
+                                            data-annee="<?= htmlspecialchars($ue->id_annee_academique) ?>">
+                                        <?= $ue->lib_ue ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
-                        <!-- Libellé UE -->
+                        <!-- Libellé ECUE -->
                         <div>
                             <label for="lib_ecue" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Libellé de l'ECUE
                             </label>
-                            <input type="text" id="lib_ue" name="lib_ue" required
+                            <input type="text" id="lib_ecue" name="lib_ecue" required
                                 placeholder="Ex: Mathématiques fondamentales"
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
@@ -65,7 +72,7 @@
                                 Semestre
                             </label>
                             <!--c'est en sortie-->
-                            <input type="text" id="semestre" name="semestre" required
+                            <input type="text" id="semestre" name="semestre" readonly
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
@@ -75,8 +82,18 @@
                                 Niveau d'étude
                             </label>
                             <!--c'est en sortie-->
-                            <input type="text" id="niveau_etude" name="niveau_etude" required
+                            <input type="text" id="niveau_etude" name="niveau_etude" readonly
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
+                        </div>
+
+                        <!-- Annee academique -->
+                        <div>
+                            <label for="annee_academique_affiche" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
+                                Annee Academique
+                            </label>
+                            <!--c'est en sortie-->
+                            <input type="text" id="annee_academique_affiche" readonly
+                                   class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
 
@@ -131,26 +148,32 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]" value=""
-                                                    class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    <?php $listeEcues = $GLOBALS['listeEcues'] ?? []; ?>
+                                    <?php if (!empty($listeEcues)) : ?>
+                                        <?php foreach ($listeEcues as $ecue) : ?>
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($ecue->id_ecue) ?>"
+                                                           class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900"><?= htmlspecialchars($ecue->lib_ue) ?></td>
+                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ecue->lib_ecue) ?></td>
+                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ecue->credit) ?></td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= $ecue->id_ecue ?>"
+                                                       class="text-orange-500 hover:underline"><i class="fas fa-pen"></i></a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-sm text-gray-500 py-4">
+                                                Aucun élément constitutif enregistré.
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-
-                                            </td>
-
                                         </tr>
+                                    <?php endif; ?>
                                     </tbody>
+
                                 </table>
                             </div>
                         </div>
@@ -168,6 +191,20 @@
             </div>
         </main>
     </div>
+    <script>
+        function remplirInfosUE() {
+            const selectUE = document.getElementById("ue");
+            const selectedOption = selectUE.options[selectUE.selectedIndex];
+
+            const semestre = selectedOption.getAttribute("data-semestre");
+            const niveau = selectedOption.getAttribute("data-niveau");
+            const annee = selectedOption.getAttribute("data-annee");
+
+            document.getElementById("semestre").value = semestre ?? '';
+            document.getElementById("niveau_etude").value = niveau ?? '';
+            document.getElementById("annee_academique_affiche").value = annee ?? '';
+        }
+    </script>
 
 </body>
 
