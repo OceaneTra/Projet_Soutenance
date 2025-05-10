@@ -1,319 +1,568 @@
 <?php
-
-// --- Placeholder data for dropdowns - In a real application, fetch this from your database ---
-$groupesUtilisateurs = [
-    ['id' => 1, 'nom' => 'Administrateurs'],
-    ['id' => 2, 'nom' => 'Gestionnaires RH'],
-    ['id' => 3, 'nom' => 'Enseignants'],
-    ['id' => 4, 'nom' => 'Étudiants'],
-];
-
-$niveauxAcces = [
-    ['id' => 'level1', 'nom' => 'Accès Total'],
-    ['id' => 'level2', 'nom' => 'Accès Édition'],
-    ['id' => 'level3', 'nom' => 'Accès Lecture Seule'],
-];
-
-// Placeholder for roles/fonctions (used in both forms)
-$roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre RH', 'Enseignant', 'Secrétaire', 'Comptable'];
-
-// Placeholder data for users table (used later in the file)
+// Placeholder data for users
 $users = [
-    ['id' => 1, 'username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'Administrateur', 'groupe_utilisateur_id' => 1, 'groupe_utilisateur' => 'Administrateurs', 'niveau_acces_id' => 'level1', 'niveau_acces' => 'Accès Total', 'status' => 'Actif', 'created_at' => '2023-01-15'],
-    ['id' => 2, 'username' => 'editor_user', 'email' => 'editor@example.com', 'role' => 'Éditeur', 'groupe_utilisateur_id' => 3, 'groupe_utilisateur' => 'Enseignants', 'niveau_acces_id' => 'level2', 'niveau_acces' => 'Accès Édition', 'status' => 'Actif', 'created_at' => '2023-02-20'],
-    ['id' => 3, 'username' => 'viewer_user', 'email' => 'viewer@example.com', 'role' => 'Lecteur', 'groupe_utilisateur_id' => 4, 'groupe_utilisateur' => 'Étudiants', 'niveau_acces_id' => 'level3', 'niveau_acces' => 'Accès Lecture Seule', 'status' => 'Inactif', 'created_at' => '2023-03-10'],
+    ['id' => 1, 'username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'Administrateur', 'status' => 'Actif', 'created_at' => '2023-01-15'],
+    ['id' => 2, 'username' => 'editor_user', 'email' => 'editor@example.com', 'role' => 'Éditeur', 'status' => 'Actif', 'created_at' => '2023-02-20'],
+    ['id' => 3, 'username' => 'viewer_user', 'email' => 'viewer@example.com', 'role' => 'Lecteur', 'status' => 'Inactif', 'created_at' => '2023-03-10'],
 ];
-// Ensure Font Awesome is linked in your main layout (e.g., layout_admin.php)
 
-// --- Formulaire d'ajout d'utilisateur (NON-MODAL / Formulaire Supérieur) ---
-// Ce formulaire est distinct du modal.
+// Placeholder for roles/groups
+$roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 ?>
-<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg my-8 p-6 md:p-8">
-    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 border-b border-gray-200 pb-4">
-        <h2 class="text-2xl font-semibold text-green-500">Ajouter un Nouvel Utilisateur</h2>
-        <div class="mt-3 sm:mt-0 mb-3">
-            <label for="top_date_jour" class="block text-sm font-medium text-gray-600 mb-1">Date du jour</label>
-            <input type="text" id="top_date_jour" name="top_date_jour" value="<?php echo date('d/m/Y'); ?>" readonly
-                class="w-full sm:w-32 px-3 py-2 border border-gray-300 text-sm rounded-md bg-gray-100 focus:outline-none">
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs</title>
+
+
+</head>
+
+<body class="bg-gray-50">
+    <div class="relative container mx-auto px-4 py-8">
+        <!-- Add/Edit User Modal -->
+        <div id="userModal"
+            class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center hidden modal-transition">
+            <div class="relative p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white fade-in transform">
+                <div class="absolute top-0 right-0 m-3">
+                    <button onclick="closeUserModal(null)"
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none btn-icon">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <div class="flex items-center mb-6 pb-2 border-b border-gray-200">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-user-plus text-green-500"></i>
+                    </div>
+                    <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
+                </div>
+                <form id="userForm" class="space-y-4">
+                    <input type="hidden" id="userId" name="userId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="username" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
+                            </label>
+                            <input type="text" name="username" id="username" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="email" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-envelope text-green-500 mr-2"></i>Email
+                            </label>
+                            <input type="email" name="email" id="email" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="type_utilisateur" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-id-badge text-green-500 mr-2"></i>Type utilisateur
+                            </label>
+                            <input type="text" name="type_utilisateur" id="type_utilisateur"
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="fonction" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-briefcase text-green-500 mr-2"></i>Fonction
+                            </label>
+                            <select name="fonction" id="fonction" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <?php foreach($roles as $role): ?>
+                                <option value="<?php echo htmlspecialchars($role); ?>">
+                                    <?php echo htmlspecialchars($role); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="gu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-users text-green-500 mr-2"></i>Groupe utilisateur
+                            </label>
+                            <select name="gu" id="gu" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <?php foreach($roles as $role): ?>
+                                <option value="<?php echo htmlspecialchars($role); ?>">
+                                    <?php echo htmlspecialchars($role); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="niveau_acces" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-lock text-green-500 mr-2"></i>Niveau d'accès
+                            </label>
+                            <select name="niveau_acces" id="niveau_acces" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <?php foreach($roles as $role): ?>
+                                <option value="<?php echo htmlspecialchars($role); ?>">
+                                    <?php echo htmlspecialchars($role); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="status" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-toggle-on text-green-500 mr-2"></i>Statut
+                            </label>
+                            <select name="status" id="status" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <option value="Actif">Actif</option>
+                                <option value="Inactif">Inactif</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end space-x-4 self-end pt-6">
+                            <button type="button" onclick="closeUserModal()"
+                                class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
+                                <i class="fas fa-times mr-2"></i>Annuler
+                            </button>
+                            <button type="submit"
+                                class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
+                                <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bg-white shadow-card rounded-lg overflow-hidden border border-gray-200 mb-8">
+            <!-- Dashboard Header -->
+            <div class="bg-gradient px-6 py-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
+                <button onclick="openUserModal()"
+                    class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                </button>
+            </div>
+
+            <!-- Action Bar for Table -->
+            <div class="px-6 py-4 flex flex-col sm:flex-row justify-between items-center border-b border-gray-200">
+                <div class="relative w-full sm:w-1/2 lg:w-1/3 mb-4 sm:mb-0">
+                    <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..."
+                        class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </span>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center sm:justify-end">
+                    <button
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        <i class="fas fa-print mr-2"></i>Imprimer
+                    </button>
+                    <button
+                        class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
+                        <i class="fas fa-file-export mr-2"></i>Exporter
+                    </button>
+                    <button id="deleteButton"
+                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                        <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <input type="checkbox" id="selectAllCheckbox"
+                                    class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>ID</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Nom d'utilisateur</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Email</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Type utilisateur</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Statut</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                        <?php if (empty($users)): ?>
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+                                    <p>Aucun utilisateur trouvé.</p>
+                                    <p class="text-sm mt-2">Ajoutez de nouveaux utilisateurs en cliquant sur le bouton
+                                        "Ajouter un Utilisateur"</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach ($users as $index => $user): ?>
+                        <tr class="table-row-hover">
+                            <td class="px-4 py-4 text-center">
+                                <input type="checkbox" name="userCheckbox"
+                                    value="<?php echo htmlspecialchars($user['id']); ?>"
+                                    class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span
+                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($user['id']); ?></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <div
+                                        class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <span
+                                            class="text-green-600 font-medium"><?php echo substr(htmlspecialchars($user['username']), 0, 1); ?></span>
+                                    </div>
+                                    <span><?php echo htmlspecialchars($user['username']); ?></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($user['email']); ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-tag text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($user['role']); ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-badge px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    <?php echo $user['status'] === 'Actif' 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-red-100 text-red-800'; ?>">
+                                    <i
+                                        class="fas <?php echo $user['status'] === 'Actif' ? 'fa-check-circle' : 'fa-times-circle'; ?> mr-1 text-center pt-1"></i>
+                                    <?php echo htmlspecialchars($user['status']); ?>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex justify-center space-x-3">
+                                    <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
+                                        class="text-blue-500 hover:text-blue-700 transition-colors btn-icon"
+                                        title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-700">
+                        Affichage de <span class="font-medium">1</span> à <span
+                            class="font-medium"><?php echo count($users); ?></span> sur <span
+                            class="font-medium"><?php echo count($users); ?></span> résultats
+                    </p>
+                    <div class="flex items-center space-x-1">
+                        <button
+                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-green-600 hover:bg-green-50 transition-colors">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-green-500 text-white border border-green-500 text-sm hover:bg-green-600 transition-colors">
+                            1
+                        </button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            2
+                        </button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-green-600 hover:bg-green-50 transition-colors">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 mr-4">
+                        <i class="fas fa-users text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Total Utilisateurs</p>
+                        <h3 class="text-2xl font-bold text-gray-800"><?php echo count($users); ?></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 mr-4">
+                        <i class="fas fa-user-check text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Utilisateurs Actifs</p>
+                        <h3 class="text-2xl font-bold text-gray-800">2</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 mr-4">
+                        <i class="fas fa-user-times text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Utilisateurs Inactifs</p>
+                        <h3 class="text-2xl font-bold text-gray-800">1</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>© 2025 Système de Gestion des Utilisateurs. Tous droits réservés.</p>
         </div>
     </div>
 
-    <form id="topUserAddForm" method="POST" action="votre_script_de_traitement.php " class="flex flex-col space-y-4">
-        <?php // Adaptez l'action du formulaire ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-            <div>
-                <label for="top_add_username" class="block text-sm font-medium text-gray-700 mb-3">Nom Utilisateur <span
-                        class="text-red-500">*</span></label>
-                <input type="text" id="top_add_username" name="username" required style="width: 80%;"
-                    class=" px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            </div>
+    <script>
+    // Manage the user modal
+    const userModal = document.getElementById('userModal');
+    const userForm = document.getElementById('userForm');
+    const userModalTitle = document.getElementById('userModalTitle');
+    const userIdField = document.getElementById('userId');
+    const usernameField = document.getElementById('username');
+    const emailField = document.getElementById('email');
+    const fonctionField = document.getElementById('fonction');
+    const niveau_acces = document.getElementById('niveau_acces');
+    const guField = document.getElementById('gu');
+    const typeField = document.getElementById('type_utilisateur');
+    const statusField = document.getElementById('status');
+    const userModalSubmitButton = document.getElementById('userModalSubmitButton');
+    const searchInput = document.getElementById('searchInput');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const deleteButton = document.getElementById('deleteButton');
 
-            <div>
-                <label for="top_add_fonction" class="block text-sm font-medium text-gray-700 mb-3">Fonction (Rôle) <span
-                        class="text-red-500">*</span></label>
-                <div class="relative" style="width: 80%;">
-                    <select id="top_add_fonction" name="fonction" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white appearance-none">
-                        <option value="">Sélectionner une fonction...</option>
-                        <?php foreach ($roles as $role): ?>
-                        <option value="<?php echo htmlspecialchars($role); ?>"><?php echo htmlspecialchars($role); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+    function openUserModal(userData = null) {
+        userForm.reset(); // Reset form fields
+        if (userData) {
+            userModalTitle.textContent = 'Modifier l\'Utilisateur';
+            userModalSubmitButton.textContent = 'Mettre à jour';
+            userIdField.value = userData.id;
+            usernameField.value = userData.username;
+            emailField.value = userData.email;
+            fonctionField.value = userData.role;
+            statusField.value = userData.status;
+            typeField.value = userData.type || '';
+            guField.value = userData.gu || 'Administrateur';
+            niveau_acces.value = userData.niveau_acces || 'Administrateur';
+        } else {
+            userModalTitle.textContent = 'Ajouter un Utilisateur';
+            userModalSubmitButton.textContent = 'Enregistrer';
+            userIdField.value = '';
+        }
+        userModal.classList.remove('hidden');
+        setTimeout(() => {
+            userModal.classList.add('opacity-100');
+        }, 10);
+    }
 
-            <div>
-                <label for="top_add_groupe_utilisateur" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Groupe
-                    utilisateur <span class="text-red-500">*</span></label>
-                <div class="relative" style="width: 80%;">
-                    <select id="top_add_groupe_utilisateur" name="groupe_utilisateur_id" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white appearance-none">
-                        <option value="">Sélectionner un groupe...</option>
-                        <?php foreach ($groupesUtilisateurs as $groupe): ?>
-                        <option value="<?php echo htmlspecialchars($groupe['id']); ?>">
-                            <?php echo htmlspecialchars($groupe['nom']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+    function closeUserModal() {
+        userModal.classList.add('opacity-0');
+        setTimeout(() => {
+            userModal.classList.add('hidden');
+        }, 300);
+    }
 
-            <div>
-                <label for="top_add_niveau_acces" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Niveau
-                    d'accès
-                    <span class="text-red-500">*</span></label>
-                <div class="relative" style="width: 80%;">
-                    <select id="top_add_niveau_acces" name="niveau_acces_id" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white appearance-none">
-                        <option value="">Sélectionner un niveau...</option>
-                        <?php foreach ($niveauxAcces as $niveau): ?>
-                        <option value="<?php echo htmlspecialchars($niveau['id']); ?>">
-                            <?php echo htmlspecialchars($niveau['nom']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+    userForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Here you would typically send the data via AJAX
+        const formData = new FormData(userForm);
+        const data = Object.fromEntries(formData.entries());
+        console.log('Submitting user data:', data);
 
-            <div>
-                <label for="top_add_login" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Login (Email) <span
-                        class="text-red-500">*</span></label>
-                <input type="email" id="top_add_login" name="email" placeholder="utilisateur@example.com" required
-                    style="width: 80%;"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            </div>
+        // Show success message
+        const actionType = data.userId ? 'modifié' : 'ajouté';
+        showNotification(`Utilisateur ${data.username} ${actionType} avec succès!`, 'success');
 
-            <div>
-                <label for="top_add_password" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Mot de passe
-                    <span class="text-red-500">*</span></label>
-                <input type="password" id="top_add_password" name="password" required style="width: 80%;"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            </div>
+        closeUserModal();
+        // Potentially reload or update the table data here
+    });
 
-            <div>
-                <label for="top_add_type_utilisateur" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Type
-                    Utilisateur</label>
-                <input type="text" id="top_add_type_utilisateur" name="type_utilisateur" style="width: 80%;"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            </div>
-            <div>
-                <label for="top_add_status" class="block text-sm font-medium text-gray-700 mb-3 mt-2">Statut <span
-                        class="text-red-500">*</span></label>
-                <div class="relative" style="width: 80%;">
-                    <select id="top_add_status" name="status" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white appearance-none">
-                        <option value="Actif">Actif</option>
-                        <option value="Inactif">Inactif</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none font-medium">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#usersTableBody tr');
 
-        <div class="flex justify-end items-end mt-8">
-            <button type="submit"
-                class="bg-green-500 text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm">
-                <i class="fas fa-plus mr-2"></i>Ajouter un utilisateur
+        tableRows.forEach(row => {
+            const username = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+
+            if (username.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Select all checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateDeleteButtonState();
+    });
+
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        deleteButton.disabled = checkedBoxes.length === 0;
+        deleteButton.classList.toggle('opacity-50', checkedBoxes.length === 0);
+        deleteButton.classList.toggle('cursor-not-allowed', checkedBoxes.length === 0);
+    }
+
+    // Event listener for checkbox changes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-checkbox')) {
+            updateDeleteButtonState();
+            // Also update the "select all" checkbox
+            const allCheckboxes = document.querySelectorAll('.user-checkbox');
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
+        }
+    });
+
+    // Delete button functionality
+    deleteButton.addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        if (checkedBoxes.length === 0) return;
+
+        const userIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
+        const confirmMessage = userIds.length === 1 ?
+            'Êtes-vous sûr de vouloir supprimer cet utilisateur ?' :
+            `Êtes-vous sûr de vouloir supprimer ces ${userIds.length} utilisateurs ?`;
+
+        if (confirm(confirmMessage)) {
+            // Here you would send a request to delete the users
+            console.log('Deleting users with IDs:', userIds);
+            showNotification(`${userIds.length} utilisateur(s) supprimé(s) avec succès!`, 'success');
+            // After successful deletion, you would typically reload the data
+        }
+    });
+
+    // Close modal if escape key is pressed
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !userModal.classList.contains('hidden')) {
+            closeUserModal();
+        }
+    });
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white flex items-center space-x-2 animate-fade-in z-50 ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+        }`;
+
+        // Icon based on notification type
+        const iconClass = type === 'success' ? 'fa-check-circle' :
+            type === 'error' ? 'fa-exclamation-circle' :
+            type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+
+        notification.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+            <button class="ml-4 focus:outline-none hover:text-gray-200">
+                <i class="fas fa-times"></i>
             </button>
-        </div>
-    </form>
-</div>
-<?php // Fin du formulaire sup��rieur non-modal ?>
+        `;
 
+        // Add to document
+        document.body.appendChild(notification);
 
-<?php // --- LA SUITE DE VOTRE FICHIER (Table, Modal, JavaScript) COMMENCE ICI --- ?>
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-semibold text-green-500">Liste des utilisateurs</h2>
-        <!-- Action Bar for Table -->
-        <div class="mb-6 flex flex-col sm:flex-row justify-between items-center">
-            <div class="relative mb-4 sm:mb-0 w-full sm:w-1/3">
-                <input type="text" id="userSearchInput" placeholder="Rechercher un utilisateur..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                <span class="absolute top-0 right-0 mt-2 mr-3">
-                    <i class="fas fa-search text-gray-400"></i>
-                </span>
-            </div>
-            <div>
-                <button onclick="printUserList()"
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out mr-2">
-                    <i class="fas fa-print mr-2"></i>Imprimer la liste
-                </button>
-                <button onclick="exportUserListCSV()"
-                    class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md transition-all duration-150 ease-in-out">
-                    <i class="fas fa-file-export mr-2"></i>Exporter (CSV)
-                </button>
-            </div>
-        </div>
-    </div>
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('opacity-0');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 5000);
 
+        // Make notification dismissible
+        notification.querySelector('button').addEventListener('click', () => {
+            notification.classList.add('opacity-0');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        });
+    }
 
+    // Initialize tooltips
+    const tooltipElements = document.querySelectorAll('[title]');
+    tooltipElements.forEach(el => {
+        const originalTitle = el.getAttribute('title');
+        el.setAttribute('data-tooltip', originalTitle);
+        el.removeAttribute('title');
 
-    <!-- Users Table -->
-    <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full w-full divide-y divide-gray-200" id="usersTable">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom
-                            d'utilisateur</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Groupe</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Niveau Accès</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Statut</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé
-                            le</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                    <?php if (empty($users)): ?>
-                    <tr id="noUsersRow">
-                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">Aucun utilisateur trouvé.</td>
-                    </tr>
-                    <?php else: ?>
-                    <?php foreach ($users as $user): ?>
-                    <tr data-user-id="<?php echo htmlspecialchars($user['id']); ?>">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <?php echo htmlspecialchars($user['id']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['username']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['email']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['role']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['groupe_utilisateur'] ?? 'N/A'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['niveau_acces'] ?? 'N/A'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo $user['status'] === 'Actif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
-                                <?php echo htmlspecialchars($user['status']); ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <?php echo htmlspecialchars($user['created_at']); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
-                                class="text-indigo-600 hover:text-indigo-900 mr-3" title="Modifier">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button
-                                onclick="deleteUser(<?php echo htmlspecialchars($user['id']); ?>, '<?php echo htmlspecialchars(addslashes($user['username'])); ?>')"
-                                class="text-red-600 hover:text-red-900" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div> <!-- Closing overflow-x-auto -->
-        <!-- Pagination (Placeholder) -->
-        <div class="px-6 py-4 border-t border-gray-200">
-            <nav class="flex items-center justify-between">
-                <p class="text-sm text-gray-700">
-                    Affichage de <span class="font-medium">1</span> à <span
-                        class="font-medium"><?php echo count($users); ?></span> sur <span
-                        class="font-medium"><?php echo count($users); ?></span> résultats
-                </p>
-                <div class="flex">
-                    <a href="#"
-                        class="px-3 py-1 border border-gray-300 rounded-l-md text-sm hover:bg-gray-50">Précédent</a>
-                    <a href="#"
-                        class="px-3 py-1 border-t border-b border-gray-300 text-sm hover:bg-gray-50 bg-green-100 text-green-600">1</a>
-                    <a href="#" class="px-3 py-1 border-t border-b border-gray-300 text-sm hover:bg-gray-50">2</a>
-                    <a href="#"
-                        class="px-3 py-1 border border-gray-300 rounded-r-md text-sm hover:bg-gray-50">Suivant</a>
-                </div>
-            </nav>
-        </div>
-    </div> <!-- Closing bg-white shadow-xl rounded-lg overflow-hidden -->
-</div> <!-- Closing container mx-auto px-4 py-8 -->
+        el.addEventListener('mouseenter', function() {
+            const tooltip = document.createElement('div');
+            tooltip.className =
+                'bg-gray-800 text-white text-xs rounded px-2 py-1 absolute z-10 -mt-10 transform -translate-x-1/2 left-1/2 opacity-0 transition-opacity duration-200';
+            tooltip.textContent = this.getAttribute('data-tooltip');
+            this.appendChild(tooltip);
 
-<!-- Add/Edit User Modal -->
-<div id="userModal"
-    class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
-    <div class="relative mx-auto p-6 md:p-8 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
-        <div class="flex justify-between items-center mb-6">
-            <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
-            <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
-        </div>
-        <form id="userForm">
-            <input type="hidden" id="userId" name="userId">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-4">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" name="username" id="username" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span
-                            class="text-red-500">*</span></label>
-                    <input type="email" name="email" id="email" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    </td>
+            setTimeout(() => {
+                tooltip.classList.remove('opacity-0');
+            }, 10);
+        });
+
+        el.addEventListener('mouseleave', function() {
+            const tooltip = this.querySelector('div');
+            if (tooltip) {
+                tooltip.classList.add('opacity-0');
+                setTimeout(() => {
+                    this.removeChild(tooltip);
+                }, 200);
+            }
+        });
+    });

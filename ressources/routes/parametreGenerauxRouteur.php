@@ -14,6 +14,30 @@ if ($_GET['page'] === 'parametres_generaux') {
             case 'fonction_utilisateur':
                 $controller->gestionFonctionUtilisateur();
                 break;
+            case 'specialites':
+                $controller->gestionSpecialite();
+                break;
+            case 'niveaux_etude':
+                $controller->gestionNiveauEtude();
+                break;
+            case 'ue';
+                $controller->gestionUe();
+                break;
+            case 'ecue':
+                $controller->gestionEcue();
+                break;
+            case 'statut_jury':
+                $controller->gestionStatutJury();
+                break;
+            case 'niveaux_approbation':
+                $controller->gestionNiveauApprobation();
+                break;
+            case 'semestres':
+                $controller->gestionSemestre();
+                break;
+            case 'niveaux_acces':
+                $controller->gestionNiveauAccesDonnees();
+                break;
             default:
                 '';
         }

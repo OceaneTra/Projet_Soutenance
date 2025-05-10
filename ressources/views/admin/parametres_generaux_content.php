@@ -1,101 +1,3 @@
-<?php
-// Tableau de données pour vos cartes avec des titres et descriptions personnalisés.
-// Chaque élément du tableau représente une carte.
-$cardData = [
-    [
-        'title' => 'Années Académiques',
-        'description' => 'Gérer les années académiques, les dates de début et de fin.',
-        'link' => '?page=parametres_generaux&action=annees_academiques', // Adaptez le lien
-        'icon' => 'fa-calendar-alt' // Optionnel: vous pouvez ajouter une icône
-    ],
-    [
-        'title' => 'Gestion des Grades',
-        'description' => 'Définir et administrer les différents grades académiques.',
-        'link' => '?page=parametres_generaux&action=grades',
-        'icon' => 'fa-graduation-cap'
-    ],
-    [
-        'title' => 'Fonctions Utilisateurs',
-        'description' => 'Configurer les rôles et fonctions des utilisateurs du système.',
-        'link' => '?page=parametres_generaux&action=fonction_utilisateur&tab=groupes',
-        'icon' => 'fa-user-tie'
-    ],
-    [
-        'title' => 'Spécialités des enseignants',
-        'description' => 'Administrer les spécialités et filières proposées.',
-        'link' => '?page=parametres_generaux&action=specialites',
-        'icon' => 'fa-microscope'
-    ],
-    [
-        'title' => 'Niveaux d\'Étude',
-        'description' => 'Gérer les différents niveaux d\'étude (Licence, Master, etc.).',
-        'link' => '?page=parametres_generaux&action=niveaux_etude',
-        'icon' => 'fa-layer-group'
-    ],
-    [
-        'title' => 'Unités d\'Enseignement (UE)',
-        'description' => 'Définir les unités d\'enseignement et leurs crédits.',
-        'link' => '?page=parametres_generaux&action=ue',
-        'icon' => 'fa-book-open'
-    ],
-    [
-        'title' => 'Éléments Constitutifs (ECUE)',
-        'description' => 'Gérer les éléments constitutifs des unités d\'enseignement.',
-        'link' => '?page=parametres_generaux&action=ecue',
-        'icon' => 'fa-puzzle-piece'
-    ],
-    [
-        'title' => 'Statuts du Jury',
-        'description' => 'Configurer les différents statuts possibles pour les membres du jury.',
-        'link' => '?page=parametres_generaux&action=statut_jury',
-        'icon' => 'fa-gavel'
-    ],
-
-    [
-        'title' => 'Niveaux d\'Approbation',
-        'description' => 'Définir les circuits et niveaux d\'approbation pour les documents.',
-        'link' => '?page=parametres_generaux&action=niveaux_approbation',
-        'icon' => 'fa-check-double'
-    ],
-     [
-        'title' => 'Semestres',
-        'description' => 'Définir les différents semestres et UE associées.',
-        'link' => '?page=parametres_generaux&action=semestres',
-        'icon' => 'fa-graduation-cap'
-    ],
-     [
-        'title' => 'Niveaux d\'Accès',
-        'description' => 'Définir les différents niveaux d\'accès pour les utilisateurs',
-        'link' => '?page=parametres_generaux&action=niveaux_acces',
-        'icon' => 'fa-check-double',
-    ],
-     [
-        'title' => 'Traitements',
-        'description' => 'Définir les traitements à affecter aux différents utilisateurs.',
-        'link' => '?page=parametres_generaux&action=traitements',
-        'icon' => 'fa-solid fa-server'
-    ], [
-        'title' => 'Entreprises',
-        'description' => 'Gérer les entreprises partenaires et leurs informations.',
-        'link' => '?page=parametres_generaux&action=entreprises',
-        'icon' => 'fa-solid fa-briefcase'
-    ],
-     [
-        'title' => 'Actions',
-        'description' => 'Définir les actions possibles pour les utilisateurs dans le système.',
-        'link' => '?page=parametres_generaux&action=actions',
-        'icon' => 'fa-solid fa-location-crosshairs'
-    ],
-     [
-        'title' => 'Fonctions',
-        'description' => 'Définir les fonctions exercées par les enseignants dans le système.',
-        'link' => '?page=parametres_generaux&action=fonctions',
-        'icon' => 'fa-solid fa-briefcase'
-    ],
-];
-
-?>
-
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Paramètres Généraux de l'Application</h1>
 
@@ -108,7 +10,7 @@ $cardData = [
                     <?php if (!empty($card['icon'])): ?>
                     <div style="width:20%"
                         class="bg-green-100 flex items-center justify-center px-2 py-4 rounded-md mb-4 transition-colors">
-                        <i class="fas <?php echo htmlspecialchars($card['icon']); ?> text-2xl text-green-500"></i>
+                        <img src="<?php echo htmlspecialchars($card['icon']); ?>" alt="icone" class="text-2xl">
                     </div>
                     <?php endif; ?>
                     <h5

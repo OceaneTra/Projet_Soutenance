@@ -28,7 +28,7 @@
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé de
                                 l'action</label>
                             <input type="text" id="actions" name="actions" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors focus:outline-none">
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors focus:outline-none">
                         </div>
 
                     </div>
@@ -51,7 +51,7 @@
                     <div class="flex flex-col lg:flex-row gap-6">
                         <!-- Table avec largeur fixe -->
                         <div style="width: 80%;"
-                            class="border border-collapse bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
+                            class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -61,12 +61,12 @@
                                                     class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </th>
                                             <th scope="col"
-                                                class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                ID
+                                                class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Libellé de l'action
                                             </th>
                                             <th scope="col"
                                                 class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Libellé de l'action
+                                                Action
                                             </th>
                                         </tr>
                                     </thead>
@@ -76,10 +76,11 @@
                                                 <input type="checkbox" name="selected_ids[]" value=""
                                                     class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <td
+                                                class=" text-center px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
 
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                            <td class="text-center px-4 py-3 whitespace-nowrap text-sm text-gray-700">
 
                                             </td>
 
@@ -90,12 +91,8 @@
                         </div>
 
                         <!-- Boutons avec largeur fixe -->
-                        <div style="width: 10%;" class="flex flex-col gap-4">
-                            <button type="submit" name="submit_edit_selected" id="editSelectedBtnPHP"
-                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                <i class="fas fa-edit mr-2"></i>Modifier
-                            </button>
-                            <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                        <div style="width: 10%;" class="flex justify-center items-center mb-6 lg:mb-0">
+                            <button type=" submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                 <i class="fas fa-trash-alt mr-2"></i>Supprimer
                             </button>

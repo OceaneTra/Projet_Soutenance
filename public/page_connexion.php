@@ -11,6 +11,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/output.css">
+    <link rel="shortcut icon" href="./images/dessin.svg" type="image/x-icon">
     <title>Se connecter | Soutenance Manager</title>
 </head>
 
@@ -21,8 +22,16 @@ session_start();
                 <div
                     class="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
                     <form class="space-y-6">
+
                         <div class="mb-12">
-                            <h3 class="text-green-500 text-3xl font-semibold">Se connecter</h3>
+                            <div>
+                                <a href="reset_password.php"><img src="./images/dessin.svg" class=" mx-auto block "
+                                        style="width:20%" />
+                                </a>
+                                <h3 class="text-green-500 text-3xl font-semibold">Se connecter</h3>
+                            </div>
+
+
                             <p class="text-gray-800 text-sm mt-6 leading-relaxed">Connectez-vous à votre compte et
                                 explorez un monde de possibilités. Votre voyage commence ici.</p>
                         </div>
@@ -61,8 +70,8 @@ session_start();
 
 
                             <div class="text-sm">
-                                <a href="jajvascript:void(0);"
-                                    class="text-green-500 underline hover:underline font-medium">
+                                <a href="reset_password.php"
+                                    class=" text-green-500 underline hover:underline font-medium">
                                     Mot de passe oublié?
                                 </a>
                             </div>
