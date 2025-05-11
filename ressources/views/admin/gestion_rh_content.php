@@ -30,7 +30,7 @@ $action = $_GET['action'] ?? '';
 $id = $_GET['id'] ?? null;
 
 // Structure pour le formulaire d'édition
-$admin_edit = ['id' => '', 'nom' => '', 'prenom' => '', 'email' => '', 'fonction' => '', 'specialite' => ''];
+$admin_edit = ['id' => '', 'nom' => '', 'prenom' => '', 'email' => '', 'fonction' => '', 'telephone' => ''];
 $enseignant_edit = ['id' => '', 'nom' => '', 'prenom' => '', 'email' => '', 'login' => '', 'specialite' => ''];
 
 // Simuler la récupération des données pour édition
@@ -154,7 +154,7 @@ if ($action === 'edit') {
                                             Email</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Login</th>
+                                            Fonction</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Téléphone</th>
@@ -210,32 +210,52 @@ if ($action === 'edit') {
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="nom" class="block text-sm font-medium text-gray-700">Nom</label>
+                                        <label for="nom"
+                                            class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                                         <input type="text" name="nom" id="nom"
                                             value="<?= htmlspecialchars($admin_edit['nom']) ?>"
-                                            class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                            class=" focus:outline-none mt-1 px-4 py-2.5 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                             required>
                                     </div>
 
                                     <div>
                                         <label for="prenom"
-                                            class="block text-sm font-medium text-gray-700">Prénom</label>
+                                            class="mb-2 block text-sm font-medium text-gray-700">Prénom</label>
                                         <input type="text" name="prenom" id="prenom"
                                             value="<?= htmlspecialchars($admin_edit['prenom']) ?>"
-                                            class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                            class=" focus:outline-none mt-1 px-4 py-2.5 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                             required>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" name="email" id="email"
-                                        value="<?= htmlspecialchars($admin_edit['email']) ?>"
-                                        class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                        required>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="email"
+                                            class="mb-2 block text-sm font-medium text-gray-700">Email</label>
+                                        <input type="email" name="email" id="email"
+                                            value="<?= htmlspecialchars($admin_edit['email']) ?>"
+                                            class="focus:outline-none mt-1 px-4 py-2.5 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label for="tel"
+                                            class="mb-2 block text-sm font-medium text-gray-700">Téléphone</label>
+                                        <input type="phone" name="tel" id="tel"
+                                            value="<?= htmlspecialchars($admin_edit['telephone']) ?>"
+                                            class="focus:outline-none px-4 py-2.5 mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                            required>
+                                    </div>
                                 </div>
+                                <div>
+                                    <label for="fonction"
+                                        class="block text-sm font-medium text-gray-700 mb-2">Fonction</label>
+                                    <select name="fonction" id="fonction" required
+                                        class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 bg-white transition-all duration-200  focus:outline-0 focus:border-0">
+                                        <option value="">Secrétaire</option>
+                                        <option value="">Comptable</option>
+                                        <option value="">Responsable scolarité</option>
+                                    </select>
 
-
+                                </div>
 
                                 <div class="flex justify-end pt-2">
                                     <button type="button"
@@ -419,7 +439,7 @@ if ($action === 'edit') {
                                 <div>
                                     <label for="specialite_enseignant"
                                         class="block text-sm font-medium text-gray-700 mb-2">Spécialité</label>
-                                    <select name="specialite" id="scpecialite" required
+                                    <select name="specialite" id="specialite" required
                                         class=" w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 bg-white transition-all duration-200 focus:outline-0 focus:border-0">
                                         <option value="">Mathématiques</option>
                                         <option value="">Mathématiques</option>
