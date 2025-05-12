@@ -37,11 +37,11 @@ session_start();
                         </div>
 
                         <div>
-                            <label class="text-green-500 text-sm font-medium mb-2 block">Nom d'utilisateur</label>
+                            <label class="text-green-500 text-sm font-medium mb-2 block">Login</label>
                             <div class="relative flex items-center">
-                                <input name="username" type="text" required
+                                <input name="login" type="email" required
                                     class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600"
-                                    placeholder="Entrer votre nom d'utilisateur" />
+                                    placeholder="Entrer votre login" />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#3c9e5f" stroke="#3c9e5f"
                                     class="w-[18px] h-[18px] absolute right-4" viewBox="0 0 24 24">
                                     <circle cx="10" cy="7" r="6" data-original="#000000"></circle>

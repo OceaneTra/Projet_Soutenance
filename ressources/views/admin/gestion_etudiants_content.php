@@ -307,7 +307,7 @@ $etudiants = [
 
         <!-- Footer -->
         <div class="mt-8 text-center text-gray-500 text-sm">
-            <p>© 2025 Système de Gestion des Utilisateurs. Tous droits réservés.</p>
+            <p>© 2025 Système de Gestion des étudiants. Tous droits réservés.</p>
         </div>
     </div>
 
