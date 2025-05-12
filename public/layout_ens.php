@@ -6,8 +6,8 @@ session_start();
 // Définir les éléments du menu principal
 $menuItems = [
     ['slug' => 'candidature_soutenance', 'label' => 'Candidater à la soutenance', 'icon' => 'fa-graduation-cap'],
-    ['slug' => 'gestion_rapport', 'label' => 'Gestion des rapports', 'icon' => 'fa-file'],
-    ['slug' => 'gestion_reclamations', 'label' => 'Réclamations', 'icon' => 'fa-exclamation'],
+    ['slug' => 'gestion_rapport', 'label' => 'Gestion des rapports/mémoires', 'icon' => 'fa-file'],
+    ['slug' => 'gestion_reclamations', 'label' => 'Réclamations', 'icon' => 'fa-circle-exclamation'],
     ['slug' => 'notes_resultats', 'label' => 'Notes & résultats', 'icon' => 'fa-note-sticky'],
     ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
     ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user'],
@@ -64,11 +64,10 @@ if (empty($currentPageLabel)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">

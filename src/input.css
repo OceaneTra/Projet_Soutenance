@@ -613,5 +613,226 @@ input:checked+.slider:before {
     transform: translateX(20px);
 }
 
+.card {
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
 
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container {
+    transition: transform 0.5s ease;
+}
+
+.card:hover .icon-container {
+    transform: rotate(360deg);
+}
+
+.card-gradient-1 {
+    background: linear-gradient(135deg, #4338ca, #3b82f6);
+}
+
+.card-gradient-2 {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.card-gradient-3 {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+
+.card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    z-index: -10;
+    border-radius: 16px;
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.card:nth-child(2) .card-icon {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+.card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
+}
+
+.card-btn:active {
+    transform: translateY(-1px);
+}
+
+.card-btn span {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+}
+
+.card-btn svg {
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.card-btn:hover svg {
+    transform: translateX(3px);
+}
+
+.card-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card-btn:hover::before {
+    width: 100%;
+}
+
+.card:nth-child(2) .card-btn {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.card:nth-child(2) .card-btn:hover {
+    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+}
+
+.floating-shape {
+    position: absolute;
+    opacity: 0.07;
+    z-index: -10;
+}
+
+.shape-1 {
+    top: 10%;
+    left: 5%;
+    width: 150px;
+    height: 150px;
+    border-radius: 53% 47% 52% 48% / 36% 41% 59% 64%;
+    background: #4f46e5;
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-2 {
+    bottom: 10%;
+    right: 5%;
+    width: 180px;
+    height: 180px;
+    border-radius: 41% 59% 52% 48% / 59% 52% 48% 41%;
+    background: #10b981;
+    animation: float 10s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
 
