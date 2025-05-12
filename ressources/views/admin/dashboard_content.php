@@ -4,202 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    .gradient-purple {
-        background: linear-gradient(135deg, #9f7aea 0%, #7f45ea 100%);
-    }
 
-    .gradient-blue {
-        background: linear-gradient(135deg, #63b3ed 0%, #4299e1 100%);
-    }
-
-    .gradient-red {
-        background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
-    }
-
-    .gradient-orange {
-        background: linear-gradient(135deg, #fbd38d 0%, #ed8936 100%);
-    }
-
-    .chart-container {
-        height: 200px;
-        position: relative;
-    }
-
-    .btn-tab {
-        transition: all 0.3s ease;
-    }
-
-    .btn-tab:hover {
-        background-color: #EBF4FF;
-        color: #4F46E5;
-    }
-
-    .btn-tab.active {
-        background-color: #EBF4FF;
-        color: #4F46E5;
-        font-weight: 600;
-    }
-
-    .card-hover {
-        transition: all 0.3s ease;
-    }
-
-    .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .activity-timeline::before {
-        content: '';
-        position: absolute;
-        left: 47px;
-        top: 20px;
-        height: calc(100% - 24px);
-        width: 2px;
-        background: #e2e8f0;
-    }
-
-    .activity-item {
-        position: relative;
-        z-index: 1;
-    }
-
-    .table-hover tr:hover {
-        background-color: #F9FAFB;
-    }
-
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* For IE, Edge and Firefox */
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        /* IE and Edge */
-        scrollbar-width: none;
-        /* Firefox */
-    }
-
-    /* Tooltip styles */
-    .tooltip {
-        position: relative;
-        display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: #374151;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    /* Custom toggle switch */
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 44px;
-        height: 24px;
-    }
-
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: .4s;
-        transition: .4s;
-        border-radius: 24px;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        -webkit-transition: .4s;
-        transition: .4s;
-        border-radius: 50%;
-    }
-
-    input:checked+.slider {
-        background-color: #4F46E5;
-    }
-
-    input:checked+.slider:before {
-        -webkit-transform: translateX(20px);
-        -ms-transform: translateX(20px);
-        transform: translateX(20px);
-    }
-    </style>
 </head>
 
 <body class="bg-gray-50 font-sans">
-    <!-- Navigation Sidebar -->
+
     <div class="flex min-h-screen">
-        <div class="bg-indigo-800 text-white w-20 min-h-screen flex flex-col items-center py-8 hidden md:flex">
-            <div class="mb-10">
-                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
-                    <i class="fas fa-cloud text-indigo-800 text-xl"></i>
-                </div>
-            </div>
-
-            <div class="flex flex-col space-y-8 items-center flex-grow">
-                <a href="#"
-                    class="w-12 h-12 bg-indigo-700 rounded-xl flex items-center justify-center text-white transition hover:bg-indigo-600">
-                    <i class="fas fa-tachometer-alt"></i>
-                </a>
-                <a href="#"
-                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
-                    <i class="fas fa-chart-pie"></i>
-                </a>
-                <a href="#"
-                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
-                    <i class="fas fa-users"></i>
-                </a>
-                <a href="#"
-                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
-                    <i class="fas fa-calendar"></i>
-                </a>
-                <a href="#"
-                    class="w-12 h-12 rounded-xl flex items-center justify-center text-indigo-300 transition hover:bg-indigo-700">
-                    <i class="fas fa-cog"></i>
-                </a>
-            </div>
-
-            <div class="mt-auto">
-                <div class="w-12 h-12 bg-indigo-700 rounded-full overflow-hidden">
-                    <img src="/api/placeholder/48/48" alt="User profile" class="w-full h-full object-cover" />
-                </div>
-            </div>
-        </div>
 
         <!-- Main Content -->
         <div class="flex-grow">
@@ -210,17 +20,11 @@
                         <button class="md:hidden text-gray-500 focus:outline-none">
                             <i class="fas fa-bars text-xl"></i>
                         </button>
-                        <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
+                        <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <!-- Date Range Picker -->
-                        <div
-                            class="hidden sm:flex bg-gray-100 rounded-md px-3 py-2 space-x-2 text-sm text-gray-600 items-center">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>10-06-2020 — 10-10-2020</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </div>
+
 
                         <!-- Notifications -->
                         <div class="tooltip">
@@ -229,7 +33,7 @@
                                 <i class="fas fa-bell"></i>
                                 <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
                             </button>
-                            <span class="tooltiptext">Notifications</span>
+
                         </div>
 
                         <!-- Messages -->
@@ -238,7 +42,7 @@
                                 class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
                                 <i class="fas fa-envelope"></i>
                             </button>
-                            <span class="tooltiptext">Messages</span>
+
                         </div>
 
                         <!-- User Profile -->
@@ -575,235 +379,12 @@
                             </div>
                         </div>
 
-                        <!-- Order Status -->
-                        <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
-                            <div class="flex justify-between items-center mb-6">
-                                <div>
-                                    <h2 class="text-lg font-bold text-gray-800">Statut des Commandes</h2>
-                                    <p class="text-xs text-gray-500">Vue d'ensemble du mois en cours</p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button
-                                        class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center text-white">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center text-gray-600">
-                                        <i class="fas fa-sync-alt text-xs"></i>
-                                    </button>
-                                </div>
-                            </div>
 
-                            <!-- Search -->
-                            <div class="mb-4 relative">
-                                <input type="text" placeholder="Rechercher une commande..."
-                                    class="w-full bg-gray-100 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                            </div>
-
-                            <!-- Orders -->
-                            <div class="max-h-64 overflow-y-auto scrollbar-hide">
-                                <table class="w-full text-sm table-hover">
-                                    <thead class="bg-gray-50 sticky top-0">
-                                        <tr class="text-gray-500 uppercase text-xs">
-                                            <th class="py-3 pl-4 pr-2 text-left">N°</th>
-                                            <th class="py-3 px-2 text-left">Client</th>
-                                            <th class="py-3 px-2 text-left">Région</th>
-                                            <th class="py-3 px-2 text-left">Montant</th>
-                                            <th class="py-3 px-2 text-left">Statut</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="border-b border-gray-100">
-                                            <td class="py-3 pl-4 pr-2">12396</td>
-                                            <td class="py-3 px-2">
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                                                        <span class="text-xs font-medium text-purple-600">CJ</span>
-                                                    </div>
-                                                    <span>Christy Jean</span>
-                                                </div>
-                                            </td>
-                                            <td class="py-3 px-2">Russie</td>
-                                            <td class="py-3 px-2 font-medium">2 652€</td>
-                                            <td class="py-3 px-2">
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-600">
-                                                    En cours
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr class="border-b border-gray-100">
-                                            <td class="py-3 pl-4 pr-2">12398</td>
-                                            <td class="py-3 px-2">
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-                                                        <span class="text-xs font-medium text-blue-600">LM</span>
-                                                    </div>
-                                                    <span>Luc Moreau</span>
-                                                </div>
-                                            </td>
-                                            <td class="py-3 px-2">France</td>
-                                            <td class="py-3 px-2 font-medium">1 845€</td>
-                                            <td class="py-3 px-2">
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-600">
-                                                    En attente
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr class="border-b border-gray-100">
-                                            <td class="py-3 pl-4 pr-2">12401</td>
-                                            <td class="py-3 px-2">
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                                                        <span class="text-xs font-medium text-green-600">AD</span>
-                                                    </div>
-                                                    <span>Alain Dupont</span>
-                                                </div>
-                                            </td>
-                                            <td class="py-3 px-2">Belgique</td>
-                                            <td class="py-3 px-2 font-medium">3 205€</td>
-                                            <td class="py-3 px-2">
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600">
-                                                    Livré
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr class="border-b border-gray-100">
-                                            <td class="py-3 pl-4 pr-2">12405</td>
-                                            <td class="py-3 px-2">
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-2">
-                                                        <span class="text-xs font-medium text-red-600">MB</span>
-                                                    </div>
-                                                    <span>Marie Blanc</span>
-                                                </div>
-                                            </td>
-                                            <td class="py-3 px-2">Suisse</td>
-                                            <td class="py-3 px-2 font-medium">1 276€</td>
-                                            <td class="py-3 px-2">
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-600">
-                                                    Expédié
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="flex justify-between items-center mt-4">
-                                <div class="text-xs text-gray-500">
-                                    Affichage de 1-4 sur 28 commandes
-                                </div>
-                                <div class="flex space-x-1">
-                                    <button
-                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                                        <i class="fas fa-chevron-left text-xs"></i>
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-indigo-600 text-white">
-                                        1
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                                        2
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                                        3
-                                    </button>
-                                    <button
-                                        class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                                        <i class="fas fa-chevron-right text-xs"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Bottom Section -->
                 <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Top Selling Products -->
-                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold text-gray-800">Meilleurs Produits</h2>
-                            <button class="text-indigo-600 text-sm hover:underline">Voir tout</button>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- Product item -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                                    <i class="fas fa-laptop text-gray-500"></i>
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex justify-between mb-1">
-                                        <h3 class="text-sm font-medium">MacBook Pro 16"</h3>
-                                        <span class="text-sm font-medium">2 499€</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 85%"></div>
-                                    </div>
-                                    <div class="flex justify-between mt-1">
-                                        <span class="text-xs text-gray-500">8 542 ventes</span>
-                                        <span class="text-xs text-gray-500">85%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Product item -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                                    <i class="fas fa-mobile-alt text-gray-500"></i>
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex justify-between mb-1">
-                                        <h3 class="text-sm font-medium">iPhone 14 Pro</h3>
-                                        <span class="text-sm font-medium">1 299€</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 72%"></div>
-                                    </div>
-                                    <div class="flex justify-between mt-1">
-                                        <span class="text-xs text-gray-500">6 789 ventes</span>
-                                        <span class="text-xs text-gray-500">72%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Product item -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                                    <i class="fas fa-headphones text-gray-500"></i>
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex justify-between mb-1">
-                                        <h3 class="text-sm font-medium">AirPods Pro</h3>
-                                        <span class="text-sm font-medium">249€</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 62%"></div>
-                                    </div>
-                                    <div class="flex justify-between mt-1">
-                                        <span class="text-xs text-gray-500">5 421 ventes</span>
-                                        <span class="text-xs text-gray-500">62%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Team Members -->
                     <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
                         <div class="flex justify-between items-center mb-6">
@@ -1019,31 +600,164 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Order Status -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-800">Statut des Commandes</h2>
+                                <p class="text-xs text-gray-500">Vue d'ensemble du mois en cours</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button
+                                    class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center text-white">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center text-gray-600">
+                                    <i class="fas fa-sync-alt text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="mb-4 relative">
+                            <input type="text" placeholder="Rechercher une commande..."
+                                class="w-full bg-gray-100 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+
+                        <!-- Orders -->
+                        <div class="max-h-64 overflow-y-auto scrollbar-hide">
+                            <table class="w-full text-sm table-hover">
+                                <thead class="bg-gray-50 sticky top-0">
+                                    <tr class="text-gray-500 uppercase text-xs">
+                                        <th class="py-3 pl-4 pr-2 text-left">N°</th>
+                                        <th class="py-3 px-2 text-left">Client</th>
+                                        <th class="py-3 px-2 text-left">Région</th>
+                                        <th class="py-3 px-2 text-left">Montant</th>
+                                        <th class="py-3 px-2 text-left">Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-3 pl-4 pr-2">12396</td>
+                                        <td class="py-3 px-2">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                                    <span class="text-xs font-medium text-purple-600">CJ</span>
+                                                </div>
+                                                <span>Christy Jean</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-2">Russie</td>
+                                        <td class="py-3 px-2 font-medium">2 652€</td>
+                                        <td class="py-3 px-2">
+                                            <span
+                                                class="px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-600">
+                                                En cours
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-3 pl-4 pr-2">12398</td>
+                                        <td class="py-3 px-2">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                    <span class="text-xs font-medium text-blue-600">LM</span>
+                                                </div>
+                                                <span>Luc Moreau</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-2">France</td>
+                                        <td class="py-3 px-2 font-medium">1 845€</td>
+                                        <td class="py-3 px-2">
+                                            <span
+                                                class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-600">
+                                                En attente
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-3 pl-4 pr-2">12401</td>
+                                        <td class="py-3 px-2">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                                    <span class="text-xs font-medium text-green-600">AD</span>
+                                                </div>
+                                                <span>Alain Dupont</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-2">Belgique</td>
+                                        <td class="py-3 px-2 font-medium">3 205€</td>
+                                        <td class="py-3 px-2">
+                                            <span
+                                                class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-600">
+                                                Livré
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-3 pl-4 pr-2">12405</td>
+                                        <td class="py-3 px-2">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-2">
+                                                    <span class="text-xs font-medium text-red-600">MB</span>
+                                                </div>
+                                                <span>Marie Blanc</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-2">Suisse</td>
+                                        <td class="py-3 px-2 font-medium">1 276€</td>
+                                        <td class="py-3 px-2">
+                                            <span
+                                                class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-600">
+                                                Expédié
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="text-xs text-gray-500">
+                                Affichage de 1-4 sur 28 commandes
+                            </div>
+                            <div class="flex space-x-1">
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-indigo-600 text-white">
+                                    1
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                    2
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                    3
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <footer class="mt-6 py-4 bg-white border-t border-gray-200">
-                <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <p class="text-sm text-gray-500">© 2020 Votre Entreprise. Tous droits réservés.</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-gray-600">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-gray-600">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-gray-600">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-gray-600">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    </div>
-                </div>
-            </footer>
+
         </div>
     </div>
 

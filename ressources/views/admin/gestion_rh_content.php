@@ -140,6 +140,10 @@ if ($action === 'edit') {
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
+                                        <th scope="col" class="px-4 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                                        </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             ID</th>
@@ -166,6 +170,11 @@ if ($action === 'edit') {
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <?php foreach ($personnel_admin as $admin): ?>
                                     <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-4 text-center">
+                                            <input type="checkbox" name="userCheckbox"
+                                                value="<?php echo htmlspecialchars($admin['id']); ?>"
+                                                class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($admin['id']) ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -325,7 +334,12 @@ if ($action === 'edit') {
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
+
                                     <tr>
+                                        <th scope="col" class="px-4 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                                        </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             ID</th>
@@ -352,6 +366,11 @@ if ($action === 'edit') {
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <?php foreach ($enseignants as $enseignant): ?>
                                     <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-4 text-center">
+                                            <input type="checkbox" name="userCheckbox"
+                                                value="<?php echo htmlspecialchars($admin['id']); ?>"
+                                                class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($enseignant['id']) ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -540,4 +559,35 @@ if ($action === 'edit') {
     modals.enseignant.style.display = 'block';
     <?php endif; ?>
     <?php endif; ?>
+
+    updateDeleteButtonState();
+
+    // Select all checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateDeleteButtonState();
+    });
+
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        deleteButton.disabled = checkedBoxes.length === 0;
+        deleteButton.classList.toggle('opacity-50', checkedBoxes.length === 0);
+        deleteButton.classList.toggle('cursor-not-allowed', checkedBoxes.length === 0);
+    }
+
+    // Event listener for checkbox changes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-checkbox')) {
+            updateDeleteButtonState();
+            // Also update the "select all" checkbox
+            const allCheckboxes = document.querySelectorAll('.user-checkbox');
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
+        }
+    });
     </script>

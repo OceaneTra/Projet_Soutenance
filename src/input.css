@@ -459,5 +459,159 @@
         transform: translateY(0);
     }
 }
+.gradient-purple {
+    background: linear-gradient(135deg, #9f7aea 0%, #7f45ea 100%);
+}
+
+.gradient-blue {
+    background: linear-gradient(135deg, #63b3ed 0%, #4299e1 100%);
+}
+
+.gradient-red {
+    background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+}
+
+.gradient-orange {
+    background: linear-gradient(135deg, #fbd38d 0%, #ed8936 100%);
+}
+
+.chart-container {
+    height: 200px;
+    position: relative;
+}
+
+.btn-tab {
+    transition: all 0.3s ease;
+}
+
+.btn-tab:hover {
+    background-color: #EBF4FF;
+    color: #4F46E5;
+}
+
+.btn-tab.active {
+    background-color: #EBF4FF;
+    color: #4F46E5;
+    font-weight: 600;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 47px;
+    top: 20px;
+    height: calc(100% - 24px);
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.activity-item {
+    position: relative;
+    z-index: 1;
+}
+
+.table-hover tr:hover {
+    background-color: #F9FAFB;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #374151;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Custom toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #4F46E5;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
+}
+
 
 
