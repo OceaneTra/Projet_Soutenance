@@ -166,7 +166,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
 
 
     <!-- Modale de confirmation de suppression -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-500  bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div id="deleteModal" class="fixed inset-0   bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white shadow-sm  rounded-lg p-6 max-w-md w-full mx-4">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -192,7 +192,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
     </div>
 
     <!-- Modale de confirmation de modification -->
-    <div id="modifyModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div id="modifyModal" class="fixed inset-0  bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white shadow-sm rounded-lg p-6 max-w-md w-full mx-4">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">

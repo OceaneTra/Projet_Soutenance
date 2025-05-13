@@ -50,6 +50,10 @@ class AnneeAcademique extends DbModel
             $annee1 = date("Y", strtotime($date_deb));
             $annee2 = date("Y", strtotime($date_fin));
             $id_annee_acad = substr($annee2, 0, 1) . substr($annee1, 2, 2) . substr($annee2, 2, 2);
+
+            if($annee1 > $annee2){
+                return error_log("Erreur d'ajout d'année académique: la date de début est plus grande que la date de fin ");
+            }
             
             return $this->insert(
                 "INSERT INTO annee_academique (id_annee_acad, date_deb, date_fin) VALUES (?, ?, ?)",
@@ -72,6 +76,9 @@ class AnneeAcademique extends DbModel
     public function updateAnneeAcademique(string $id_annee_acad, string $date_deb, string $date_fin): bool
     {
         try {
+            if($date_deb> $date_fin){
+                return error_log("Erreur d'ajout d'année académique: la date de début est plus grande que la date de fin ");
+            }
             return $this->update(
                 "UPDATE annee_academique SET date_deb = ?, date_fin = ? WHERE id_annee_acad = ?",
                 [$date_deb, $date_fin, $id_annee_acad]
