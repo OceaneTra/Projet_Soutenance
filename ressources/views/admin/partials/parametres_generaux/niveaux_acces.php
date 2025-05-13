@@ -30,15 +30,15 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
             </h3>
             <form method="POST" action="?page=parametres_generaux&action=niveaux_acces">
                 <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau_acces_donnees"
-                           value="<?= htmlspecialchars($niveau_a_modifier->id_action) ?>">
+                    <input type="hidden" name="id_niveau_acces"
+                           value="<?= htmlspecialchars($niveau_a_modifier->id_niveau_acces_donnees ) ?>">
                 <?php endif; ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du niveau
                             d'accès</label>
                         <input type="text" id="niveaux_acces" name="niveau_acces_donnees" required
-                               value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_action) : '' ?>"
+                               value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niveau_acces_donnees) : '' ?>"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:outline-none">
                     </div>
                 </div>
@@ -103,17 +103,17 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                     <?php foreach ($listeNiveaux as $niveau) : ?>
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($niveau->id_action) ?>"
+                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($niveau->id_niveau_acces_donnees ) ?>"
                                                        class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <?= htmlspecialchars($niveau->id_action) ?>
+                                                <?= htmlspecialchars($niveau->id_niveau_acces_donnees ) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                                <?= htmlspecialchars($niveau->lib_action) ?>
+                                                <?= htmlspecialchars($niveau->lib_niveau_acces_donnees) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau_acces=<?= $niveau->id_action ?>"
+                                                <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau_acces=<?= $niveau->id_niveau_acces_donnees  ?>"
                                                    class="text-center text-orange-500 hover:underline"><i
                                                             class="fas fa-pen"></i></a>
                                             </td>

@@ -38,6 +38,21 @@ if ($_GET['page'] === 'parametres_generaux') {
             case 'niveaux_acces':
                 $controller->gestionNiveauAccesDonnees();
                 break;
+            case 'traitements':
+                $controller->gestionTraitement();
+                break;
+            case 'entreprises':
+                $controller->gestionEntreprise();
+                break;
+            case 'actions':
+                $controller->gestionAction();
+                break;
+            case 'fonctions':
+                $controller->gestionFonction();
+                break;
+            case 'messages':
+                $controller->gestionMessagerie();
+                break;
             default:
                 '';
         }

@@ -22,27 +22,27 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
         <!-- Formulaire d'Ajout ou de Modification -->
         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
             <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
-                <?php if (isset($_GET['id_niveau_approbation'])): ?>
+                <?php if (isset($_GET['id_approb'])): ?>
                     Modifier le niveau d'approbation
                 <?php else: ?>
                     Ajouter un nouveau niveau d'approbation
                 <?php endif; ?>
             </h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveau_approbation">
+            <form method="POST" action="?page=parametres_generaux&action=niveaux_approbation">
                 <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau_approbation"
+                    <input type="hidden" name="id_approb"
                            value="<?= htmlspecialchars($niveau_a_modifier->id_approb) ?>">
                 <?php endif; ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du niveau
                             d'approbation</label>
-                        <input type="text" id="niveau_approbation" name="niveau_approbation" required
+                        <input type="text" id="id_approb" name="niveaux_approbation" required
                                value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_approb) : '' ?>"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:outline-none">
                     </div>
                 </div>
-                <?php if (isset($_GET['id_niveau_approbation'])): ?>
+                <?php if (isset($_GET['id_approb'])): ?>
                     <div class="flex justify-start space-x-3">
                         <button type="submit" name="btn_add_niveau_approbation"
                                 class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
@@ -70,7 +70,7 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
         <!-- Section Tableau et Actions -->
         <div class="mt-8">
             <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des niveaux d'approbation</h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveau_approbation" id="formListeNiveauApprobation">
+            <form method="POST" action="?page=parametres_generaux&action=niveaux_approbation" id="formListeNiveauApprobation">
                 <div class="flex flex-col lg:flex-row gap-6">
                     <!-- Table avec largeur fixe -->
                     <div style="width: 80%;"
@@ -113,7 +113,7 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                                 <?= htmlspecialchars($niveau->lib_approb) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                <a href="?page=parametres_generaux&action=niveau_approbation&id_niveau_approbation=<?= $niveau->id_approb ?>"
+                                                <a href="?page=parametres_generaux&action=niveaux_approbation&id_approb=<?= $niveau->id_approb ?>"
                                                    class="text-center text-orange-500 hover:underline"><i
                                                             class="fas fa-pen"></i></a>
                                             </td>

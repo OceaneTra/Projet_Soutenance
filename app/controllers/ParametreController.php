@@ -15,6 +15,9 @@ require_once __DIR__ . '/../models/TypeUtilisateur.php';
 require_once __DIR__ . '/../models/Ue.php';
 require_once __DIR__ . '/../models/NiveauEtude.php';
 require_once __DIR__ . '/../models/Semestre.php';
+require_once __DIR__ . '/../models/Traitement.php';
+require_once __DIR__ . '/../models/Entreprise.php';
+require_once __DIR__ . '/../models/Message.php';
 
 class ParametreController
 {
@@ -33,6 +36,9 @@ class ParametreController
     private $typeUtilisateur;
     private $ue;
     private $semestre;
+    private $entreprise;
+    private $traitement;
+    private $message;
 
     public function __construct()
     {
@@ -51,6 +57,9 @@ class ParametreController
         $this->specialite = new Specialite(Database::getConnection());
         $this->niveauEtude = new NiveauEtude(Database::getConnection());
         $this->semestre = new Semestre(Database::getConnection());
+        $this->traitement = new Traitement(Database::getConnection());
+        $this->entreprise = new Entreprise(Database::getConnection());
+        $this->message = new Message(Database::getConnection());
     }
 
 
@@ -245,10 +254,6 @@ class ParametreController
     //=============================FIN GESTION SPECIALITE=============================
 
 
-
-
-
-
     //=============================GESTION NIVEAU ETUDE=============================
     public function gestionNiveauEtude()
     {
@@ -278,10 +283,6 @@ class ParametreController
         $GLOBALS['listeNiveaux'] = $this->niveauEtude->getAllNiveauxEtudes();
     }
     //=============================FIN GESTION NIVEAU ETUDE=============================
-
-
-
-
 
 
     //=============================GESTION UE=============================
@@ -320,9 +321,6 @@ class ParametreController
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
     }
     //=============================FIN GESTION UE=============================
-
-
-
 
 
     //=============================GESTION ECUE=============================
@@ -368,10 +366,6 @@ class ParametreController
     //=============================FIN GESTION ECUE=============================
 
 
-
-
-
-
     //=============================GESTION STATUT JURY=============================
     public function gestionStatutJury()
     {
@@ -403,21 +397,16 @@ class ParametreController
     //=============================FIN GESTION STATUT JURY=============================
 
 
-
-
-
-
-
     //=============================GESTION NIVEAU APPROBATION=============================
     public function gestionNiveauApprobation()
     {
         $niveau_a_modifier = null;
 
         if (isset($_POST['btn_add_niveau_approbation'])) {
-            $lib_niveau = $_POST['niveau_approbation'];
+            $lib_niveau = $_POST['niveaux_approbation'];
 
-            if (!empty($_POST['id_niveau_approbation'])) {
-                $this->niveauApprobation->updateNiveauApprobation($_POST['id_niveau_approbation'], $lib_niveau);
+            if (!empty($_POST['id_approb'])) {
+                $this->niveauApprobation->updateNiveauApprobation($_POST['id_approb'], $lib_niveau);
             } else {
                 $this->niveauApprobation->ajouterNiveauApprobation($lib_niveau);
             }
@@ -429,20 +418,14 @@ class ParametreController
             }
         }
 
-        if (isset($_GET['id_niveau_approbation'])) {
-            $niveau_a_modifier = $this->niveauApprobation->getNiveauApprobationById($_GET['id_niveau_approbation']);
+        if (isset($_GET['id_approb'])) {
+            $niveau_a_modifier = $this->niveauApprobation->getNiveauApprobationById($_GET['id_approb']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
         $GLOBALS['listeNiveaux'] = $this->niveauApprobation->getAllNiveauxApprobation();
     }
     //=============================FIN GESTION NIVEAU APPROBATION=============================
-
-
-
-
-
-
 
 
 //=============================GESTION SEMESTRES=============================
@@ -476,12 +459,6 @@ class ParametreController
 //=============================FIN GESTION SEMESTRES=============================
 
 
-
-
-
-
-
-
 //=============================GESTION NIVEAU ACCES DONNEES=============================
     public function gestionNiveauAccesDonnees()
     {
@@ -490,8 +467,8 @@ class ParametreController
         if (isset($_POST['btn_add_niveau_acces_donnees'])) {
             $lib_niveau = $_POST['niveau_acces_donnees'];
 
-            if (!empty($_POST['id_niveau_acces_donnees'])) {
-                $this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau);
+            if (!empty($_POST['id_niveau_acces'])) {
+                $this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces'], $lib_niveau);
             } else {
                 $this->niveauAccesDonnees->ajouterNiveauAccesDonnees($lib_niveau);
             }
@@ -503,8 +480,8 @@ class ParametreController
             }
         }
 
-        if (isset($_GET['id_niveau_acces_donnees'])) {
-            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau_acces_donnees']);
+        if (isset($_GET['id_niveau_acces'])) {
+            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau_acces']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
@@ -513,63 +490,186 @@ class ParametreController
     //=============================FIN GESTION NIVEAU ACCES DONNEES=============================
 
 
+    //=============================GESTION TRAITEMENT=============================
+    public function gestionTraitement()
+    {
+        $traitement_a_modifier = null;
+
+        // Ajout ou modification
+        if (isset($_POST['btn_add_traitement'])) {
+            $lib_traitement = $_POST['traitement'];
+
+            if (!empty($_POST['id_traitement'])) {
+                // MODIFICATION
+                $this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement);
+            } else {
+                // AJOUT
+                $this->traitement->ajouterTraitement($lib_traitement);
+            }
+        }
+
+        // Suppression multiple
+        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            foreach ($_POST['selected_ids'] as $id) {
+                $this->traitement->deleteTraitement($id);
+            }
+        }
+
+        // Récupération du traitement à modifier pour affichage dans le formulaire
+        if (isset($_GET['id_traitement'])) {
+            $traitement_a_modifier = $this->traitement->getTraitementById($_GET['id_traitement']);
+        }
+
+        // Variables disponibles pour la vue
+        $GLOBALS['traitement_a_modifier'] = $traitement_a_modifier;
+        $GLOBALS['listeTraitements'] = $this->traitement->getAllTraitements();
+    }
+//=============================FIN GESTION TRAITEMENT============================
 
 
+    //=============================GESTION ENTREPRISE=============================
+    public function gestionEntreprise()
+    {
+        $entreprise_a_modifier = null;
 
+        // Ajout ou modification
+        if (isset($_POST['btn_add_entreprise'])) {
+            $lib_entreprise = $_POST['entreprise'];
 
+            if (!empty($_POST['id_entreprise'])) {
+                // MODIFICATION
+                $this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise);
+            } else {
+                // AJOUT
+                $this->entreprise->ajouterEntreprise($lib_entreprise);
+            }
+        }
 
+        // Suppression multiple
+        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            foreach ($_POST['selected_ids'] as $id) {
+                $this->entreprise->deleteEntreprise($id);
+            }
+        }
 
+        // Récupération de l'entreprise à modifier pour affichage dans le formulaire
+        if (isset($_GET['id_entreprise'])) {
+            $entreprise_a_modifier = $this->entreprise->getEntrepriseById($_GET['id_entreprise']);
+        }
 
+        // 📦 Variables disponibles pour la vue
+        $GLOBALS['entreprise_a_modifier'] = $entreprise_a_modifier;
+        $GLOBALS['listeEntreprises'] = $this->entreprise->getAllEntreprises();
+    }
+//=============================FIN GESTION ENTREPRISE============================
 
+//=============================GESTION ACTION=============================
+    public function gestionAction()
+    {
+        $action_a_modifier = null;
 
-    //=============================GESTION FONCTION=============================
+        // Ajout ou modification
+        if (isset($_POST['btn_add_action'])) {
+            $lib_action = $_POST['action'];
+
+            if (!empty($_POST['id_action'])) {
+                // MODIFICATION
+                $this->action->updateAction($_POST['id_action'], $lib_action);
+            } else {
+                // AJOUT
+                $this->action->ajouterAction($lib_action);
+            }
+        }
+
+        // Suppression multiple
+        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            foreach ($_POST['selected_ids'] as $id) {
+                $this->action->deleteAction($id);
+            }
+        }
+
+        // Récupération de l'action à modifier pour affichage dans le formulaire
+        if (isset($_GET['id_action'])) {
+            $action_a_modifier = $this->action->getActionById($_GET['id_action']);
+        }
+
+        // 📦 Variables disponibles pour la vue
+        $GLOBALS['action_a_modifier'] = $action_a_modifier;
+        $GLOBALS['listeActions'] = $this->action->getAllAction();
+    }
+//=============================FIN GESTION ACTION============================
+
+//=============================GESTION FONCTION=============================
     public function gestionFonction()
     {
         $fonction_a_modifier = null;
 
+        // Ajout ou modification
         if (isset($_POST['btn_add_fonction'])) {
             $lib_fonction = $_POST['fonction'];
 
             if (!empty($_POST['id_fonction'])) {
+                // MODIFICATION
                 $this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction);
             } else {
-                $this->fonction->addFonction($lib_fonction);
+                // AJOUT
+                $this->fonction->ajouterFonction($lib_fonction);
             }
         }
 
+        // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             foreach ($_POST['selected_ids'] as $id) {
                 $this->fonction->deleteFonction($id);
             }
         }
 
+        // Récupération de la fonction à modifier pour affichage dans le formulaire
         if (isset($_GET['id_fonction'])) {
             $fonction_a_modifier = $this->fonction->getFonctionById($_GET['id_fonction']);
         }
 
+        // 📦 Variables disponibles pour la vue
         $GLOBALS['fonction_a_modifier'] = $fonction_a_modifier;
-        $GLOBALS['listeFonctions'] = $this->fonction->getAllFonctions();
+        $GLOBALS['listeFonctions'] = $this->fonction->getAllFonction();
     }
-    //=============================FIN GESTION FONCTION=============================
+//=============================FIN GESTION FONCTION============================
 
+//=============================GESTION MESSAGERIE=============================
+    public function gestionMessagerie()
+    {
+        $message_a_modifier = null;
 
+        // Ajout ou modification
+        if (isset($_POST['btn_add_message'])) {
+            $contenu_message = $_POST['message'];
 
+            if (!empty($_POST['id_message'])) {
+                // MODIFICATION
+                $this->message->updateMessage($_POST['id_message'], $contenu_message);
+            } else {
+                // AJOUT
+                $this->message->ajouterMessage($contenu_message);
+            }
+        }
 
+        // Suppression multiple
+        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            foreach ($_POST['selected_ids'] as $id) {
+                $this->message->deleteMessage($id);
+            }
+        }
 
+        // Récupération du message à modifier pour affichage dans le formulaire
+        if (isset($_GET['id_message'])) {
+            $message_a_modifier = $this->message->getMessageById($_GET['id_message']);
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // 📦 Variables disponibles pour la vue
+        $GLOBALS['message_a_modifier'] = $message_a_modifier;
+        $GLOBALS['listeMessages'] = $this->message->getAllMessages();
+    }
+//=============================FIN GESTION MESSAGERIE============================
 
 
 }

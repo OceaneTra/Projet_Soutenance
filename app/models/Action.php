@@ -3,51 +3,43 @@
 class Action
 {
 
+    private $db;
 
-
-    private $pdo;
-
-    public function __construct($pdo)
+    public function __construct($db)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
     }
 
-    // Récupérer toutes les actions
-    public function getAllAction()
+    public function ajouterAction($lib_action)
     {
-        $stmt = $this->pdo->query("SELECT * FROM action");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-
-    // Ajouter une nouvelle année académique
-    public function addAction($libelle)
-    {
-        $stmt = $this->pdo->prepare("INSERT INTO action (lib_action) VALUES (?)");
-        return $stmt->execute([$libelle]);
-    }
-
-    //mettre a jour Action
-    public function updateAction($lib_action)
-    {
-        $stmt = $this->pdo->prepare("UPDATE action SET lib_action = ?");
+        $stmt = $this->db->prepare("INSERT INTO action (lib_action) VALUES (?)");
         return $stmt->execute([$lib_action]);
     }
 
-
-    // Supprimer une Action
-    public function deleteAction($id)
+    public function updateAction($id_action, $lib_action)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM action WHERE id_action = ?");
-        return $stmt->execute([$id]);
+        $stmt = $this->db->prepare("UPDATE action SET lib_action = ? WHERE id_action = ?");
+        return $stmt->execute([$lib_action, $id_action]);
     }
 
-    // Vérifier si une action existe
-    public function isActionExiste($id)
+    public function deleteAction($id_action)
     {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM action WHERE id_action = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetchColumn() > 0;
+        $stmt = $this->db->prepare("DELETE FROM action WHERE id_action = ?");
+        return $stmt->execute([$id_action]);
+    }
+
+    public function getActionById($id_action)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM action WHERE id_action = ?");
+        $stmt->execute([$id_action]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function getAllAction()
+    {
+        $stmt = $this->db->prepare("SELECT * FROM action ORDER BY lib_action");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
 }
