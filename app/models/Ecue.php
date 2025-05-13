@@ -1,15 +1,13 @@
 <?php
 
-class Ecue
+
+class Ecue extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
-    // Obtenir tous les ECUEs avec les détails de leur UE associée
+    /**
+     * Obtenir tous les ECUEs avec les détails de leur UE associée
+     *
+     * @return array Liste des ECUEs avec leurs détails
+     */
     public function getAllEcues()
     {
         $sql = "SELECT e.*, u.lib_ue, u.credit AS ue_credit, 
@@ -21,74 +19,111 @@ class Ecue
                 JOIN annee_academique a ON u.id_annee_academique = a.id_annee_acad
                 ORDER BY e.lib_ecue";
 
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->selectAll($sql, [], true);
     }
 
-
-    // Ajouter un ECUE avec validation du crédit
-    public function ajouterEcue($id_ue, $lib_ecue, $credit)
+    /**
+     * Ajouter un ECUE avec validation du crédit
+     *
+     * @param int $id_ue ID de l'UE
+     * @param string $lib_ecue Libellé de l'ECUE
+     * @param int $credit Crédit de l'ECUE
+     * @return bool|int ID de l'ECUE créé ou false si échec
+     */
+    public function ajouterEcue(int $id_ue, string $lib_ecue, int $credit): bool|int
     {
         if (!$this->verifierCreditDisponible($id_ue, $credit)) {
             return false;
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO ecue (id_ue, lib_ecue, credit) VALUES (?, ?, ?)");
-        return $stmt->execute([$id_ue, $lib_ecue, $credit]);
+        return $this->insert(
+            "INSERT INTO ecue (id_ue, lib_ecue, credit) VALUES (?, ?, ?)",
+            [$id_ue, $lib_ecue, $credit]
+        );
     }
 
-    // Modifier un ECUE
-    public function updateEcue($id_ecue, $id_ue, $lib_ecue, $credit)
+    /**
+     * Modifier un ECUE
+     *
+     * @param int $id_ecue ID de l'ECUE
+     * @param int $id_ue ID de l'UE
+     * @param string $lib_ecue Libellé de l'ECUE
+     * @param int $credit Crédit de l'ECUE
+     * @return bool Succès de la modification
+     */
+    public function updateEcue(int $id_ecue, int $id_ue, string $lib_ecue, int $credit): bool
     {
-        // Crédit disponible pour l’UE en excluant l’ECUE actuel
         $creditDisponible = $this->creditRestantPourUe($id_ue, $id_ecue);
         if ($credit > $creditDisponible) {
             return false;
         }
 
-        $stmt = $this->pdo->prepare("UPDATE ecue SET id_ue = ?, lib_ecue = ?, credit = ? WHERE id_ecue = ?");
-        return $stmt->execute([$id_ue, $lib_ecue, $credit, $id_ecue]);
+        return $this->update(
+                "UPDATE ecue SET id_ue = ?, lib_ecue = ?, credit = ? WHERE id_ecue = ?",
+                [$id_ue, $lib_ecue, $credit, $id_ecue]
+            ) > 0;
     }
 
-    // Supprimer un ECUE
-    public function deleteEcue($id)
+    /**
+     * Supprimer un ECUE
+     *
+     * @param int $id ID de l'ECUE à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteEcue(int $id): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM ecue WHERE id_ecue = ?");
-        return $stmt->execute([$id]);
+        return $this->delete("DELETE FROM ecue WHERE id_ecue = ?", [$id]) > 0;
     }
 
-    // Récupérer un ECUE par son ID
-    public function getEcueById($id)
+    /**
+     * Récupérer un ECUE par son ID
+     *
+     * @param int $id ID de l'ECUE
+     * @return object|null L'ECUE trouvé ou null
+     */
+    public function getEcueById(int $id): ?object
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM ecue WHERE id_ecue = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $this->selectOne(
+            "SELECT * FROM ecue WHERE id_ecue = ?",
+            [$id],
+            true
+        );
     }
 
-    // Crédit restant pour une UE (somme des autres ECUE)
-    private function creditRestantPourUe($id_ue, $excludeEcueId = null)
+    /**
+     * Crédit restant pour une UE (somme des autres ECUE)
+     *
+     * @param int $id_ue ID de l'UE
+     * @param int|null $excludeEcueId ID de l'ECUE à exclure du calcul
+     * @return float Crédit restant disponible
+     */
+    private function creditRestantPourUe(int $id_ue, int $excludeEcueId = null): float
     {
-        $sql = "SELECT credit FROM ue WHERE id_ue = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id_ue]);
-        $creditUe = $stmt->fetchColumn();
+        $creditUe = $this->selectOne(
+            "SELECT credit FROM ue WHERE id_ue = ?",
+            [$id_ue]
+        )['credit'];
 
-        $sql = "SELECT SUM(credit) FROM ecue WHERE id_ue = ?";
+        $sql = "SELECT COALESCE(SUM(credit), 0) as total FROM ecue WHERE id_ue = ?";
         $params = [$id_ue];
+
         if ($excludeEcueId) {
             $sql .= " AND id_ecue != ?";
             $params[] = $excludeEcueId;
         }
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        $totalCredit = $stmt->fetchColumn();
-
-        return $creditUe - ($totalCredit ?? 0);
+        $totalCredit = $this->selectOne($sql, $params)['total'];
+        return $creditUe - $totalCredit;
     }
 
-    // Vérifier si on peut ajouter ce crédit à l’UE
-    public function verifierCreditDisponible($id_ue, $nouveauCredit)
+    /**
+     * Vérifier si on peut ajouter ce crédit à l'UE
+     *
+     * @param int $id_ue ID de l'UE
+     * @param float $nouveauCredit Crédit à vérifier
+     * @return bool True si le crédit peut être ajouté
+     */
+    public function verifierCreditDisponible(int $id_ue, float $nouveauCredit): bool
     {
         $restant = $this->creditRestantPourUe($id_ue);
         return $nouveauCredit <= $restant;

@@ -1,41 +1,85 @@
 <?php
-class StatutJury
+
+class StatutJury extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
+    /**
+     * Récupérer tous les statuts de jury
+     * @return array Liste des statuts de jury
+     */
+    public function getAllStatutsJury(): array
     {
-        $this->pdo = $pdo;
+        return $this->selectAll(
+            "SELECT * FROM statut_jury ORDER BY lib_jury",
+            [],
+            true
+        );
     }
 
-    public function getAllStatutsJury()
+    /**
+     * Ajouter un nouveau statut de jury
+     * @param string $lib Le libellé du statut
+     * @return bool|int L'ID du statut créé ou false si échec
+     */
+    public function ajouterStatutJury(string $lib): bool|int
     {
-        $stmt = $this->pdo->query("SELECT * FROM statut_jury ORDER BY lib_jury");
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->insert(
+            "INSERT INTO statut_jury (lib_jury) VALUES (?)",
+            [$lib]
+        );
     }
 
-    public function ajouterStatutJury($lib)
+    /**
+     * Modifier un statut de jury
+     * @param int $id L'ID du statut
+     * @param string $lib Le nouveau libellé du statut
+     * @return bool Succès de la modification
+     */
+    public function updateStatutJury(int $id, string $lib): bool
     {
-        $stmt = $this->pdo->prepare("INSERT INTO statut_jury (lib_jury) VALUES (?)");
-        return $stmt->execute([$lib]);
+        return $this->update(
+                "UPDATE statut_jury SET lib_jury = ? WHERE id_jury = ?",
+                [$lib, $id]
+            ) > 0;
     }
 
-    public function updateStatutJury($id, $lib)
+    /**
+     * Supprimer un statut de jury
+     * @param int $id L'ID du statut à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteStatutJury(int $id): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE statut_jury SET lib_jury = ? WHERE id_jury = ?");
-        return $stmt->execute([$lib, $id]);
+        return $this->delete(
+                "DELETE FROM statut_jury WHERE id_jury = ?",
+                [$id]
+            ) > 0;
     }
 
-    public function deleteStatutJury($id)
+    /**
+     * Récupérer un statut de jury par son ID
+     * @param int $id L'ID du statut
+     * @return object|null Le statut trouvé ou null
+     */
+    public function getStatutJuryById(int $id): ?object
     {
-        $stmt = $this->pdo->prepare("DELETE FROM statut_jury WHERE id_jury = ?");
-        return $stmt->execute([$id]);
+        return $this->selectOne(
+            "SELECT * FROM statut_jury WHERE id_jury = ?",
+            [$id],
+            true
+        );
     }
 
-    public function getStatutJuryById($id)
+    /**
+     * Vérifier si un statut de jury est utilisé
+     * @param int $id L'ID du statut
+     * @return bool True si le statut est utilisé
+     */
+    public function isStatutJuryUtilise(int $id): bool
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM statut_jury WHERE id_jury = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        $result = $this->selectOne(
+            "SELECT COUNT(*) as count FROM statut_jury WHERE id_jury = ?",
+            [$id]
+        );
+        return $result['count'] > 0;
     }
 }

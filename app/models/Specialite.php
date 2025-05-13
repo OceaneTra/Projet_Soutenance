@@ -1,42 +1,85 @@
 <?php
 
-class Specialite
+class Specialite extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
+    /**
+     * Récupérer toutes les spécialités
+     * @return array Liste des spécialités
+     */
+    public function getAllSpecialites(): array
     {
-        $this->pdo = $pdo;
+        return $this->selectAll(
+            "SELECT * FROM specialite ORDER BY lib_specialite",
+            [],
+            true
+        );
     }
 
-    public function getAllSpecialites()
+    /**
+     * Ajouter une nouvelle spécialité
+     * @param string $lib_specialite Le libellé de la spécialité
+     * @return bool|int L'ID de la spécialité créée ou false si échec
+     */
+    public function ajouterSpecialite(string $lib_specialite): bool|int
     {
-        $stmt = $this->pdo->query("SELECT * FROM specialite ORDER BY lib_specialite");
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->insert(
+            "INSERT INTO specialite (lib_specialite) VALUES (?)",
+            [$lib_specialite]
+        );
     }
 
-    public function ajouterSpecialite($lib)
+    /**
+     * Modifier une spécialité
+     * @param int $id_specialite L'ID de la spécialité
+     * @param string $lib_specialite Le nouveau libellé de la spécialité
+     * @return bool Succès de la modification
+     */
+    public function updateSpecialite(int $id_specialite, string $lib_specialite): bool
     {
-        $stmt = $this->pdo->prepare("INSERT INTO specialite (lib_specialite) VALUES (?)");
-        return $stmt->execute([$lib]);
+        return $this->update(
+                "UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?",
+                [$lib_specialite, $id_specialite]
+            ) > 0;
     }
 
-    public function updateSpecialite($id, $lib)
+    /**
+     * Supprimer une spécialité
+     * @param int $id_specialite L'ID de la spécialité à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteSpecialite(int $id_specialite): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?");
-        return $stmt->execute([$lib, $id]);
+        return $this->delete(
+                "DELETE FROM specialite WHERE id_specialite = ?",
+                [$id_specialite]
+            ) > 0;
     }
 
-    public function deleteSpecialite($id)
+    /**
+     * Récupérer une spécialité par son ID
+     * @param int $id_specialite L'ID de la spécialité
+     * @return object|null La spécialité trouvée ou null
+     */
+    public function getSpecialiteById(int $id_specialite): ?object
     {
-        $stmt = $this->pdo->prepare("DELETE FROM specialite WHERE id_specialite = ?");
-        return $stmt->execute([$id]);
+        return $this->selectOne(
+            "SELECT * FROM specialite WHERE id_specialite = ?",
+            [$id_specialite],
+            true
+        );
     }
 
-    public function getSpecialiteById($id)
+    /**
+     * Vérifier si une spécialité est utilisée
+     * @param int $id_specialite L'ID de la spécialité
+     * @return bool True si la spécialité est utilisée
+     */
+    public function isSpecialiteUtilisee(int $id_specialite): bool
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM specialite WHERE id_specialite = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        $result = $this->selectOne(
+            "SELECT COUNT(*) as count FROM enseignants WHERE id_specialite = ?",
+            [$id_specialite]
+        );
+        return $result['count'] > 0;
     }
 }

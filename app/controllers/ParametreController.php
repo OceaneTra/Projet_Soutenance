@@ -22,7 +22,7 @@ class ParametreController
     private $action;
     private $anneeAcademique;
     private $ecue;
-    private $fonction;
+    private  $fonction;
     private $grade;
     private $groupeUtilisateur;
     private $niveauAccesDonnees;
@@ -37,25 +37,25 @@ class ParametreController
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/partials/parametres_generaux/';
-        $this->anneeAcademique = new AnneeAcademique(Database::getConnection());
-        $this->action = new Action(Database::getConnection());
-        $this->fonction = new Fonction(Database::getConnection());
-        $this->grade = new Grade(Database::getConnection());
-        $this->groupeUtilisateur = new GroupeUtilisateur(Database::getConnection());
-        $this->niveauAccesDonnees = new NiveauAccesDonnees(Database::getConnection());
-        $this->niveauApprobation = new NiveauApprobation(Database::getConnection());
-        $this->typeUtilisateur = new TypeUtilisateur(Database::getConnection());
-        $this->ue = new Ue(Database::getConnection());
-        $this->ecue = new Ecue(Database::getConnection());
-        $this->statutJury = new StatutJury(Database::getConnection());
-        $this->specialite = new Specialite(Database::getConnection());
-        $this->niveauEtude = new NiveauEtude(Database::getConnection());
-        $this->semestre = new Semestre(Database::getConnection());
+        $this->anneeAcademique = new AnneeAcademique();
+        $this->action = new Action();
+        $this->fonction = new Fonction();
+        $this->grade = new Grade();
+        $this->groupeUtilisateur = new GroupeUtilisateur();
+        $this->niveauAccesDonnees = new NiveauAccesDonnees();
+        $this->niveauApprobation = new NiveauApprobation();
+        $this->typeUtilisateur = new TypeUtilisateur();
+        $this->ue = new Ue();
+        $this->ecue = new Ecue();
+        $this->statutJury = new StatutJury();
+        $this->specialite = new Specialite();
+        $this->niveauEtude = new NiveauEtude();
+        $this->semestre = new Semestre();
     }
 
 
     //=============================GESTION ANNEE ACADEMIQUE=============================
-    public function gestionAnnees()
+    public function gestionAnnees(): void
     {
         $annee_a_modifier = null;
 
@@ -94,7 +94,7 @@ class ParametreController
 
     //=============================GESTION GRADES=============================
     public
-    function gestionGrade()
+    function gestionGrade(): void
     {
 
         $grades_a_modifier = null;
@@ -133,7 +133,7 @@ class ParametreController
 
 
     //=============================GESTION FONCTION UTILISATEUR=============================
-    public function gestionFonctionUtilisateur()
+    public function gestionFonctionUtilisateur(): void
     {
         $groupe_a_modifier = null;
         $type_a_modifier = null;
@@ -211,7 +211,7 @@ class ParametreController
 
 
 //=============================GESTION SPECIALITE=============================
-    public function gestionSpecialite()
+    public function gestionSpecialite(): void
     {
         $specialite_a_modifier = null;
 
@@ -326,7 +326,7 @@ class ParametreController
 
 
     //=============================GESTION ECUE=============================
-    public function gestionEcue()
+    public function gestionEcue(): void
     {
         $ecue_a_modifier = null;
 
@@ -409,7 +409,7 @@ class ParametreController
 
 
     //=============================GESTION NIVEAU APPROBATION=============================
-    public function gestionNiveauApprobation()
+    public function gestionNiveauApprobation(): void
     {
         $niveau_a_modifier = null;
 
@@ -491,24 +491,24 @@ class ParametreController
             $lib_niveau = $_POST['niveau_acces_donnees'];
 
             if (!empty($_POST['id_niveau_acces_donnees'])) {
-                $this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau);
+                $this->niveauAccesDonnees->updateNiveauAcces($_POST['id_niveau_acces_donnees'], $lib_niveau);
             } else {
-                $this->niveauAccesDonnees->ajouterNiveauAccesDonnees($lib_niveau);
+                $this->niveauAccesDonnees->ajouterNiveauAcces($lib_niveau);
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             foreach ($_POST['selected_ids'] as $id) {
-                $this->niveauAccesDonnees->deleteNiveauAccesDonnees($id);
+                $this->niveauAccesDonnees->deleteNiveauAcces($id);
             }
         }
 
         if (isset($_GET['id_niveau_acces_donnees'])) {
-            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau_acces_donnees']);
+            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesById($_GET['id_niveau_acces_donnees']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
-        $GLOBALS['listeNiveaux'] = $this->niveauAccesDonnees->getAllNiveauxAccesDonnees();
+        $GLOBALS['listeNiveaux'] = $this->niveauAccesDonnees->getAllNiveauxAcces();
     }
     //=============================FIN GESTION NIVEAU ACCES DONNEES=============================
 
@@ -523,7 +523,7 @@ class ParametreController
 
 
     //=============================GESTION FONCTION=============================
-    public function gestionFonction()
+    public function gestionFonction(): void
     {
         $fonction_a_modifier = null;
 

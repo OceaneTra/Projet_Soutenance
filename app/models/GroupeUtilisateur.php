@@ -1,51 +1,73 @@
 <?php
 
-class GroupeUtilisateur
+class GroupeUtilisateur extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
+    /**
+     * Récupérer tous les groupes utilisateurs
+     * @return array Liste des groupes utilisateurs
+     */
+    public function getAllGroupeUtilisateur(): array
     {
-        $this->pdo = $pdo;
+        return $this->selectAll(
+            "SELECT * FROM groupe_utilisateur ORDER BY lib_GU",
+            [],
+            true
+        );
     }
 
-    // Récupérer tous les groupe utilisateurs
-    public function getAllGroupeUtilisateur()
+    /**
+     * Ajouter un nouveau groupe utilisateur
+     * @param string $lib_GU Le libellé du groupe utilisateur
+     * @return bool|int L'ID du groupe créé ou false si échec
+     */
+    public function ajouterGroupeUtilisateur(string $lib_GU): bool|int
     {
-        $stmt = $this->pdo->query("SELECT * FROM groupe_utilisateur ORDER BY lib_GU");
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->insert(
+            "INSERT INTO groupe_utilisateur (lib_GU) VALUES (?)",
+            [$lib_GU]
+        );
     }
 
-    // Ajouter un nouveau groupe utilisateur
-    public function ajouterGroupeUtilisateur($lib_GU)
+    /**
+     * Modifier un groupe utilisateur
+     * @param int $id_GU L'ID du groupe utilisateur
+     * @param string $lib_GU Le nouveau libellé du groupe utilisateur
+     * @return bool Succès de la modification
+     */
+    public function updateGroupeUtilisateur(int $id_GU, string $lib_GU): bool
     {
-        $stmt = $this->pdo->prepare("INSERT INTO groupe_utilisateur (lib_GU) VALUES (?)");
-        return $stmt->execute([$lib_GU]);
+        return $this->update(
+                "UPDATE groupe_utilisateur SET lib_GU = ? WHERE id_GU = ?",
+                [$lib_GU, $id_GU]
+            ) > 0;
     }
 
-    //Modifier un groupe utilisateur
-    public function updateGroupeUtilisateur($id_GU, $lib_GU)
+    /**
+     * Supprimer un groupe utilisateur
+     * @param int $id L'ID du groupe utilisateur à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteGroupeUtilisateur(int $id): bool
     {
-        try {
-            $stmt = $this->pdo->prepare("UPDATE groupe_utilisateur SET lib_GU = ? WHERE id_GU = ?");
-            return $stmt->execute([$lib_GU, $id_GU]);
-        } catch (PDOException $e) {
-            error_log("Erreur pendant la maj du groupe utilisateur");
-            return false;
-        }
+        return $this->delete(
+                "DELETE FROM groupe_utilisateur WHERE id_GU = ?",
+                [$id]
+            ) > 0;
     }
 
-    // Supprimer un groupe utilisateur
-    public function deleteGroupeUtilisateur($id)
+    /**
+     * Récupérer un groupe utilisateur par son ID
+     * @param int $id_GU L'ID du groupe utilisateur
+     * @return object|null Le groupe utilisateur trouvé ou null
+     */
+    public function getGroupeUtilisateurById(int $id_GU): ?object
     {
-        $stmt = $this->pdo->prepare("DELETE FROM groupe_utilisateur WHERE id_GU = ?");
-        return $stmt->execute([$id]);
+        return $this->selectOne(
+            "SELECT * FROM groupe_utilisateur WHERE id_GU = ?",
+            [$id_GU],
+            true
+        );
     }
 
-    public function getGroupeUtilisateurById($id_GU)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM groupe_utilisateur WHERE id_GU = ?");
-        $stmt->execute([$id_GU]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
+
 }

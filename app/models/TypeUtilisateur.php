@@ -1,51 +1,71 @@
 <?php
 
-class TypeUtilisateur
+class TypeUtilisateur extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
+    /**
+     * Récupérer tous les types d'utilisateur
+     * @return array Liste des types d'utilisateur
+     */
+    public function getAllTypeUtilisateur(): array
     {
-        $this->pdo = $pdo;
+        return $this->selectAll(
+            "SELECT * FROM type_utilisateur ORDER BY lib_type_utilisateur",
+            [],
+            true
+        );
     }
 
-    // Récupérer tous les type utilisateur
-    public function getAllTypeUtilisateur()
+    /**
+     * Ajouter un nouveau type d'utilisateur
+     * @param string $lib_type_utilisateur Le libellé du type d'utilisateur
+     * @return bool|int L'ID du type d'utilisateur créé ou false si échec
+     */
+    public function ajouterTypeUtilisateur(string $lib_type_utilisateur): bool|int
     {
-        $stmt = $this->pdo->query("SELECT * FROM type_utilisateur ORDER BY lib_type_utilisateur");
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->insert(
+            "INSERT INTO type_utilisateur (lib_type_utilisateur) VALUES (?)",
+            [$lib_type_utilisateur]
+        );
     }
 
-    // Ajouter un nouveau type utilisateur
-    public function ajouterTypeUtilisateur($lib_type_utilisateur)
+    /**
+     * Modifier un type d'utilisateur
+     * @param int $id_type_utilisateur L'ID du type d'utilisateur
+     * @param string $lib_type_utilisateur Le nouveau libellé du type d'utilisateur
+     * @return bool Succès de la modification
+     */
+    public function updateTypeUtilisateur(int $id_type_utilisateur, string $lib_type_utilisateur): bool
     {
-        $stmt = $this->pdo->prepare("INSERT INTO type_utilisateur (lib_type_utilisateur) VALUES (?)");
-        return $stmt->execute([$lib_type_utilisateur]);
+        return $this->update(
+                "UPDATE type_utilisateur SET lib_type_utilisateur = ? WHERE id_type_utilisateur = ?",
+                [$lib_type_utilisateur, $id_type_utilisateur]
+            ) > 0;
     }
 
-    //Modifier un type utilisateur
-    public function updateTypeUtilisateur($id_type_utilisateur, $lib_type_utilisateur)
+    /**
+     * Supprimer un type d'utilisateur
+     * @param int $id L'ID du type d'utilisateur à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteTypeUtilisateur(int $id): bool
     {
-        try {
-            $stmt = $this->pdo->prepare("UPDATE type_utilisateur SET lib_type_utilisateur = ? WHERE id_type_utilisateur = ?");
-            return $stmt->execute([$lib_type_utilisateur, $id_type_utilisateur]);
-        } catch (PDOException $e) {
-            error_log("Erreur pendant la maj du groupe utilisateur");
-            return false;
-        }
+        return $this->delete(
+                "DELETE FROM type_utilisateur WHERE id_type_utilisateur = ?",
+                [$id]
+            ) > 0;
     }
 
-    // Supprimer un type utilisateur
-    public function deleteTypeUtilisateur($id)
+    /**
+     * Récupérer un type d'utilisateur par son ID
+     * @param int $id_type L'ID du type d'utilisateur à récupérer
+     * @return object|null Le type d'utilisateur trouvé ou null
+     */
+    public function getTypeUtilisateurById(int $id_type): ?object
     {
-        $stmt = $this->pdo->prepare("DELETE FROM type_utilisateur WHERE id_type_utilisateur = ?");
-        return $stmt->execute([$id]);
-    }
-
-    public function getTypeUtilisateurById($id_type_utilisateur)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM type_utilisateur WHERE id_type_utilisateur = ?");
-        $stmt->execute([$id_type_utilisateur]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $this->selectOne(
+            "SELECT * FROM type_utilisateur WHERE id_type_utilisateur = ?",
+            [$id_type],
+            true
+        );
     }
 }
