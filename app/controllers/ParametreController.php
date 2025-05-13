@@ -56,63 +56,70 @@ class ParametreController
 
     //=============================GESTION ANNEE ACADEMIQUE=============================
     public function gestionAnnees(): void
-    {
-        $annee_a_modifier = null;
-        $messageErreur = null;
-        $messageSucces = null;
+{
+    $annee_a_modifier = null;
+    $messageErreur = null;
+    $messageSucces = null;
 
-        // Ajout ou modification
-        if (isset($_POST['btn_add_annees_academiques'])) {
-            $dateDebut = $_POST['date_debut'];
-            $dateFin = $_POST['date_fin'];
+    // Ajout ou modification
+    if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
+        // Utiliser les mêmes noms que dans le formulaire
+        $dateDebut = $_POST['date_deb'];
+        $dateFin = $_POST['date_fin'];
 
-            if($dateDebut > $dateFin){
-                $messageErreur = "Erreur : la date de début ne peut pas être postérieure à la date de fin";
-            } else {
-                if (!empty($_POST['id_annee_acad'])) {
-                    // MODIFICATION
-                    if($this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin)) {
-                        $messageSucces = "Année académique modifiée avec succès";
-                    } else {
-                        $messageErreur = "Erreur lors de la modification de l'année académique";
-                    }
+        if($dateDebut > $dateFin){
+            $messageErreur = "Erreur : la date de début ne peut pas être postérieure à la date de fin";
+        } else {
+            if (!empty($_POST['id_annee_acad'])) {
+                // MODIFICATION
+                if($this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin)) {
+                    $messageSucces = "Année académique modifiée avec succès";
+                    // Redirection pour éviter la resoumission
+                    header("Location: ?page=parametres_generaux&action=annees_academiques&success=1");
+                    exit();
                 } else {
-                    // AJOUT
-                    if($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
-                        $messageSucces = "Année académique ajoutée avec succès";
-                    } else {
-                        $messageErreur = "Erreur lors de l'ajout de l'année académique";
-                    }
+                    $messageErreur = "Erreur lors de la modification de l'année académique";
                 }
-            }
-        }
-
-        // Suppression multiple
-        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
-            $success = true;
-            foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->anneeAcademique->deleteAnneeAcademique($id)) {
-                    $success = false;
-                }
-            }
-            if($success) {
-                $messageSucces = "Suppression des années académiques effectuée avec succès";
             } else {
-                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs années académiques";
+                // AJOUT
+                if($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
+                    $messageSucces = "Année académique ajoutée avec succès";
+                    // Redirection pour éviter la resoumission
+                    header("Location: ?page=parametres_generaux&action=annees_academiques&success=1");
+                    exit();
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout de l'année académique";
+                }
             }
         }
-
-        // Récupération de l'année à modifier pour affichage dans le formulaire
-        if (isset($_GET['id_annee_acad'])) {
-            $annee_a_modifier = $this->anneeAcademique->getAnneeAcademiqueById($_GET['id_annee_acad']);
-        }
-
-        // 📦 Variables disponibles pour la vue
-        $GLOBALS['annee_a_modifier'] = $annee_a_modifier;
-        $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
-        $GLOBALS['messageErreur'] = $messageErreur;
-        $GLOBALS['messageSucces'] = $messageSucces;
     }
+
+    // Suppression multiple
+    if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+        $success = true;
+        foreach ($_POST['selected_ids'] as $id) {
+            if(!$this->anneeAcademique->deleteAnneeAcademique($id)) {
+                $success = false;
+            }
+        }
+        if($success) {
+            $messageSucces = "Suppression des années académiques effectuée avec succès";
+        } else {
+            $messageErreur = "Erreur lors de la suppression d'une ou plusieurs années académiques";
+        }
+    }
+
+    // Récupération de l'année à modifier
+    if (isset($_GET['id_annee_acad'])) {
+        $annee_a_modifier = $this->anneeAcademique->getAnneeAcademiqueById($_GET['id_annee_acad']);
+    }
+
+    // Variables disponibles pour la vue
+    $GLOBALS['annee_a_modifier'] = $annee_a_modifier;
+    $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+    $GLOBALS['messageErreur'] = $messageErreur;
+    $GLOBALS['messageSucces'] = $messageSucces;
+}
     //=============================FIN GESTION ANNEE ACADEMIQUE=============================
 
 

@@ -54,25 +54,29 @@ $grade_a_modifier = $GLOBALS['grade_a_modifier'] ?? null;
                         </div>
 
                     </div>
-                    <?php if (isset($_GET['id_grade'])): ?>
-                    <button type="submit" id="btnModifier"
-                        class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-save mr-2"></i>
-                        Modifier le grade
-                    </button>
-                    <button type="submit" name="btn_annuler"
-                        class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white   bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-remove mr-2"></i>
-                        Annuler
-                    </button>
-                    <input type="hidden" id="submitModifierHidden" value="0">
-                    <?php else: ?>
-                    <button type="submit" name="btn_add_grades"
-                        class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                        <i class="fa-plus fas mr-2"></i>
-                        Ajouter le grade
-                    </button>
-                    <?php endif; ?>
+                    <div class="flex justify-between">
+                        <?php if (isset($_GET['id_grade'])): ?>
+
+                        <button type="submit" name="btn_annuler"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white   bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-times mr-2"></i>
+                            Annuler
+                        </button>
+                        <button type="submit" id="btnModifier"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-save mr-2"></i>
+                            Modifier le grade
+                        </button>
+                        <input type="hidden" id="submitModifierHidden" value="0">
+                        <?php else: ?>
+                        <button type="submit" name="btn_add_grades"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fa-plus fas mr-2"></i>
+                            Ajouter le grade
+                        </button>
+                        <?php endif; ?>
+                    </div>
+
 
                 </form>
             </div>
