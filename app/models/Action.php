@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
 class Action extends DbModel
 {

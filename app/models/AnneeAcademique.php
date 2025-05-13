@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
 /**
  * Classe AnneeAcademique qui gère les opérations liées aux années académiques

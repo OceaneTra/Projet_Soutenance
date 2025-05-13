@@ -1,5 +1,10 @@
 <?php
-
+require_once __DIR__ . '/../config/DbModel.class.php';
+/**
+ * Classe Fonction qui gère les opérations liées aux fonctions
+ *
+ * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
+ */
 class Fonction extends DbModel
 {
     /**

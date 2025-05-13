@@ -1,5 +1,9 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
+/**
+ * Gère les groupes utilisateurs
+ */
 class GroupeUtilisateur extends DbModel
 {
     /**

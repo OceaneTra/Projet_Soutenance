@@ -1,5 +1,14 @@
 <?php
 
+require_once __DIR__ . '/../config/DbModel.class.php';
+
+
+
+/**
+ * Classe Semestre qui gère les opérations liées aux semestres
+ *
+ * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
+ */
 class Semestre extends DbModel
 {
     /**

@@ -1,5 +1,10 @@
 <?php
-
+require_once __DIR__ . '/../config/DbModel.class.php';
+/**
+ * Classe Specialite qui gère les opérations liées aux spécialités
+ *
+ * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
+ */
 class Specialite extends DbModel
 {
     /**
