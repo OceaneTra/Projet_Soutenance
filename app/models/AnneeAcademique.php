@@ -65,7 +65,6 @@ class AnneeAcademique extends DbModel
         }
     }
 
-<<<<<<< HEAD
     /**
      * Met à jour une année académique existante
      * 
@@ -88,20 +87,6 @@ class AnneeAcademique extends DbModel
             error_log("Erreur de mise à jour d'année académique: " . $e->getMessage());
             return false;
         }
-=======
-    //mettre a jour
-    public function updateAnneeAcademique($id, $date_deb, $date_fin) {
-        $stmt = $this->pdo->prepare("UPDATE annee_academique SET date_deb = ?, date_fin = ? WHERE id_annee_acad = ?");
-        return $stmt->execute([$date_deb, $date_fin, $id]);
-    }
-
-
-
-    // Supprimer une année académique
-    public function deleteAnneeAcademique($id) {
-        $stmt = $this->pdo->prepare("DELETE FROM annee_academique WHERE id_annee_acad = ?");
-        return $stmt->execute([$id]);
->>>>>>> origin
     }
 
     /**
