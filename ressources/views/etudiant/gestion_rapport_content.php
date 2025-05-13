@@ -80,7 +80,7 @@
                             d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Compte rendu de rapport</h3>
+                <h3 class="text-xl font-bold mb-2">Consulter les commentaires</h3>
                 <p class="text-white text-opacity-80 mb-6 text-center">Accédez aux retours détaillés des
                     évaluateurs pour améliorer votre travail académique.</p>
                 <div class="mt-auto">
@@ -158,53 +158,53 @@
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
 
 
-        // Animation au survol des boutons
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                gsap.to(button, {
-                    scale: 1.05,
-                    duration: 0.3
+            // Animation au survol des boutons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', () => {
+                    gsap.to(button, {
+                        scale: 1.05,
+                        duration: 0.3
+                    });
+                });
+
+                button.addEventListener('mouseleave', () => {
+                    gsap.to(button, {
+                        scale: 1,
+                        duration: 0.3
+                    });
                 });
             });
 
-            button.addEventListener('mouseleave', () => {
-                gsap.to(button, {
-                    scale: 1,
-                    duration: 0.3
+            // Simulation de clic sur les cartes
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('h3').textContent;
+                    const button = this.querySelector('button');
+
+                    // Animation de clic
+                    gsap.to(this, {
+                        scale: 0.95,
+                        duration: 0.1,
+                        onComplete: () => {
+                            gsap.to(this, {
+                                scale: 1,
+                                duration: 0.3
+                            });
+
+                            // Simulation de navigation ou d'ouverture de modal
+                            alert(
+                                `Section "${title}" - Cette fonctionnalité sera bientôt disponible`
+                            );
+                        }
+                    });
                 });
             });
         });
-
-        // Simulation de clic sur les cartes
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.addEventListener('click', function() {
-                const title = this.querySelector('h3').textContent;
-                const button = this.querySelector('button');
-
-                // Animation de clic
-                gsap.to(this, {
-                    scale: 0.95,
-                    duration: 0.1,
-                    onComplete: () => {
-                        gsap.to(this, {
-                            scale: 1,
-                            duration: 0.3
-                        });
-
-                        // Simulation de navigation ou d'ouverture de modal
-                        alert(
-                            `Section "${title}" - Cette fonctionnalité sera bientôt disponible`
-                        );
-                    }
-                });
-            });
-        });
-    });
     </script>
 </body>
 

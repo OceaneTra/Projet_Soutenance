@@ -4,466 +4,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Création de Rapport de Stage</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Éditeur de Rapport de Stage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.4.2/tinymce.min.js"></script>
+    <style>
+    .loader {
+        border-top-color: #3498db;
+        animation: spinner 1.5s linear infinite;
+    }
+
+    @keyframes spinner {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* TinyMCE customizations */
+    .tox-tinymce {
+        border-radius: 0.5rem !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    .document-loaded {
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .document-loading {
+        opacity: 0.6;
+    }
+    </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center text-blue-800 mb-8">Plateforme de Création de Rapport de Stage</h1>
-
-        <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-blue-700">Instructions</h2>
-            <ol class="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>Remplissez tous les champs du formulaire avec vos informations personnelles et les détails de votre
-                    stage.</li>
-                <li>Rédigez le contenu de votre rapport dans les sections fournies.</li>
-                <li>Utilisez les outils de mise en forme pour structurer votre contenu.</li>
-                <li>Vérifiez l'aperçu de votre rapport avant la soumission.</li>
-                <li>Téléchargez votre rapport au format PDF ou soumettez-le directement.</li>
-            </ol>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Formulaire -->
-            <div class="lg:col-span-1 bg-white shadow-lg rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-blue-700">Informations Personnelles</h2>
-                <form id="reportForm" class="space-y-4">
-                    <!-- Informations étudiant -->
-                    <div>
-                        <label for="nom" class="block text-sm font-medium text-gray-700">Nom</label>
-                        <input type="text" id="nom" name="nom"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="prenom" class="block text-sm font-medium text-gray-700">Prénom</label>
-                        <input type="text" id="prenom" name="prenom"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" name="email"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="filiere" class="block text-sm font-medium text-gray-700">Filière</label>
-                        <input type="text" id="filiere" name="filiere"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-
-                    <!-- Informations entreprise -->
-                    <h2 class="text-xl font-semibold mt-6 mb-4 text-blue-700">Informations sur l'Entreprise</h2>
-                    <div>
-                        <label for="entreprise" class="block text-sm font-medium text-gray-700">Nom de
-                            l'Entreprise</label>
-                        <input type="text" id="entreprise" name="entreprise"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                        <input type="text" id="adresse" name="adresse"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="secteur" class="block text-sm font-medium text-gray-700">Secteur d'Activité</label>
-                        <input type="text" id="secteur" name="secteur"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="encadrant" class="block text-sm font-medium text-gray-700">Encadrant
-                            Professionnel</label>
-                        <input type="text" id="encadrant" name="encadrant"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-
-                    <!-- Informations stage -->
-                    <h2 class="text-xl font-semibold mt-6 mb-4 text-blue-700">Informations sur le Stage</h2>
-                    <div>
-                        <label for="theme" class="block text-sm font-medium text-gray-700">Thème du Mémoire</label>
-                        <input type="text" id="theme" name="theme"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="dateDebut" class="block text-sm font-medium text-gray-700">Date de Début</label>
-                        <input type="date" id="dateDebut" name="dateDebut"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="dateFin" class="block text-sm font-medium text-gray-700">Date de Fin</label>
-                        <input type="date" id="dateFin" name="dateFin"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                    <div>
-                        <label for="encadrantAcademique" class="block text-sm font-medium text-gray-700">Encadrant
-                            Académique</label>
-                        <input type="text" id="encadrantAcademique" name="encadrantAcademique"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
-                    </div>
-                </form>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Éditeur de Rapport de Stage</h1>
+                <p class="text-gray-600 mt-2">Créez et modifiez votre rapport facilement</p>
             </div>
-
-            <!-- Contenu du rapport -->
-            <div class="lg:col-span-2 bg-white shadow-lg rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-blue-700">Contenu du Rapport</h2>
-
-                <div class="space-y-4">
-                    <!-- Introduction -->
-                    <div>
-                        <label for="introduction" class="block text-sm font-medium text-gray-700">Introduction</label>
-                        <textarea id="introduction" name="introduction" rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Présentez le contexte de votre stage et les objectifs de votre mémoire..."></textarea>
-                    </div>
-
-                    <!-- Présentation de l'entreprise -->
-                    <div>
-                        <label for="presentationEntreprise" class="block text-sm font-medium text-gray-700">Présentation
-                            de l'Entreprise</label>
-                        <textarea id="presentationEntreprise" name="presentationEntreprise" rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Décrivez l'entreprise, son activité, son organisation..."></textarea>
-                    </div>
-
-                    <!-- Missions et tâches -->
-                    <div>
-                        <label for="missions" class="block text-sm font-medium text-gray-700">Missions et Tâches</label>
-                        <textarea id="missions" name="missions" rows="6"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Détaillez les missions qui vous ont été confiées et les tâches réalisées..."></textarea>
-                    </div>
-
-                    <!-- Problématique -->
-                    <div>
-                        <label for="problematique" class="block text-sm font-medium text-gray-700">Problématique et
-                            Méthodologie</label>
-                        <textarea id="problematique" name="problematique" rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Exposez la problématique traitée et la méthodologie adoptée..."></textarea>
-                    </div>
-
-                    <!-- Résultats -->
-                    <div>
-                        <label for="resultats" class="block text-sm font-medium text-gray-700">Résultats et
-                            Réalisations</label>
-                        <textarea id="resultats" name="resultats" rows="6"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Présentez les résultats obtenus et les solutions développées..."></textarea>
-                    </div>
-
-                    <!-- Conclusion -->
-                    <div>
-                        <label for="conclusion" class="block text-sm font-medium text-gray-700">Conclusion et
-                            Perspectives</label>
-                        <textarea id="conclusion" name="conclusion" rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                            placeholder="Concluez votre rapport et proposez des perspectives d'amélioration..."></textarea>
-                    </div>
-
-                    <!-- Boutons d'action -->
-                    <div class="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4 mt-6">
-                        <button type="button" id="previewBtn"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                            Aperçu du Rapport
-                        </button>
-                        <button type="button" id="downloadBtn"
-                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                            Télécharger en PDF
-                        </button>
-                        <button type="button" id="submitBtn"
-                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                            Soumettre le Rapport
-                        </button>
-                    </div>
-                </div>
+            <div class="flex space-x-3 mt-4 md:mt-0">
+                <button id="saveBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                        </path>
+                    </svg>
+                    Enregistrer
+                </button>
+                <button id="exportBtn"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Exporter
+                </button>
             </div>
         </div>
 
-        <!-- Aperçu du rapport -->
-        <div id="previewContainer"
-            class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-blue-800">Aperçu du Rapport</h2>
-                    <button id="closePreview" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        <!-- Main Content -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Toolbar -->
+            <div class="bg-gray-50 border-b border-gray-200 p-4 flex flex-wrap justify-between items-center">
+                <div class="flex items-center space-x-4 mb-3 md:mb-0">
+                    <button id="loadTemplateBtn"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
+                                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
                         </svg>
+                        Charger le Modèle
                     </button>
+                    <span id="loadingIndicator" class="hidden">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6"></div>
+                        <span class="ml-2 text-gray-600">Chargement...</span>
+                    </span>
                 </div>
-                <div id="reportPreview" class="p-4 border rounded-lg"></div>
-                <div class="mt-4 flex justify-end">
-                    <button id="confirmDownload"
-                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
-                        Télécharger
-                    </button>
-                    <button id="editReport"
-                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Modifier
-                    </button>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <select id="fontSelector"
+                            class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Times New Roman, serif">Times New Roman</option>
+                            <option value="Calibri, sans-serif">Calibri</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <select id="fontSize"
+                            class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="12pt">12pt</option>
+                            <option value="14pt">14pt</option>
+                            <option value="16pt">16pt</option>
+                            <option value="18pt">18pt</option>
+                            <option value="20pt">20pt</option>
+                            <option value="24pt">24pt</option>
+                        </select>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div id="editorContainer" class="p-6 document-loading">
+                <div id="documentStatusMessage" class="text-center py-8 text-gray-500">
+                    Veuillez charger le modèle pour commencer l'édition
+                </div>
+                <textarea id="editor" class="hidden"></textarea>
             </div>
         </div>
 
-        <!-- Message de confirmation -->
-        <div id="confirmationMessage"
-            class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-xl p-6 max-w-md">
-                <div class="text-center">
-                    <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        <!-- Footer -->
+        <div class="mt-6 text-center text-gray-600 text-sm">
+            <p>© 2025 - Éditeur de Rapport de Stage | Développé pour faciliter la création de rapports professionnels
+            </p>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notification"
+        class="fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto hidden overflow-hidden transform transition-all duration-300">
+        <div class="p-4 flex">
+            <div id="notificationIcon" class="flex-shrink-0">
+                <!-- Icon will be inserted here -->
+            </div>
+            <div class="ml-3 w-0 flex-1">
+                <p id="notificationMessage" class="text-sm font-medium text-gray-900">
+                    <!-- Message will be inserted here -->
+                </p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button id="closeNotification" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Rapport Soumis avec Succès!</h2>
-                    <p class="text-gray-600 mb-4">Votre rapport a été enregistré et soumis pour évaluation. Vous
-                        recevrez une confirmation par email.</p>
-                    <button id="closeConfirmation"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Fermer
-                    </button>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Éléments du DOM
-        const previewBtn = document.getElementById('previewBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        const previewContainer = document.getElementById('previewContainer');
-        const reportPreview = document.getElementById('reportPreview');
-        const closePreview = document.getElementById('closePreview');
-        const confirmDownload = document.getElementById('confirmDownload');
-        const editReport = document.getElementById('editReport');
-        const confirmationMessage = document.getElementById('confirmationMessage');
-        const closeConfirmation = document.getElementById('closeConfirmation');
+        const loadTemplateBtn = document.getElementById('loadTemplateBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const editorContainer = document.getElementById('editorContainer');
+        const documentStatusMessage = document.getElementById('documentStatusMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const fontSelector = document.getElementById('fontSelector');
+        const fontSize = document.getElementById('fontSize');
 
-        // Fonction pour générer le contenu du rapport
-        function generateReportContent() {
-            const nom = document.getElementById('nom').value || '[Nom]';
-            const prenom = document.getElementById('prenom').value || '[Prénom]';
-            const email = document.getElementById('email').value || '[Email]';
-            const filiere = document.getElementById('filiere').value || '[Filière]';
-            const entreprise = document.getElementById('entreprise').value || '[Entreprise]';
-            const adresse = document.getElementById('adresse').value || '[Adresse]';
-            const secteur = document.getElementById('secteur').value || '[Secteur]';
-            const encadrant = document.getElementById('encadrant').value || '[Encadrant]';
-            const theme = document.getElementById('theme').value || '[Thème]';
-            const dateDebut = document.getElementById('dateDebut').value ? new Date(document.getElementById(
-                'dateDebut').value).toLocaleDateString('fr-FR') : '[Date début]';
-            const dateFin = document.getElementById('dateFin').value ? new Date(document.getElementById(
-                'dateFin').value).toLocaleDateString('fr-FR') : '[Date fin]';
-            const encadrantAcademique = document.getElementById('encadrantAcademique').value ||
-                '[Encadrant académique]';
-            const introduction = document.getElementById('introduction').value ||
-            'Aucune introduction fournie.';
-            const presentationEntreprise = document.getElementById('presentationEntreprise').value ||
-                'Aucune présentation fournie.';
-            const missions = document.getElementById('missions').value || 'Aucune mission détaillée.';
-            const problematique = document.getElementById('problematique').value ||
-                'Aucune problématique définie.';
-            const resultats = document.getElementById('resultats').value || 'Aucun résultat mentionné.';
-            const conclusion = document.getElementById('conclusion').value || 'Aucune conclusion rédigée.';
+        let editor;
 
-            // Date actuelle pour le rapport
-            const currentDate = new Date().toLocaleDateString('fr-FR');
+        // Initialize TinyMCE editor
+        tinymce.init({
+            selector: '#editor',
+            height: 800,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            setup: function(ed) {
+                editor = ed;
 
-            // Création du contenu HTML du rapport
-            return `
-          <div class="p-8 max-w-4xl mx-auto bg-white">
-            <div class="text-center mb-8">
-              <h1 class="text-2xl font-bold text-blue-800 mb-2">RAPPORT DE STAGE MASTER</h1>
-              <h2 class="text-xl font-semibold text-blue-700">${theme}</h2>
-              <p class="text-gray-600 mt-2">Rapport soumis le ${currentDate}</p>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
-              <div>
-                <p class="font-semibold">Étudiant:</p>
-                <p>${prenom} ${nom}</p>
-                <p>${email}</p>
-                <p>Filière: ${filiere}</p>
-              </div>
-              <div>
-                <p class="font-semibold">Entreprise:</p>
-                <p>${entreprise}</p>
-                <p>${adresse}</p>
-                <p>Secteur: ${secteur}</p>
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
-              <div>
-                <p class="font-semibold">Période de stage:</p>
-                <p>Du ${dateDebut} au ${dateFin}</p>
-              </div>
-              <div>
-                <p class="font-semibold">Encadrement:</p>
-                <p>Professionnel: ${encadrant}</p>
-                <p>Académique: ${encadrantAcademique}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Introduction</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${introduction.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Présentation de l'Entreprise</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${presentationEntreprise.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Missions et Tâches Réalisées</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${missions.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Problématique et Méthodologie</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${problematique.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Résultats et Réalisations</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${resultats.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-blue-700 mb-2">Conclusion et Perspectives</h3>
-              <div class="p-4 bg-gray-100 rounded-lg">
-                <p>${conclusion.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <div class="text-center mt-8 pt-4 border-t border-gray-300">
-              <p class="text-gray-600">Document généré via la Plateforme de Soumission de Rapport de Stage</p>
-              <p class="text-gray-600 text-sm">${prenom} ${nom} - ${currentDate}</p>
-            </div>
-          </div>
-        `;
-        }
-
-        // Aperçu du rapport
-        previewBtn.addEventListener('click', function() {
-            reportPreview.innerHTML = generateReportContent();
-            previewContainer.classList.remove('hidden');
+                ed.on('init', function() {
+                    // Initial setup when editor is ready
+                    document.getElementById('editor').classList.remove('hidden');
+                });
+            }
         });
 
-        // Fermer l'aperçu
-        closePreview.addEventListener('click', function() {
-            previewContainer.classList.add('hidden');
-        });
+        // Template content - based on the provided document
+        const templateContent = `
+                <h1 style="text-align: center;">MINISTERE DE L'ENSEIGNEMENT SUPERIEUR ET DE LA RECHERCHE SCIENTIFIQUE</h1>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <p>[LOGO UNIVERSITÉ]</p>
+                </div>
+                
+                <h2 style="text-align: center;">UNIVERSITE FELIX HOUPHOUET BOIGNY</h2>
+                <h3 style="text-align: center;">UFR MATHEMATIQUES ET INFORMATIQUE FILLIERES PROFESSIONNALISEES MIAGE-GI</h3>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <p>REPUBLIQUE DE COTE D'IVOIRE</p>
+                    <p>UNION - DICIPLINE - TRAVAIL</p>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <p>[LOGO BOA]</p>
+                    <p>[LOGO KYRIA]</p>
+                </div>
+                
+                <h2 style="text-align: center;">KYRIA CONSULTANCY SERVICES</h2>
+                
+                <p style="text-align: center;">Mémoire de fin de cycle pour l'obtention du :</p>
+                <p style="text-align: center; font-weight: bold;">Diplôme d'ingénieur de conception en informatique</p>
+                <p style="text-align: center;">Option Méthodes Informatiques Appliquées à la Gestion des Entreprises</p>
+                
+                <h2 style="text-align: center;">Thème :</h2>
+                <p style="text-align: center; font-weight: bold;">MISE EN PLACE D'UN MODULE D'INTEGRATION ENTRE ATLANTIS CRM ET ATLANTIS SGO :</p>
+                <p style="text-align: center; font-weight: bold;">CAS DE LA BOA CAPITAL ASSET MANAGEMENT</p>
+                
+                <p style="text-align: center; text-decoration: underline;">PRESENTE PAR :</p>
+                <p style="text-align: center;">M. KOET BI BOH CHABEL BAHI</p>
+                
+                <h1>PRESENTATION DU CADRE DE REFERENCE</h1>
+                <p>KYRIA CONSULTANCY SERVICES (KYRIA-CS) est une société d'ingénierie financière spécialisée dans le conseil et la stratégie, qui a développé des compétences complémentaires pour répondre aux besoins spécifiques de ses clients et à leur évolution.</p>
+                
+                <p>Créée en Mai 2019, KYRIA-CS fournit un conseil et un accompagnement qui s'articulent autour d'une idée forte qui est de transformer une vision stratégique en actions et en processus. Elle s'appuie sur les connaissances professionnelles de ces ingénieurs, qui peuvent pleinement appréhender le système d'information de l'entreprise, à savoir la rédaction du cahier des charges, le développement logiciel et l'ingénierie. Elle accompagne surtout les entreprises présentent dans les domaines de la Finance, l'assurance, la mutualité, l'industrie et l'audit.</p>
+                
+                <p>Organisation, technologie et créativité représentent le point culminant des réflexions de l'entreprise. L'objectif de KYRIA est de fournir dans la durée, un service qui apportent une réelle valeur ajoutée aux entreprises. L'ensemble des méthodes de travail, des outils utilisés et des programmes de formation vont dans le sens de l'innovation collaborative et assurent ainsi la pérennité de notre qualité de service.</p>
+                
+                <p>KYRIA organise ses activités métiers autour de quatre pôles d'expertises :</p>
+                <ul>
+                    <li><strong>La Stratégie</strong> : Stratégie opérationnelle, technologique ou commerciale</li>
+                    <li><strong>Le Conseil</strong> : Transformation des entreprises et des administrations dans le contexte de la révolution numérique</li>
+                    <li><strong>Le Numérique</strong> : Relation client, marketing numérique, big data, technologies mobiles, gestion de contenus, e-commerce</li>
+                    <li><strong>La Technologie</strong> : Services technologiques, conseil, Logiciels sectoriels, recherche et développement</li>
+                </ul>
+                
+                <p>Pour la « valeur ajoutée », KYRIA nous donnons à ses prestations :</p>
+                <ul>
+                    <li>Un accompagnement personnalisé</li>
+                    <li>Un conseil de proximité fourni par des professionnels expérimentés</li>
+                    <li>Une approche personnalisée de niveau international.</li>
+                </ul>
+                
+                <h1>INTRODUCTION : GENERALITE & PROBLEMATIQUE</h1>
+                <h2>Généralités</h2>
+                <p>Dans le contexte actuel de la transformation numérique, les entreprises cherchent constamment à améliorer leurs processus de gestion pour rester compétitives et répondre aux besoins de leurs clients. Le secteur financier n'échappe pas à cette réalité. Les institutions financières, telles que les banques et les sociétés de gestion d'actifs, adoptent de plus en plus de solutions technologiques avancées pour gérer efficacement leurs relations avec les clients et les opérations d'investissement. Les systèmes de gestion de la relation client (CRM) et les logiciels de gestion d'actifs sont devenus des outils essentiels pour assurer la compétitivité et la pérennité des institutions financières sur les marchés globalisés.</p>
+                
+                <p>Sur le plan international, l'intégration des systèmes CRM avec d'autres systèmes de gestion, comme les logiciels de gestion d'actifs, est devenue une nécessité pour garantir une vue unifiée et cohérente des opérations clients. Cette intégration permet non seulement de rationaliser les processus internes, mais aussi d'offrir une meilleure expérience client, en centralisant les informations et en facilitant l'accès à des données cruciales pour la prise de décision.</p>
+                
+                <p>Au niveau national, dans des pays comme la Côte d'Ivoire où l'industrie des services financiers est en pleine expansion, les entreprises de gestion d'actifs commencent à investir dans ces technologies pour répondre aux besoins croissants du marché. Cette tendance se reflète en effet dans les stratégies adoptées par des sociétés telles que BOA Capital Asset Management, qui cherchent à intégrer des modules sophistiqués pour relier leurs systèmes CRM à leurs logiciels de gestion de placements.</p>
+                
+                <p>Dans ce contexte, notre mémoire se focalisera sur le thème suivant : MISE EN PLACE D'UN MODULE D'INTEGRATION ENTRE ATLANTIS CRM ET ATLANTIS SGO : CAS DE LA BOA CAPITAL ASSET MANAGEMENT.</p>
+                
+                <h2>Problématique</h2>
+                <p>Dans un environnement où l'efficacité et la réactivité sont des critères déterminants de succès, la mise en place d'une solution intégrée entre un système de gestion de la relation client (CRM) et un logiciel de gestion de placement collectif en valeurs mobilières (SGO) se pose comme un défi majeur. BOA Capital Asset Management se trouve confrontée à la difficulté de gérer efficacement les données client tout en assurant une gestion rigoureuse des placements financiers. L'absence d'une intégration harmonieuse entre le logiciel de CRM (Atlantis CRM) et celui de gestion d'OPCVM (Atlantis SGO) entraîne des redondances de données, des inefficacités dans le traitement des informations, et par conséquent, une diminution de la qualité du service client.</p>
+                
+                <p>La problématique à laquelle répond notre projet est donc la suivante : <strong>Comment concevoir et implémenter un module d'intégration efficace entre Atlantis CRM et Atlantis SGO pour améliorer la gestion des relations client et des placements financiers ?</strong></p>
+                
+                <h1>OBJECTIFS GENERAUX ET SPECIFIQUES</h1>
+                <h2>1. Objectif général</h2>
+                <p>L'objectif principal est de concevoir et de mettre en œuvre un module d'intégration entre Atlantis CRM et Atlantis SGO, qui permettra de synchroniser les données client avec les informations de gestion des placements financiers, afin d'améliorer la qualité du service client et l'efficacité opérationnelle.</p>
+                
+                <h2>2. Objectifs spécifiques</h2>
+                <ul>
+                    <li>Automatisation des flux de données : Développer des processus automatisés pour le transfert et la synchronisation des données entre Atlantis CRM et Atlantis SGO</li>
+                    <li>Amélioration de l'expérience utilisateur : Optimiser l'interface utilisateur pour permettre un accès facile et rapide aux informations intégrées, facilitant ainsi la prise de décision pour les gestionnaires de portefeuille et les équipes de service client.</li>
+                    <li>Renforcement de la sécurité et de l'intégrité des données : Mettre en place des mécanismes robustes pour assurer la protection des données sensibles échangées entre les deux systèmes et leur non redondance.</li>
+                </ul>
+                
+                <h1>METHODOLOGIE</h1>
+                <p>Suite à la problématique, le déroulement de notre projet comportera trois (3) grandes parties.</p>
+                
+                <p>En Première Partie, <em>L'Approche Méthodologique</em>, dans laquelle nous présenterons la structure d'accueil, le cadre de référence ainsi que le projet.</p>
+                
+                <p>En deuxième Partie, nous déroulerons la conception du système, quitte à définir la méthode d'étude, de modélisation et de réalisation du projet.</p>
+                
+                <p>Enfin la Troisième Partie qui est la Réalisation de la solution. Dans cette partie nous déroulerons les différents outils utilisés, le système de gestion de base de données et scripts utilisés pour la réalisation de la solution cible.</p>
+            `;
 
-        // Éditer le rapport (retour au formulaire)
-        editReport.addEventListener('click', function() {
-            previewContainer.classList.add('hidden');
-        });
+        // Load template button event
+        loadTemplateBtn.addEventListener('click', function() {
+            loadingIndicator.classList.remove('hidden');
+            documentStatusMessage.textContent = 'Chargement du modèle en cours...';
 
-        // Télécharger le rapport en PDF
-        downloadBtn.addEventListener('click', function() {
-            const content = generateReportContent();
-            const element = document.createElement('div');
-            element.innerHTML = content;
-            document.body.appendChild(element);
-
-            const options = {
-                margin: 10,
-                filename: `Rapport_Stage_${document.getElementById('nom').value || 'Etudiant'}.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
+            // Simulate loading delay
+            setTimeout(function() {
+                if (editor) {
+                    editor.setContent(templateContent);
+                    editorContainer.classList.remove('document-loading');
+                    editorContainer.classList.add('document-loaded');
+                    documentStatusMessage.classList.add('hidden');
                 }
-            };
-
-            html2pdf().set(options).from(element).save().then(() => {
-                document.body.removeChild(element);
-            });
+                loadingIndicator.classList.add('hidden');
+                showNotification('success', 'Modèle chargé avec succès!');
+            }, 1500);
         });
 
-        // Confirmation de téléchargement depuis l'aperçu
-        confirmDownload.addEventListener('click', function() {
-            const content = reportPreview.innerHTML;
-            const element = document.createElement('div');
-            element.innerHTML = content;
-            document.body.appendChild(element);
-
-            const options = {
-                margin: 10,
-                filename: `Rapport_Stage_${document.getElementById('nom').value || 'Etudiant'}.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                }
-            };
-
-            html2pdf().set(options).from(element).save().then(() => {
-                document.body.removeChild(element);
-                previewContainer.classList.add('hidden');
-            });
+        // Font selector event
+        fontSelector.addEventListener('change', function() {
+            if (editor) {
+                editor.execCommand('fontName', false, this.value);
+            }
         });
 
-        // Soumettre le rapport
-        submitBtn.addEventListener('click', function() {
-            // Vérification basique des champs requis
-            const requiredFields = ['nom', 'prenom', 'email', 'filiere', 'entreprise', 'theme'];
-            let allValid = true;
+        // Font size selector event
+        fontSize.addEventListener('change', function() {
+            if (editor) {
+                editor.execCommand('fontSize', false, this.value);
+            }
+        });
 
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field);
-                if (!input.value.trim()) {
-                    input.classList.add('border-red-500');
-                    allValid = false;
-                } else {
-                    input.classList.remove('border-red-500');
-                }
-            });
+        // Save button event
+        saveBtn.addEventListener('click', function() {
+            if (editor) {
+                const content = editor.getContent();
+                localStorage.setItem('reportContent', content);
+                showNotification('success', 'Rapport enregistré localement avec succès!');
+            }
+        });
 
-            if (!allValid) {
-                alert('Veuillez remplir tous les champs obligatoires avant de soumettre.');
-                return;
+        // Export button event
+        exportBtn.addEventListener('click', function() {
+            if (editor) {
+                const content = editor.getContent();
+                const blob = new Blob([
+                    `<!DOCTYPE html><html><head><title>Rapport de Stage</title></head><body>${content}</body></html>`
+                ], {
+                    type: 'text/html'
+                });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'Rapport_de_Stage.html';
+                link.click();
+                URL.revokeObjectURL(link.href);
+                showNotification('success', 'Rapport exporté avec succès!');
+            }
+        });
+
+        // Close notification
+        document.getElementById('closeNotification').addEventListener('click', function() {
+            document.getElementById('notification').classList.add('hidden');
+        });
+
+        // Check for saved content
+        window.addEventListener('load', function() {
+            const savedContent = localStorage.getItem('reportContent');
+            if (savedContent && editor) {
+                setTimeout(function() {
+                    editor.setContent(savedContent);
+                    editorContainer.classList.remove('document-loading');
+                    editorContainer.classList.add('document-loaded');
+                    documentStatusMessage.classList.add('hidden');
+                    showNotification('info', 'Rapport précédemment enregistré chargé');
+                }, 1000);
+            }
+        });
+
+        // Utility function to show notifications
+        function showNotification(type, message) {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            const notificationIcon = document.getElementById('notificationIcon');
+
+            // Set message
+            notificationMessage.textContent = message;
+
+            // Set icon based on type
+            let iconHTML = '';
+            let bgColor = '';
+
+            if (type === 'success') {
+                iconHTML =
+                    '<svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                bgColor = 'bg-green-50';
+            } else if (type === 'error') {
+                iconHTML =
+                    '<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                bgColor = 'bg-red-50';
+            } else if (type === 'info') {
+                iconHTML =
+                    '<svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                bgColor = 'bg-blue-50';
             }
 
-            // Simulation d'envoi au serveur
-            setTimeout(() => {
-                confirmationMessage.classList.remove('hidden');
-            }, 1000);
-        });
+            notificationIcon.innerHTML = iconHTML;
+            notification.className =
+                `fixed top-4 right-4 max-w-md ${bgColor} shadow-lg rounded-lg pointer-events-auto overflow-hidden transform transition-all duration-300`;
 
-        // Fermer le message de confirmation
-        closeConfirmation.addEventListener('click', function() {
-            confirmationMessage.classList.add('hidden');
-        });
+            // Show notification
+            notification.classList.remove('hidden');
+
+            // Hide after 3 seconds
+            setTimeout(function() {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
     });
     </script>
 </body>
