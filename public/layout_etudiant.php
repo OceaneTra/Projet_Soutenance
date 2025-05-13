@@ -12,7 +12,35 @@ $menuItems = [
     ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
     ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user'],
     
-   
+];
+$cardData = [
+    [
+        'title' => 'Soumettre une Réclamation',
+        'description' => 'Déposez une nouvelle réclamation en remplissant le formulaire dédié.',
+        'link' => '?page=gestion_reclamations&action=soumettre_reclamation', // Adaptez le lien
+        'icon' => 'fa-solid fa-circle-exclamation ', // Optionnel: vous pouvez ajouter une icône
+        'title_link' => 'Soumettre',
+        'bg_color' =>'bg-blue-300 ',
+        'text_color' => 'text-blue-500'
+    ],
+    [
+        'title' => 'Suivre mes Réclamations',
+        'description' => 'Consultez l\'état actuel de vos réclamations en cours.',
+        'link' => '?page=gestion_reclamations&action=suivi_reclamation',
+        'icon' => 'fa-solid fa-eye ',
+        'title_link' => 'Suivre',
+        'bg_color' =>'bg-yellow-500 ',
+        'text_color' =>'text-yellow-600'
+    ],
+    [
+        'title' => 'Historique des Réclamations',
+        'description' => 'Accédez à l\'historique complet de vos réclamations passées.',
+        'link' => '?page=gestion_reclamations&action=historique_reclamation',
+        'icon' => 'fa-solid fa-clock-rotate-left ',
+        'title_link' => 'Consulter',
+        'bg_color' =>'bg-purple-300 ',
+        'text_color' =>'text-purple-600'
+    ]
 ];
 
 // Déterminer la page actuelle du menu principal.
@@ -30,7 +58,41 @@ $currentPageLabel = '';
 
 $partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
 
-    // Logique pour les autres pages du menu principal (dashboard, users, etc.)
+// Logique spécifique pour la section "Gestion des réclamations"
+
+if ($currentMenuSlug === 'gestion_reclamations') {
+    include __DIR__ . '/../ressources/routes/gestionReclamationsRouteur.php'; // Ajustez le chemin si nécessaire
+
+    $allowedActions = ['soumettre_reclamation', 'suivi_reclamation', 'historique_reclamation'];
+
+    if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+        $currentAction = $_GET['action'];
+        $contentFile = $partialsBasePath . 'partials/gestion_reclamations/' . $currentAction . '.php';
+        $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+    } else {
+        // Si aucune action valide n'est spécifiée, affichez la page par défaut
+        $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
+        $currentPageLabel = 'Gestion des réclamations';
+    }
+} else if ($currentMenuSlug === 'gestion_rapport') {
+    // Ajustez le chemin si nécessaire
+
+    $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
+
+    if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+        $currentAction = $_GET['action'];
+        $contentFile = $partialsBasePath . 'partials/gestion_rapports/' . $currentAction . '.php';
+        $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+    } else {
+        // Si aucune action valide n'est spécifiée, affichez la page par défaut
+        $contentFile = $partialsBasePath . 'gestion_rapport_content.php';
+        $currentPageLabel = 'Gestion des rapports';
+    }
+}
+
+
+else {
+    // Logique pour les autres pages
     $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
     foreach ($menuItems as $item) {
         if ($item['slug'] === $currentMenuSlug) {
@@ -38,8 +100,8 @@ $partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARA
             break;
         }
     }
-
-
+}
+    
 // Si aucun label n'a été trouvé (par exemple, pour une page non listée dans $menuItems et sans action)
 if (empty($currentPageLabel)) {
     $currentPageLabel = "Soutenance Manager"; // Ou une autre valeur par défaut appropriée
@@ -48,6 +110,7 @@ if (empty($currentPageLabel)) {
         // $contentFile = $partialsBasePath . '404_content.php'; // Exemple
     }
 }
+
 
 
 ?>
@@ -71,6 +134,8 @@ if (empty($currentPageLabel)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 </head>
 
@@ -82,7 +147,8 @@ if (empty($currentPageLabel)) {
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex overflow-hidden items-center">
 
-                        <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
+                        <a href="?page=candidater_soutenance" class="text-green-500 font-bold text-xl">Soutenance
+                            Manager</a>
                     </div>
                 </div>
                 <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
@@ -137,6 +203,30 @@ if (empty($currentPageLabel)) {
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+                <?php
+            // Bouton Retour si on est dans une action spécifique des paramètres généraux
+            if ($currentMenuSlug === 'gestion_reclamations' && $currentAction):
+                ?>
+                <div class="mb-6">
+                    <a href="?page=gestion_reclamations"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
+                        <i class="fas fa-arrow-left mr-2 "></i>
+                        Retour
+                    </a>
+                </div>
+                <?php endif; ?>
+                <?php
+                if ($currentMenuSlug === 'gestion_rapport' && $currentAction):
+                ?>
+                <div class="mb-6">
+                    <a href="?page=gestion_rapport"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
+                        <i class="fas fa-arrow-left mr-2 "></i>
+                        Retour
+                    </a>
+                </div>
+                <?php endif ;?>
+
 
                 <?php
             if (!empty($contentFile) && file_exists($contentFile)) {
@@ -191,6 +281,8 @@ if (empty($currentPageLabel)) {
         }
     });
     </script>
+    <script src="./js/suivi_reclamation.js"></script>
+    <script src="./js/historique_reclamation.js"></script>
 </body>
 
 </html>

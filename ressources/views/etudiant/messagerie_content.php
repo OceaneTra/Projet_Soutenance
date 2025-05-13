@@ -159,8 +159,7 @@
                 <!-- Message List -->
                 <div class="flex-1 overflow-y-auto">
                     <!-- Message Item -->
-                    <div
-                        class="message-unread border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer transition animate-fade-in">
+                    <div class="message-unread border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer ">
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
                                 <div
@@ -187,8 +186,7 @@
                     </div>
 
                     <!-- Message Item -->
-                    <div
-                        class="message-unread border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer transition animate-fade-in">
+                    <div class="message-unread border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer ">
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
                                 <div
@@ -215,8 +213,7 @@
                     </div>
 
                     <!-- Message Item (Read) -->
-                    <div
-                        class="message-read border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer transition animate-fade-in">
+                    <div class="message-read border-b border-gray-200 px-4 py-3 hover:bg-gray-50 cursor-pointer ">
                         <div class="flex items-start">
                             <div class="flex-shrink-0 pt-1">
                                 <div
@@ -397,7 +394,7 @@
 
     <!-- Compose Modal -->
     <div id="composeModal" class="fixed inset-0 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-fade-in">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl ">
             <div class="border-b border-gray-200 px-4 py-3 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900">Nouveau message</h3>
                 <button id="closeCompose" class="text-gray-400 hover:text-gray-500">

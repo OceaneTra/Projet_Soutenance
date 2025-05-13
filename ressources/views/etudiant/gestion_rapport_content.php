@@ -28,7 +28,7 @@
                 <div class="mt-auto">
                     <button
                         class="bg-white text-indigo-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        Commencer
+                        <a href="?page=gestion_rapport&action=creer_rapport">Commencer</a>
                     </button>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                 <div class="mt-auto">
                     <button
                         class="bg-white text-green-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 floating">
-                        Consulter
+                        <a href="?page=gestion_rapport&action=suivi_rapport">Consulter</a>
                     </button>
                 </div>
             </div>
@@ -80,13 +80,14 @@
                             d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Consulter les Commentaires</h3>
+                <h3 class="text-xl font-bold mb-2">Compte rendu de rapport</h3>
                 <p class="text-white text-opacity-80 mb-6 text-center">Accédez aux retours détaillés des
                     évaluateurs pour améliorer votre travail académique.</p>
                 <div class="mt-auto">
                     <button
                         class="bg-white text-yellow-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        Voir les retours
+                        <a href="?page=gestion_rapport&action=compte_rendu_rapport"> Voir les retours</a>
+
                     </button>
                 </div>
             </div>
@@ -158,14 +159,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Animation d'entrée pour les cartes
-        gsap.from('.card', {
-            duration: 0.8,
-            y: 50,
-            opacity: 0,
-            stagger: 0.2,
-            ease: 'power3.out'
-        });
+
 
         // Animation au survol des boutons
         const buttons = document.querySelectorAll('button');
