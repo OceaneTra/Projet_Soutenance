@@ -58,29 +58,51 @@ class ParametreController
     public function gestionAnnees(): void
     {
         $annee_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['btn_add_annees_academiques'])) {
             $dateDebut = $_POST['date_debut'];
             $dateFin = $_POST['date_fin'];
 
-            if (!empty($_POST['id_annee_acad'])) {
-                // MODIFICATION
-                $this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin);
+            if($dateDebut > $dateFin){
+                $messageErreur = "Erreur : la date de début ne peut pas être postérieure à la date de fin";
             } else {
-                // AJOUT
-                $this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin);
+                if (!empty($_POST['id_annee_acad'])) {
+                    // MODIFICATION
+                    if($this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin)) {
+                        $messageSucces = "Année académique modifiée avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de la modification de l'année académique";
+                    }
+                } else {
+                    // AJOUT
+                    if($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
+                        $messageSucces = "Année académique ajoutée avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de l'ajout de l'année académique";
+                    }
+                }
             }
         }
 
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->anneeAcademique->deleteAnneeAcademique($id);
+                if(!$this->anneeAcademique->deleteAnneeAcademique($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des années académiques effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs années académiques";
             }
         }
 
-        // Récupération de l’année à modifier pour affichage dans le formulaire
+        // Récupération de l'année à modifier pour affichage dans le formulaire
         if (isset($_GET['id_annee_acad'])) {
             $annee_a_modifier = $this->anneeAcademique->getAnneeAcademiqueById($_GET['id_annee_acad']);
         }
@@ -88,16 +110,18 @@ class ParametreController
         // 📦 Variables disponibles pour la vue
         $GLOBALS['annee_a_modifier'] = $annee_a_modifier;
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION ANNEE ACADEMIQUE=============================
 
 
     //=============================GESTION GRADES=============================
-    public
-    function gestionGrade(): void
+    public function gestionGrade(): void
     {
-
         $grades_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['btn_add_grades'])) {
@@ -105,18 +129,33 @@ class ParametreController
 
             if (!empty($_POST['id_grade'])) {
                 // MODIFICATION
-                $this->grade->updateGrade($_POST['id_grade'], $lib_grade);
+                if($this->grade->updateGrade($_POST['id_grade'], $lib_grade)) {
+                    $messageSucces = "Grade modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du grade";
+                }
             } else {
                 // AJOUT
-                $this->grade->ajouterGrade($lib_grade);
+                if($this->grade->ajouterGrade($lib_grade)) {
+                    $messageSucces = "Grade ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du grade";
+                }
             }
         }
 
-
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->grade->deleteGrade($id);
+                if(!$this->grade->deleteGrade($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des grades effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs grades";
             }
         }
 
@@ -128,6 +167,8 @@ class ParametreController
         // 📦 Variables disponibles pour la vue
         $GLOBALS['grade_a_modifier'] = $grades_a_modifier;
         $GLOBALS['listeGrade'] = $this->grade->getAllGrades();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION GRADES=============================
 
@@ -137,7 +178,8 @@ class ParametreController
     {
         $groupe_a_modifier = null;
         $type_a_modifier = null;
-
+        $messageErreur = null;
+        $messageSucces = null;
 
         //======PARTIE GROUPE UTILISATEUR======
 
@@ -149,17 +191,33 @@ class ParametreController
 
                 if (!empty($_POST['id_groupe'])) {
                     //MODIF
-                    $this->groupeUtilisateur->updateGroupeUtilisateur($_POST['id_groupe'], $lib_groupe);
+                    if($this->groupeUtilisateur->updateGroupeUtilisateur($_POST['id_groupe'], $lib_groupe)) {
+                        $messageSucces = "Groupe utilisateur modifié avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de la modification du groupe utilisateur";
+                    }
                 } else {
                     //AJOUT
-                    $this->groupeUtilisateur->ajouterGroupeUtilisateur($lib_groupe);
+                    if($this->groupeUtilisateur->ajouterGroupeUtilisateur($lib_groupe)) {
+                        $messageSucces = "Groupe utilisateur ajouté avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de l'ajout du groupe utilisateur";
+                    }
                 }
             }
 
             // Suppression multiple
             if (isset($_POST['submit_delete_multiple_groupe']) && isset($_POST['selected_ids'])) {
+                $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
-                    $this->groupeUtilisateur->deleteGroupeUtilisateur($id);
+                    if(!$this->groupeUtilisateur->deleteGroupeUtilisateur($id)) {
+                        $success = false;
+                    }
+                }
+                if($success) {
+                    $messageSucces = "Suppression des groupes utilisateurs effectuée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la suppression d'un ou plusieurs groupes utilisateurs";
                 }
             }
 
@@ -182,17 +240,33 @@ class ParametreController
                 $lib_type_utilisateur = $_POST['lib_type_utilisateur'];
                 if (!empty($_POST['id_type_utilisateur'])) {
                     //MODIF
-                    $this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type_utilisateur);
+                    if($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type_utilisateur)) {
+                        $messageSucces = "Type utilisateur modifié avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de la modification du type utilisateur";
+                    }
                 } else {
                     //AJOUT
-                    $this->typeUtilisateur->ajouterTypeUtilisateur($lib_type_utilisateur);
+                    if($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type_utilisateur)) {
+                        $messageSucces = "Type utilisateur ajouté avec succès";
+                    } else {
+                        $messageErreur = "Erreur lors de l'ajout du type utilisateur";
+                    }
                 }
             }
 
             // Suppression multiple
             if (isset($_POST['submit_delete_multiple_type']) && isset($_POST['selected_ids'])) {
+                $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
-                    $this->typeUtilisateur->deleteTypeUtilisateur($id);
+                    if(!$this->typeUtilisateur->deleteTypeUtilisateur($id)) {
+                        $success = false;
+                    }
+                }
+                if($success) {
+                    $messageSucces = "Suppression des types utilisateurs effectuée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la suppression d'un ou plusieurs types utilisateurs";
                 }
             }
 
@@ -205,15 +279,19 @@ class ParametreController
             $GLOBALS['type_a_modifier'] = $type_a_modifier;
             $GLOBALS['listeTypes'] = $this->typeUtilisateur->getAllTypeUtilisateur();
         }
-
+        
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
-//=============================FIN GESTION FONCTION UTILISATEUR=============================
+    //=============================FIN GESTION FONCTION UTILISATEUR=============================
 
 
-//=============================GESTION SPECIALITE=============================
+    //=============================GESTION SPECIALITE=============================
     public function gestionSpecialite(): void
     {
         $specialite_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['btn_add_specialite'])) {
@@ -221,16 +299,32 @@ class ParametreController
 
             if (!empty($_POST['id_specialite'])) {
                 // MODIFICATION
-                $this->specialite->updateSpecialite($_POST['id_specialite'], $lib_specialite);
+                if($this->specialite->updateSpecialite($_POST['id_specialite'], $lib_specialite)) {
+                    $messageSucces = "Spécialité modifiée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification de la spécialité";
+                }
             } else {
                 // AJOUT
-                $this->specialite->ajouterSpecialite($lib_specialite);
+                if($this->specialite->ajouterSpecialite($lib_specialite)) {
+                    $messageSucces = "Spécialité ajoutée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout de la spécialité";
+                }
             }
         }
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->specialite->deleteSpecialite($id);
+                if(!$this->specialite->deleteSpecialite($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des spécialités effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs spécialités";
             }
         }
 
@@ -241,32 +335,48 @@ class ParametreController
         // 📦 Variables disponibles pour la vue
         $GLOBALS['specialite_a_modifier'] = $specialite_a_modifier;
         $GLOBALS['listeSpecialites'] = $this->specialite->getAllSpecialites();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION SPECIALITE=============================
-
-
-
-
 
 
     //=============================GESTION NIVEAU ETUDE=============================
     public function gestionNiveauEtude()
     {
         $niveau_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_niveau_etude'])) {
             $lib_niveau = $_POST['niveau_etude'];
 
             if (!empty($_POST['id_niveau_etude'])) {
-                $this->niveauEtude->updateNiveauEtude($_POST['id_niveau_etude'], $lib_niveau);
+                if($this->niveauEtude->updateNiveauEtude($_POST['id_niveau_etude'], $lib_niveau)) {
+                    $messageSucces = "Niveau d'étude modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du niveau d'étude";
+                }
             } else {
-                $this->niveauEtude->ajouterNiveauEtude($lib_niveau);
+                if($this->niveauEtude->ajouterNiveauEtude($lib_niveau)) {
+                    $messageSucces = "Niveau d'étude ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du niveau d'étude";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->niveauEtude->deleteNiveauEtude($id);
+                if(!$this->niveauEtude->deleteNiveauEtude($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des niveaux d'étude effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs niveaux d'étude";
             }
         }
 
@@ -276,18 +386,18 @@ class ParametreController
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
         $GLOBALS['listeNiveaux'] = $this->niveauEtude->getAllNiveauxEtudes();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION NIVEAU ETUDE=============================
-
-
-
-
 
 
     //=============================GESTION UE=============================
     public function gestionUe()
     {
         $ue_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['submit_add_ue'])) {
             $lib_ue = $_POST['lib_ue'];
@@ -297,15 +407,31 @@ class ParametreController
             $id_annee = $_POST['annee_academiques'];
 
             if (!empty($_POST['id_ue'])) {
-                $this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit);
+                if($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                    $messageSucces = "UE modifiée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification de l'UE";
+                }
             } else {
-                $this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit);
+                if($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                    $messageSucces = "UE ajoutée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout de l'UE";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->ue->deleteUe($id);
+                if(!$this->ue->deleteUe($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des UEs effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs UEs";
             }
         }
 
@@ -318,17 +444,18 @@ class ParametreController
         $GLOBALS['listeNiveauxEtude'] = $this->niveauEtude->getAllNiveauxEtudes();
         $GLOBALS['listeSemestres'] = $this->semestre->getAllSemestres();
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION UE=============================
-
-
-
 
 
     //=============================GESTION ECUE=============================
     public function gestionEcue(): void
     {
         $ecue_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['submit_add_ecue'])) {
@@ -338,19 +465,37 @@ class ParametreController
 
             if (!empty($_POST['id_ecue'])) {
                 $result = $this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit);
+                if($result) {
+                    $messageSucces = "ECUE modifiée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification de l'ECUE";
+                }
             } else {
                 $result = $this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit);
+                if($result) {
+                    $messageSucces = "ECUE ajoutée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout de l'ECUE";
+                }
             }
 
             if (!$result) {
-                $GLOBALS['error_credit'] = "Le total des crédits ECUE dépasserait celui de l’UE.";
+                $GLOBALS['error_credit'] = "Le total des crédits ECUE dépasserait celui de l'UE.";
             }
         }
 
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->ecue->deleteEcue($id);
+                if(!$this->ecue->deleteEcue($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des ECUEs effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs ECUEs";
             }
         }
 
@@ -363,33 +508,48 @@ class ParametreController
         $GLOBALS['ecue_a_modifier'] = $ecue_a_modifier;
         $GLOBALS['listeEcues'] = $this->ecue->getAllEcues();
         $GLOBALS['listeUes'] = $this->ue->getAllUes();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
-
     //=============================FIN GESTION ECUE=============================
-
-
-
-
 
 
     //=============================GESTION STATUT JURY=============================
     public function gestionStatutJury()
     {
         $statut_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_statut_jury'])) {
             $lib_statut = $_POST['statut_jury'];
 
             if (!empty($_POST['id_statut_jury'])) {
-                $this->statutJury->updateStatutJury($_POST['id_statut_jury'], $lib_statut);
+                if($this->statutJury->updateStatutJury($_POST['id_statut_jury'], $lib_statut)) {
+                    $messageSucces = "Statut jury modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du statut jury";
+                }
             } else {
-                $this->statutJury->ajouterStatutJury($lib_statut);
+                if($this->statutJury->ajouterStatutJury($lib_statut)) {
+                    $messageSucces = "Statut jury ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du statut jury";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->statutJury->deleteStatutJury($id);
+                if(!$this->statutJury->deleteStatutJury($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des statuts jury effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs statuts jury";
             }
         }
 
@@ -399,33 +559,48 @@ class ParametreController
 
         $GLOBALS['statut_a_modifier'] = $statut_a_modifier;
         $GLOBALS['listeStatuts'] = $this->statutJury->getAllStatutsJury();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION STATUT JURY=============================
-
-
-
-
-
 
 
     //=============================GESTION NIVEAU APPROBATION=============================
     public function gestionNiveauApprobation(): void
     {
         $niveau_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_niveau_approbation'])) {
             $lib_niveau = $_POST['niveau_approbation'];
 
             if (!empty($_POST['id_niveau_approbation'])) {
-                $this->niveauApprobation->updateNiveauApprobation($_POST['id_niveau_approbation'], $lib_niveau);
+                if($this->niveauApprobation->updateNiveauApprobation($_POST['id_niveau_approbation'], $lib_niveau)) {
+                    $messageSucces = "Niveau d'approbation modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du niveau d'approbation";
+                }
             } else {
-                $this->niveauApprobation->ajouterNiveauApprobation($lib_niveau);
+                if($this->niveauApprobation->ajouterNiveauApprobation($lib_niveau)) {
+                    $messageSucces = "Niveau d'approbation ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du niveau d'approbation";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->niveauApprobation->deleteNiveauApprobation($id);
+                if(!$this->niveauApprobation->deleteNiveauApprobation($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des niveaux d'approbation effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs niveaux d'approbation";
             }
         }
 
@@ -435,34 +610,48 @@ class ParametreController
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
         $GLOBALS['listeNiveaux'] = $this->niveauApprobation->getAllNiveauxApprobation();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION NIVEAU APPROBATION=============================
 
 
-
-
-
-
-
-
-//=============================GESTION SEMESTRES=============================
+    //=============================GESTION SEMESTRES=============================
     public function gestionSemestre()
     {
         $semestre_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_semestres'])) {
             $lib_semestre = $_POST['semestres'];
 
             if (!empty($_POST['id_semestre'])) {
-                $this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre);
+                if($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre)) {
+                    $messageSucces = "Semestre modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du semestre";
+                }
             } else {
-                $this->semestre->ajouterSemestre($lib_semestre);
+                if($this->semestre->ajouterSemestre($lib_semestre)) {
+                    $messageSucces = "Semestre ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du semestre";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->semestre->deleteSemestre($id);
+                if(!$this->semestre->deleteSemestre($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des semestres effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs semestres";
             }
         }
 
@@ -472,34 +661,48 @@ class ParametreController
 
         $GLOBALS['semestre_a_modifier'] = $semestre_a_modifier;
         $GLOBALS['listeSemestres'] = $this->semestre->getAllSemestres();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
-//=============================FIN GESTION SEMESTRES=============================
+    //=============================FIN GESTION SEMESTRES=============================
 
 
-
-
-
-
-
-
-//=============================GESTION NIVEAU ACCES DONNEES=============================
+    //=============================GESTION NIVEAU ACCES DONNEES=============================
     public function gestionNiveauAccesDonnees()
     {
         $niveau_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_niveau_acces_donnees'])) {
             $lib_niveau = $_POST['niveau_acces_donnees'];
 
             if (!empty($_POST['id_niveau_acces_donnees'])) {
-                $this->niveauAccesDonnees->updateNiveauAcces($_POST['id_niveau_acces_donnees'], $lib_niveau);
+                if($this->niveauAccesDonnees->updateNiveauAcces($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
+                    $messageSucces = "Niveau d'accès aux données modifié avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification du niveau d'accès aux données";
+                }
             } else {
-                $this->niveauAccesDonnees->ajouterNiveauAcces($lib_niveau);
+                if($this->niveauAccesDonnees->ajouterNiveauAcces($lib_niveau)) {
+                    $messageSucces = "Niveau d'accès aux données ajouté avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout du niveau d'accès aux données";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->niveauAccesDonnees->deleteNiveauAcces($id);
+                if(!$this->niveauAccesDonnees->deleteNiveauAcces($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des niveaux d'accès effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'un ou plusieurs niveaux d'accès";
             }
         }
 
@@ -509,37 +712,48 @@ class ParametreController
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
         $GLOBALS['listeNiveaux'] = $this->niveauAccesDonnees->getAllNiveauxAcces();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION NIVEAU ACCES DONNEES=============================
-
-
-
-
-
-
-
-
-
 
 
     //=============================GESTION FONCTION=============================
     public function gestionFonction(): void
     {
         $fonction_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         if (isset($_POST['btn_add_fonction'])) {
             $lib_fonction = $_POST['fonction'];
 
             if (!empty($_POST['id_fonction'])) {
-                $this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction);
+                if($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
+                    $messageSucces = "Fonction modifiée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de la modification de la fonction";
+                }
             } else {
-                $this->fonction->addFonction($lib_fonction);
+                if($this->fonction->addFonction($lib_fonction)) {
+                    $messageSucces = "Fonction ajoutée avec succès";
+                } else {
+                    $messageErreur = "Erreur lors de l'ajout de la fonction";
+                }
             }
         }
 
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+            $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                $this->fonction->deleteFonction($id);
+                if(!$this->fonction->deleteFonction($id)) {
+                    $success = false;
+                }
+            }
+            if($success) {
+                $messageSucces = "Suppression des fonctions effectuée avec succès";
+            } else {
+                $messageErreur = "Erreur lors de la suppression d'une ou plusieurs fonctions";
             }
         }
 
@@ -549,30 +763,13 @@ class ParametreController
 
         $GLOBALS['fonction_a_modifier'] = $fonction_a_modifier;
         $GLOBALS['listeFonctions'] = $this->fonction->getAllFonctions();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION FONCTION=============================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
 /*Ce fichier est le contrôleur principal pour la gestion des paramètres généraux de l'application.
     Il gère les actions liées aux entités telles que les années académiques, les grades, les ECUE, etc.
     Chaque méthode correspond à une fonctionnalité spécifique et interagit avec le modèle approprié. */
