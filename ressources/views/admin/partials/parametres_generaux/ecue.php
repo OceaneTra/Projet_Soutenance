@@ -18,6 +18,19 @@
             <div class="mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-700">Gestion des Éléments constitutifs (ECUE)</h2>
             </div>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
+            </div>
+            <?php endif; ?>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+            <?php endif; ?>
 
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
@@ -33,15 +46,15 @@
                                 Unité d'Enseignement (UE)
                             </label>
                             <select id="ue" name="ue" required onchange="remplirInfosUE()"
-                                    class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors">
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors">
                                 <option value="">Sélectionnez une UE</option>
                                 <?php foreach ($GLOBALS['listeUes'] as $ue): ?>
-                                    <option value="<?= $ue->id_ue ?>"
-                                            data-semestre="<?= htmlspecialchars($ue->lib_semestre) ?>"
-                                            data-niveau="<?= htmlspecialchars($ue->lib_niv_etude) ?>"
-                                            data-annee="<?= htmlspecialchars($ue->id_annee_academique) ?>">
-                                        <?= $ue->lib_ue ?>
-                                    </option>
+                                <option value="<?= $ue->id_ue ?>"
+                                    data-semestre="<?= htmlspecialchars($ue->lib_semestre) ?>"
+                                    data-niveau="<?= htmlspecialchars($ue->lib_niv_etude) ?>"
+                                    data-annee="<?= htmlspecialchars($ue->id_annee_academique) ?>">
+                                    <?= $ue->lib_ue ?>
+                                </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -88,12 +101,13 @@
 
                         <!-- Annee academique -->
                         <div>
-                            <label for="annee_academique_affiche" class="block text-sm font-medium text-gray-600 mb-3 mt-2">
+                            <label for="annee_academique_affiche"
+                                class="block text-sm font-medium text-gray-600 mb-3 mt-2">
                                 Annee Academique
                             </label>
                             <!--c'est en sortie-->
                             <input type="text" id="annee_academique_affiche" readonly
-                                   class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
+                                class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
 
@@ -148,30 +162,35 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                    <?php $listeEcues = $GLOBALS['listeEcues'] ?? []; ?>
-                                    <?php if (!empty($listeEcues)) : ?>
+                                        <?php $listeEcues = $GLOBALS['listeEcues'] ?? []; ?>
+                                        <?php if (!empty($listeEcues)) : ?>
                                         <?php foreach ($listeEcues as $ecue) : ?>
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-center">
-                                                    <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($ecue->id_ecue) ?>"
-                                                           class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                                </td>
-                                                <td class="px-4 py-3 text-sm font-medium text-gray-900"><?= htmlspecialchars($ecue->lib_ue) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ecue->lib_ecue) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ecue->credit) ?></td>
-                                                <td class="px-4 py-3 text-center">
-                                                    <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= $ecue->id_ecue ?>"
-                                                       class="text-orange-500 hover:underline"><i class="fas fa-pen"></i></a>
-                                                </td>
-                                            </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 text-center">
+                                                <input type="checkbox" name="selected_ids[]"
+                                                    value="<?= htmlspecialchars($ecue->id_ecue) ?>"
+                                                    class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </td>
+                                            <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                                <?= htmlspecialchars($ecue->lib_ue) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ecue->lib_ecue) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ecue->credit) ?></td>
+                                            <td class="px-4 py-3 text-center">
+                                                <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= $ecue->id_ecue ?>"
+                                                    class="text-orange-500 hover:underline"><i
+                                                        class="fas fa-pen"></i></a>
+                                            </td>
+                                        </tr>
                                         <?php endforeach; ?>
-                                    <?php else : ?>
+                                        <?php else : ?>
                                         <tr>
                                             <td colspan="5" class="text-center text-sm text-gray-500 py-4">
                                                 Aucun élément constitutif enregistré.
                                             </td>
                                         </tr>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </tbody>
 
                                 </table>
@@ -192,18 +211,18 @@
         </main>
     </div>
     <script>
-        function remplirInfosUE() {
-            const selectUE = document.getElementById("ue");
-            const selectedOption = selectUE.options[selectUE.selectedIndex];
+    function remplirInfosUE() {
+        const selectUE = document.getElementById("ue");
+        const selectedOption = selectUE.options[selectUE.selectedIndex];
 
-            const semestre = selectedOption.getAttribute("data-semestre");
-            const niveau = selectedOption.getAttribute("data-niveau");
-            const annee = selectedOption.getAttribute("data-annee");
+        const semestre = selectedOption.getAttribute("data-semestre");
+        const niveau = selectedOption.getAttribute("data-niveau");
+        const annee = selectedOption.getAttribute("data-annee");
 
-            document.getElementById("semestre").value = semestre ?? '';
-            document.getElementById("niveau_etude").value = niveau ?? '';
-            document.getElementById("annee_academique_affiche").value = annee ?? '';
-        }
+        document.getElementById("semestre").value = semestre ?? '';
+        document.getElementById("niveau_etude").value = niveau ?? '';
+        document.getElementById("annee_academique_affiche").value = annee ?? '';
+    }
     </script>
 
 </body>
