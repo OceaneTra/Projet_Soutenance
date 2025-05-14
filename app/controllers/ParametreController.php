@@ -85,8 +85,6 @@ class ParametreController
                                 
                                 if ($success) {
                                     $messageSucces = "Année académique modifiée avec succès";
-                                    // Redirection pour éviter la resoumission
-                                    header("Location: ?page=parametres_generaux&action=annees_academiques&success=1");
                                     
                                 } else {
                                     $messageErreur = "Erreur lors de la modification de l'année académique";
@@ -97,8 +95,7 @@ class ParametreController
                                 
                                 if ($success) {
                                     $messageSucces = "Année académique ajoutée avec succès";
-                                    // Redirection pour éviter la resoumission
-                                    header("Location: ?page=parametres_generaux&action=annees_academiques&success=1");
+                                    
                                     
                                 } else {
                                     $messageErreur = "Erreur lors de l'ajout de l'année académique";
@@ -123,8 +120,7 @@ class ParametreController
                     
                     if ($success) {
                         $messageSucces = "Suppression des années académiques effectuée avec succès";
-                        // Redirection pour éviter la resoumission
-                        header("Location: ?page=parametres_generaux&action=annees_academiques&success=1");
+                        
                         
                     } else {
                         $messageErreur = "Erreur lors de la suppression d'une ou plusieurs années académiques";

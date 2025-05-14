@@ -90,7 +90,7 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'année
                         </button>
-
+                        <input type="hidden" name="submitModifierHidden" value="1">
                         <?php endif;?>
                     </div>
                 </form>
@@ -324,7 +324,6 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
     const formListeAnnees = document.getElementById('formListeAnnees');
-    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
 
     // Modale de modification
     const btnModifier = document.querySelector('button[name="btn_modifier_annees_academiques"]');
@@ -368,9 +367,7 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
     // Afficher la modale de suppression
     if (deleteButton) {
         deleteButton.addEventListener('click', function(e) {
-            // Empêcher la soumission du formulaire
             e.preventDefault();
-
             if (!this.disabled) {
                 deleteModal.classList.remove('hidden');
             }
@@ -396,14 +393,22 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
     }
 
     // Confirmer la modification
-    confirmModify.addEventListener('click', function() {
-        anneeForm.submit();
-    });
+    if (confirmModify) {
+        confirmModify.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = document.getElementById('anneeForm');
+            if (form) {
+                form.submit();
+            }
+        });
+    }
 
     // Annuler la modification
-    cancelModify.addEventListener('click', function() {
-        modifyModal.classList.add('hidden');
-    });
+    if (cancelModify) {
+        cancelModify.addEventListener('click', function() {
+            modifyModal.classList.add('hidden');
+        });
+    }
 
     // Fermer les modales lorsqu'on clique en dehors
     window.addEventListener('click', function(e) {
@@ -415,21 +420,22 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
         }
     });
 
-    // Faire disparaître les messages après 3 secondes
+    // Faire disparaître les messages après 5 secondes
     document.addEventListener('DOMContentLoaded', function() {
         const alerts = document.querySelectorAll('.alert-message');
-
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.transition = 'opacity 1s ease-out';
-                alert.style.opacity = '0';
-
-                // Supprimer complètement l'élément après l'animation
+        if (alerts.length > 0) {
+            alerts.forEach(alert => {
                 setTimeout(() => {
-                    alert.remove();
-                }, 1000);
-            }, 3000); // 3 secondes avant de commencer à disparaître
-        });
+                    alert.style.transition = 'opacity 1s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        if (alert.parentNode) {
+                            alert.parentNode.removeChild(alert);
+                        }
+                    }, 1000);
+                }, 5000); // 5 secondes avant de commencer à disparaître
+            });
+        }
     });
 
     // Fonction de recherche
@@ -459,9 +465,6 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
         }
     }
 
-
-
-
     // Fonction pour obtenir les données visibles du tableau
     function getVisibleTableData() {
         const visibleRows = [];
@@ -484,10 +487,10 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
     // Export CSV des données visibles
     $('#exportCsvBtn').click(function() {
         const visibleData = getVisibleTableData();
-        let csv = 'ID,Année académique,Date de début,Date de fin\n';
+        let csv = 'ID,Annee academique,Date de debut,Date de fin\n';
 
         visibleData.forEach(row => {
-            csv += `${row.id},"${row.annee}","${row.date_debut}","${row.date_fin}"\n`;
+            csv += `${row.id} ${row.annee} ${row.date_debut} ${row.date_fin} \n`;
         });
 
         const blob = new Blob([csv], {
