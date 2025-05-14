@@ -1,3 +1,6 @@
+<?php
+$fonction_a_modifier = $GLOBALS['fonction_a_modifier'] ?? null;
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -32,27 +35,49 @@
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
-                    Ajouter une nouvelle fonction
+                    <?php if (isset($_GET['id_fonction'])): ?>
+                        Modifier la fonction
+                    <?php else: ?>
+                        Ajouter une nouvelle fonction
+                    <?php endif; ?>
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=fonctions">
+                    <?php if ($fonction_a_modifier): ?>
+                        <input type="hidden" name="id_fonction" value="<?= htmlspecialchars($fonction_a_modifier->id_fonction) ?>">
+                    <?php endif; ?>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé de la
                                 fonction</label>
-                            <input type="text" id="fonctions" name="fonctions" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600  transition-colors focus:border-0">
+                            <input type="text" id="fonctions" name="fonction" required
+                                   value="<?= $fonction_a_modifier ? htmlspecialchars($fonction_a_modifier->lib_fonction) : '' ?>"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:border-0">
                         </div>
 
                     </div>
-                    <div class="flex justify-start space-x-3">
-                        <button type="submit" name="btn_add_fonction"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 focus:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>
-                            Ajouter la fonction
-                        </button>
-
-                    </div>
+                    <?php if (isset($_GET['id_fonction'])): ?>
+                        <div class="flex justify-start space-x-3">
+                            <button type="submit" name="btn_add_fonction"
+                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-save mr-2"></i>
+                                Modifier la fonction
+                            </button>
+                            <button type="submit" name="btn_annuler"
+                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-times mr-2"></i>
+                                Annuler
+                            </button>
+                        </div>
+                    <?php else: ?>
+                        <div class="flex justify-start space-x-3">
+                            <button type="submit" name="btn_add_fonction"
+                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>
+                                Ajouter la fonction
+                            </button>
+                        </div>
+                    <?php endif; ?>
                 </form>
             </div>
 
@@ -84,19 +109,34 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]" value=""
-                                                    class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    <?php $listeFonctions = $GLOBALS['listeFonctions'] ?? []; ?>
+                                    <?php if (!empty($listeFonctions)) : ?>
+                                        <?php foreach ($listeFonctions as $fonction) : ?>
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                    <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($fonction->id_fonction) ?>"
+                                                           class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars($fonction->id_fonction) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <?= htmlspecialchars($fonction->lib_fonction) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    <a href="?page=parametres_generaux&action=fonctions&id_fonction=<?= $fonction->id_fonction ?>"
+                                                       class="text-center text-orange-500 hover:underline"><i
+                                                                class="fas fa-pen"></i></a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-sm text-gray-500 py-4">
+                                                Aucune fonction enregistrée.
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-
-                                            </td>
-
                                         </tr>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -115,7 +155,21 @@
             </div>
         </main>
     </div>
+    <script>
+        // Script pour le fonctionnement de la sélection "Tout cocher"
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
 
+            if(selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    rowCheckboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -43,40 +43,40 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=niveaux_acces">
                     <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau_acces_donnees"
-                        value="<?= htmlspecialchars($niveau_a_modifier->id_action) ?>">
+                    <input type="hidden" name="id_niveau_acces"
+                        value="<?= htmlspecialchars($niveau_a_modifier->id_niveau_acces_donnees ) ?>">
                     <?php endif; ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du niveau
                                 d'accès</label>
                             <input type="text" id="niveaux_acces" name="niveau_acces_donnees" required
-                                value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_action) : '' ?>"
+                                value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niveau_acces_donnees) : '' ?>"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:outline-none">
+                            abe
                         </div>
-                    </div>
-                    <?php if (isset($_GET['id_niveau_acces'])): ?>
-                    <div class="flex justify-start space-x-3">
-                        <button type="submit" name="btn_add_niveau_acces_donnees"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-save mr-2"></i>
-                            Modifier le niveau d'accès
-                        </button>
-                        <button type="submit" name="btn_annuler"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-times mr-2"></i>
-                            Annuler
-                        </button>
-                    </div>
-                    <?php else: ?>
-                    <div class="flex justify-start space-x-3">
-                        <button type="submit" name="btn_add_niveau_acces_donnees"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>
-                            Ajouter le niveau d'accès
-                        </button>
-                    </div>
-                    <?php endif; ?>
+                        <?php if (isset($_GET['id_niveau_acces'])): ?>
+                        <div class="flex justify-start space-x-3">
+                            <button type="submit" name="btn_add_niveau_acces_donnees"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-save mr-2"></i>
+                                Modifier le niveau d'accès
+                            </button>
+                            <button type="submit" name="btn_annuler"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-times mr-2"></i>
+                                Annuler
+                            </button>
+                        </div>
+                        <?php else: ?>
+                        <div class="flex justify-start space-x-3">
+                            <button type="submit" name="btn_add_niveau_acces_donnees"
+                                class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>
+                                Ajouter le niveau d'accès
+                            </button>
+                        </div>
+                        <?php endif; ?>
                 </form>
             </div>
 
@@ -116,20 +116,31 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                         <?php foreach ($listeNiveaux as $niveau) : ?>
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]"
+                                                <<<<<<< HEAD <input type="checkbox" name="selected_ids[]"
                                                     value="<?= htmlspecialchars($niveau->id_action) ?>"
                                                     class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    =======
+                                                    <input type="checkbox" name="selected_ids[]"
+                                                        value="<?= htmlspecialchars($niveau->id_niveau_acces_donnees ) ?>"
+                                                        class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                    >>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <?= htmlspecialchars($niveau->id_action) ?>
+                                                <?= htmlspecialchars($niveau->id_niveau_acces_donnees ) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                                <?= htmlspecialchars($niveau->lib_action) ?>
+                                                <?= htmlspecialchars($niveau->lib_niveau_acces_donnees) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau_acces=<?= $niveau->id_action ?>"
+                                                <<<<<<< HEAD <a
+                                                    href="?page=parametres_generaux&action=niveaux_acces&id_niveau_acces=<?= $niveau->id_action ?>"
                                                     class="text-center text-orange-500 hover:underline"><i
                                                         class="fas fa-pen"></i></a>
+                                                    =======
+                                                    <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau_acces=<?= $niveau->id_niveau_acces_donnees  ?>"
+                                                        class="text-center text-orange-500 hover:underline"><i
+                                                            class="fas fa-pen"></i></a>
+                                                    >>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>

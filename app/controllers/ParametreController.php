@@ -15,6 +15,9 @@ require_once __DIR__ . '/../models/TypeUtilisateur.php';
 require_once __DIR__ . '/../models/Ue.php';
 require_once __DIR__ . '/../models/NiveauEtude.php';
 require_once __DIR__ . '/../models/Semestre.php';
+require_once __DIR__ . '/../models/Traitement.php';
+require_once __DIR__ . '/../models/Entreprise.php';
+require_once __DIR__ . '/../models/Message.php';
 
 class ParametreController
 {
@@ -33,24 +36,27 @@ class ParametreController
     private $typeUtilisateur;
     private $ue;
     private $semestre;
+    private $entreprise;
+    private $traitement;
+    private $message;
 
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/partials/parametres_generaux/';
-        $this->anneeAcademique = new AnneeAcademique();
-        $this->action = new Action();
-        $this->fonction = new Fonction();
-        $this->grade = new Grade();
-        $this->groupeUtilisateur = new GroupeUtilisateur();
-        $this->niveauAccesDonnees = new NiveauAccesDonnees();
-        $this->niveauApprobation = new NiveauApprobation();
-        $this->typeUtilisateur = new TypeUtilisateur();
-        $this->ue = new Ue();
-        $this->ecue = new Ecue();
-        $this->statutJury = new StatutJury();
-        $this->specialite = new Specialite();
-        $this->niveauEtude = new NiveauEtude();
-        $this->semestre = new Semestre();
+        $this->anneeAcademique = new AnneeAcademique(Database::getConnection());
+        $this->action = new Action(Database::getConnection());
+        $this->fonction = new Fonction(Database::getConnection());
+        $this->grade = new Grade(Database::getConnection());
+        $this->groupeUtilisateur = new GroupeUtilisateur(Database::getConnection());
+        $this->niveauAccesDonnees = new NiveauAccesDonnees(Database::getConnection());
+        $this->niveauApprobation = new NiveauApprobation(Database::getConnection());
+        $this->typeUtilisateur = new TypeUtilisateur(Database::getConnection());
+        $this->ue = new Ue(Database::getConnection());
+        $this->ecue = new Ecue(Database::getConnection());
+        $this->statutJury = new StatutJury(Database::getConnection());
+        $this->specialite = new Specialite(Database::getConnection());
+        $this->niveauEtude = new NiveauEtude(Database::getConnection());
+        $this->semestre = new Semestre(Database::getConnection());
     }
 
 
@@ -605,14 +611,10 @@ class ParametreController
         $messageSucces = null;
 
         if (isset($_POST['btn_add_niveau_approbation'])) {
-            $lib_niveau = $_POST['niveau_approbation'];
+            $lib_niveau = $_POST['niveaux_approbation'];
 
             if (!empty($_POST['id_niveau_approbation'])) {
-                if($this->niveauApprobation->updateNiveauApprobation($_POST['id_niveau_approbation'], $lib_niveau)) {
-                    $messageSucces = "Niveau d'approbation modifié avec succès";
-                } else {
-                    $messageErreur = "Erreur lors de la modification du niveau d'approbation";
-                }
+                $this->niveauApprobation->updateNiveauApprobation($_POST['id_niveau_approbation'], $lib_niveau);
             } else {
                 if($this->niveauApprobation->ajouterNiveauApprobation($lib_niveau)) {
                     $messageSucces = "Niveau d'approbation ajouté avec succès";
@@ -636,8 +638,8 @@ class ParametreController
             }
         }
 
-        if (isset($_GET['id_niveau_approbation'])) {
-            $niveau_a_modifier = $this->niveauApprobation->getNiveauApprobationById($_GET['id_niveau_approbation']);
+        if (isset($_GET['id_approb'])) {
+            $niveau_a_modifier = $this->niveauApprobation->getNiveauApprobationById($_GET['id_approb']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
@@ -696,7 +698,13 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSucces'] = $messageSucces;
     }
-    //=============================FIN GESTION SEMESTRES=============================
+//=============================FIN GESTION SEMESTRES=============================
+
+
+
+
+
+
 
 
     //=============================GESTION NIVEAU ACCES DONNEES=============================
@@ -710,11 +718,7 @@ class ParametreController
             $lib_niveau = $_POST['niveau_acces_donnees'];
 
             if (!empty($_POST['id_niveau_acces_donnees'])) {
-                if($this->niveauAccesDonnees->updateNiveauAcces($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
-                    $messageSucces = "Niveau d'accès aux données modifié avec succès";
-                } else {
-                    $messageErreur = "Erreur lors de la modification du niveau d'accès aux données";
-                }
+                $this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau);
             } else {
                 if($this->niveauAccesDonnees->ajouterNiveauAcces($lib_niveau)) {
                     $messageSucces = "Niveau d'accès aux données ajouté avec succès";
@@ -739,7 +743,7 @@ class ParametreController
         }
 
         if (isset($_GET['id_niveau_acces_donnees'])) {
-            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesById($_GET['id_niveau_acces_donnees']);
+            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau_acces_donnees']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
@@ -750,31 +754,34 @@ class ParametreController
     //=============================FIN GESTION NIVEAU ACCES DONNEES=============================
 
 
+
+
+
+
+
+
+
+
+
     //=============================GESTION FONCTION=============================
-    public function gestionFonction(): void
+    public function gestionFonction()
     {
         $fonction_a_modifier = null;
         $messageErreur = null;
         $messageSucces = null;
 
+        // Ajout ou modification
         if (isset($_POST['btn_add_fonction'])) {
             $lib_fonction = $_POST['fonction'];
 
             if (!empty($_POST['id_fonction'])) {
-                if($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
-                    $messageSucces = "Fonction modifiée avec succès";
-                } else {
-                    $messageErreur = "Erreur lors de la modification de la fonction";
-                }
+                $this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction);
             } else {
-                if($this->fonction->addFonction($lib_fonction)) {
-                    $messageSucces = "Fonction ajoutée avec succès";
-                } else {
-                    $messageErreur = "Erreur lors de l'ajout de la fonction";
-                }
+                $this->fonction->addFonction($lib_fonction);
             }
         }
 
+        // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
@@ -789,17 +796,35 @@ class ParametreController
             }
         }
 
+        // Récupération de la fonction à modifier pour affichage dans le formulaire
         if (isset($_GET['id_fonction'])) {
             $fonction_a_modifier = $this->fonction->getFonctionById($_GET['id_fonction']);
         }
 
+        // 📦 Variables disponibles pour la vue
         $GLOBALS['fonction_a_modifier'] = $fonction_a_modifier;
         $GLOBALS['listeFonctions'] = $this->fonction->getAllFonctions();
-        $GLOBALS['messageErreur'] = $messageErreur;
-        $GLOBALS['messageSucces'] = $messageSucces;
     }
     //=============================FIN GESTION FONCTION=============================
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*Ce fichier est le contrôleur principal pour la gestion des paramètres généraux de l'application.
