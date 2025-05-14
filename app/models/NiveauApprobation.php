@@ -12,7 +12,7 @@ class NiveauApprobation extends DbModel
      * @param string $lib_approb Le libellé du niveau d'approbation
      * @return bool|int L'ID du niveau d'approbation créé ou false si échec
      */
-    public function ajouterNiveauApprobation($lib_approb)
+    public function ajouterNiveauApprobation(string $lib_approb): bool|int
     {
         return $this->insert(
             "INSERT INTO niveau_approbation (lib_approb) VALUES (?)",
@@ -26,7 +26,7 @@ class NiveauApprobation extends DbModel
      * @param string $lib_approb Le nouveau libellé du niveau d'approbation
      * @return bool Succès de la modification
      */
-    public function updateNiveauApprobation($id_approb, $lib_approb)
+    public function updateNiveauApprobation(int $id_approb, string $lib_approb): bool
     {
         return $this->update(
                 "UPDATE niveau_approbation SET lib_approb = ? WHERE id_approb = ?",
@@ -39,7 +39,7 @@ class NiveauApprobation extends DbModel
      * @param int $id_approb L'ID du niveau d'approbation à supprimer
      * @return bool Succès de la suppression
      */
-    public function deleteNiveauApprobation($id_approb)
+    public function deleteNiveauApprobation(int $id_approb): bool
     {
         return $this->delete(
                 "DELETE FROM niveau_approbation WHERE id_approb = ?",
@@ -52,7 +52,7 @@ class NiveauApprobation extends DbModel
      * @param int $id_approb L'ID du niveau d'approbation
      * @return object|null Le niveau d'approbation trouvé ou null
      */
-    public function getNiveauApprobationById($id_approb)
+    public function getNiveauApprobationById(int $id_approb): ?object
     {
         return $this->selectOne(
             "SELECT * FROM niveau_approbation WHERE id_approb = ?",
@@ -65,7 +65,7 @@ class NiveauApprobation extends DbModel
      * Récupérer tous les niveaux d'approbation
      * @return array Liste des niveaux d'approbation
      */
-    public function getAllNiveauxApprobation()
+    public function getAllNiveauxApprobation(): array
     {
         return $this->selectAll(
             "SELECT * FROM niveau_approbation ORDER BY lib_approb",

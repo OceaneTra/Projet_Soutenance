@@ -18,7 +18,7 @@ class Semestre extends DbModel
     public function getAllSemestres(): array
     {
         return $this->selectAll(
-            "SELECT * FROM semestres ORDER BY lib_semestre",
+            "SELECT * FROM semestre ORDER BY lib_semestre",
             [],
             true
         );

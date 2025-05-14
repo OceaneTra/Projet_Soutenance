@@ -1,37 +1,30 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
-class Traitement
+class Traitement extends DbModel
 {
-    private $db;
-
-    public function __construct($db) {
-        $this->db = $db;
+    public function ajouterTraitement($lib_traitement): int
+    {
+        return $this->insert("INSERT INTO traitement (lib_traitement) VALUES (?)", [$lib_traitement]);
     }
 
-    public function ajouterTraitement($lib_traitement) {
-        $stmt = $this->db->prepare("INSERT INTO traitement (lib_traitement) VALUES (?)");
-        return $stmt->execute([$lib_traitement]);
+    public function updateTraitement($id_traitement, $lib_traitement): int
+    {
+        return $this->update("UPDATE traitement SET lib_traitement = ? WHERE id_traitement = ?", [$lib_traitement, $id_traitement]);
     }
 
-    public function updateTraitement($id_traitement, $lib_traitement) {
-        $stmt = $this->db->prepare("UPDATE traitement SET lib_traitement = ? WHERE id_traitement = ?");
-        return $stmt->execute([$lib_traitement, $id_traitement]);
+    public function deleteTraitement($id_traitement): int
+    {
+        return $this->delete("DELETE FROM traitement WHERE id_traitement = ?", [$id_traitement]);
     }
 
-    public function deleteTraitement($id_traitement) {
-        $stmt = $this->db->prepare("DELETE FROM traitement WHERE id_traitement = ?");
-        return $stmt->execute([$id_traitement]);
+    public function getTraitementById($id_traitement): object|array|null
+    {
+        return $this->selectOne("SELECT * FROM traitement WHERE id_traitement = ?", [$id_traitement], true);
     }
 
-    public function getTraitementById($id_traitement) {
-        $stmt = $this->db->prepare("SELECT * FROM traitement WHERE id_traitement = ?");
-        $stmt->execute([$id_traitement]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
-
-    public function getAllTraitements() {
-        $stmt = $this->db->prepare("SELECT * FROM traitement ORDER BY lib_traitement");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    public function getAllTraitements(): array
+    {
+        return $this->selectAll("SELECT * FROM traitement ORDER BY lib_traitement", [], true);
     }
 }

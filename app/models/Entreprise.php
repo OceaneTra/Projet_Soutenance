@@ -1,46 +1,30 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
-class Entreprise
+class Entreprise extends DbModel
 {
-
-
-    private $db;
-
-    public function __construct($db)
+    public function ajouterEntreprise($lib_entreprise): int
     {
-        $this->db = $db;
+        return $this->insert("INSERT INTO entreprises (lib_entreprise) VALUES (?)", [$lib_entreprise]);
     }
 
-    public function ajouterEntreprise($lib_entreprise)
+    public function updateEntreprise($id_entreprise, $lib_entreprise): int
     {
-        $stmt = $this->db->prepare("INSERT INTO entreprises (lib_entreprise) VALUES (?)");
-        return $stmt->execute([$lib_entreprise]);
+        return $this->update("UPDATE entreprises SET lib_entreprise = ? WHERE id_entreprise = ?", [$lib_entreprise, $id_entreprise]);
     }
 
-    public function updateEntreprise($id_entreprise, $lib_entreprise)
+    public function deleteEntreprise($id_entreprise): int
     {
-        $stmt = $this->db->prepare("UPDATE entreprises SET lib_entreprise = ? WHERE id_entreprise = ?");
-        return $stmt->execute([$lib_entreprise, $id_entreprise]);
+        return $this->delete("DELETE FROM entreprises WHERE id_entreprise = ?", [$id_entreprise]);
     }
 
-    public function deleteEntreprise($id_entreprise)
+    public function getEntrepriseById($id_entreprise): object|array|null
     {
-        $stmt = $this->db->prepare("DELETE FROM entreprises WHERE id_entreprise = ?");
-        return $stmt->execute([$id_entreprise]);
+        return $this->selectOne("SELECT * FROM entreprises WHERE id_entreprise = ?", [$id_entreprise], true);
     }
 
-    public function getEntrepriseById($id_entreprise)
+    public function getAllEntreprises(): array
     {
-        $stmt = $this->db->prepare("SELECT * FROM entreprises WHERE id_entreprise = ?");
-        $stmt->execute([$id_entreprise]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $this->selectAll("SELECT * FROM entreprises ORDER BY lib_entreprise", [], true);
     }
-
-    public function getAllEntreprises()
-    {
-        $stmt = $this->db->prepare("SELECT * FROM entreprises ORDER BY lib_entreprise");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-
 }

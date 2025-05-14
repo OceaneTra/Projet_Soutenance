@@ -1,45 +1,30 @@
 <?php
 
-
-
-class Message
+require_once __DIR__ . '/../config/DbModel.class.php';
+class Message extends DbModel
 {
-    private $db;
-
-    public function __construct($db)
+    public function ajouterMessage($contenu_message): int
     {
-        $this->db = $db;
+        return $this->insert("INSERT INTO messages (contenu_message) VALUES (?)", [$contenu_message]);
     }
 
-    public function ajouterMessage($contenu_message)
+    public function updateMessage($id_message, $contenu_message): int
     {
-        $stmt = $this->db->prepare("INSERT INTO messages (contenu_message) VALUES (?)");
-        return $stmt->execute([$contenu_message]);
+        return $this->update("UPDATE messages SET contenu_message = ? WHERE id_message = ?", [$contenu_message, $id_message]);
     }
 
-    public function updateMessage($id_message, $contenu_message)
+    public function deleteMessage($id_message): int
     {
-        $stmt = $this->db->prepare("UPDATE messages SET contenu_message = ? WHERE id_message = ?");
-        return $stmt->execute([$contenu_message, $id_message]);
+        return $this->delete("DELETE FROM messages WHERE id_message = ?", [$id_message]);
     }
 
-    public function deleteMessage($id_message)
+    public function getMessageById($id_message): object|array|null
     {
-        $stmt = $this->db->prepare("DELETE FROM messages WHERE id_message = ?");
-        return $stmt->execute([$id_message]);
+        return $this->selectOne("SELECT * FROM messages WHERE id_message = ?", [$id_message], true);
     }
 
-    public function getMessageById($id_message)
+    public function getAllMessages(): array
     {
-        $stmt = $this->db->prepare("SELECT * FROM messages WHERE id_message = ?");
-        $stmt->execute([$id_message]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
-
-    public function getAllMessages()
-    {
-        $stmt = $this->db->prepare("SELECT * FROM messages ORDER BY contenu_message");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->selectAll("SELECT * FROM messages ORDER BY contenu_message", [], true);
     }
 }
