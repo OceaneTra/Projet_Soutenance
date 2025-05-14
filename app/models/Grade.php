@@ -1,52 +1,38 @@
 <?php
 
-class Grade {
+class Grade
+{
     private $pdo;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
     // Récupérer tous les grades
-    public function getAllGrades() {
+    public function getAllGrades()
+    {
         $stmt = $this->pdo->query("SELECT * FROM grade ORDER BY lib_grade");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Générer un code pour un grade
-    private function genererCodeGrade($libelle) {
-        $correspondances = [
-            "assistant" => "ASS",
-            "maitre-assistant" => "MA",
-            "maitre de conferences" => "MCF",
-            "professeur des universites" => "PU",
-            "charge de cours" => "CC",
-            "vacataire" => "VAC",
-            "attache temporaire d'enseignement et de recherche" => "ATER",
-            "docteur hdr" => "HDR"
-        ];
-
-        // Normalisation : minuscules + suppression accents
-        $libelle = strtolower(trim($libelle));
-        $libelle = str_replace(
-            ["é", "è", "ê", "ë", "à", "â", "ä", "î", "ï", "ô", "ö", "ù", "û", "ü", "ç", "'", "'"],
-            ["e", "e", "e", "e", "a", "a", "a", "i", "i", "o", "o", "u", "u", "u", "c", "", ""],
-            $libelle
-        );
-
-        return $correspondances[$libelle] ?? null;
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     // Ajouter un nouveau grade
-    public function addGrade($lib_grade) {
-        $id_grade = $this->genererCodeGrade($lib_grade);
+    public function ajouterGrade($lib_grade)
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO grade (lib_grade) VALUES (?)");
+        return $stmt->execute([$lib_grade]);
+    }
 
-        if ($id_grade === null) {
+    //Modifier un grade
+    public function updateGrade($id_grade, $lib_grade)
+    {
+        try {
+            $stmt = $this->pdo->prepare("UPDATE grade SET lib_grade = ? WHERE id_grade = ?");
+            return $stmt->execute([$lib_grade, $id_grade]);
+        } catch (PDOException $e) {
+            error_log("Erreur pendant la maj du grade");
             return false;
         }
-
-        $stmt = $this->pdo->prepare("INSERT INTO grade (id_grade, lib_grade) VALUES (?, ?)");
-        return $stmt->execute([$id_grade, $lib_grade]);
     }
 
     public function updateGrade($id, $lib_grade) {
@@ -55,8 +41,16 @@ class Grade {
     }
 
     // Supprimer un grade
-    public function deleteGrade($id) {
+    public function deleteGrade($id)
+    {
         $stmt = $this->pdo->prepare("DELETE FROM grade WHERE id_grade = ?");
         return $stmt->execute([$id]);
+    }
+
+    public function getGradeById($id_grade)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM grade WHERE id_grade = ?");
+        $stmt->execute([$id_grade]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 }
