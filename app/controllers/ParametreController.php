@@ -84,7 +84,7 @@ class ParametreController
                             if (!empty($_POST['id_annee_acad'])) {
                                 // MODIFICATION
                                 $success = $this->anneeAcademique->updateAnneeAcademique(
-                                     (int) $_POST['id_annee_acad'],
+                                    (int) $_POST['id_annee_acad'],
                                     $dateDebut,
                                     $dateFin
                                 );
@@ -755,14 +755,6 @@ class ParametreController
 
 
 
-
-
-
-
-
-
-
-
     //=============================GESTION FONCTION=============================
     public function gestionFonction()
     {
@@ -804,28 +796,205 @@ class ParametreController
         // 📦 Variables disponibles pour la vue
         $GLOBALS['fonction_a_modifier'] = $fonction_a_modifier;
         $GLOBALS['listeFonctions'] = $this->fonction->getAllFonctions();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageError'] = $messageSucces;
     }
-}
+
     //=============================FIN GESTION FONCTION=============================
 
+ //=============================GESTION MESSAGE=============================
+ public function gestionMessage()
+ {
+     $message_a_modifier = null;
+     $messageErreur = null;
+     $messageSucces = null;
 
+     // Ajout ou modification
+     if (isset($_POST['btn_add_message'])) {
+         $lib_message = $_POST['message'];
 
+         if (!empty($_POST['id_message'])) {
+             $this->message->updateMessage($_POST['id_message'], $lib_message);
+         } else {
+             $this->message->addMessage($lib_message);
+         }
+     }
 
+     // Suppression multiple
+     if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+         $success = true;
+         foreach ($_POST['selected_ids'] as $id) {
+             if (!$this->message->deleteMessage($id)) {
+                 $success = false;
+             }
+         }
+         if ($success) {
+             $messageSucces = "Suppression des messages effectuée avec succès";
+         } else {
+             $messageErreur = "Erreur lors de la suppression d'une ou plusieurs messages";
+         }
+     }
 
+     // Récupération du message à modifier pour affichage dans le formulaire
+     if (isset($_GET['id_message'])) {
+         $message_a_modifier = $this->message->getMessageById($_GET['id_message']);
+     }
 
+     // 📦 Variables disponibles pour la vue
+     $GLOBALS['message_a_modifier'] = $message_a_modifier;
+     $GLOBALS['listeMessages'] = $this->message->getAllMessages();
+     $GLOBALS['messageErreur'] = $messageErreur;
+     $GLOBALS['messageSucces'] = $messageSucces;
 
+ }
 
+ //=============================FIN GESTION MESSAGE=============================
 
+  //=============================GESTION TRAITEMENT=============================
+  public function gestionTraitement()
+  {
+      $traitement_a_modifier = null;
+      $messageErreur = null;
+      $messageSucces = null;
+ 
+      // Ajout ou modification
+      if (isset($_POST['btn_add_traitement'])) {
+          $lib_traitement= $_POST['traitement'];
+ 
+          if (!empty($_POST['id_traitement'])) {
+              $this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement);
+          } else {
+              $this->traitement->addTraitement($lib_traitement);
+          }
+      }
+ 
+      // Suppression multiple
+      if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+          $success = true;
+          foreach ($_POST['selected_ids'] as $id) {
+              if (!$this->traitement->deleteTraitement($id)) {
+                  $success = false;
+              }
+          }
+          if ($success) {
+              $messageSucces = "Suppression des traitements effectuée avec succès";
+          } else {
+              $messageErreur = "Erreur lors de la suppression d'une ou plusieurs traitements";
+          }
+      }
+ 
+      // Récupération du traitement à modifier pour affichage dans le formulaire
+      if (isset($_GET['id_traitement'])) {
+          $traitement_a_modifier = $this->traitement->getTraitementById($_GET['id_traitement']);
+      }
+ 
+      // 📦 Variables disponibles pour la vue
+      $GLOBALS['traitement_a_modifier'] = $traitement_a_modifier;
+      $GLOBALS['listeTraitements'] = $this->traitement->getAllTraitements();
+      $GLOBALS['messageErreur'] = $messageErreur;
+      $GLOBALS['messageSucces'] = $messageSucces;
+ 
+  }
+ 
+  //=============================FIN GESTION TRAITEMENT=============================
 
+   //=============================GESTION ENTREPRISE=============================
+ public function gestionEntreprise()
+ {
+     $entreprise_a_modifier = null;
+     $messageErreur = null;
+     $messageSucces = null;
 
+     // Ajout ou modification
+     if (isset($_POST['btn_add_entreprise'])) {
+         $lib_entreprise = $_POST['entreprise'];
 
+         if (!empty($_POST['id_entreprise'])) {
+             $this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise);
+         } else {
+             $this->entreprise->addEntreprise($lib_entreprise);
+         }
+     }
 
+     // Suppression multiple
+     if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+         $success = true;
+         foreach ($_POST['selected_ids'] as $id) {
+             if (!$this->entreprise->deleteEntreprise($id)) {
+                 $success = false;
+             }
+         }
+         if ($success) {
+             $messageSucces = "Suppression des entreprises effectuée avec succès";
+         } else {
+             $messageErreur = "Erreur lors de la suppression d'une ou plusieurs entreprises";
+         }
+     }
 
+     // Récupération de l'entreprise à modifier pour affichage dans le formulaire
+     if (isset($_GET['id_entreprise'])) {
+         $entreprise_a_modifier = $this->entreprise->getEntrepriseById($_GET['id_entreprise']);
+     }
 
+     // 📦 Variables disponibles pour la vue
+     $GLOBALS['entreprise_a_modifier'] = $entreprise_a_modifier;
+     $GLOBALS['listeEntreprises'] = $this->entreprise->getAllEntreprises();
+     $GLOBALS['messageErreur'] = $messageErreur;
+     $GLOBALS['messageSucces'] = $messageSucces;
 
+ }
 
+ //=============================FIN GESTION ENTREPRISE=============================
 
+//=============================GESTION ACTION=============================
+  public function gestionAction()
+  {
+      $action_a_modifier = null;
+      $messageErreur = null;
+      $messageSucces = null;
+ 
+      // Ajout ou modification
+      if (isset($_POST['btn_add_action'])) {
+          $lib_action = $_POST['action'];
+ 
+          if (!empty($_POST['id_action'])) {
+              $this->action->updateAction($_POST['id_action'], $lib_action);
+          } else {
+              $this->action->addAction($lib_action);
+          }
+      }
+ 
+      // Suppression multiple
+      if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+          $success = true;
+          foreach ($_POST['selected_ids'] as $id) {
+              if (!$this->action->deleteAction($id)) {
+                  $success = false;
+              }
+          }
+          if ($success) {
+              $messageSucces = "Suppression des actions effectuée avec succès";
+          } else {
+              $messageErreur = "Erreur lors de la suppression d'une ou plusieurs actions";
+          }
+      }
+ 
+      // Récupération de l'action à modifier pour affichage dans le formulaire
+      if (isset($_GET['id_action'])) {
+          $action_a_modifier = $this->action->getActionById($_GET['id_action']);
+      }
+ 
+      // 📦 Variables disponibles pour la vue
+      $GLOBALS['action_a_modifier'] = $action_a_modifier;
+      $GLOBALS['listeActions'] = $this->action->getAllAction();
+      $GLOBALS['messageErreur'] = $messageErreur;
+      $GLOBALS['messageSucces'] = $messageSucces;
+ 
+  }
+ }
+  //=============================FIN GESTION ACTIONS=============================
 
+  
 
 
 /*Ce fichier est le contrôleur principal pour la gestion des paramètres généraux de l'application.
