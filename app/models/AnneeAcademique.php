@@ -73,6 +73,7 @@ class AnneeAcademique extends DbModel
     public function updateAnneeAcademique(string $id_annee_acad, string $date_deb, string $date_fin): bool
     {
         try {
+            
             return $this->update(
                 "UPDATE annee_academique SET date_deb = ?, date_fin = ? WHERE id_annee_acad = ?",
                 [$date_deb, $date_fin, $id_annee_acad]

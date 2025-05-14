@@ -85,7 +85,7 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
                             <i class="fas fa-times mr-2"></i>
                             Annuler
                         </button>
-                        <button type="submit" name="btn_modifier_annees_academiques"
+                        <button type="submit" id="editBtn" name="btn_add_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'année
@@ -326,7 +326,7 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
     const formListeAnnees = document.getElementById('formListeAnnees');
 
     // Modale de modification
-    const btnModifier = document.querySelector('button[name="btn_modifier_annees_academiques"]');
+    const btnModifier = document.getElementById('editBtn');
     const modifyModal = document.getElementById('modifyModal');
     const confirmModify = document.getElementById('confirmModify');
     const cancelModify = document.getElementById('cancelModify');

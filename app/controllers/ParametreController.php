@@ -69,7 +69,7 @@ class ParametreController
 
         // Traitement du formulaire d'ajout/modification
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
+            if (isset($_POST['btn_add_annees_academiques'])) {
                 // Validation des données
                 if (empty($_POST['date_deb']) || empty($_POST['date_fin'])) {
                     $messageErreur = "Les dates sont obligatoires";
@@ -77,21 +77,20 @@ class ParametreController
                     $dateDebut = $_POST['date_deb'];
                     $dateFin = $_POST['date_fin'];
 
-                    if ($dateDebut > $dateFin) {
+                    if ($dateDebut >= $dateFin) {
                         $messageErreur = "Erreur : la date de début ne peut pas être postérieure à la date de fin";
                     } else {
                         try {
                             if (!empty($_POST['id_annee_acad'])) {
                                 // MODIFICATION
                                 $success = $this->anneeAcademique->updateAnneeAcademique(
-                                    (int) $_POST['id_annee_acad'],
+                                     (int) $_POST['id_annee_acad'],
                                     $dateDebut,
                                     $dateFin
                                 );
 
                                 if ($success) {
                                     $messageSucces = "Année académique modifiée avec succès";
-
                                 } else {
                                     $messageErreur = "Erreur lors de la modification de l'année académique";
                                 }
