@@ -35,6 +35,19 @@ if (!in_array($activeTab, ['groupes', 'types'])) { // Valider la valeur de l'ong
             <div class="mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-700">Gestion des fonctions utilisateurs</h2>
             </div>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
+            </div>
+            <?php endif; ?>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+            <?php endif; ?>
 
             <!-- Système d'onglets -->
             <div class="mb-8">

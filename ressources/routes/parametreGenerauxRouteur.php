@@ -51,7 +51,7 @@ if ($_GET['page'] === 'parametres_generaux') {
                 $controller->gestionFonction();
                 break;
             case 'messages':
-                $controller->gestionMessagerie();
+                $controller->gestionMessage();
                 break;
             default:
                 '';
@@ -59,4 +59,3 @@ if ($_GET['page'] === 'parametres_generaux') {
     }
 
 }
-

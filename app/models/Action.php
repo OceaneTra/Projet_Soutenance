@@ -1,45 +1,81 @@
 <?php
+require_once __DIR__ . '/../config/DbModel.class.php';
 
-class Action
+class Action extends DbModel
 {
-
-    private $db;
-
-    public function __construct($db)
+    /**
+     * Récupérer toutes les actions
+     * @return array Liste des actions
+     */
+    public function getAllAction(): array
     {
-        $this->db = $db;
+        return $this->selectAll("SELECT * FROM action", [], true);
     }
 
-    public function ajouterAction($lib_action)
+    /**
+     * Ajouter une nouvelle action
+     * @param string $libelle Le libellé de l'action
+     * @return bool|int L'ID de l'action créée ou false si échec
+     */
+    public function addAction(string $libelle): bool|int
     {
-        $stmt = $this->db->prepare("INSERT INTO action (lib_action) VALUES (?)");
-        return $stmt->execute([$lib_action]);
+        return $this->insert(
+            "INSERT INTO action (lib_action) VALUES (?)",
+            [$libelle]
+        );
     }
 
-    public function updateAction($id_action, $lib_action)
+    /**
+     * Mettre à jour une action
+     * @param string $lib_action Le nouveau libellé de l'action
+     * @param int $id_action L'ID de l'action à modifier
+     * @return bool Succès de la mise à jour
+     */
+    public function updateAction(string $lib_action, int $id_action): bool
     {
-        $stmt = $this->db->prepare("UPDATE action SET lib_action = ? WHERE id_action = ?");
-        return $stmt->execute([$lib_action, $id_action]);
+        return $this->update(
+                "UPDATE action SET lib_action = ? WHERE id_action = ?",
+                [$lib_action, $id_action]
+            ) > 0;
     }
 
-    public function deleteAction($id_action)
+    /**
+     * Supprimer une action
+     * @param int $id L'ID de l'action à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteAction(int $id): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM action WHERE id_action = ?");
-        return $stmt->execute([$id_action]);
+        return $this->delete(
+                "DELETE FROM action WHERE id_action = ?",
+                [$id]
+            ) > 0;
     }
 
-    public function getActionById($id_action)
+    /**
+     * Vérifier si une action existe
+     * @param int $id L'ID de l'action à vérifier
+     * @return bool True si l'action existe
+     */
+    public function isActionExiste(int $id): bool
     {
-        $stmt = $this->db->prepare("SELECT * FROM action WHERE id_action = ?");
-        $stmt->execute([$id_action]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $this->selectOne(
+                "SELECT COUNT(*) as count FROM action WHERE id_action = ?",
+                [$id]
+            )['count'] > 0;
     }
 
-    public function getAllAction()
+    /**
+     * Récupérer une action par son ID
+     * @param int $id_action L'ID de l'action à récupérer
+     * @return object|null L'action trouvée ou null
+     */
+    public function getActionById(int $id_action): ?object
     {
-        $stmt = $this->db->prepare("SELECT * FROM action ORDER BY lib_action");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->selectOne(
+            "SELECT * FROM action WHERE id_action = ?",
+            [$id_action],
+            true
+        );
     }
-
 }

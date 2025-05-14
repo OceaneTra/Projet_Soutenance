@@ -1,56 +1,76 @@
 <?php
-
-class Grade
+require_once __DIR__ . '/../config/DbModel.class.php';
+/**
+ * Classe GroupeUtilisateur qui gère les opérations liées aux groupes utilisateurs
+ *
+ * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
+ */
+class Grade extends DbModel
 {
-    private $pdo;
-
-    public function __construct($pdo)
+    /**
+     * Récupérer tous les grades
+     * @return array Liste des grades
+     */
+    public function getAllGrades(): array
     {
-        $this->pdo = $pdo;
+        return $this->selectAll(
+            "SELECT * FROM grade ORDER BY lib_grade",
+            [],
+            true
+        );
     }
 
-    // Récupérer tous les grades
-    public function getAllGrades()
+    /**
+     * Ajouter un nouveau grade
+     * @param string $lib_grade Le libellé du grade
+     * @return bool|int L'ID du grade créé ou false si échec
+     */
+    public function ajouterGrade(string $lib_grade): bool|int
     {
-        $stmt = $this->pdo->query("SELECT * FROM grade ORDER BY lib_grade");
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->insert(
+            "INSERT INTO grade (lib_grade) VALUES (?)",
+            [$lib_grade]
+        );
     }
 
-    // Ajouter un nouveau grade
-    public function ajouterGrade($lib_grade)
+    /**
+     * Modifier un grade
+     * @param int $id_grade L'ID du grade
+     * @param string $lib_grade Le nouveau libellé du grade
+     * @return bool Succès de la modification
+     */
+    public function updateGrade(int $id_grade, string $lib_grade): bool
     {
-        $stmt = $this->pdo->prepare("INSERT INTO grade (lib_grade) VALUES (?)");
-        return $stmt->execute([$lib_grade]);
+        return $this->update(
+                "UPDATE grade SET lib_grade = ? WHERE id_grade = ?",
+                [$lib_grade, $id_grade]
+            ) > 0;
     }
 
-    //Modifier un grade
-    public function updateGrade($id_grade, $lib_grade)
+    /**
+     * Supprimer un grade
+     * @param int $id L'ID du grade à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteGrade(int $id): bool
     {
-        try {
-            $stmt = $this->pdo->prepare("UPDATE grade SET lib_grade = ? WHERE id_grade = ?");
-            return $stmt->execute([$lib_grade, $id_grade]);
-        } catch (PDOException $e) {
-            error_log("Erreur pendant la maj du grade");
-            return false;
-        }
+        return $this->delete(
+                "DELETE FROM grade WHERE id_grade = ?",
+                [$id]
+            ) > 0;
     }
 
-    public function updateGrade($id, $lib_grade) {
-        $stmt = $this->pdo->prepare("UPDATE grade SET lib_grade = ? WHERE id_grade = ?");
-        return $stmt->execute([$lib_grade, $id]);
-    }
-
-    // Supprimer un grade
-    public function deleteGrade($id)
+    /**
+     * Récupérer un grade par son ID
+     * @param int $id_grade L'ID du grade
+     * @return object|null Le grade trouvé ou null
+     */
+    public function getGradeById(int $id_grade): ?object
     {
-        $stmt = $this->pdo->prepare("DELETE FROM grade WHERE id_grade = ?");
-        return $stmt->execute([$id]);
-    }
-
-    public function getGradeById($id_grade)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM grade WHERE id_grade = ?");
-        $stmt->execute([$id_grade]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $this->selectOne(
+            "SELECT * FROM grade WHERE id_grade = ?",
+            [$id_grade],
+            true
+        );
     }
 }

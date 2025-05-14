@@ -1,36 +1,90 @@
 <?php
-
-class NiveauApprobation {
-    private $db;
-
-    public function __construct($db) {
-        $this->db = $db;
+require_once __DIR__ . '/../config/DbModel.class.php';
+/**
+ * Classe GroupeUtilisateur qui gère les opérations liées aux groupes utilisateurs
+ *
+ * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
+ */
+class NiveauApprobation extends DbModel
+{
+    /**
+     * Ajouter un nouveau niveau d'approbation
+     * @param string $lib_approb Le libellé du niveau d'approbation
+     * @return bool|int L'ID du niveau d'approbation créé ou false si échec
+     */
+    public function ajouterNiveauApprobation($lib_approb)
+    {
+        return $this->insert(
+            "INSERT INTO niveau_approbation (lib_approb) VALUES (?)",
+            [$lib_approb]
+        );
     }
 
-    public function ajouterNiveauApprobation($lib_approb) {
-        $stmt = $this->db->prepare("INSERT INTO niveau_approbation (lib_approb) VALUES (?)");
-        return $stmt->execute([$lib_approb]);
+    /**
+     * Modifier un niveau d'approbation
+     * @param int $id_approb L'ID du niveau d'approbation
+     * @param string $lib_approb Le nouveau libellé du niveau d'approbation
+     * @return bool Succès de la modification
+     */
+    public function updateNiveauApprobation($id_approb, $lib_approb)
+    {
+        return $this->update(
+                "UPDATE niveau_approbation SET lib_approb = ? WHERE id_approb = ?",
+                [$lib_approb, $id_approb]
+            ) > 0;
     }
 
-    public function updateNiveauApprobation($id_approb, $lib_approb) {
-        $stmt = $this->db->prepare("UPDATE niveau_approbation SET lib_approb = ? WHERE id_approb = ?");
-        return $stmt->execute([$lib_approb, $id_approb]);
+    /**
+     * Supprimer un niveau d'approbation
+     * @param int $id_approb L'ID du niveau d'approbation à supprimer
+     * @return bool Succès de la suppression
+     */
+    public function deleteNiveauApprobation($id_approb)
+    {
+        return $this->delete(
+                "DELETE FROM niveau_approbation WHERE id_approb = ?",
+                [$id_approb]
+            ) > 0;
     }
 
-    public function deleteNiveauApprobation($id_approb) {
-        $stmt = $this->db->prepare("DELETE FROM niveau_approbation WHERE id_approb = ?");
-        return $stmt->execute([$id_approb]);
+    /**
+     * Récupérer un niveau d'approbation par son ID
+     * @param int $id_approb L'ID du niveau d'approbation
+     * @return object|null Le niveau d'approbation trouvé ou null
+     */
+    public function getNiveauApprobationById($id_approb)
+    {
+        return $this->selectOne(
+            "SELECT * FROM niveau_approbation WHERE id_approb = ?",
+            [$id_approb],
+            true
+        );
     }
 
-    public function getNiveauApprobationById($id_approb) {
-        $stmt = $this->db->prepare("SELECT * FROM niveau_approbation WHERE id_approb = ?");
-        $stmt->execute([$id_approb]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+    /**
+     * Récupérer tous les niveaux d'approbation
+     * @return array Liste des niveaux d'approbation
+     */
+    public function getAllNiveauxApprobation()
+    {
+        return $this->selectAll(
+            "SELECT * FROM niveau_approbation ORDER BY lib_approb",
+            [],
+            true
+        );
     }
 
-    public function getAllNiveauxApprobation() {
-        $stmt = $this->db->prepare("SELECT * FROM niveau_approbation ORDER BY lib_approb");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    /**
+     * Vérifier si un niveau d'approbation est utilisé
+     * @param int $id_approb L'ID du niveau d'approbation
+     * @return bool True si le niveau d'approbation est utilisé
+     */
+    public function isNiveauApprobationUtilise(int $id_approb): bool
+    {
+        $result = $this->selectOne(
+            "SELECT COUNT(*) as count FROM niveau_approbation WHERE id_approb = ?",
+            [$id_approb]
+        );
+        return $result['count'] > 0;
     }
 }
