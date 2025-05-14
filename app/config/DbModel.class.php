@@ -130,7 +130,7 @@ abstract class DbModel
     {
         $stmt = $this->getBdd()->prepare($sql);
         $stmt->execute($params);
-        return $stmt->rowCount();
+        return (int) $stmt->rowCount();
     }
 
     /**

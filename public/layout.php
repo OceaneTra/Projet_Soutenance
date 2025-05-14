@@ -1,5 +1,5 @@
 <?php
-include '../app/config/database.php';
+include '../app/config/DbModel.class.php';
 session_start();
 //
 

@@ -59,13 +59,15 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
                     <?php endif; ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-3">Date de début</label>
+                            <label for="date_deb" class="block text-sm font-medium text-gray-600 mb-3">Date de
+                                début</label>
                             <input type="date" id="date_deb" name="date_deb" required
                                 value="<?= $annee_a_modifier ? date('Y-m-d', strtotime($annee_a_modifier->date_deb)) : '' ?>"
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:border-0">
                         </div>
                         <div>
-                            <label for="" class="block text-sm font-medium text-gray-600 mb-3">Date de fin</label>
+                            <label for="date_fin" class="block text-sm font-medium text-gray-600 mb-3">Date de
+                                fin</label>
                             <input type="date" id="date_fin" name="date_fin" required
                                 value="<?= $annee_a_modifier ? date('Y-m-d', strtotime($annee_a_modifier->date_fin)) : '' ?>"
                                 class=" focus:border-0 focus:outline-none  w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:outline-green-600 transition-colors">
@@ -85,7 +87,7 @@ $paginatedItems = array_slice($listeAnnees, ($currentPage - 1) * $itemsPerPage, 
                             <i class="fas fa-times mr-2"></i>
                             Annuler
                         </button>
-                        <button type="submit" id="editBtn" name="btn_add_annees_academiques"
+                        <button type="submit" id="editBtn" name="btn_modifier_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'année

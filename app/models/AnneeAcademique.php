@@ -62,6 +62,7 @@ class AnneeAcademique extends DbModel
         }
     }
 
+
     /**
      * Met à jour une année académique existante
      * 
@@ -83,6 +84,7 @@ class AnneeAcademique extends DbModel
             return false;
         }
     }
+    
 
     /**
      * Supprime une année académique
