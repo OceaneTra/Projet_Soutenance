@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 require_once __DIR__ . '/../config/DbModel.class.php';
 /**
  * Classe Fonction qui gère les opérations liées aux fonctions
@@ -117,48 +116,6 @@ class Fonction extends DbModel
             error_log("Erreur de mise à jour de fonction: " . $e->getMessage());
             return false;
         }
-=======
 
-class Fonction {
-
-    private $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
     }
-
-    public function ajouterFonction($lib_fonction)
-    {
-        $stmt = $this->db->prepare("INSERT INTO fonction (lib_fonction) VALUES (?)");
-        return $stmt->execute([$lib_fonction]);
-    }
-
-    public function updateFonction($id_fonction, $lib_fonction)
-    {
-        $stmt = $this->db->prepare("UPDATE fonction SET lib_fonction = ? WHERE id_fonction = ?");
-        return $stmt->execute([$lib_fonction, $id_fonction]);
-    }
-
-    public function deleteFonction($id_fonction)
-    {
-        $stmt = $this->db->prepare("DELETE FROM fonction WHERE id_fonction = ?");
-        return $stmt->execute([$id_fonction]);
-    }
-
-    public function getFonctionById($id_fonction)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM fonction WHERE id_fonction = ?");
-        $stmt->execute([$id_fonction]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
->>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
-    }
-
-    public function getAllfonction()
-    {
-        $stmt = $this->db->prepare("SELECT * FROM fonction ORDER BY lib_fonction");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-
 }

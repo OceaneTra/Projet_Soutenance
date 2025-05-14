@@ -1,6 +1,7 @@
 <?php
 $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -32,21 +33,13 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
             </div>
             <?php endif; ?>
 
-<<<<<<< HEAD
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
                     <?php if (isset($_GET['id_niveau_approbation'])): ?>
-=======
-        <!-- Formulaire d'Ajout ou de Modification -->
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-            <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
-                <?php if (isset($_GET['id_approb'])): ?>
->>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
                     Modifier le niveau d'approbation
                     <?php else: ?>
                     Ajouter un nouveau niveau d'approbation
-<<<<<<< HEAD
                     <?php endif; ?>
                 </h3>
                 <form method="POST" action="?page=parametres_generaux&action=niveau_approbation">
@@ -64,25 +57,6 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                         </div>
                     </div>
                     <?php if (isset($_GET['id_niveau_approbation'])): ?>
-=======
-                <?php endif; ?>
-            </h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveaux_approbation">
-                <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_approb"
-                           value="<?= htmlspecialchars($niveau_a_modifier->id_approb) ?>">
-                <?php endif; ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-3 outline-none">Libellé du niveau
-                            d'approbation</label>
-                        <input type="text" id="id_approb" name="niveaux_approbation" required
-                               value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_approb) : '' ?>"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors focus:outline-none">
-                    </div>
-                </div>
-                <?php if (isset($_GET['id_approb'])): ?>
->>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
                     <div class="flex justify-start space-x-3">
                         <button type="submit" name="btn_add_niveau_approbation"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
@@ -107,7 +81,6 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                 </form>
             </div>
 
-<<<<<<< HEAD
             <!-- Section Tableau et Actions -->
             <div class="mt-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des niveaux d'approbation</h3>
@@ -143,42 +116,6 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                         <?php $listeNiveaux = $GLOBALS['listeNiveaux'] ?? []; ?>
                                         <?php if (!empty($listeNiveaux)) : ?>
                                         <?php foreach ($listeNiveaux as $niveau) : ?>
-=======
-        <!-- Section Tableau et Actions -->
-        <div class="mt-8">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des niveaux d'approbation</h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveaux_approbation" id="formListeNiveauApprobation">
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <!-- Table avec largeur fixe -->
-                    <div style="width: 80%;"
-                         class="border border-collapse border-gray-200 bg-white rounded-xl shadow-lg overflow-hidden mb-6 lg:mb-0">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="w-[5%] px-4 py-3 text-center">
-                                        <input type="checkbox" id="selectAllCheckbox"
-                                               class="form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                    </th>
-                                    <th scope="col"
-                                        class="w-[10%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        ID
-                                    </th>
-                                    <th scope="col"
-                                        class="w-[25%] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Libellé du niveau d'approbation
-                                    </th>
-                                    <th scope="col"
-                                        class="w-[10%] px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Action
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                <?php $listeNiveaux = $GLOBALS['listeNiveaux'] ?? []; ?>
-                                <?php if (!empty($listeNiveaux)) : ?>
-                                    <?php foreach ($listeNiveaux as $niveau) : ?>
->>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
                                                 <input type="checkbox" name="selected_ids[]"
@@ -192,15 +129,10 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                                 <?= htmlspecialchars($niveau->lib_approb) ?>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
-<<<<<<< HEAD
                                                 <a href="?page=parametres_generaux&action=niveau_approbation&id_niveau_approbation=<?= $niveau->id_approb ?>"
-                                                    class="text-center text-orange-500 hover:underline"><i
-                                                        class="fas fa-pen"></i></a>
-=======
-                                                <a href="?page=parametres_generaux&action=niveaux_approbation&id_approb=<?= $niveau->id_approb ?>"
-                                                   class="text-center text-orange-500 hover:underline"><i
-                                                            class="fas fa-pen"></i></a>
->>>>>>> ca2717c9dd5fd17d8353b610c3251922be196b38
+                                                    class="text-center text-orange-500 hover:underline">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
