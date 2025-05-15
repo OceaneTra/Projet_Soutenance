@@ -66,6 +66,8 @@ class ParametreController
     public function gestionAnnees()
     {
         $annee_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
@@ -110,6 +112,8 @@ class ParametreController
     {
 
         $grades_a_modifier = null;
+        $messageErreur = null;
+        $messageSucces = null;
 
         // Ajout ou modification
         if (isset($_POST['btn_add_grades'])) {

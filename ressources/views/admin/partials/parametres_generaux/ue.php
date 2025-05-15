@@ -18,6 +18,19 @@
             <div class="mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-700">Gestion des Unités d'Enseignement (UE)</h2>
             </div>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
+            </div>
+            <?php endif; ?>
+            <!-- À placer avant ou au début de votre formulaire -->
+            <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+            <?php endif; ?>
 
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
@@ -27,7 +40,7 @@
 
                 <form method="POST" action="?page=parametres_generaux&action=ue">
                     <?php if($ue_a_modifier): ?>
-                        <input type="hidden" name="id_ue" value="<?= htmlspecialchars($ue_a_modifier->id_ue) ?>">
+                    <input type="hidden" name="id_ue" value="<?= htmlspecialchars($ue_a_modifier->id_ue) ?>">
                     <?php endif ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <!-- Année académique -->
@@ -39,10 +52,10 @@
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez une année academique</option>
                                 <?php foreach ($GLOBALS['listeAnnees'] as $annee): ?>
-                                    <option value="<?= $annee->id_annee_acad ?>"
-                                        <?= $ue_a_modifier && $ue_a_modifier->id_annee_academique == $annee->id_annee_acad ? 'selected' : '' ?>>
-                                        <?= date('Y', strtotime($annee->date_deb)) . ' - ' . date('Y', strtotime($annee->date_fin)) ?>
-                                    </option>
+                                <option value="<?= $annee->id_annee_acad ?>"
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_annee_academique == $annee->id_annee_acad ? 'selected' : '' ?>>
+                                    <?= date('Y', strtotime($annee->date_deb)) . ' - ' . date('Y', strtotime($annee->date_fin)) ?>
+                                </option>
                                 <?php endforeach; ?>
 
                             </select>
@@ -54,7 +67,7 @@
                                 Libellé de l'UE
                             </label>
                             <input type="text" id="lib_ue" name="lib_ue" required
-                                   value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->lib_ue) : '' ?>"
+                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->lib_ue) : '' ?>"
                                 placeholder="Ex: Mathématiques fondamentales"
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
@@ -65,9 +78,8 @@
                                 Nombre de crédits
                             </label>
                             <input type="number" id="credits" name="credits"
-                                   value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->credit) : '' ?>"
-                                   required min="1" max="9"
-                                placeholder="Ex: 6"
+                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->credit) : '' ?>" required
+                                min="1" max="9" placeholder="Ex: 6"
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                         </div>
 
@@ -80,10 +92,10 @@
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez un semestre</option>
                                 <?php foreach ($GLOBALS['listeSemestres'] as $sem): ?>
-                                    <option value="<?= $sem->id_semestre ?>"
-                                        <?= $ue_a_modifier && $ue_a_modifier->id_semestre == $sem->id_semestre ? 'selected' : '' ?>>
-                                        <?= $sem->lib_semestre ?>
-                                    </option>
+                                <option value="<?= $sem->id_semestre ?>"
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_semestre == $sem->id_semestre ? 'selected' : '' ?>>
+                                    <?= $sem->lib_semestre ?>
+                                </option>
                                 <?php endforeach; ?>
 
                             </select>
@@ -98,10 +110,10 @@
                                 class=" focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:border-0 transition-colors">
                                 <option value="">Sélectionnez un niveau</option>
                                 <?php foreach ($GLOBALS['listeNiveauxEtude'] as $niv): ?>
-                                    <option value="<?= $niv->id_niv_etude ?>"
-                                        <?= $ue_a_modifier && $ue_a_modifier->id_niveau_etude == $niv->id_niv_etude ? 'selected' : '' ?>>
-                                        <?= $niv->lib_niv_etude ?>
-                                    </option>
+                                <option value="<?= $niv->id_niv_etude ?>"
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_niveau_etude == $niv->id_niv_etude ? 'selected' : '' ?>>
+                                    <?= $niv->lib_niv_etude ?>
+                                </option>
                                 <?php endforeach; ?>
 
                             </select>
@@ -113,22 +125,22 @@
 
                     <div class="flex justify-start space-x-3">
                         <?php if (isset($_GET['id_ue'])): ?>
-                            <button type="submit" name="submit_add_ue"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-save mr-2"></i>
-                                Modifier l'UE
-                            </button>
-                            <button type="submit" name="btn_annuler"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white   bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-remove mr-2"></i>
-                                Annuler
-                            </button>
+                        <button type="submit" name="submit_add_ue"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-save mr-2"></i>
+                            Modifier l'UE
+                        </button>
+                        <button type="submit" name="btn_annuler"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white   bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-remove mr-2"></i>
+                            Annuler
+                        </button>
                         <?php else: ?>
-                            <button type="submit" name="submit_add_ue"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
-                                <i class="fa-plus fas mr-2"></i>
-                                Ajouter l'UE
-                            </button>
+                        <button type="submit" name="submit_add_ue"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                            <i class="fa-plus fas mr-2"></i>
+                            Ajouter l'UE
+                        </button>
                         <?php endif; ?>
                     </div>
                 </form>
@@ -146,49 +158,65 @@
                             <div class="overflow-x-auto w-full">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="w-[5%] px-4 py-3 text-center">
-                                            <input type="checkbox" id="selectAllCheckbox"
-                                                   class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                        </th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé UE</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crédits</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Année académique</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semestre</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau d'étude</th>
-                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
-                                    </tr>
+                                        <tr>
+                                            <th class="w-[5%] px-4 py-3 text-center">
+                                                <input type="checkbox" id="selectAllCheckbox"
+                                                    class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                ID</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Libellé UE</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Crédits</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Année académique</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Semestre</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Niveau d'étude</th>
+                                            <th
+                                                class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                                Action</th>
+                                        </tr>
                                     </thead>
 
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                    <?php $listeUes = $GLOBALS['listeUes'] ?? []; ?>
-                                    <?php if (!empty($listeUes)) : ?>
+                                        <?php $listeUes = $GLOBALS['listeUes'] ?? []; ?>
+                                        <?php if (!empty($listeUes)) : ?>
                                         <?php foreach ($listeUes as $ue) : ?>
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-center">
-                                                    <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                                           class="row-checkbox form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                                </td>
-                                                <td class="px-4 py-3 text-sm text-gray-900 font-medium"><?= htmlspecialchars($ue->id_ue) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ue->lib_ue) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ue->credit) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ue->id_annee_academique) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ue->lib_semestre) ?></td>
-                                                <td class="px-4 py-3 text-sm text-gray-700"><?= htmlspecialchars($ue->lib_niv_etude) ?></td>
-                                                <td class="px-4 py-3 text-center">
-                                                    <a href="?page=parametres_generaux&action=ue&id_ue=<?= $ue->id_ue ?>"
-                                                       class="text-orange-500 hover:underline"><i class="fas fa-pen"></i></a>
-                                                </td>
-                                            </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 text-center">
+                                                <input type="checkbox" name="selected_ids[]"
+                                                    value="<?= htmlspecialchars($ue->id_ue) ?>"
+                                                    class="row-checkbox form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">
+                                                <?= htmlspecialchars($ue->id_ue) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ue->lib_ue) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ue->credit) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ue->id_annee_academique) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ue->lib_semestre) ?></td>
+                                            <td class="px-4 py-3 text-sm text-gray-700">
+                                                <?= htmlspecialchars($ue->lib_niv_etude) ?></td>
+                                            <td class="px-4 py-3 text-center">
+                                                <a href="?page=parametres_generaux&action=ue&id_ue=<?= $ue->id_ue ?>"
+                                                    class="text-orange-500 hover:underline"><i
+                                                        class="fas fa-pen"></i></a>
+                                            </td>
+                                        </tr>
                                         <?php endforeach; ?>
-                                    <?php else : ?>
+                                        <?php else : ?>
                                         <tr>
                                             <td colspan="8" class="text-center text-sm text-gray-500 py-4">
                                                 Aucune Unité d’Enseignement enregistrée.
                                             </td>
                                         </tr>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </tbody>
 
                                 </table>

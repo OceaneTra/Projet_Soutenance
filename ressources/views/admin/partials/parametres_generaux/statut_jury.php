@@ -18,6 +18,19 @@ $statut_a_modifier = $GLOBALS['statut_a_modifier'] ?? null;
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-2xl font-bold text-gray-700">Gestion du statut des jury</h2>
         </div>
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
+            </div>
+        <?php endif; ?>
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                 role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+        <?php endif; ?>
 
         <!-- Formulaire d'Ajout ou de Modification -->
         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
@@ -103,7 +116,8 @@ $statut_a_modifier = $GLOBALS['statut_a_modifier'] ?? null;
                                     <?php foreach ($listeStatuts as $statut) : ?>
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($statut->id_jury) ?>"
+                                                <input type="checkbox" name="selected_ids[]"
+                                                       value="<?= htmlspecialchars($statut->id_jury) ?>"
                                                        class="row-checkbox form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -146,12 +160,12 @@ $statut_a_modifier = $GLOBALS['statut_a_modifier'] ?? null;
 
 <script>
     // Script pour le fonctionnement de la sélection "Tout cocher"
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const rowCheckboxes = document.querySelectorAll('.row-checkbox');
 
-        if(selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
                 rowCheckboxes.forEach(checkbox => {
                     checkbox.checked = selectAllCheckbox.checked;
                 });

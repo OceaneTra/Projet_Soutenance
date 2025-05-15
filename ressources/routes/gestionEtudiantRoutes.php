@@ -1,31 +1,19 @@
 <?php
-echo "DEBUG ROUTING: Start<br>";
+class Database {
+    private static $host = 'db'; // très important : utiliser le nom du service Docker
+    private static $db   = 'soutenance_manager';
+    private static $user = 'root';
+    private static $pass = 'password'; // mot de passe défini dans docker-compose.yml
+    private static $charset = 'utf8';
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-require_once __DIR__ . '/../../app/config/database.php';
-require_once __DIR__ . '/../../app/controllers/GestionEtudiantController.php';
-
-echo "DEBUG ROUTING: Checking page parameter<br>";
-echo "GET parameters: " . print_r($_GET, true) . "<br>";
-
-if (isset($_GET['page']) && $_GET['page'] === 'gestion_etudiants') {
-    echo "DEBUG ROUTING: Page is gestion_etudiants<br>";
-
-    $controller = new GestionEtudiantController();
-    echo "DEBUG ROUTING: Controller created<br>";
-
-    if (isset($_GET['action']) && $_GET['action'] === 'export') {
-        echo "DEBUG ROUTING: Export action<br>";
-        $controller->exporterEtudiants();
-    } else {
-        echo "DEBUG ROUTING: Calling index()<br>";
-        $controller->index();
-        echo "DEBUG ROUTING: After index()<br>";
+    public static function getConnection() {
+        try {
+            $dsn = "mysql:host=" . self::$host . ";dbname=" . self::$db . ";charset=" . self::$charset;
+            $pdo = new PDO($dsn, self::$user, self::$pass);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $pdo;
+        } catch (PDOException $e) {
+            die("Erreur de connexion : " . $e->getMessage());
+        }
     }
-} else {
-    echo "DEBUG ROUTING: Page not gestion_etudiants or not set<br>";
 }
-?>

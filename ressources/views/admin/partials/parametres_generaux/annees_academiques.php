@@ -9,15 +9,33 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Années Académiques</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body class="bg-gray-100">
     <div class="min-h-screen flex flex-col">
         <main class="flex-grow container mx-auto px-4 py-5">
 
-            <div class="mb-6 flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-700">Gestion des Années Académiques</h2>
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-gray-700">Gestion des Années Académiques</h2>
+        </div>
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 alert-message"
+                 role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
             </div>
+        <?php endif; ?>
+
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 alert-message"
+                 role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+        <?php endif; ?>
 
             <!-- Formulaire d'Ajout ou de Modification -->
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
@@ -192,19 +210,19 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
         </div>
     </div>
 
-    <!-- Modale de confirmation de modification -->
-    <div id="modifyModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-white shadow-sm rounded-lg p-6 max-w-md w-full mx-4">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                    <i class="fas fa-edit text-blue-600 text-xl"></i>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Confirmation de modification</h3>
-                <p class="text-sm text-gray-500 mb-4">
-                    Êtes-vous sûr de vouloir modifier cette année académique ?
-                </p>
-                <div class="mt-5 flex justify-center gap-6">
-                    <button type="button" id="confirmModify"
+<!-- Modale de confirmation de modification -->
+<div id="modifyModal" class="fixed inset-0  bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white shadow-sm rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                <i class="fas fa-edit text-blue-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+            <p class="text-sm text-gray-500 mb-4">
+                Êtes-vous sûr de vouloir modifier cette année académique ?
+            </p>
+            <div class="mt-5 flex justify-center gap-6">
+                <button type="button" id="confirmModify"
                         class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Confirmer
                     </button>
@@ -217,6 +235,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
         </div>
     </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
     <script>

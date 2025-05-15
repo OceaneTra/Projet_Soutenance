@@ -17,6 +17,19 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-2xl font-bold text-gray-700">Gestion des niveaux d'études</h2>
         </div>
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageErreur'])): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageErreur']); ?></span>
+            </div>
+        <?php endif; ?>
+        <!-- À placer avant ou au début de votre formulaire -->
+        <?php if (!empty($GLOBALS['messageSucces'])): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                 role="alert">
+                <span class="block sm:inline"><?php echo htmlspecialchars($GLOBALS['messageSucces']); ?></span>
+            </div>
+        <?php endif; ?>
 
         <!-- Formulaire d'ajout/modification -->
         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
@@ -25,7 +38,8 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
             </h3>
             <form method="POST" action="?page=parametres_generaux&action=niveaux_etude">
                 <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau_etude" value="<?= htmlspecialchars($niveau_a_modifier->id_niv_etude) ?>">
+                    <input type="hidden" name="id_niveau_etude"
+                           value="<?= htmlspecialchars($niveau_a_modifier->id_niv_etude) ?>">
                 <?php endif; ?>
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-600 mb-2">Libellé du niveau d'étude</label>
@@ -63,8 +77,13 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                         <input type="checkbox" id="selectAllCheckbox"
                                                class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        Libellé
+                                    </th>
+                                    <th
+                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                        Actions
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -73,7 +92,8 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                     <?php foreach ($listeNiveaux as $niveau): ?>
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 text-center">
-                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($niveau->id_niv_etude) ?>"
+                                                <input type="checkbox" name="selected_ids[]"
+                                                       value="<?= htmlspecialchars($niveau->id_niv_etude) ?>"
                                                        class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
                                             </td>
                                             <td class="px-4 py-3 text-sm text-gray-700">
@@ -112,4 +132,5 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
     </main>
 </div>
 </body>
+
 </html>

@@ -1,83 +1,13 @@
 <?php
+include '../app/config/database.php';
+include '../app/models/MenuConfig.php';
 session_start();
+//
 
-
-// Définir les éléments du menu principal
-$menuItems = [
-    ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-home'],
-    ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
-    ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
-    ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
-    ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
-    ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
-    ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
-    ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user'],
-];
-
-// Déterminer la page actuelle du menu principal.
-$currentMenuSlug = 'dashboard'; // Page par défaut
-$allowedMenuPages = array_column($menuItems, 'slug');
-if (isset($_GET['page']) && in_array($_GET['page'], $allowedMenuPages)) {
-    $currentMenuSlug = $_GET['page'];
-}
-
-// Initialiser les variables
-$currentAction = null;
-$contentFile = '';
-$currentPageLabel = '';
-
-
-$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
-// Logique spécifique pour la section "Paramètres Généraux"
-if ($currentMenuSlug === 'parametres_generaux') {
-    include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php'; // ajuste le chemin selon ta structure
-    if (isset($_GET['action'])) {
-        $allowedActions = [
-            'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
-            'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants','messages',
-        ];
-        if (in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
-            // Pour le label, vous voudrez peut-être un mapping plus précis
-            // que de simplement formater le slug de l'action.
-            // Par exemple, récupérer le titre de la carte correspondante.
-            // Pour l'instant, on formate le slug de l'action :
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-        } else {
-            // Action non valide, afficher la page des cartes par défaut ou une erreur
-            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-            $currentPageLabel = 'Paramètres Généraux';
-            // Optionnel: afficher un message d'erreur pour action non valide
-        }
-    } else {
-        // Pas d'action spécifiée pour les paramètres généraux, afficher les cartes
-        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-        $currentPageLabel = 'Paramètres Généraux';
-    }
-} else {
-    // Logique pour les autres pages du menu principal (dashboard, users, etc.)
-    $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
-    foreach ($menuItems as $item) {
-        if ($item['slug'] === $currentMenuSlug) {
-            $currentPageLabel = $item['label'];
-            break;
-        }
-    }
-}
-
-// Si aucun label n'a été trouvé (par exemple, pour une page non listée dans $menuItems et sans action)
-if (empty($currentPageLabel)) {
-    $currentPageLabel = "Soutenance Manager"; // Ou une autre valeur par défaut appropriée
-    // Si $contentFile est aussi vide, vous pourriez vouloir charger une page 404 par défaut
-    if (empty($contentFile)) {
-        // $contentFile = $partialsBasePath . '404_content.php'; // Exemple
-    }
-}
-
-// Tableau de données pour vos cartes avec des titres et descriptions personnalisés.
-// Chaque élément du tableau représente une carte.
+//if (!isset($_SESSION['user_role'])) {
+//    header('Location: page_connexion.php');
+//    exit;
+//}
 $cardData = [
     [
         'title' => 'Années Académiques',
@@ -177,9 +107,62 @@ $cardData = [
     ],
 ];
 
+// Configuration des menus par rôle
+$menuConfigs =  new MenuConfig();
 
+// Récupérer le rôle de l'utilisateur depuis la session
+$userRole = $_SESSION['user_role'] ?? 'admin';
+$menuItems = $menuConfigs->getMenuByRole($userRole) ?? [];
 
+// Déterminer la page actuelle
+$currentMenuSlug = isset($_GET['page']) && in_array($_GET['page'], array_column($menuItems, 'slug'))
+    ? $_GET['page']
+    : ($menuItems[0]['slug'] ?? 'dashboard');
 
+// Initialiser les variables
+$currentAction = null;
+$contentFile = '';
+$currentPageLabel = '';
+
+// Définir le chemin des vues en fonction du rôle
+$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . $userRole . DIRECTORY_SEPARATOR;
+
+// Logique spécifique pour la section "Paramètres Généraux" de l'admin
+if ($userRole === 'admin' && $currentMenuSlug === 'parametres_generaux') {
+    include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php';
+    if (isset($_GET['action'])) {
+        $allowedActions = [
+            'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
+            'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
+            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages',
+        ];
+        if (in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
+            $currentPageLabel = 'Paramètres Généraux';
+        }
+    } else {
+        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
+        $currentPageLabel = 'Paramètres Généraux';
+    }
+} else {
+    // Logique pour les autres pages du menu principal
+    $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
+    foreach ($menuItems as $item) {
+        if ($item['slug'] === $currentMenuSlug) {
+            $currentPageLabel = $item['label'];
+            break;
+        }
+    }
+}
+
+// Si aucun label n'a été trouvé
+if (empty($currentPageLabel)) {
+    $currentPageLabel = "Soutenance Manager";
+}
 ?>
 
 <!DOCTYPE html>
@@ -197,8 +180,13 @@ $cardData = [
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">
@@ -208,16 +196,17 @@ $cardData = [
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex overflow-hidden items-center">
-
-                        <a href="?page=dashboard" class="text-green-500 font-bold text-xl">Soutenance Manager</a>
+                        <a href="?page=<?php echo $menuItems[0]['slug']; ?>" class="text-green-500 font-bold text-xl">
+                            Soutenance Manager
+                        </a>
                     </div>
                 </div>
+
+                <!-- Menu dynamique -->
                 <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
                     <div class="space-y-2 pb-3">
                         <?php foreach ($menuItems as $item): ?>
                         <?php
-                        // Pour l'état actif, on vérifie si le slug du menu principal correspond.
-                        // Si la page actuelle est 'parametres_generaux', elle sera active même si une action est sélectionnée.
                         $isActive = ($currentMenuSlug === $item['slug']);
                         $linkBaseClasses = "flex items-center px-2 py-3 text-sm font-medium rounded-md group";
                         $activeClasses = "text-white bg-green-500";
@@ -233,7 +222,7 @@ $cardData = [
                             <?php echo htmlspecialchars($item['label']); ?>
                         </a>
                         <?php endforeach; ?>
-                        <a href=""
+                        <a href="page_connexion.php"
                             class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
                             <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
                             Déconnexion
@@ -242,6 +231,7 @@ $cardData = [
                 </div>
             </div>
         </div>
+
         <!-- Main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Top navigation -->
@@ -256,7 +246,8 @@ $cardData = [
                 <div class="flex items-center space-x-4">
                     <div class="relative">
                         <button class="flex items-center space-x-2 focus:outline-none">
-                            <span class="text-m font-medium text-green-500">Bienvenue, Administrateur</span>
+                            <span class="text-m font-medium text-green-500">Bienvenue,
+                                <?php echo htmlspecialchars(ucfirst($userRole)); ?></span>
                         </button>
                     </div>
                 </div>
@@ -266,7 +257,7 @@ $cardData = [
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
                 <?php
             // Bouton Retour si on est dans une action spécifique des paramètres généraux
-            if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
+            if ($userRole === 'admin' && $currentMenuSlug === 'parametres_generaux' && $currentAction):
                 ?>
                 <div class="mb-6">
                     <a href="?page=parametres_generaux"
@@ -298,20 +289,18 @@ $cardData = [
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuButton = document.getElementById('mobileMenuButton'); // Utilisation de l'ID
-        const sidebar = document.querySelector(
-            '.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64'); // Sélecteur plus précis
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const sidebar = document.querySelector('.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64');
 
         if (mobileMenuButton && sidebar) {
             mobileMenuButton.addEventListener('click', function() {
-                sidebar.classList.toggle('hidden'); // Bascule la classe hidden sur la sidebar elle-même
-                // Si vous voulez que la sidebar se superpose sur mobile au lieu de pousser le contenu :
-                // sidebar.classList.toggle('absolute');
-                // sidebar.classList.toggle('z-20'); // Pour s'assurer qu'elle est au-dessus
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('absolute');
+                sidebar.classList.toggle('z-20');
             });
         }
 
-        // Le reste de votre JS pour les cartes et la cloche de notification peut rester ici
+        // Animation pour les cartes de documents
         const documentCards = document.querySelectorAll('.document-card');
         documentCards.forEach(card => {
             card.addEventListener('mouseenter', function() {
@@ -319,6 +308,7 @@ $cardData = [
             });
         });
 
+        // Animation pour la cloche de notification
         const notificationBell = document.querySelector('.fa-bell');
         if (notificationBell) {
             notificationBell.addEventListener('click', function() {
