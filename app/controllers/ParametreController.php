@@ -8,7 +8,6 @@ require_once __DIR__ . '/../models/Grade.php';
 require_once __DIR__ . '/../models/GroupeUtilisateur.php';
 require_once __DIR__ . '/../models/NiveauAccesDonnees.php';
 require_once __DIR__ . '/../models/NiveauApprobation.php';
-require_once __DIR__ . '/../models/NiveauEtude.php';
 require_once __DIR__ . '/../models/Specialite.php';
 require_once __DIR__ . '/../models/StatutJury.php';
 require_once __DIR__ . '/../models/TypeUtilisateur.php';
@@ -69,7 +68,7 @@ class ParametreController
         $annee_a_modifier = null;
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_annees_academiques'])) {
+        if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
             $dateDebut = $_POST['date_debut'];
             $dateFin = $_POST['date_fin'];
 
@@ -83,13 +82,17 @@ class ParametreController
         }
 
         // Suppression multiple
-        if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+        if (isset($_POST['submit_delete_multiple']) && $_POST['submit_delete_multiple'] == '1' && isset($_POST['selected_ids'])) {
             foreach ($_POST['selected_ids'] as $id) {
                 $this->anneeAcademique->deleteAnneeAcademique($id);
             }
+
+            // Redirection après suppression
+            header("Location: ?page=parametres_generaux&action=annees_academiques");
+            exit();
         }
 
-        // Récupération de l’année à modifier pour affichage dans le formulaire
+        // Récupération de l'année à modifier pour affichage dans le formulaire
         if (isset($_GET['id_annee_acad'])) {
             $annee_a_modifier = $this->anneeAcademique->getAnneeAcademiqueById($_GET['id_annee_acad']);
         }
@@ -185,7 +188,7 @@ class ParametreController
 
 
         //======PARTIE TYPE UTILISATEUR======
-        if (isset($_GET['tab']) && isset($_GET['tab']) == 'types') {
+        if (isset($_GET['tab']) && $_GET['tab'] == 'types') {
             //Ajout ou modif
             if (isset($_POST['submit_add_type'])) {
                 $lib_type_utilisateur = $_POST['lib_type_utilisateur'];

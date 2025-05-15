@@ -33,13 +33,18 @@ class AnneeAcademique {
     }
 
     public function updateAnneeAcademique($id_annee_acad, $date_deb, $date_fin) {
+        // Calculer le nouvel ID basé sur les nouvelles dates
+        $annee1 = date("Y", strtotime($date_deb));
+        $annee2 = date("Y", strtotime($date_fin));
+        $nouvel_id = substr($annee2, 0, 1) . substr($annee1, 2, 2) . substr($annee2, 2, 2);
+
         try {
-            $stmt = $this->pdo->prepare("UPDATE annee_academique SET date_deb = ?, date_fin = ? WHERE id_annee_acad = ?");
-            return $stmt->execute([$date_deb, $date_fin, $id_annee_acad]);
+            $stmt = $this->pdo->prepare("UPDATE annee_academique SET id_annee_acad = ?, date_deb = ?, date_fin = ? WHERE id_annee_acad = ?");
+            return $stmt->execute([$nouvel_id, $date_deb, $date_fin, $id_annee_acad]);
         } catch (PDOException $e) {
             error_log("Erreur de mise à jour d'année académique: " . $e->getMessage());
             return false;
-    }
+        }
     }
 
     public function deleteAnneeAcademique($id) {
