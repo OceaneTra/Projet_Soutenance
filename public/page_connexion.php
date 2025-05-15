@@ -1,3 +1,9 @@
+<?php
+
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,6 +11,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/output.css">
+    <link rel="shortcut icon" href="./images/dessin.svg" type="image/x-icon">
     <title>Se connecter | Soutenance Manager</title>
 </head>
 
@@ -15,18 +22,26 @@
                 <div
                     class="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
                     <form class="space-y-6">
+
                         <div class="mb-12">
-                            <h3 class="text-green-500 text-3xl font-semibold">Se connecter</h3>
+                            <div>
+                                <a href="reset_password.php"><img src="./images/dessin.svg" class=" mx-auto block "
+                                        style="width:20%" />
+                                </a>
+                                <h3 class="text-green-500 text-3xl font-semibold">Se connecter</h3>
+                            </div>
+
+
                             <p class="text-gray-800 text-sm mt-6 leading-relaxed">Connectez-vous à votre compte et
                                 explorez un monde de possibilités. Votre voyage commence ici.</p>
                         </div>
 
                         <div>
-                            <label class="text-green-500 text-sm font-medium mb-2 block">Nom d'utilisateur</label>
+                            <label class="text-green-500 text-sm font-medium mb-2 block">Login</label>
                             <div class="relative flex items-center">
-                                <input name="username" type="text" required
+                                <input name="login" type="email" required
                                     class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600"
-                                    placeholder="Entrer votre nom d'utilisateur" />
+                                    placeholder="Entrer votre login" />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#3c9e5f" stroke="#3c9e5f"
                                     class="w-[18px] h-[18px] absolute right-4" viewBox="0 0 24 24">
                                     <circle cx="10" cy="7" r="6" data-original="#000000"></circle>
@@ -55,8 +70,8 @@
 
 
                             <div class="text-sm">
-                                <a href="jajvascript:void(0);"
-                                    class="text-green-500 underline hover:underline font-medium">
+                                <a href="reset_password.php"
+                                    class=" text-green-500 underline hover:underline font-medium">
                                     Mot de passe oublié?
                                 </a>
                             </div>
