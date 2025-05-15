@@ -77,7 +77,7 @@ if ($currentMenuSlug === 'gestion_reclamations') {
 } else if ($currentMenuSlug === 'gestion_rapport') {
     // Ajustez le chemin si nécessaire
 
-    $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
+    $allowedActions = ['creer_rapport', 'suivi_rapport', 'commentaire_rapport'];
 
     if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
         $currentAction = $_GET['action'];
