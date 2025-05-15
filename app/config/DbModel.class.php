@@ -17,11 +17,11 @@ abstract class DbModel
      * @var array Configuration de la base de données
      */
     private static array $dbConfig = [
-        'host' => 'db',
+        'host' => 'localhost',
         'dbname' => 'soutenance_manager',
         'charset' => 'utf8',
         'username' => 'root',
-        'password' => 'password'
+        'password' => ''
     ];
 
     /**

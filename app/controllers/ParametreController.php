@@ -57,6 +57,7 @@ class ParametreController
         $this->specialite = new Specialite();
         $this->niveauEtude = new NiveauEtude();
         $this->semestre = new Semestre();
+        $this->traitement = new Traitement();
     }
 
 

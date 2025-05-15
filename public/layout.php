@@ -1,5 +1,6 @@
 <?php
 include '../app/config/DbModel.class.php';
+include '../app/models/MenuConfig.php';
 session_start();
 //
 
@@ -107,45 +108,11 @@ $cardData = [
 ];
 
 // Configuration des menus par rôle
-$menuConfigs = [
-    'admin' => [
-        ['slug' => 'dashboard', 'label' => 'Tableau de bord', 'icon' => 'fa-chart-line'],
-        ['slug' => 'gestion_etudiants', 'label' => 'Gestion des étudiants', 'icon' => 'fa-book'],
-        ['slug' => 'gestion_rh', 'label' => 'Gestion des ressources humaines', 'icon' => 'fa-users'],
-        ['slug' => 'gestion_utilisateurs', 'label' => 'Gestion des utilisateurs', 'icon' => 'fa-user'],
-        ['slug' => 'piste_audit', 'label' => 'Gestion de la piste d\'audit', 'icon' => 'fa-history'],
-        ['slug' => 'sauvegarde_restauration', 'label' => 'Sauvegarde et restauration des données', 'icon' => 'fa-save'],
-        ['slug' => 'parametres_generaux', 'label' => 'Paramètres généraux', 'icon' => 'fa-gears'],
-        ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user']
-    ],
-    'personnel_admin' => [
-        ['slug' => 'candidature_soutenance', 'label' => 'Candidater à la soutenance', 'icon' => 'fa-graduation-cap'],
-        ['slug' => 'gestion_rapport', 'label' => 'Gestion des rapports/mémoires', 'icon' => 'fa-file'],
-        ['slug' => 'gestion_reclamations', 'label' => 'Réclamations', 'icon' => 'fa-circle-exclamation'],
-        ['slug' => 'notes_resultats', 'label' => 'Notes & résultats', 'icon' => 'fa-note-sticky'],
-        ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
-        ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user']
-    ],
-    'enseignant' => [
-        ['slug' => 'dashboard_ens', 'label' => 'Tableau de bord', 'icon' => 'fa-chart-line'],
-        ['slug' => 'mes_jurys', 'label' => 'Mes jurys', 'icon' => 'fa-users'],
-        ['slug' => 'evaluation', 'label' => 'Évaluation', 'icon' => 'fa-star'],
-        ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
-        ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user']
-    ],
-    'etudiant' => [
-        ['slug' => 'candidature_soutenance', 'label' => 'Candidater à la soutenance', 'icon' => 'fa-graduation-cap'],
-        ['slug' => 'gestion_rapport', 'label' => 'Gestion des rapports', 'icon' => 'fa-file'],
-        ['slug' => 'gestion_reclamations', 'label' => 'Réclamations', 'icon' => 'fa-exclamation'],
-        ['slug' => 'notes_resultats', 'label' => 'Notes & résultats', 'icon' => 'fa-note-sticky'],
-        ['slug' => 'messagerie', 'label' => 'Messagerie', 'icon' => 'fa-envelope'],
-        ['slug' => 'profil', 'label' => 'Profil', 'icon' => 'fa-user']
-    ]
-];
+$menuConfigs =  new MenuConfig();
 
 // Récupérer le rôle de l'utilisateur depuis la session
 $userRole = $_SESSION['user_role'] ?? 'admin';
-$menuItems = $menuConfigs[$userRole] ?? [];
+$menuItems = $menuConfigs->getMenuByRole($userRole) ?? [];
 
 // Déterminer la page actuelle
 $currentMenuSlug = isset($_GET['page']) && in_array($_GET['page'], array_column($menuItems, 'slug'))
