@@ -21,7 +21,7 @@ class AnneeAcademique {
     public function ajouterAnneeAcademique($date_deb, $date_fin) {
         $annee1 = date("Y", strtotime($date_deb));
         $annee2 = date("Y", strtotime($date_fin));
-        $id_annee_acad = substr($annee2, 0, 1) . substr($annee1, 2, 2) . substr($annee2, 2, 2);
+        $id_annee_acad = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
 
         try {
         $stmt = $this->pdo->prepare("INSERT INTO annee_academique (id_annee_acad, date_deb, date_fin) VALUES (?, ?, ?)");
@@ -36,7 +36,7 @@ class AnneeAcademique {
         // Calculer le nouvel ID basé sur les nouvelles dates
         $annee1 = date("Y", strtotime($date_deb));
         $annee2 = date("Y", strtotime($date_fin));
-        $nouvel_id = substr($annee2, 0, 1) . substr($annee1, 2, 2) . substr($annee2, 2, 2);
+        $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
 
         try {
             $stmt = $this->pdo->prepare("UPDATE annee_academique SET id_annee_acad = ?, date_deb = ?, date_fin = ? WHERE id_annee_acad = ?");

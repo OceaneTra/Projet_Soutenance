@@ -66,18 +66,25 @@ class ParametreController
     public function gestionAnnees()
     {
         $annee_a_modifier = null;
+        $messageErreur = null;
+
 
         // Ajout ou modification
         if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
             $dateDebut = $_POST['date_debut'];
             $dateFin = $_POST['date_fin'];
 
-            if (!empty($_POST['id_annee_acad'])) {
-                // MODIFICATION
-                $this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin);
+
+            if ($dateDebut >= $dateFin) {
+                $messageErreur = "L'année Academique n'est pas valide";
             } else {
-                // AJOUT
-                $this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin);
+                if (!empty($_POST['id_annee_acad'])) {
+                    // MODIFICATION
+                    $this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin);
+                } else {
+                    // AJOUT
+                    $this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin);
+                }
             }
         }
 
@@ -572,8 +579,9 @@ class ParametreController
         $action_a_modifier = null;
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_action'])) {
+        if (isset($_POST['btn_add_action']) || isset($_POST['btn_modifier_action'])) {
             $lib_action = $_POST['action'];
+
 
             if (!empty($_POST['id_action'])) {
                 // MODIFICATION
@@ -583,6 +591,7 @@ class ParametreController
                 $this->action->ajouterAction($lib_action);
             }
         }
+
 
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {

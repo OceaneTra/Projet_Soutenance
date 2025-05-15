@@ -43,7 +43,7 @@ $action_a_modifier = $GLOBALS['action_a_modifier'] ?? null;
 
                 <?php if (isset($_GET['id_action'])): ?>
                     <div class="flex justify-start space-x-3">
-                        <button type="submit" name="btn_add_action"
+                        <button type="button" id="btnModifier"
                                 class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'action
@@ -53,6 +53,7 @@ $action_a_modifier = $GLOBALS['action_a_modifier'] ?? null;
                             <i class="fas fa-times mr-2"></i>
                             Annuler
                         </button>
+                        <input type="hidden" name="btn_modifier_action" id="btn_modifier_action_hidden" value="">
                     </div>
                 <?php else: ?>
                     <div class="flex justify-start space-x-3">
@@ -128,30 +129,154 @@ $action_a_modifier = $GLOBALS['action_a_modifier'] ?? null;
 
                     <!-- Boutons avec largeur fixe -->
                     <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
-                        <button type="submit" name="submit_delete_multiple" id="deleteSelectedBtnPHP"
+                        <button type="button" id="deleteSelectedBtn"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                             <i class="fas fa-trash-alt mr-2"></i>Supprimer
                         </button>
+                        <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
                     </div>
                 </div>
             </form>
         </div>
+        <div id="deleteModal" class="fixed inset-0 bg-gray-500  bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="bg-white shadow-sm  rounded-lg p-6 max-w-md w-full mx-4">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Êtes-vous sûr de vouloir supprimer les actions sélectionnées ? Cette action est irréversible.
+                    </p>
+                    <div class="mt-5 flex justify-center gap-6">
+                        <button type="button" id="confirmDelete"
+                                class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Confirmer
+                        </button>
+                        <button type="button" id="cancelDelete"
+                                class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modale de confirmation de modification -->
+        <div id="modifyModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="bg-white shadow-sm rounded-lg p-6 max-w-md w-full mx-4">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                        <i class="fas fa-edit text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Êtes-vous sûr de vouloir modifier cette action ?
+                    </p>
+                    <div class="mt-5 flex justify-center gap-6">
+                        <button type="button" id="confirmModify"
+                                class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Confirmer
+                        </button>
+                        <button type="button" id="cancelModify"
+                                class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 <script>
-    // Script pour le fonctionnement de la sélection "Tout cocher"
-    document.addEventListener('DOMContentLoaded', function() {
-        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    // Gestion des checkboxes et du bouton de suppression
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const deleteButton = document.getElementById('deleteSelectedBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const formListeActions = document.getElementById('formListeActions');
+    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
 
-        if(selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
-                rowCheckboxes.forEach(checkbox => {
-                    checkbox.checked = selectAllCheckbox.checked;
-                });
-            });
+    // Modale de modification
+    const btnModifier = document.getElementById('btnModifier');
+    const modifyModal = document.getElementById('modifyModal');
+    const confirmModify = document.getElementById('confirmModify');
+    const cancelModify = document.getElementById('cancelModify');
+    const actionForm = document.querySelector('form[action="?page=parametres_generaux&action=actions"]');
+    const submitModifierHidden = document.getElementById('btn_modifier_action_hidden');
+
+    // Initialisation de l'état du bouton supprimer
+    updateDeleteButtonState();
+
+    // Select all checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateDeleteButtonState();
+    });
+
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        deleteButton.disabled = checkedBoxes.length === 0;
+        deleteButton.classList.toggle('opacity-50', checkedBoxes.length === 0);
+        deleteButton.classList.toggle('cursor-not-allowed', checkedBoxes.length === 0);
+    }
+
+    // Event listener for checkbox changes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('row-checkbox')) {
+            updateDeleteButtonState();
+            const allCheckboxes = document.querySelectorAll('.row-checkbox');
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length > 0;
         }
     });
+
+    // Afficher la modale de suppression
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function() {
+            if (!this.disabled) {
+                deleteModal.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Confirmer la suppression
+    confirmDelete.addEventListener('click', function() {
+        submitDeleteHidden.value = '1';
+        formListeActions.submit();
+    });
+
+    // Annuler la suppression
+    cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+    });
+
+    // Afficher la modale de modification
+    if (btnModifier) {
+        btnModifier.addEventListener('click', function() {
+            modifyModal.classList.remove('hidden');
+        });
+    }
+
+    // Confirmer la modification
+    if (confirmModify) {
+        confirmModify.addEventListener('click', function() {
+            submitModifierHidden.value = '1';
+            actionForm.submit();
+        });
+    }
+
+    // Annuler la modification
+    if (cancelModify) {
+        cancelModify.addEventListener('click', function() {
+            modifyModal.classList.add('hidden');
+        });
+    }
 </script>
 </body>
 
