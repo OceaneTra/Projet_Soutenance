@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mar. 13 mai 2025 à 16:41
+-- Généré le : jeu. 15 mai 2025 à 12:29
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -61,8 +61,8 @@ CREATE TABLE `annee_academique` (
 --
 
 INSERT INTO `annee_academique` (`id_annee_acad`, `date_deb`, `date_fin`) VALUES
-(22223, '2022-09-05 00:00:00', '2023-07-21 00:00:00'),
-(22324, '2023-09-11 00:00:00', '2024-07-26 00:00:00');
+(21819, '2018-09-15 00:00:00', '2019-05-30 00:00:00'),
+(22021, '2020-10-12 00:00:00', '2021-05-30 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -126,13 +126,6 @@ CREATE TABLE `ecue` (
   `credit` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
---
--- Déchargement des données de la table `ecue`
---
-
-INSERT INTO `ecue` (`id_ecue`, `id_ue`, `lib_ecue`, `credit`) VALUES
-(2, 3, 'jd', 2);
-
 -- --------------------------------------------------------
 
 --
@@ -175,6 +168,13 @@ CREATE TABLE `etudiants` (
   `login_etu` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `mdp_etu` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
+
+--
+-- Déchargement des données de la table `etudiants`
+--
+
+INSERT INTO `etudiants` (`num_etu`, `nom_etu`, `prenom_etu`, `date_naiss_etu`, `genre_etu`, `login_etu`, `mdp_etu`) VALUES
+(102034, 'Monsan', 'Josué', '2004-03-22', 'Homme', 'mjmanuel@gmail.com', 'mdpParDefaut');
 
 -- --------------------------------------------------------
 
@@ -500,13 +500,6 @@ CREATE TABLE `ue` (
   `credit` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
---
--- Déchargement des données de la table `ue`
---
-
-INSERT INTO `ue` (`id_ue`, `lib_ue`, `id_niveau_etude`, `id_semestre`, `id_annee_academique`, `credit`) VALUES
-(3, 'BMO', 8, 2, 22324, 3);
-
 -- --------------------------------------------------------
 
 --
@@ -828,7 +821,7 @@ ALTER TABLE `entreprises`
 -- AUTO_INCREMENT pour la table `etudiants`
 --
 ALTER TABLE `etudiants`
-  MODIFY `num_etu` int NOT NULL AUTO_INCREMENT;
+  MODIFY `num_etu` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102035;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`

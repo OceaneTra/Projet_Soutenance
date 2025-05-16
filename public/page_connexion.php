@@ -21,26 +21,27 @@ session_start();
             <div class="grid md:grid-cols-2 items-center gap-6 max-w-6xl w-full">
                 <div
                     class="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
-                    <form class="space-y-6">
+                    <form action="login.php" method="POST" class="space-y-6">
+                        <!-- Token CSRF -->
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
 
                         <div class="mb-12">
                             <div>
-                                <a href="reset_password.php"><img src="./images/dessin.svg" class=" mx-auto block "
-                                        style="width:20%" />
-                                </a>
+                                <a href="#"><img src="./images/dessin.svg" class="mx-auto block"
+                                        style="width:20%" /></a>
                                 <h3 class="text-green-500 text-3xl font-semibold">Se connecter</h3>
                             </div>
-
-
-                            <p class="text-gray-800 text-sm mt-6 leading-relaxed">Connectez-vous à votre compte et
-                                explorez un monde de possibilités. Votre voyage commence ici.</p>
+                            <p class="text-gray-800 text-sm mt-6 leading-relaxed">
+                                Connectez-vous à votre compte et explorez un monde de possibilités. Votre voyage
+                                commence ici.
+                            </p>
                         </div>
 
                         <div>
                             <label class="text-green-500 text-sm font-medium mb-2 block">Login</label>
                             <div class="relative flex items-center">
                                 <input name="login" type="email" required
-                                    class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600"
+                                    class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg focus:outline-green-600"
                                     placeholder="Entrer votre login" />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#3c9e5f" stroke="#3c9e5f"
                                     class="w-[18px] h-[18px] absolute right-4" viewBox="0 0 24 24">
@@ -51,11 +52,12 @@ session_start();
                                 </svg>
                             </div>
                         </div>
+
                         <div>
                             <label class="text-green-500 text-sm font-medium mb-2 block">Mot de passe</label>
                             <div class="relative flex items-center">
                                 <input name="password" type="password" required
-                                    class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600"
+                                    class="w-full text-sm text-slate-800 border border-slate-300 pl-4 pr-10 py-3 rounded-lg focus:outline-green-600"
                                     placeholder="Entrer votre mot de passe" />
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="#3c9e5f" stroke="#3c9e5f"
                                     class="w-[18px] h-[18px] absolute right-4 cursor-pointer" viewBox="0 0 128 128">
@@ -67,22 +69,19 @@ session_start();
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between gap-4">
-
-
                             <div class="text-sm">
                                 <a href="reset_password.php"
-                                    class=" text-green-500 underline hover:underline font-medium">
+                                    class="text-green-500 underline hover:underline font-medium">
                                     Mot de passe oublié?
                                 </a>
                             </div>
                         </div>
 
                         <div class="!mt-12">
-                            <button type="button"
+                            <button type="submit"
                                 class="w-full shadow-xl py-2.5 px-4 text-[15px] font-medium tracking-wide rounded-lg text-white bg-green-500 hover:bg-green-700 focus:outline-none">
                                 Se connecter
                             </button>
-
                         </div>
                     </form>
                 </div>

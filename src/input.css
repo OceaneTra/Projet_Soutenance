@@ -212,6 +212,55 @@
     color: #D97706;
 }
 
+.outline-green-300{
+    outline-color: #2ab582; 
+}
+.outline-green-500{
+    outline-color: #3c9e5f; 
+}
+.outline-green-600{
+    outline-color: #067b50; 
+}
+.outline-green-900{
+    outline-color: #063f2a; 
+}
+.outline-red-300{
+    outline-color: #FCA5A1; 
+}
+.outline-red-500{
+    outline-color: #EF4444; 
+}
+.outline-red-700{
+    outline-color: #DC2626; 
+}
+.outline-red-900{
+    outline-color: #B91C1C; 
+}
+.outline-blue-300{
+    outline-color: #60A5FA; 
+}
+.outline-blue-500{
+    outline-color: #3B82F6; 
+}
+.outline-blue-700{
+    outline-color: #1D4ED8; 
+}
+.outline-blue-900{
+    outline-color: #1E3A8A; 
+}
+.outline-orange-300{
+    outline-color: #FBBF24; 
+}
+.outline-orange-500{
+    outline-color: #F97316; 
+}
+.outline-orange-700{
+    outline-color: #B45309; 
+}
+.outline-orange-900{
+    outline-color: #7C2D12; 
+}
+
 ::-webkit-scrollbar {
     display: none;
 }
