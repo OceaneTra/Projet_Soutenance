@@ -25,6 +25,27 @@ public function verifierConnexion($login, $password) {
     return false;
 }
 
+/**
+ * Récupère le libellé du groupe utilisateur à partir de l'ID utilisateur
+ * @param int $idUtilisateur ID de l'utilisateur
+ * @return string|null Le libellé du groupe ou null si non trouvé
+ */
+public function getLibelleGroupeUtilisateur($idUtilisateur) {
+    $query = "SELECT g.lib_GU 
+              FROM utilisateur u
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              WHERE u.id_utilisateur = :id";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':id', $idUtilisateur, PDO::PARAM_INT);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['lib_GU'] ?? 'Aucun groupe'; // Valeur par défaut
+    }
+    
+    return null;
+}
 
 
 /**

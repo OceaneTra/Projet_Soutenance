@@ -13,6 +13,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 else {
 
+
 // Récupérer les traitements autorisés pour le groupe d'utilisateur
 $menuController = new MenuController();
 $traitements = $menuController->genererMenu($_SESSION['id_GU']);
@@ -35,8 +36,6 @@ if (isset($_GET['page'])) {
 $menuView = new MenuView();
 $menuHTML = $menuView->afficherMenu($traitements, $currentMenuSlug);
 
-// Déterminer la page actuelle du menu principal.
-$currentMenuSlug = ''; // Page par défaut
 
 if (isset($_GET['page']) ) {
     $currentMenuSlug = $_GET['page'];
@@ -48,89 +47,104 @@ $contentFile = '';
 $currentPageLabel = '';
 
 
-$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
-// Logique spécifique pour la section "Paramètres Généraux"
-if ($currentMenuSlug === 'parametres_generaux') {
-    include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php'; // ajuste le chemin selon ta structure
-    if (isset($_GET['action'])) {
-        $allowedActions = [
-            'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
-            'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants','messages',
-        ];
-        if (in_array($_GET['action'], $allowedActions)) {
+$partialsBasePathAdmin = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
+$partialsBasePathEtudiant = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
+
+// Utilisation d'une structure switch...case 
+switch ($currentMenuSlug) {
+    case 'parametres_generaux':
+        include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php'; // ajuste le chemin selon ta structure
+        if (isset($_GET['action'])) {
+            $allowedActions = [
+                'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
+                'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
+                'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages',
+            ];
+            if (in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePathAdmin . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
+                // Pour le label, vous voudrez peut-être un mapping plus précis
+                // que de simplement formater le slug de l'action.
+                // Par exemple, récupérer le titre de la carte correspondante.
+                // Pour l'instant, on formate le slug de l'action :
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            }
+        } else {
+                // Action non valide, afficher la page des cartes par défaut ou une erreur
+                $contentFile = $partialsBasePathAdmin . 'parametres_generaux_content.php';
+                $currentPageLabel = 'Paramètres Généraux';
+                // Optionnel: afficher un message d'erreur pour action non valide
+            }
+    break;
+
+    case 'gestion_reclamations':
+        include __DIR__ . '/../ressources/routes/gestionReclamationsRouteur.php'; // Ajustez le chemin si nécessaire
+        
+        $allowedActions = ['soumettre_reclamation', 'suivi_reclamation', 'historique_reclamation'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
-            // Pour le label, vous voudrez peut-être un mapping plus précis
-            // que de simplement formater le slug de l'action.
-            // Par exemple, récupérer le titre de la carte correspondante.
-            // Pour l'instant, on formate le slug de l'action :
+            $contentFile = $partialsBasePathEtudiant . 'partials/gestion_reclamations/' . $currentAction . '.php';
             $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
         } else {
-            // Action non valide, afficher la page des cartes par défaut ou une erreur
-            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-            $currentPageLabel = 'Paramètres Généraux';
-            // Optionnel: afficher un message d'erreur pour action non valide
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePathEtudiant . 'gestion_reclamations_content.php';
+            $currentPageLabel = 'Gestion des réclamations';
         }
-    } else {
-        // Pas d'action spécifiée pour les paramètres généraux, afficher les cartes
-        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-        $currentPageLabel = 'Paramètres Généraux';
-    }
-} else {
-    // Logique pour les autres pages du menu principal (dashboard, users, etc.)
-    $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
-    foreach ($menuItems as $item) {
-        if ($item['slug'] === $currentMenuSlug) {
-            $currentPageLabel = $item['label'];
-            break;
+        
+    break;
+
+    case 'gestion_rapport':
+        // Ajustez le chemin si nécessaire
+        
+        $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePathEtudiant . 'partials/gestion_rapports/' . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePathEtudiant . 'gestion_rapport_content.php';
+            $currentPageLabel = 'Gestion des rapports';
         }
+        // Logique pour les autres pages du menu principal (dashboard, users, etc.)
+        $contentFile = $partialsBasePathEtudiant . $currentMenuSlug . '_content.php';
+        
+    break;
+    
+    default:
+    // Vérifiez d'abord si lib_GU existe dans la session
+    $groupeUtilisateur = $_SESSION['lib_GU'] ?? 'Etudiant'; // Valeur par défaut
+    
+   
+        switch($groupeUtilisateur) {
+            case 'Administrateur':
+                $currentMenuSlug='dashboard';
+                $contentFile = $partialsBasePathAdmin . $currentMenuSlug . '_content.php';
+                break;
+                case 'Etudiant':
+                $currentMenuSlug='candidature_soutenance';
+                $contentFile = $partialsBasePathEtudiant . $currentMenuSlug . '_content.php';
+                    break;
+        }
+    
+    
+    // Déterminez le label de la page
+    if (empty($currentPageLabel)) {
+        $currentPageLabel = "Soutenance Manager";
     }
+    
+    // Vérification du fichier de contenu
+    if (empty($contentFile) || !file_exists($contentFile)) {
+        $contentFile = ''; // Réinitialiser si le fichier n'existe pas
+    }
+break;
 }
 
 
-$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
 
-// Logique spécifique pour la section "Gestion des réclamations"
 
-if ($currentMenuSlug === 'gestion_reclamations') {
-    include __DIR__ . '/../ressources/routes/gestionReclamationsRouteur.php'; // Ajustez le chemin si nécessaire
-
-    $allowedActions = ['soumettre_reclamation', 'suivi_reclamation', 'historique_reclamation'];
-
-    if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-        $currentAction = $_GET['action'];
-        $contentFile = $partialsBasePath . 'partials/gestion_reclamations/' . $currentAction . '.php';
-        $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-    } else {
-        // Si aucune action valide n'est spécifiée, affichez la page par défaut
-        $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
-        $currentPageLabel = 'Gestion des réclamations';
-    }
-} else if ($currentMenuSlug === 'gestion_rapport') {
-    // Ajustez le chemin si nécessaire
-
-    $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
-
-    if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-        $currentAction = $_GET['action'];
-        $contentFile = $partialsBasePath . 'partials/gestion_rapports/' . $currentAction . '.php';
-        $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-    } else {
-        // Si aucune action valide n'est spécifiée, affichez la page par défaut
-        $contentFile = $partialsBasePath . 'gestion_rapport_content.php';
-        $currentPageLabel = 'Gestion des rapports';
-    }
-}
-
-// Si aucun label n'a été trouvé (par exemple, pour une page non listée dans $menuItems et sans action)
-if (empty($currentPageLabel)) {
-    $currentPageLabel = "Soutenance Manager"; // Ou une autre valeur par défaut appropriée
-    // Si $contentFile est aussi vide, vous pourriez vouloir charger une page 404 par défaut
-    if (empty($contentFile)) {
-        // $contentFile = $partialsBasePath . '404_content.php'; // Exemple
-    }
-}
 
 // Tableau de données pour vos cartes avec des titres et descriptions personnalisés.
 // Chaque élément du tableau représente une carte pour .
@@ -309,6 +323,17 @@ $cardRapport = [
                         // Afficher le menu généré
                         echo $menuHTML;
                         ?>
+                        <form action="logout.php" method="POST" id="logoutForm">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <button type="submit" form="logoutForm"
+                                class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                                <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Déconnexion
+
+                            </button>
+                        </form>
+
+
                     </div>
                 </div>
             </div>

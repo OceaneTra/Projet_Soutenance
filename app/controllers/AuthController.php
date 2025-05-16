@@ -35,6 +35,7 @@ class AuthController {
             // Récupérer les autres infos via le modèle
             $_SESSION['type_utilisateur'] = $utilisateur->getLibelleTypeUtilisateur($infoUtilisateur['id_utilisateur']);
             $_SESSION['id_GU'] = $infoUtilisateur['id_GU'];
+            $_SESSION['lib_GU'] = $utilisateur->getLibelleGroupeUtilisateur($infoUtilisateur['id_utilisateur']);
             $_SESSION['niveau_acces'] = $utilisateur->getLibelleNivAcces($infoUtilisateur['id_utilisateur']);
             
             // NE PAS stocker le mot de passe en session
@@ -46,12 +47,19 @@ class AuthController {
     }
     public function logout()
     {
-
-        // Détruire la session
-        session_destroy();
-
-        // Rediriger vers la page de connexion
-        header("Location: ../public/page_connexion.php");
-        exit();
+        // Détruire toutes les données de session
+        $_SESSION = array();
+    
+        // Si vous voulez détruire complètement la session, effacez aussi le cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+    
+        // Finalement, détruire la session
+        return session_destroy();
     }
 }

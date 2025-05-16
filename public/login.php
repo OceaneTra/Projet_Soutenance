@@ -11,10 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $authController = new AuthController(Database::getConnection());
     if ($authController->login($_POST['login'], $_POST['password'])) {
-        header('Location: layout_admin.php'); // Rediriger vers la page appropriée
+        header('Location: layout.php'); // Rediriger vers la page appropriée
         exit;
     } else {
-        $_SESSION['error'] = 'Identifiants incorrects';
+        $_SESSION['error'] = 'Login ou mot de passe incorrect';
         header('Location: page_connexion.php');
         exit;
     }

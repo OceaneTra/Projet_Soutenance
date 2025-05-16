@@ -1,13 +1,5 @@
 <?php
-// Placeholder data for users
-$users = [
-    ['id' => 1, 'username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'Administrateur', 'status' => 'Actif', 'created_at' => '2023-01-15'],
-    ['id' => 2, 'username' => 'editor_user', 'email' => 'editor@example.com', 'role' => 'Éditeur', 'status' => 'Actif', 'created_at' => '2023-02-20'],
-    ['id' => 3, 'username' => 'viewer_user', 'email' => 'viewer@example.com', 'role' => 'Lecteur', 'status' => 'Inactif', 'created_at' => '2023-03-10'],
-];
-
-// Placeholder for roles/groups
-$roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
+$listeEtudiants = $listeEtudiants ?? [];
 ?>
 
 <!DOCTYPE html>
@@ -16,13 +8,46 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs</title>
+    <title>Gestion des étudiants</title>
 
 
 </head>
 
 <body class="bg-gray-50">
     <div class="relative container mx-auto px-4 py-8">
+        <!-- Messages d'alerte pour les succès/erreurs -->
+        <?php if (isset($_SESSION['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline"><?php echo htmlspecialchars($_SESSION['success']); ?></span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path
+                        d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                </svg>
+            </span>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline"><?php echo htmlspecialchars($_SESSION['error']); ?></span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path
+                        d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                </svg>
+            </span>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
+
+
         <!-- Add/Edit User Modal -->
         <div id="userModal"
             class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex hidden items-center justify-center modal-transition">
@@ -37,156 +62,94 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                     <div class="bg-green-100 p-2 rounded-full mr-3">
                         <i class="fas fa-user-plus text-green-500"></i>
                     </div>
-                    <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
+                    <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un étudiant</h3>
                 </div>
-                <form id="userForm" class="space-y-4">
+                <form id="userForm" class="space-y-4" method="post" action="?page=gestion_etudiants">
                     <input type="hidden" id="userId" name="userId">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label for="username" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
+                            <label for="num_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-book text-green-500 mr-2"></i>Numéro étudiant
                             </label>
-                            <input type="text" name="username" id="username" required
+                            <input type="text" name="num_etu" id="num_etu" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                         <div class="space-y-2">
-                            <label for="email" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-envelope text-green-500 mr-2"></i>Email
+                            <label for="login_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-envelope text-green-500 mr-2"></i>Login
                             </label>
-                            <input type="email" name="email" id="email" required
+                            <input type="email" name="login_etu" id="login" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label for="type_utilisateur" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-id-badge text-green-500 mr-2"></i>Type utilisateur
+                            <label for="nom_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-user text-green-500 mr-2"></i>Nom
                             </label>
-                            <input type="text" name="type_utilisateur" id="type_utilisateur"
+                            <input type="text" name="nom_etu" id="nom" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                         <div class="space-y-2">
-                            <label for="fonction" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-briefcase text-green-500 mr-2"></i>Fonction
+                            <label for="prenom_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-user text-green-500 mr-2"></i>Prénom
                             </label>
-                            <select name="fonction" id="fonction" required
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <input type="text" name="prenom_etu" id="prenom" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                         <div class="space-y-2">
-                            <label for="gu" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-users text-green-500 mr-2"></i>Groupe utilisateur
+                            <label for="date_naiss_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-calendar text-green-500 mr-2"></i>Date de naissance
                             </label>
-                            <select name="gu" id="gu" required
+                            <input type="date" name="date_naiss_etu" id="date_naiss"
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="genre_etu" class="block text-sm font-medium text-gray-700">
+                                <i class="fa-solid fa-venus-mars text-green-500 mr-2"></i>Genre
+                            </label>
+                            <select name="genre_etu" id="genre" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
-                                </option>
-                                <?php endforeach; ?>
+                                <option value="Femme">Féminin</option>
+                                <option value="Homme">Masculin</option>
+                                <option value="Neutre">Neutre</option>
                             </select>
                         </div>
-                        <div class="space-y-2">
-                            <label for="niveau_acces" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-lock text-green-500 mr-2"></i>Niveau d'accès
-                            </label>
-                            <select name="niveau_acces" id="niveau_acces" required
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label for="status" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-toggle-on text-green-500 mr-2"></i>Statut
-                            </label>
-                            <select name="status" id="status" required
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <option value="Actif">Actif</option>
-                                <option value="Inactif">Inactif</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end space-x-4 self-end pt-6">
-                            <button type="button" onclick="closeUserModal()"
-                                class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
-                                <i class="fas fa-times mr-2"></i>Annuler
-                            </button>
-                            <button type="submit"
-                                class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
-                                <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
-                            </button>
-                        </div>
+                    <div class="flex justify-end space-x-4 self-end pt-6">
+                        <button type="button" onclick="closeUserModal()"
+                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="submit" name="submit_add_etudiant"
+                            class="px-6 py-2.5 text-sm font-medium rounded-lg shadow-sm text-white bg-gradient from-green-600 to-green-800 hover:shadow-lg transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- User Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 mr-4">
-                        <i class="fas fa-users text-green-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 mb-1">Total Utilisateurs</p>
-                        <h3 class="text-2xl font-bold text-gray-800"><?php echo count($users); ?></h3>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 mr-4">
-                        <i class="fas fa-user-check text-blue-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 mb-1">Utilisateurs Actifs</p>
-                        <h3 class="text-2xl font-bold text-gray-800">2</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-red-100 mr-4">
-                        <i class="fas fa-user-times text-red-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 mb-1">Utilisateurs Inactifs</p>
-                        <h3 class="text-2xl font-bold text-gray-800">1</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
         <!-- Main Content -->
         <div class="bg-white shadow-card rounded-lg overflow-hidden border border-gray-200 mb-8">
-
             <!-- Dashboard Header -->
             <div class=" bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
+                <h2 class="text-xl font-bold text-white">Gestion des étudiants</h2>
                 <button onclick="openUserModal(null)"
                     class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                    <i class="fas fa-plus mr-2"></i>Ajouter un étudiant
                 </button>
             </div>
 
             <!-- Action Bar for Table -->
             <div class="px-6 py-4 flex flex-col sm:flex-row justify-between items-center border-b border-gray-200">
                 <div class="relative w-full sm:w-1/2 lg:w-1/3 mb-4 sm:mb-0">
-                    <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..."
+                    <input type="text" id="searchInput" placeholder="Rechercher un étudiant..."
                         class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
@@ -225,97 +188,112 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>Nom d'utilisateur</span>
+                                    <span>Numéro étudiant</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>Email</span>
+                                    <span>Nom</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>Type utilisateur</span>
+                                    <span>Prénom</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>Statut</span>
+                                    <span>Date de naissance</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Genre</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Login</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
                             <th
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                        <?php if (empty($users)): ?>
+                        <?php if (empty($listeEtudiants)) : ?>
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
-                                    <p>Aucun utilisateur trouvé.</p>
-                                    <p class="text-sm mt-2">Ajoutez de nouveaux utilisateurs en cliquant sur le bouton
-                                        "Ajouter un Utilisateur"</p>
+                                    <p>Aucun étudiant trouvé.</p>
+                                    <p class="text-sm mt-2">Ajoutez de nouveaux étudiants en cliquant sur le bouton
+                                        "Ajouter un étudiant"</p>
                                 </div>
                             </td>
                         </tr>
                         <?php else: ?>
-                        <?php foreach ($users as $index => $user): ?>
+                        <?php foreach ($listeEtudiants as $etudiant): ?>
                         <tr class="table-row-hover">
                             <td class="px-4 py-4 text-center">
                                 <input type="checkbox" name="userCheckbox"
-                                    value="<?php echo htmlspecialchars($user['id']); ?>"
+                                    value="<?php echo htmlspecialchars($etudiant->num_etu); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <span
-                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($user['id']); ?></span>
+                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($etudiant->num_etu); ?></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
-                                    <div
-                                        class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <span
-                                            class="text-green-600 font-medium"><?php echo substr(htmlspecialchars($user['username']), 0, 1); ?></span>
-                                    </div>
-                                    <span><?php echo htmlspecialchars($user['username']); ?></span>
+                                    <span><?php echo htmlspecialchars($etudiant->num_etu); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
-                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user['email']); ?>
+                                    <i class=" text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($etudiant->nom_etu); ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
-                                    <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user['role']); ?>
+                                    <i class=" text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($etudiant->prenom_etu); ?>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="status-badge px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?php echo $user['status'] === 'Actif' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800'; ?>">
-                                    <i
-                                        class="fas <?php echo $user['status'] === 'Actif' ? 'fa-check-circle' : 'fa-times-circle'; ?> mr-1 text-center pt-1"></i>
-                                    <?php echo htmlspecialchars($user['status']); ?>
-                                </span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <i class=" text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($etudiant->date_naiss_etu); ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <?php echo htmlspecialchars($etudiant->genre_etu); ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <?php echo htmlspecialchars($etudiant->login_etu); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center space-x-3">
-                                    <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
-                                        class="text-blue-500 hover:text-blue-700 transition-colors btn-icon"
+                                    <button onclick='openUserModal(<?php echo json_encode([
+                                        "num_etu" => $etudiant->num_etu,
+                                        "nom" => $etudiant->nom_etu,
+                                        "prenom" => $etudiant->prenom_etu,
+                                        "date_naiss" => $etudiant->date_naiss_etu,
+                                        "genre" => $etudiant->genre_etu,
+                                        "login" => $etudiant->login_etu
+                                    ]); ?>)' class="text-blue-500 hover:text-blue-700 transition-colors btn-icon"
                                         title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </button>
-
                                 </div>
                             </td>
                         </tr>
@@ -330,8 +308,10 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-700">
                         Affichage de <span class="font-medium">1</span> à <span
-                            class="font-medium"><?php echo count($users); ?></span> sur <span
-                            class="font-medium"><?php echo count($users); ?></span> résultats
+                            class="font-medium"><?php echo !empty($listeEtudiants) ? count($listeEtudiants) : 0; ?></span>
+                        sur <span
+                            class="font-medium"><?php echo !empty($listeEtudiants) ? count($listeEtudiants) : 0; ?></span>
+                        résultats
                     </p>
                     <div class="flex items-center space-x-1">
                         <button
@@ -354,55 +334,58 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                 </div>
             </div>
         </div>
+
+
         <!-- Footer -->
         <div class="mt-8 text-center text-gray-500 text-sm">
-            <p>© 2025 Système de Gestion des Utilisateurs. Tous droits réservés.</p>
+            <p>© 2025 Système de Gestion des étudiants. Tous droits réservés.</p>
         </div>
     </div>
-
     <script>
     // Manage the user modal
     const userModal = document.getElementById('userModal');
     const userForm = document.getElementById('userForm');
     const userModalTitle = document.getElementById('userModalTitle');
     const userIdField = document.getElementById('userId');
-    const usernameField = document.getElementById('username');
-    const emailField = document.getElementById('email');
-    const fonctionField = document.getElementById('fonction');
-    const niveau_acces = document.getElementById('niveau_acces');
-    const guField = document.getElementById('gu');
-    const typeField = document.getElementById('type_utilisateur');
-    const statusField = document.getElementById('status');
+
+    const nomField = document.getElementById('nom');
+    const prenomField = document.getElementById('prenom');
+    const loginField = document.getElementById('login');
+    const date_naiss = document.getElementById('date_naiss');
+    const genreField = document.getElementById('genre');
+    const num_etuField = document.getElementById('num_etu');
+
     const userModalSubmitButton = document.getElementById('userModalSubmitButton');
     const searchInput = document.getElementById('searchInput');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('deleteButton');
 
     function openUserModal(userData = null) {
-        userForm.reset(); // Reset form fields
+        userForm.reset();
         if (userData) {
-            userModalTitle.textContent = 'Modifier l\'Utilisateur';
+            userModalTitle.textContent = 'Modifier l\'étudiant';
             userModalSubmitButton.textContent = 'Mettre à jour';
-            userIdField.value = userData.id;
-            usernameField.value = userData.username;
-            emailField.value = userData.email;
-            fonctionField.value = userData.role;
-            statusField.value = userData.status;
-            typeField.value = userData.type || '';
-            guField.value = userData.gu || 'Administrateur';
-            niveau_acces.value = userData.niveau_acces || 'Administrateur';
+
+
+            userIdField.value = userData.num_etu;
+            nomField.value = userData.nom;
+            prenomField.value = userData.prenom;
+            loginField.value = userData.login;
+            date_naiss.value = userData.date_naiss;
+            genreField.value = userData.genre;
+            num_etuField.value = userData.num_etu;
+            num_etuField.readOnly = true;
         } else {
-            userModalTitle.textContent = 'Ajouter un Utilisateur';
+            userModalTitle.textContent = 'Ajouter un étudiant';
             userModalSubmitButton.textContent = 'Enregistrer';
             userIdField.value = '';
+            num_etuField.readOnly = false;
         }
         userModal.classList.remove('hidden');
-
     }
 
     function closeUserModal() {
         userModal.classList.add('hidden');
-
     }
 
     // Search functionality
@@ -411,13 +394,21 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
         const tableRows = document.querySelectorAll('#usersTableBody tr');
 
         tableRows.forEach(row => {
-            const username = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-            const email = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            // Si vous n'avez pas de ligne vide
+            if (row.querySelector('td:nth-child(2)')) {
+                const num_etu = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const nom = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const prenom = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+                const login = row.querySelector('td:nth-child(8)').textContent.toLowerCase();
 
-            if (username.includes(searchTerm) || email.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+                if (num_etu.includes(searchTerm) ||
+                    nom.includes(searchTerm) ||
+                    prenom.includes(searchTerm) ||
+                    login.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }
         });
     });
@@ -447,7 +438,65 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
             const allCheckboxes = document.querySelectorAll('.user-checkbox');
             const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
             selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
-                0;
+            0;
+        }
+    });
+
+    // ============ AJOUT : Nouvelles fonctionnalités ============
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion de la soumission du formulaire
+        userForm.addEventListener('submit', function(e) {
+            // Déterminer le nom du bouton submit selon l'action
+            const submitButton = userIdField.value ?
+                '<input type="hidden" name="submit_update_etudiant" value="1">' :
+                '<input type="hidden" name="submit_add_etudiant" value="1">';
+
+            this.insertAdjacentHTML('beforeend', submitButton);
+        });
+
+        // Gestion de la suppression multiple
+        deleteButton.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Veuillez sélectionner au moins un étudiant à supprimer.');
+                return;
+            }
+
+            if (confirm(`Êtes-vous sûr de vouloir supprimer ${checkedBoxes.length} étudiant(s) ?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '?page=gestion_etudiants';
+
+                // Ajouter un champ caché pour l'action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'delete_selected';
+                actionInput.value = '1';
+                form.appendChild(actionInput);
+
+                // Ajouter les numéros étudiants sélectionnés
+                checkedBoxes.forEach(checkbox => {
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'selected_ids[]';
+                    idInput.value = checkbox.value;
+                    form.appendChild(idInput);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Gestion de l'exportation
+        const exportButton = document.querySelector('button:has(.fa-file-export)');
+        if (exportButton) {
+            exportButton.addEventListener('click', function() {
+                window.location.href = '?page=gestion_etudiants&action=export';
+            });
         }
     });
     </script>
+</body>
+
+</html>

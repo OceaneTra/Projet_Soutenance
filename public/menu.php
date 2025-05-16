@@ -4,6 +4,12 @@
 
 class MenuView {
     public function afficherMenu($traitements, $currentMenuSlug) {
+
+         // Tri des traitements par ordre_traitement
+         usort($traitements, function($a, $b) {
+            return $a['ordre_traitement'] - $b['ordre_traitement'];
+        });  
+        // Génération du menu
         $html = '';
         foreach ($traitements as $traitement) {
             $isActive = ($currentMenuSlug === $traitement['lib_traitement']);
@@ -19,12 +25,6 @@ class MenuView {
             $html .= htmlspecialchars($traitement['label_traitement']);
             $html .= '</a>';
         }
-        
-        // Ajout du bouton de déconnexion
-        $html .= '<a href="../app/controllers/AuthController.php?action=logout" class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">';
-        $html .= '<i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>';
-        $html .= 'Déconnexion';
-        $html .= '</a>';
         
         return $html;
     }

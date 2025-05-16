@@ -2,6 +2,9 @@
 
 session_start();
 
+
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
 ?>
 
 <!DOCTYPE html>
@@ -76,8 +79,14 @@ session_start();
                                 </a>
                             </div>
                         </div>
-
+                        <?php if (isset($_SESSION['error'])) : ?>
+                        <div id="errorMessage"
+                            class=" bg-red-50 border-l-4 border-red-500 text-red-700 p-2 mb-4 rounded text-sm"
+                            role="alert">
+                            <?php echo htmlspecialchars($_SESSION['error']);?></div>
+                        <?php endif?>
                         <div class="!mt-12">
+
                             <button type="submit"
                                 class="w-full shadow-xl py-2.5 px-4 text-[15px] font-medium tracking-wide rounded-lg text-white bg-green-500 hover:bg-green-700 focus:outline-none">
                                 Se connecter
@@ -93,6 +102,31 @@ session_start();
             </div>
         </div>
     </div>
+
+    <script>
+    // Script pour faire disparaître le message après 3 secondes
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Animation de disparition progressive
+        setTimeout(function() {
+            // Ajouter une transition pour l'opacité
+            errorMessage.style.transition = 'opacity 0.5s ease-out';
+            errorMessage.style.opacity = '0';
+
+            // Supprimer complètement l'élément après la transition
+            setTimeout(function() {
+                errorMessage.style.display = 'none';
+            }, 500);
+        }, 2000); // Disparaît après 3 secondes (3000ms)
+    });
+    </script>
+
+    <?php 
+    // Supprimer l'erreur de la session pour qu'elle ne réapparaisse pas lors du rechargement
+    unset($_SESSION['error']); 
+    ?>
+
 
 </body>
 
