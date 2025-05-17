@@ -12,6 +12,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
     exit;
 }
 else {
+   
 
 
 // Récupérer les traitements autorisés pour le groupe d'utilisateur
@@ -345,10 +346,9 @@ $cardRapport = [
                         // Afficher le menu généré
                         echo $menuHTML;
                         ?>
-                        <form action="logout.php" method="POST" id="logoutForm">
-                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                            <button type="submit" form="logoutForm"
-                                class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                        <form action="logout.php" method="POST" id="logoutForm"
+                            class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
+                            <button type="submit" form="logoutForm">
                                 <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
                                 Déconnexion
 
@@ -371,14 +371,26 @@ $cardRapport = [
                     <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
                     </h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <button class="flex items-center space-x-2 focus:outline-none">
-                            <span class="text-m font-medium text-green-500">Bienvenue,
-                                <?php echo htmlspecialchars($_SESSION['nom_utilisateur']) ?></span>
+                <div class="flex items-center space-x-6">
+                    <!-- Notifications -->
+                    <div class="tooltip">
+                        <button
+                            class="w-10 h-10 bg-green-300 rounded-full flex items-center justify-center text-white relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
                         </button>
+
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative flex flex-col ">
+                            <span class="text-md font-medium text-green-500">Bienvenue,
+                                <?php echo htmlspecialchars($_SESSION['nom_utilisateur']) ?></span>
+                            <span class="text-xs text-green-500 justify-start">
+                                <?php echo htmlspecialchars($_SESSION['lib_GU']) ?></span>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Main content area -->

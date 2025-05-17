@@ -25,8 +25,6 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 <div
                     class="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
                     <form action="login.php" method="POST" class="space-y-6">
-                        <!-- Token CSRF -->
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
 
                         <div class="mb-12">
                             <div>
