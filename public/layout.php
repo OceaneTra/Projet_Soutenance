@@ -20,13 +20,14 @@ $traitements = $menuController->genererMenu($_SESSION['id_GU']);
 
 // Déterminer la page actuelle
 $currentMenuSlug = ''; // Page par défaut
-
+$currentPageLabel=''; // Label par défaut
 
 if (isset($_GET['page'])) {
     // Vérifier que la page demandée est bien dans les traitements autorisés
     foreach ($traitements as $traitement) {
         if ($traitement['lib_traitement'] === $_GET['page']) {
             $currentMenuSlug = $_GET['page'];
+            $currentPageLabel = $traitement['label_traitement'];
             break;
         }
     }
@@ -36,19 +37,21 @@ if (isset($_GET['page'])) {
 $menuView = new MenuView();
 $menuHTML = $menuView->afficherMenu($traitements, $currentMenuSlug);
 
-
-if (isset($_GET['page']) ) {
-    $currentMenuSlug = $_GET['page'];
-}
-
 // Initialiser les variables
 $currentAction = null;
 $contentFile = '';
-$currentPageLabel = '';
 
 
 $partialsBasePathAdmin = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
 $partialsBasePathEtudiant = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
+$partialsBasePathSecretaire = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'secretaire' . DIRECTORY_SEPARATOR;
+$partialsBasePathResponsableScolarite = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_scolarite' . DIRECTORY_SEPARATOR;
+$partialsBasePathResponsableFiliere = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_filiere' . DIRECTORY_SEPARATOR;
+$partialsBasePathResponsableNiveau = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_niveau' . DIRECTORY_SEPARATOR;  
+$partialsBasePathEnseignant = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'enseignant' . DIRECTORY_SEPARATOR;
+$partialsBasePathCommissionValidation = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'commission_validation' . DIRECTORY_SEPARATOR;    
+$partialsBasePathChargéCommunication = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'charge_communication' . DIRECTORY_SEPARATOR;
+    
 
 // Utilisation d'une structure switch...case 
 switch ($currentMenuSlug) {
@@ -114,19 +117,41 @@ switch ($currentMenuSlug) {
     break;
     
     default:
-    // Vérifiez d'abord si lib_GU existe dans la session
-    $groupeUtilisateur = $_SESSION['lib_GU'] ?? 'Etudiant'; // Valeur par défaut
-    
-   
+       
+   $groupeUtilisateur = $_SESSION['lib_GU'];
+
+
         switch($groupeUtilisateur) {
             case 'Administrateur':
-                $currentMenuSlug='dashboard';
+                $currentPageLabel = 
                 $contentFile = $partialsBasePathAdmin . $currentMenuSlug . '_content.php';
                 break;
-                case 'Etudiant':
-                $currentMenuSlug='candidature_soutenance';
+            case 'Enseignant sans responsabilité administrative':
+                $contentFile = $partialsBasePathEnseignant . $currentMenuSlug . '_content.php';
+                break;
+            case 'Responsable de filière':
+                $contentFile = $partialsBasePathResponsableFiliere . $currentMenuSlug . '_content.php';
+                break;
+            case 'Responsable de niveau':
+                $contentFile = $partialsBasePathResponsableNiveau . $currentMenuSlug . '_content.php';
+                break;
+            case 'Secretaire':
+                $contentFile = $partialsBasePathSecretaire . $currentMenuSlug . '_content.php';
+                break;
+            case'Chargé de communication':
+                $contentFile = $partialsBasePathChargéCommunication . $currentMenuSlug . '_content.php';
+                break;
+            case 'Etudiant':
                 $contentFile = $partialsBasePathEtudiant . $currentMenuSlug . '_content.php';
-                    break;
+                 break;
+            case 'Responsable scolarité':
+                $contentFile = $partialsBasePathResponsableScolarite . $currentMenuSlug . '_content.php';
+                break;
+            case 'Commission de validation':
+                $contentFile = $partialsBasePathCommissionValidation . $currentMenuSlug . '_content.php';
+                break;
+            default:
+                break;
         }
     
     
