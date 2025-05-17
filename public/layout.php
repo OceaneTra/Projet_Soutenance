@@ -123,7 +123,7 @@ switch ($currentMenuSlug) {
 
         switch($groupeUtilisateur) {
             case 'Administrateur':
-                $currentPageLabel = 
+               
                 $contentFile = $partialsBasePathAdmin . $currentMenuSlug . '_content.php';
                 break;
             case 'Enseignant sans responsabilité administrative':
