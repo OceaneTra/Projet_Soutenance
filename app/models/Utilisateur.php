@@ -17,7 +17,7 @@ public function verifierConnexion($login, $password) {
     
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($user && $user['mdp_utilisateur']== $password) {
+    if ($user && $user['mdp_utilisateur']== $password && $user['statut_utilisateur'] == 'Actif') {
         // Vérification du mot de passe
         return $user;
     }
