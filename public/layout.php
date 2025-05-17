@@ -8,7 +8,7 @@ include 'menu.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
-    header('Location: ../public/page_connexion.php');
+    header('Location: page_connexion.php');
     exit;
 }
 else {
