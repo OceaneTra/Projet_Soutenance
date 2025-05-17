@@ -385,28 +385,34 @@ $cardRapport = [
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
 
                 <?php
-            // Bouton Retour si on est dans une action spécifique des paramètres généraux
-            if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
-                ?>
+// Déterminer le lien de retour
+$backLink = null;
+$backText = 'Retour';
+
+switch (true) {
+    case ($currentMenuSlug === 'parametres_generaux' && $currentAction):
+        $backLink = '?page=parametres_generaux';
+        $backText = 'Retour aux Paramètres';
+        break;
+        
+    case ($currentMenuSlug === 'gestion_rapport' && $currentAction):
+        $backLink = '?page=gestion_rapport';
+        break;
+        
+    case ($currentMenuSlug === 'gestion_reclamations' && $currentAction):
+        $backLink = '?page=gestion_reclamations';
+        break;
+}
+
+// Afficher le bouton si un lien de retour a été défini
+if ($backLink): ?>
                 <div class="mb-6">
-                    <a href="?page=parametres_generaux"
+                    <a href="<?= htmlspecialchars($backLink) ?>"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
-                        <i class="fas fa-arrow-left mr-2 "></i>
-                        Retour aux Paramètres
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?= htmlspecialchars($backText) ?>
                     </a>
                 </div>
-
-                <?php  
-                elseif ($currentMenuSlug === 'gestion_rapport' && $currentAction):
-                ?>
-                <div class="mb-6">
-                    <a href="?page=gestion_rapport"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
-                        <i class="fas fa-arrow-left mr-2 "></i>
-                        Retour
-                    </a>
-                </div>
-
                 <?php endif; ?>
 
                 <?php
