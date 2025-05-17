@@ -20,7 +20,7 @@ class MenuView {
             $iconActiveClasses = "text-white";
             $iconInactiveClasses = "text-gray-400 group-hover:text-gray-500";
 
-            $html .= '<a href="?page=' . htmlspecialchars($traitement['lib_traitement']) . '" class="' . $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses) . '">';
+            $html .= '<a href="?page=' . htmlspecialchars($traitement['lib_traitement']) . '" class="' . $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses) . '" >';
             $html .= '<i class="fas ' . htmlspecialchars($traitement['icone_traitement']) . ' ' . $iconBaseClasses . ' ' . ($isActive ? $iconActiveClasses : $iconInactiveClasses) . '"></i>';
             $html .= htmlspecialchars($traitement['label_traitement']);
             $html .= '</a>';

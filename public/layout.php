@@ -8,7 +8,7 @@ include 'menu.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
-    header('page_connexion.php');
+    header('Location : page_connexion.php');
     exit;
 }
 else {
@@ -26,11 +26,14 @@ if (isset($_GET['page'])) {
     // Vérifier que la page demandée est bien dans les traitements autorisés
     foreach ($traitements as $traitement) {
         if ($traitement['lib_traitement'] === $_GET['page']) {
-            $currentMenuSlug = $_GET['page'];
+            $currentMenuSlug = $traitement['lib_traitement'];
             $currentPageLabel = $traitement['label_traitement'];
             break;
         }
     }
+}else{
+  $currentMenuSlug = $traitements[0]['lib_traitement'];
+    $currentPageLabel = $traitements[0]['label_traitement'];
 }
 
 // Générer le HTML du menu
@@ -123,7 +126,7 @@ switch ($currentMenuSlug) {
 
         switch($groupeUtilisateur) {
             case 'Administrateur':
-               
+                
                 $contentFile = $partialsBasePathAdmin . $currentMenuSlug . '_content.php';
                 break;
             case 'Enseignant sans responsabilité administrative':
@@ -153,13 +156,7 @@ switch ($currentMenuSlug) {
             default:
                 break;
         }
-    
-    
-    // Déterminez le label de la page
-    if (empty($currentPageLabel)) {
-        $currentPageLabel = "Soutenance Manager";
-    }
-    
+ 
     // Vérification du fichier de contenu
     if (empty($contentFile) || !file_exists($contentFile)) {
         $contentFile = ''; // Réinitialiser si le fichier n'existe pas
@@ -386,6 +383,7 @@ $cardRapport = [
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+
                 <?php
             // Bouton Retour si on est dans une action spécifique des paramètres généraux
             if ($currentMenuSlug === 'parametres_generaux' && $currentAction):
@@ -397,6 +395,18 @@ $cardRapport = [
                         Retour aux Paramètres
                     </a>
                 </div>
+
+                <?php  
+                elseif ($currentMenuSlug === 'gestion_rapport' && $currentAction):
+                ?>
+                <div class="mb-6">
+                    <a href="?page=gestion_rapport"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
+                        <i class="fas fa-arrow-left mr-2 "></i>
+                        Retour
+                    </a>
+                </div>
+
                 <?php endif; ?>
 
                 <?php
