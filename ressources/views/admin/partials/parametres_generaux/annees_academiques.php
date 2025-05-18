@@ -11,9 +11,9 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
     <title>Gestion des Années Académiques</title>
 </head>
 
-<body class="bg-gray-100">
-    <div class="min-h-screen flex flex-col">
-        <main class="flex-grow container mx-auto px-4 py-5">
+<body class="bg-gray-100 mx-auto">
+    <div class=" min-h-screen flex flex-col ">
+        <main class=" flex-grow container mx-auto px-4 py-5">
 
             <div class="mb-6 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-gray-700">Gestion des Années Académiques</h2>

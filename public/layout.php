@@ -334,10 +334,10 @@ $cardRapport = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-<body class="bg-gray-50 font-sans antialiased">
+<body class=" bg-blue-50 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <div class="hidden md:flex md:flex-shrink-0">
+        <div class="hidden md:flex md:flex-shrink-0 ">
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex overflow-hidden items-center">

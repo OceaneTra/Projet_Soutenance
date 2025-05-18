@@ -66,13 +66,33 @@ class ParametreController
     public function gestionAnnees()
     {
         $annee_a_modifier = null;
+        $messageErreur = '';
+        $messageSuccess = '';
 
         // Ajout ou modification
         if (isset($_POST['btn_add_annees_academiques']) || isset($_POST['btn_modifier_annees_academiques'])) {
             $dateDebut = $_POST['date_debut'];
             $dateFin = $_POST['date_fin'];
+            $annee1 = date("Y", strtotime($dateDebut));
+            $annee2 = date("Y", strtotime($dateFin));
 
             if (!empty($_POST['id_annee_acad'])) {
+                
+
+                if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
+                    $messageErreur = "Les dates de début et de fin ne sont pas valides.";
+                } 
+                // Vérification de l'existence de l'année académique
+                elseif ($this->anneeAcademique->isAnneeAcademiqueInUse($_POST['id_annee_acad'])) {
+                    $messageErreur = "Cette année académique est déjà utilisée.";
+                } else {
+                    // Calculer le nouvel ID basé sur les nouvelles dates
+                    $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
+                    // Vérification de l'existence de l'année académique
+                    if ($this->anneeAcademique->isAnneeAcademiqueExist($nouvel_id, $dateDebut, $dateFin)) {
+                        $messageErreur = "Cette année académique existe déjà.";
+                    }
+                }       
                 // MODIFICATION
                 $this->anneeAcademique->updateAnneeAcademique($_POST['id_annee_acad'], $dateDebut, $dateFin);
             } else {
@@ -83,6 +103,11 @@ class ParametreController
 
         // Suppression multiple
         if (isset($_POST['submit_delete_multiple']) && $_POST['submit_delete_multiple'] == '1' && isset($_POST['selected_ids'])) {
+
+            // Vérification de l'utilisation de l'année académique
+            if ($this->anneeAcademique->isAnneeAcademiqueInUse($_POST['id_annee_acad'])) {
+                $messageErreur = "Cette année académique est déjà utilisée.";
+            }
             foreach ($_POST['selected_ids'] as $id) {
                 $this->anneeAcademique->deleteAnneeAcademique($id);
             }
@@ -100,6 +125,8 @@ class ParametreController
         // 📦 Variables disponibles pour la vue
         $GLOBALS['annee_a_modifier'] = $annee_a_modifier;
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSuccess'] = $messageSuccess;
     }
     //=============================FIN GESTION ANNEE ACADEMIQUE=============================
 
