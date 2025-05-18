@@ -49,8 +49,7 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
                     </div>
                     <div class="flex justify-start space-x-3">
                         <?php if(isset($_GET['id_annee_acad'])): ?>
-                        <button type="button" id="btnModifier"
-                                name="btn_modifier_annees_academiques"
+                        <button type="button" id="btnModifier" name="btn_modifier_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Modifier l'année
@@ -60,7 +59,8 @@ $annee_a_modifier = $GLOBALS['annee_a_modifier'] ?? null;
                             <i class="fas fa-times mr-2"></i>
                             Annuler
                         </button>
-                        <input type="hidden" name="btn_modifier_annees_academiques" id="btn_modifier_annees_academiques_hidden" value="">
+                        <input type="hidden" name="btn_modifier_annees_academiques"
+                            id="btn_modifier_annees_academiques_hidden" value="">
                         <?php else: ?>
                         <button type="submit" name="btn_add_annees_academiques"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">

@@ -12,8 +12,6 @@ if (!isset($_SESSION['id_utilisateur'])) {
     exit;
 }
 else {
-   
-
 
 // Récupérer les traitements autorisés pour le groupe d'utilisateur
 $menuController = new MenuController();
@@ -65,7 +63,7 @@ switch ($currentMenuSlug) {
             $allowedActions = [
                 'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
                 'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-                'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages',
+                'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages','gestion_attribution',
             ];
             if (in_array($_GET['action'], $allowedActions)) {
                 $currentAction = $_GET['action'];
@@ -268,6 +266,12 @@ $cardPGeneraux = [
         'link' => '?page=parametres_generaux&action=messages',
         'icon' => './images/enveloppe.png'
     ],
+    [
+        'title' => 'Gestion des Attributions',
+        'description' => 'Gérer les attributions de traitement pour chacun des groupes utilisateurs dans le système.',
+        'link' => '?page=parametres_generaux&action=gestion_attribution',
+        'icon' => './images/attribution.png'
+    ],
 ];
 
 $cardRapport = [
@@ -337,6 +341,7 @@ $cardRapport = [
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex overflow-hidden items-center">
+
                         <span class="text-green-500 font-bold text-xl">Soutenance Manager</span>
                     </div>
                 </div>
@@ -368,6 +373,9 @@ $cardRapport = [
                     <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <a href="">
+                        <img src="./images/FHB.png" alt="Logo" class="h-8 w-8 mr-2">
+                    </a>
                     <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
                     </h1>
                 </div>
@@ -375,8 +383,8 @@ $cardRapport = [
                     <!-- Notifications -->
                     <div class="tooltip">
                         <button
-                            class="w-10 h-10 bg-green-300 rounded-full flex items-center justify-center text-white relative">
-                            <i class="fas fa-bell"></i>
+                            class="w-8 h-8 bg-green-300 rounded-full flex items-center justify-center text-white relative">
+                            <i class="fas fa-bell text-xs"></i>
                             <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
                         </button>
 
@@ -395,11 +403,10 @@ $cardRapport = [
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
-
                 <?php
-// Déterminer le lien de retour
-$backLink = null;
-$backText = 'Retour';
+                    // Déterminer le lien de retour
+                     $backLink = null;
+                     $backText = 'Retour';
 
 switch (true) {
     case ($currentMenuSlug === 'parametres_generaux' && $currentAction):
