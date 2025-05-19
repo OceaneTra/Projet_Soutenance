@@ -258,9 +258,10 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="submit" name="submit_add_groupe" id="btnModifier"
+                            <button type="submit" name="submit_modifier_groupe" id="btnModifier"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
+                                <input type="hidden" name="submit_modifier_groupe" id="submitModifierHidden" value="0">
                             </button>
                             <?php else: ?>
                             <div></div>
@@ -376,6 +377,31 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                     </tbody>
                                 </table>
                             </div>
+                            <!-- Pagination pour les groupes -->
+                            <?php if ($total_pages_groupe > 1): ?>
+                            <div class="flex justify-center mt-4 space-x-2">
+                                <?php if ($page > 1): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200">
+                                    <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                </a>
+                                <?php endif; ?>
+
+                                <?php for ($i = 1; $i <= $total_pages_groupe; $i++): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 <?= $i === $page ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-md text-sm font-medium transition-all duration-200">
+                                    <?= $i ?>
+                                </a>
+                                <?php endfor; ?>
+
+                                <?php if ($page < $total_pages_groupe): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200">
+                                    Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
                         </form>
                     </div>
                 </div>
@@ -404,6 +430,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="block text-sm font-medium text-gray-700 mb-2">Libellé du
                                 type</label>
                             <input type="text" name="lib_type_utilisateur" id="lib_type_utilisateur" required
+                                placeholder="Entrer le libellé du type utilisateur"
                                 value="<?= $type_a_modifier ? htmlspecialchars($type_a_modifier->lib_type_utilisateur) : '' ?>"
                                 class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                         </div>
@@ -415,9 +442,10 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="submit" name="submit_add_type" id="btnModifierType"
+                            <button type="submit" name="submit_modifier_type" id="btnModifierType"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
+                                <input type="hidden" name="submit_modifier_type" id="submitDeleteHiddenTypes" value="0">
                             </button>
                             <?php else: ?>
                             <div></div>
@@ -533,6 +561,31 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                     </tbody>
                                 </table>
                             </div>
+                            <!-- Pagination pour les types -->
+                            <?php if ($total_pages_type > 1): ?>
+                            <div class="flex justify-center mt-4 space-x-2">
+                                <?php if ($page > 1): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200">
+                                    <i class="fas fa-chevron-left mr-1"></i>Précédent
+                                </a>
+                                <?php endif; ?>
+
+                                <?php for ($i = 1; $i <= $total_pages_type; $i++): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 <?= $i === $page ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-md text-sm font-medium transition-all duration-200">
+                                    <?= $i ?>
+                                </a>
+                                <?php endfor; ?>
+
+                                <?php if ($page < $total_pages_type): ?>
+                                <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200">
+                                    Suivant<i class="fas fa-chevron-right ml-1"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
                         </form>
                     </div>
                 </div>
@@ -602,6 +655,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     const formListeGroupes = document.getElementById('formListeGroupes');
     const submitDeleteHidden = document.getElementById('submitDeleteHidden');
     const btnModifier = document.getElementById('btnModifier');
+    const submitModifierHidden = document.getElementById('submitModifierHidden');
 
     // Gestion des checkboxes et du bouton de suppression pour les types
     const selectAllCheckboxTypes = document.getElementById('selectAllCheckboxTypes');
@@ -609,6 +663,9 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     const formListeTypes = document.getElementById('formListeTypes');
     const submitDeleteHiddenTypes = document.getElementById('submitDeleteHiddenTypes');
     const btnModifierType = document.getElementById('btnModifierType');
+    const submitModifierHiddenTypes = document.getElementById('submitModifierHiddenTypes');
+
+
 
     // Modales
     const deleteModal = document.getElementById('deleteModal');
@@ -697,8 +754,14 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     }
 
     confirmModify.addEventListener('click', function() {
-        if (formListeGroupes) formListeGroupes.submit();
-        if (formListeTypes) formListeTypes.submit();
+        if (formListeGroupes) {
+            submitModifierHidden.value = '1';
+            formListeGroupes.submit();
+        }
+        if (formListeTypes) {
+            submitModifierHiddenTypes.value = '1';
+            formListeTypes.submit();
+        }
         modifyModal.classList.add('hidden');
     });
 
@@ -750,8 +813,29 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
     // Fonction pour imprimer
     function printTable(type = 'groupes') {
+
         const table = document.querySelector(type === 'groupes' ? '#formListeGroupes table' : '#formListeTypes table');
         const printWindow = window.open('', '_blank');
+
+        // Créer une copie de la table pour la modification
+        const tableClone = table.cloneNode(true);
+
+        // Supprimer les colonnes ID, Actions et Checkboxes
+        const rows = tableClone.querySelectorAll('tr');
+        rows.forEach(row => {
+            // Supprimer la colonne des checkboxes (première colonne)
+            const checkboxCell = row.querySelector('th:first-child, td:first-child');
+            if (checkboxCell) checkboxCell.remove();
+
+            // Supprimer la colonne ID (maintenant première colonne)
+            const idCell = row.querySelector('th:first-child, td:first-child');
+            if (idCell) idCell.remove();
+
+            // Supprimer la colonne Actions (dernière colonne)
+            const actionCell = row.querySelector('th:last-child, td:last-child');
+            if (actionCell) actionCell.remove();
+        });
+
 
         printWindow.document.write(`
             <html>

@@ -210,7 +210,7 @@ class ParametreController
 
         //======PARTIE GROUPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'groupes') {
-            if (isset($_POST['submit_add_groupe'])) {
+            if (isset($_POST['submit_add_groupe']) || isset($_POST['submit_modifier_groupe'])) {
                 $lib_groupe = $_POST['lib_groupe'];
 
                 if (!empty($_POST['id_groupe'])) {
@@ -257,7 +257,7 @@ class ParametreController
 
         //======PARTIE TYPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'types') {
-            if (isset($_POST['submit_add_type'])) {
+            if (isset($_POST['submit_add_type']) || isset($_POST['submit_modifier_type'])) {
                 $lib_type = $_POST['lib_type_utilisateur'];
 
                 if (!empty($_POST['id_type_utilisateur'])) {
@@ -756,17 +756,20 @@ class ParametreController
         $messageSuccess = '';
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_traitement'])) {
-            $lib_traitement = $_POST['traitement'];
+        if (isset($_POST['btn_add_traitement'] )|| isset($_POST['btn_modifier_traitement'])) {
+            $lib_traitement = $_POST['lib_traitement'];
+            $label_traitement = $_POST['label_traitement'];
+            $icone_traitement = $_POST['icone_traitement'];
+            $ordre_traitement = $_POST['ordre_traitement'];
 
             if (!empty($_POST['id_traitement'])) {
-                if($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement)) {
+                if($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du traitement.";
                 }
             } else {
-                if($this->traitement->ajouterTraitement($lib_traitement)) {
+                if($this->traitement->ajouterTraitement($lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du traitement.";

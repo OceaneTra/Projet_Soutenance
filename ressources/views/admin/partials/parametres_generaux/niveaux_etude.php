@@ -345,6 +345,59 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
 
                     </form>
                 </div>
+                <!-- Pagination -->
+                <?php if ($total_pages > 1): ?>
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
+                                à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
+                                sur <span class="font-medium"><?= $total_items ?></span> résultats
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                aria-label="Pagination">
+                                <?php if ($page > 1): ?>
+                                <a href="?page=parametres_generaux&action=niveau_etude&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <?php endif; ?>
+
+                                <?php
+                                $start = max(1, $page - 2);
+                                $end = min($total_pages, $page + 2);
+                                
+                                if ($start > 1) {
+                                    echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                                }
+                                
+                                for ($i = $start; $i <= $end; $i++):
+                                ?>
+                                <a href="?page=parametres_generaux&action=niveau_etude&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
+                                    <?= $i ?>
+                                </a>
+                                <?php endfor;
+
+                                if ($end < $total_pages) {
+                                    echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                                }
+                                ?>
+
+                                <?php if ($page < $total_pages): ?>
+                                <a href="?page=parametres_generaux&action=niveau_etude&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <?php endif; ?>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>
