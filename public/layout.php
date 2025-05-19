@@ -332,9 +332,10 @@ $cardRapport = [
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 
-<body class=" bg-blue-50 font-sans antialiased">
+<body class=" bg-gray-100 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0 ">
