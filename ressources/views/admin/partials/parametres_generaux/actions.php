@@ -108,7 +108,7 @@ $action_a_modifier = $GLOBALS['action_a_modifier'] ?? null;
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                                                 <?= htmlspecialchars($action->lib_action) ?>
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <td class="px-4 py-3 text-left whitespace-nowrap text-sm text-gray-500 text-center">
                                                 <a href="?page=parametres_generaux&action=actions&id_action=<?= $action->id_action ?>"
                                                    class="text-center text-orange-500 hover:underline"><i
                                                             class="fas fa-pen"></i></a>
