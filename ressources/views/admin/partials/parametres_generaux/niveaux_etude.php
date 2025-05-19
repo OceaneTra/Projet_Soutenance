@@ -225,16 +225,15 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                             class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             <i class="fas fa-times mr-2"></i>Annuler
                         </button>
-                        <button type="button" name="btn_modifier_niveau_etude" id="btnModifier"
+                        <button type="button" id="btnModifier" name="btn_modifier_niveau_etude"
                             class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             <i class="fas fa-save mr-2"></i>Modifier
                             <input type="hidden" name="btn_modifier_niveau_etude" id="btn_modifier_niveau_etude_hidden"
                                 value="0">
                         </button>
-
                         <?php else: ?>
                         <div></div>
-                        <button type="submit" name="btn_add_niveau_etude" id="btnAjouter"
+                        <button type="submit" name="btn_add_niveau_etude"
                             class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             <i class="fas fa-plus mr-2"></i>Ajouter un niveau
                         </button>
@@ -294,7 +293,7 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                     <tr>
                                         <th scope="col" class="w-16 px-6 py-3 text-center">
                                             <input type="checkbox" id="selectAllCheckbox"
-                                                class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                                class="rounded border-gray-300 text-green-600 focus:ring-green-500">
                                         </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -317,7 +316,7 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <input type="checkbox" name="selected_ids[]"
                                                 value="<?= htmlspecialchars($niveau->id_niv_etude) ?>"
-                                                class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                                class=" row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <?= htmlspecialchars($niveau->id_niv_etude) ?>
@@ -534,6 +533,25 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
         const table = document.querySelector('table');
         const printWindow = window.open('', '_blank');
 
+        // Créer une copie de la table pour la modification
+        const tableClone = table.cloneNode(true);
+
+        // Supprimer les colonnes ID, Actions et Checkboxes
+        const rows = tableClone.querySelectorAll('tr');
+        rows.forEach(row => {
+            // Supprimer la colonne des checkboxes (première colonne)
+            const checkboxCell = row.querySelector('th:first-child, td:first-child');
+            if (checkboxCell) checkboxCell.remove();
+
+            // Supprimer la colonne ID (maintenant première colonne)
+            const idCell = row.querySelector('th:first-child, td:first-child');
+            if (idCell) idCell.remove();
+
+            // Supprimer la colonne Actions (dernière colonne)
+            const actionCell = row.querySelector('th:last-child, td:last-child');
+            if (actionCell) actionCell.remove();
+        });
+
         printWindow.document.write(`
             <html>
                 <head>
@@ -549,7 +567,7 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                 </head>
                 <body>
                     <h2>Liste des niveaux d'étude</h2>
-                    ${table.outerHTML}
+                    ${tableClone.outerHTML}
                 </body>
             </html>
         `);

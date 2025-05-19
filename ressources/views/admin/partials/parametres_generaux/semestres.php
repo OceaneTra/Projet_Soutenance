@@ -1,5 +1,28 @@
 <?php
 $semestre_a_modifier = $GLOBALS['semestre_a_modifier'] ?? null;
+
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+$listeSemestres = $GLOBALS['listeSemestres'] ?? [];
+if (!empty($search)) {
+    $listeSemestres = array_filter($listeSemestres, function($semestre) use ($search) {
+        return stripos($semestre->lib_semestre, $search) !== false;
+    });
+}
+
+// Total pages calculation
+$total_items = count($listeSemestres);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$listeSemestres = array_slice($listeSemestres, $offset, $limit);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -83,21 +106,24 @@ $semestre_a_modifier = $GLOBALS['semestre_a_modifier'] ?? null;
                         </div>
                     </div>
 
-                    <div class="flex justify-start space-x-3 mt-6">
+                    <div class="flex justify-between mt-6">
                         <?php if (isset($_GET['id_semestre'])): ?>
-                            <button type="submit" name="submit_edit_semestre"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-save mr-2"></i> Modifier le semestre
-                            </button>
-                            <button type="submit" name="btn_annuler"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-times mr-2"></i> Annuler
-                            </button>
+                        <button type="button" name="btn_annuler" id="btnAnnuler"
+                            onclick="window.location.href='?page=parametres_generaux&action=semestres'"
+                            class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="button" id="btnModifier" name="btn_modifier_semestre"
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-save mr-2"></i>Modifier
+                            <input type="hidden" name="btn_modifier_semestre" id="btn_modifier_semestre_hidden" value="0">
+                        </button>
                         <?php else: ?>
-                            <button type="submit" name="submit_add_semestre"
-                                    class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-plus mr-2"></i> Ajouter le semestre
-                            </button>
+                        <div></div>
+                        <button type="submit" name="btn_add_semestre"
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-plus mr-2"></i>Ajouter un semestre
+                        </button>
                         <?php endif; ?>
                     </div>
                 </form>
@@ -121,7 +147,6 @@ $semestre_a_modifier = $GLOBALS['semestre_a_modifier'] ?? null;
                             </thead>
 
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <?php $listeSemestres = $GLOBALS['listeSemestres'] ?? []; ?>
                                 <?php if (!empty($listeSemestres)) : ?>
                                     <?php foreach ($listeSemestres as $semestre) : ?>
                                         <tr class="hover:bg-gray-50 transition-colors">

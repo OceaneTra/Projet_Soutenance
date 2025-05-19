@@ -599,7 +599,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_niveau_approbation'])) {
+        if (isset($_POST['btn_add_niveau_approbation']) || isset($_POST['btn_modifier_niveau_approbation'])) {
             $lib_niveau = $_POST['niveaux_approbation'];
 
             if (!empty($_POST['id_approb'])) {
@@ -813,8 +813,8 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_entreprise'])) {
-            $lib_entreprise = $_POST['entreprise'];
+        if (isset($_POST['btn_add_entreprise']) || isset($_POST['btn_modifier_entreprise'])) {
+            $lib_entreprise = $_POST['lib_entreprise'];
 
             if (!empty($_POST['id_entreprise'])) {
                 if($this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise)) {

@@ -1,5 +1,28 @@
 <?php
 $traitement_a_modifier = $GLOBALS['traitement_a_modifier'] ?? null;
+
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+$listeTraitements = $GLOBALS['listeTraitements'] ?? [];
+if (!empty($search)) {
+    $listeTraitements = array_filter($listeTraitements, function($traitement) use ($search) {
+        return stripos($traitement->lib_traitement, $search) !== false;
+    });
+}
+
+// Total pages calculation
+$total_items = count($listeTraitements);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$listeTraitements = array_slice($listeTraitements, $offset, $limit);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -91,20 +114,23 @@ $traitement_a_modifier = $GLOBALS['traitement_a_modifier'] ?? null;
                         </div>
                     </div>
 
-                    <div class="flex justify-start space-x-3 mt-6">
+                    <div class="flex justify-between mt-6">
                         <?php if (isset($_GET['id_traitement'])): ?>
-                        <button type="submit" name="btn_add_traitement"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-save mr-2"></i> Modifier le traitement
+                        <button type="button" name="btn_annuler" id="btnAnnuler"
+                            onclick="window.location.href='?page=parametres_generaux&action=traitements'"
+                            class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            <i class="fas fa-times mr-2"></i>Annuler
                         </button>
-                        <button type="submit" name="btn_annuler"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-times mr-2"></i> Annuler
+                        <button type="button" id="btnModifier" name="btn_modifier_traitement"
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-save mr-2"></i>Modifier
+                            <input type="hidden" name="btn_modifier_traitement" id="btn_modifier_traitement_hidden" value="0">
                         </button>
                         <?php else: ?>
+                        <div></div>
                         <button type="submit" name="btn_add_traitement"
-                            class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-plus mr-2"></i> Ajouter le traitement
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-plus mr-2"></i>Ajouter un traitement
                         </button>
                         <?php endif; ?>
                     </div>
@@ -131,9 +157,8 @@ $traitement_a_modifier = $GLOBALS['traitement_a_modifier'] ?? null;
                             </thead>
 
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <?php $listeTraitement = $GLOBALS['listeTraitements'] ?? []; ?>
-                                <?php if (!empty($listeTraitement)) : ?>
-                                <?php foreach ($listeTraitement as $traitement) : ?>
+                                <?php if (!empty($listeTraitements)) : ?>
+                                <?php foreach ($listeTraitements as $traitement) : ?>
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 text-center">
                                         <input type="checkbox" name="selected_ids[]"
