@@ -198,6 +198,8 @@ class ParametreController
     //=============================FIN GESTION GRADES=============================
 
 
+
+
     //=============================GESTION FONCTION UTILISATEUR=============================
     public function gestionFonctionUtilisateur()
     {
@@ -318,7 +320,7 @@ class ParametreController
         $messageSuccess = '';
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_specialite'])) {
+        if (isset($_POST['btn_add_specialite'])|| isset($_POST['btn_modifier_specialite'])) {
             $lib_specialite = $_POST['specialite'];
 
             if (!empty($_POST['id_specialite'])) {
@@ -374,11 +376,11 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_niveau_etude'])) {
-            $lib_niveau = $_POST['niveau_etude'];
+        if (isset($_POST['btn_add_niveau_etude']) || isset($_POST['btn_modifier_niveau_etude'])) {
+            $lib_niveau = $_POST['lib_niv_etude'];
 
-            if (!empty($_POST['id_niveau_etude'])) {
-                if($this->niveauEtude->updateNiveauEtude($_POST['id_niveau_etude'], $lib_niveau)) {
+            if (!empty($_POST['id_niv_etude'])) {
+                if($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'étude modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'étude.";
@@ -408,8 +410,8 @@ class ParametreController
             }
         }
 
-        if (isset($_GET['id_niveau_etude'])) {
-            $niveau_a_modifier = $this->niveauEtude->getNiveauEtudeById($_GET['id_niveau_etude']);
+        if (isset($_GET['id_niv_etude'])) {
+            $niveau_a_modifier = $this->niveauEtude->getNiveauEtudeById($_GET['id_niv_etude']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
