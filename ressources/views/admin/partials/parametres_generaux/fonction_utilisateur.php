@@ -244,8 +244,9 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
                         <div class="mb-4">
                             <label for="lib_groupe" class="block text-sm font-medium text-gray-700 mb-2">Libellé du
-                                groupe</label>
+                                groupe utilisateur</label>
                             <input type="text" name="lib_groupe" id="lib_groupe" required
+                                placeholder="Entrer le libellé du groupe utilisateur"
                                 value="<?= $groupe_a_modifier ? htmlspecialchars($groupe_a_modifier->lib_GU) : '' ?>"
                                 class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                         </div>
@@ -257,11 +258,9 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="button" name="btn_modifier_groupe"
+                            <button type="submit" name="submit_add_groupe" id="btnModifier"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
-                                <input type="hidden" name="btn_modifier_groupe" id="btn_modifier_groupe_hidden"
-                                    value="0">
                             </button>
                             <?php else: ?>
                             <div></div>
@@ -277,10 +276,12 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                 <!-- Liste des groupes -->
                 <div class="bg-white rounded-lg shadow-sm">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-600 mb-4">Liste des groupes</h3>
-
-                        <!-- Barre de recherche -->
+                        <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                            <i class="fas fa-list-ul text-green-500 mr-2"></i>
+                            Liste des groupes d'utilisateurs
+                        </h3>
                         <div class="flex items-center justify-between mb-6">
+                            <!-- Barre de recherche -->
                             <div class="flex-1 max-w-md">
                                 <form action="" method="GET" class="flex gap-3">
                                     <input type="hidden" name="page" value="parametres_generaux">
@@ -302,11 +303,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
                             <!-- Boutons d'action -->
                             <div class="flex gap-3">
-                                <button id="exportBtn" onclick="exportToExcel('groupes')"
+                                <button id="exportBtn" onclick="exportToExcel()"
                                     class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
                                     <i class="fas fa-file-export mr-2"></i>Exporter
                                 </button>
-                                <button id="printBtn" onclick="printTable('groupes')"
+                                <button id="printBtn" onclick="printTable()"
                                     class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <i class="fas fa-print mr-2"></i>Imprimer
                                 </button>
@@ -349,7 +350,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <input type="checkbox" name="selected_ids[]"
                                                     value="<?= htmlspecialchars($groupe->id_GU) ?>"
-                                                    class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                                    class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <?= htmlspecialchars($groupe->id_GU) ?>
@@ -375,57 +376,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                     </tbody>
                                 </table>
                             </div>
-
                         </form>
-
-                        <!-- Pagination -->
-                        <?php if ($total_pages_groupe > 1): ?>
-                        <div class="bg-white rounded-lg shadow-sm p-4 mt-6">
-                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="text-sm text-gray-500">
-                                    Affichage de <?= $offset + 1 ?> à <?= min($offset + $limit, $total_items_groupe) ?>
-                                    sur
-                                    <?= $total_items_groupe ?> entrées
-                                </div>
-                                <div class="flex flex-wrap justify-center gap-2">
-                                    <?php if ($page > 1): ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
-                                    </a>
-                                    <?php endif; ?>
-
-                                    <?php
-                                    $start = max(1, $page - 2);
-                                    $end = min($total_pages_groupe, $page + 2);
-                                    
-                                    if ($start > 1) {
-                                        echo '<span class="px-3 py-2 text-gray-500">...</span>';
-                                    }
-                                    
-                                    for ($i = $start; $i <= $end; $i++):
-                                    ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
-                                        <?= $i ?>
-                                    </a>
-                                    <?php endfor;
-
-                                    if ($end < $total_pages_groupe) {
-                                        echo '<span class="px-3 py-2 text-gray-500">...</span>';
-                                    }
-                                    ?>
-
-                                    <?php if ($page < $total_pages_groupe): ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=groupes&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -458,20 +409,19 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                         </div>
 
                         <div class="flex justify-between mt-6">
-                            <?php if (isset($_GET['id_type_utilisateur'])): ?>
-                            <button type="button" name="btn_annuler" id="btnAnnuler"
+                            <?php if (isset($_GET['id_type'])): ?>
+                            <button type="button" name="btn_annuler" id="btnAnnulerType"
                                 onclick="window.location.href='?page=parametres_generaux&action=fonction_utilisateur&tab=types'"
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="button" name="btn_modifier_type" id="btnModifier"
+                            <button type="submit" name="submit_add_type" id="btnModifierType"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
-                                <input type="hidden" name="btn_modifier_type" id="btn_modifier_type_hidden" value="0">
                             </button>
                             <?php else: ?>
                             <div></div>
-                            <button type="submit" name="btn_add_type"
+                            <button type="submit" name="submit_add_type"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-plus mr-2"></i>Ajouter un type
                             </button>
@@ -483,10 +433,12 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                 <!-- Liste des types -->
                 <div class="bg-white rounded-lg shadow-sm">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-600 mb-4">Liste des types</h3>
-
-                        <!-- Barre de recherche -->
+                        <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                            <i class="fas fa-list-ul text-green-500 mr-2"></i>
+                            Liste des types d'utilisateurs
+                        </h3>
                         <div class="flex items-center justify-between mb-6">
+                            <!-- Barre de recherche -->
                             <div class="flex-1 max-w-md">
                                 <form action="" method="GET" class="flex gap-3">
                                     <input type="hidden" name="page" value="parametres_generaux">
@@ -508,15 +460,15 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
                             <!-- Boutons d'action -->
                             <div class="flex gap-3">
-                                <button id="exportBtn" onclick="exportToExcel('types')"
+                                <button id="exportBtnTypes" onclick="exportToExcel('types')"
                                     class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
                                     <i class="fas fa-file-export mr-2"></i>Exporter
                                 </button>
-                                <button id="printBtn" onclick="printTable('types')"
+                                <button id="printBtnTypes" onclick="printTable('types')"
                                     class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <i class="fas fa-print mr-2"></i>Imprimer
                                 </button>
-                                <button type="button" id="deleteSelectedBtn" disabled
+                                <button type="button" id="deleteSelectedBtnTypes" disabled
                                     class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <i class="fas fa-trash-alt mr-2"></i>Supprimer
                                 </button>
@@ -525,13 +477,13 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
                         <form method="POST" action="?page=parametres_generaux&action=fonction_utilisateur&tab=types"
                             id="formListeTypes">
-                            <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
+                            <input type="hidden" name="submit_delete_multiple" id="submitDeleteHiddenTypes" value="0">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col" class="w-16 px-6 py-3 text-center">
-                                                <input type="checkbox" id="selectAllCheckbox"
+                                                <input type="checkbox" id="selectAllCheckboxTypes"
                                                     class="rounded border-gray-300 text-green-600 focus:ring-green-500">
                                             </th>
                                             <th scope="col"
@@ -555,7 +507,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <input type="checkbox" name="selected_ids[]"
                                                     value="<?= htmlspecialchars($type->id_type_utilisateur) ?>"
-                                                    class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                                    class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <?= htmlspecialchars($type->id_type_utilisateur) ?>
@@ -581,57 +533,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                     </tbody>
                                 </table>
                             </div>
-
                         </form>
-
-                        <!-- Pagination -->
-                        <?php if ($total_pages_type > 1): ?>
-                        <div class="bg-white rounded-lg shadow-sm p-4 mt-6">
-                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="text-sm text-gray-500">
-                                    Affichage de <?= $offset + 1 ?> à <?= min($offset + $limit, $total_items_type) ?>
-                                    sur
-                                    <?= $total_items_type ?> entrées
-                                </div>
-                                <div class="flex flex-wrap justify-center gap-2">
-                                    <?php if ($page > 1): ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-chevron-left mr-1"></i>Précédent
-                                    </a>
-                                    <?php endif; ?>
-
-                                    <?php
-                                    $start = max(1, $page - 2);
-                                    $end = min($total_pages_type, $page + 2);
-                                    
-                                    if ($start > 1) {
-                                        echo '<span class="px-3 py-2 text-gray-500">...</span>';
-                                    }
-                                    
-                                    for ($i = $start; $i <= $end; $i++):
-                                    ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
-                                        <?= $i ?>
-                                    </a>
-                                    <?php endfor;
-
-                                    if ($end < $total_pages_type) {
-                                        echo '<span class="px-3 py-2 text-gray-500">...</span>';
-                                    }
-                                    ?>
-
-                                    <?php if ($page < $total_pages_type): ?>
-                                    <a href="?page=parametres_generaux&action=fonction_utilisateur&tab=types&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        Suivant<i class="fas fa-chevron-right ml-1"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -694,60 +596,86 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     </div>
 
     <script>
-    // Gestion des checkboxes et du bouton de suppression
+    // Gestion des checkboxes et du bouton de suppression pour les groupes
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const formListeGroupes = document.getElementById('formListeGroupes');
+    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+    const btnModifier = document.getElementById('btnModifier');
+
+    // Gestion des checkboxes et du bouton de suppression pour les types
+    const selectAllCheckboxTypes = document.getElementById('selectAllCheckboxTypes');
+    const deleteSelectedBtnTypes = document.getElementById('deleteSelectedBtnTypes');
+    const formListeTypes = document.getElementById('formListeTypes');
+    const submitDeleteHiddenTypes = document.getElementById('submitDeleteHiddenTypes');
+    const btnModifierType = document.getElementById('btnModifierType');
+
+    // Modales
     const deleteModal = document.getElementById('deleteModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-    const formListeGroupes = document.getElementById('formListeGroupes');
-    const formListeTypes = document.getElementById('formListeTypes');
-    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
-    const btnModifier = document.getElementById('btnModifier');
     const modifyModal = document.getElementById('modifyModal');
     const confirmModify = document.getElementById('confirmModify');
     const cancelModify = document.getElementById('cancelModify');
-    const groupeForm = document.getElementById('groupeForm');
-    const typeForm = document.getElementById('typeForm');
-    const submitModifierHidden = document.getElementById('btn_modifier_type_hidden');
 
     // Initialisation
-    updateDeleteButtonState();
+    function initializeCheckboxes(selectAllCheckbox, deleteSelectedBtn, form) {
+        if (selectAllCheckbox && deleteSelectedBtn) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = form.querySelectorAll('input[name="selected_ids[]"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+                updateDeleteButtonState(deleteSelectedBtn, form);
+            });
 
-    // Select all checkboxes
-    selectAllCheckbox.addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('input[name="selected_ids[]"]');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        updateDeleteButtonState();
-    });
-
-    // Update delete button state
-    function updateDeleteButtonState() {
-        const checkedBoxes = document.querySelectorAll('input[name="selected_ids[]"]:checked');
-        deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+            // Checkbox change events
+            form.addEventListener('change', function(e) {
+                if (e.target.name === 'selected_ids[]') {
+                    updateDeleteButtonState(deleteSelectedBtn, form);
+                    const allCheckboxes = form.querySelectorAll('input[name="selected_ids[]"]');
+                    const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
+                    selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes
+                        .length > 0;
+                }
+            });
+        }
     }
 
-    // Checkbox change events
-    document.addEventListener('change', function(e) {
-        if (e.target.name === 'selected_ids[]') {
-            updateDeleteButtonState();
-            const allCheckboxes = document.querySelectorAll('input[name="selected_ids[]"]');
-            const checkedBoxes = document.querySelectorAll('input[name="selected_ids[]"]:checked');
-            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
-                0;
+    // Update delete button state
+    function updateDeleteButtonState(deleteBtn, form) {
+        if (deleteBtn && form) {
+            const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
+            deleteBtn.disabled = checkedBoxes.length === 0;
         }
-    });
+    }
+
+    // Initialize both sections
+    initializeCheckboxes(selectAllCheckbox, deleteSelectedBtn, formListeGroupes);
+    initializeCheckboxes(selectAllCheckboxTypes, deleteSelectedBtnTypes, formListeTypes);
 
     // Delete modal
-    deleteSelectedBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        deleteModal.classList.remove('hidden');
-    });
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            deleteModal.classList.remove('hidden');
+        });
+    }
+
+    if (deleteSelectedBtnTypes) {
+        deleteSelectedBtnTypes.addEventListener('click', function(e) {
+            e.preventDefault();
+            deleteModal.classList.remove('hidden');
+        });
+    }
 
     confirmDelete.addEventListener('click', function() {
-        submitDeleteHidden.value = '1';
-        if (formListeGroupes) formListeGroupes.submit();
-        if (formListeTypes) formListeTypes.submit();
+        if (formListeGroupes) {
+            submitDeleteHidden.value = '1';
+            formListeGroupes.submit();
+        }
+        if (formListeTypes) {
+            submitDeleteHiddenTypes.value = '1';
+            formListeTypes.submit();
+        }
         deleteModal.classList.add('hidden');
     });
 
@@ -762,12 +690,15 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         });
     }
 
+    if (btnModifierType) {
+        btnModifierType.addEventListener('click', function() {
+            modifyModal.classList.remove('hidden');
+        });
+    }
+
     confirmModify.addEventListener('click', function() {
-        if (submitModifierHidden) {
-            submitModifierHidden.value = '1';
-            if (groupeForm) groupeForm.submit();
-            if (typeForm) typeForm.submit();
-        }
+        if (formListeGroupes) formListeGroupes.submit();
+        if (formListeTypes) formListeTypes.submit();
         modifyModal.classList.add('hidden');
     });
 
@@ -786,8 +717,8 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     });
 
     // Fonction pour exporter en Excel
-    function exportToExcel() {
-        const table = document.querySelector('table');
+    function exportToExcel(type = 'groupes') {
+        const table = document.querySelector(type === 'groupes' ? '#formListeGroupes table' : '#formListeTypes table');
         const rows = Array.from(table.querySelectorAll('tr'));
 
         // Créer le contenu CSV
@@ -811,21 +742,21 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'fonctions_utilisateur.csv');
+        link.setAttribute('download', `${type}_utilisateur.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
     // Fonction pour imprimer
-    function printTable() {
-        const table = document.querySelector('table');
+    function printTable(type = 'groupes') {
+        const table = document.querySelector(type === 'groupes' ? '#formListeGroupes table' : '#formListeTypes table');
         const printWindow = window.open('', '_blank');
 
         printWindow.document.write(`
             <html>
                 <head>
-                    <title>Liste des fonctions utilisateur</title>
+                    <title>Liste des ${type} utilisateur</title>
                     <style>
                         table { width: 100%; border-collapse: collapse; }
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -836,7 +767,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                     </style>
                 </head>
                 <body>
-                    <h2>Liste des fonctions utilisateur</h2>
+                    <h2>Liste des ${type} utilisateur</h2>
                     ${table.outerHTML}
                 </body>
             </html>

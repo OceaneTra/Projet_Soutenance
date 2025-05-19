@@ -282,63 +282,63 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                 </div>
 
                 <!-- Tableau -->
-                <div class="overflow-x-auto">
+                        <div class="overflow-x-auto">
                     <form method="POST" action="?page=parametres_generaux&action=niveaux_approbation"
                         id="formListeNiveaux">
                         <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
                                     <th class="w-12 px-3 py-3">
-                                        <input type="checkbox" id="selectAllCheckbox"
+                                            <input type="checkbox" id="selectAllCheckbox"
                                             class="rounded border-gray-300 text-green-600 focus:ring-green-500 transition-all duration-200">
-                                    </th>
+                                        </th>
                                     <th
                                         class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <i class="fas fa-hashtag mr-1"></i>ID
-                                    </th>
+                                        </th>
                                     <th
                                         class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <i class="fas fa-layer-group mr-1"></i>Niveau
-                                    </th>
+                                        </th>
                                     <th
                                         class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <i class="fas fa-cog mr-1"></i>Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
                                 <?php if (!empty($listeNiveaux)) : ?>
                                 <?php foreach ($listeNiveaux as $niveau) : ?>
                                 <tr class="hover:bg-green-50 transition-colors duration-200">
                                     <td class="px-3 py-4">
-                                        <input type="checkbox" name="selected_ids[]"
+                                            <input type="checkbox" name="selected_ids[]"
                                             value="<?= htmlspecialchars($niveau->id_approb) ?>"
                                             class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500 transition-all duration-200">
-                                    </td>
+                                        </td>
                                     <td class="px-3 py-4 text-sm text-gray-900 text-center">
                                         <?= htmlspecialchars($niveau->id_approb) ?>
-                                    </td>
+                                        </td>
                                     <td class="px-3 py-4 text-sm text-gray-900 font-medium text-center">
                                         <?= htmlspecialchars($niveau->lib_approb) ?>
-                                    </td>
+                                        </td>
                                     <td class="px-3 py-4 text-sm text-center">
                                         <a href="?page=parametres_generaux&action=niveaux_approbation&id_approb=<?= $niveau->id_approb ?>"
                                             class="text-blue-600 hover:text-blue-800 mr-3 transition-colors duration-200">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 <?php else : ?>
-                                <tr>
+                                    <tr>
                                     <td colspan="4" class="px-3 py-4 text-sm text-gray-500 text-center">
                                         <i class="fas fa-info-circle mr-2"></i>Aucun niveau enregistré.
-                                    </td>
-                                </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                     </form>
                 </div>
             </div>

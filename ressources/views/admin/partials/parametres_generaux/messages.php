@@ -12,6 +12,7 @@ $message_a_modifier = $GLOBALS['message_a_modifier'] ?? null;
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 
 <body class="bg-gray-100">
@@ -52,9 +53,23 @@ $message_a_modifier = $GLOBALS['message_a_modifier'] ?? null;
                 
                 <!-- Search Bar -->
                 <div class="relative mb-4">
-                    <input type="text" id="searchInput" placeholder="Rechercher un message..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    <form action="" method="GET" class="flex gap-3">
+                        <input type="hidden" name="page" value="parametres_generaux">
+                        <input type="hidden" name="action" value="messages">
+                        <div class="relative">
+                            <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher un message..."
+                                class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:border-green-600">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button id="exportExcel" class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                <i class="fas fa-file-excel mr-2"></i> Exporter
+                            </button>
+                            <button id="printTable" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-print mr-2"></i> Imprimer
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -157,6 +172,59 @@ $message_a_modifier = $GLOBALS['message_a_modifier'] ?? null;
                     </div>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <?php if ($total_pages > 1): ?>
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
+                            à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
+                            sur <span class="font-medium"><?= $total_items ?></span> résultats
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <?php if ($page > 1): ?>
+                                <a href="?page=parametres_generaux&action=messages&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            <?php endif; ?>
+
+                            <?php
+                            $start = max(1, $page - 2);
+                            $end = min($total_pages, $page + 2);
+                            
+                            if ($start > 1) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
+                            
+                            for ($i = $start; $i <= $end; $i++):
+                            ?>
+                                <a href="?page=parametres_generaux&action=messages&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                                   class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
+                                    <?= $i ?>
+                                </a>
+                            <?php endfor;
+
+                            if ($end < $total_pages) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
+                            ?>
+
+                            <?php if ($page < $total_pages): ?>
+                                <a href="?page=parametres_generaux&action=messages&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         </main>
     </div>
 
@@ -280,5 +348,39 @@ $message_a_modifier = $GLOBALS['message_a_modifier'] ?? null;
             <?php endif; ?>
         });
     </script>
+
+    <!-- Notification System -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-white rounded-lg p-4 shadow-lg">
+            <div class="flex items-center">
+                <div id="notificationIcon" class="text-2xl mr-4">
+                    <!-- Notification icon will be dynamically inserted here -->
+                </div>
+                <div id="notificationMessage">
+                    <!-- Notification message will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    .animate-fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+    </style>
 </body>
 </html>

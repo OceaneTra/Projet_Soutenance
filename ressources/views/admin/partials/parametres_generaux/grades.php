@@ -211,9 +211,9 @@ $listeGrades = array_slice($listeGrades, $offset, $limit);
                     <?php endif; ?>
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Libellé du grade</label>
-                        <input type="text" name="grades" required
+                        <input type="text" name="grades" required placeholder="Entrez le libellé du grade"
                             value="<?= $grade_a_modifier ? htmlspecialchars($grade_a_modifier->lib_grade) : '' ?>"
-                            class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                            class="form-input w-75 px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                     </div>
                     <div class="flex justify-between mt-6">
                         <?php if(isset($_GET['id_grade'])): ?>

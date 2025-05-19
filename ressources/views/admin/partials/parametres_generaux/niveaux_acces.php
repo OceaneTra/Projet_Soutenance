@@ -1,5 +1,31 @@
 <?php
 $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+$listeNiveaux = $GLOBALS['listeNiveaux'] ?? [];
+if (!empty($search)) {
+    $listeNiveaux = array_filter($listeNiveaux, function($niveau_acces) use ($search) {
+        return stripos($niveau_acces->lib_niv_acces, $search) !== false;
+    });
+}
+
+// Total pages calculation
+$total_items = count($listeNiveaux);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -181,15 +207,16 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
 
                 <form method="POST" action="?page=parametres_generaux&action=niveaux_acces" id="niveauForm">
                     <?php if($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau"
-                        value="<?= htmlspecialchars($niveau_a_modifier->id_niveau) ?>">
+                    <input type="hidden" name="id_niveau_acces_donnees"
+                        value="<?= htmlspecialchars($niveau_a_modifier->id_niveau_acces_donnees) ?>">
                     <?php endif; ?>
 
                     <div class="mb-4">
-                        <label for="lib_niveau" class="block text-sm font-medium text-gray-700 mb-2">Libellé du
+                        <label for="lib_niveau_acces_donnees"
+                            class="block text-sm font-medium text-gray-700 mb-2">Libellé du
                             niveau</label>
-                        <input type="text" name="lib_niveau" id="lib_niveau" required
-                            value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niveau) : '' ?>"
+                        <input type="text" name="lib_niveau_acces_donnees" id="lib_niveau_acces_donnees" required
+                            value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niveau_acces_donnees) : '' ?>"
                             class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                     </div>
 
@@ -208,7 +235,7 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                         </button>
                         <?php else: ?>
                         <div></div>
-                        <button type="submit" name="submit_add_niveau"
+                        <button type="submit" name="btn_add_niveau"
                             class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             <i class="fas fa-plus mr-2"></i>Ajouter un niveau
                         </button>
@@ -258,67 +285,115 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
                                 <i class="fas fa-trash-alt mr-2"></i>Supprimer
                             </button>
                         </div>
-                        <form method="POST" action="?page=parametres_generaux&action=niveaux_acces"
-                            id="formListeNiveaux">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="w-16 px-6 py-3 text-center">
-                                                <input type="checkbox" id="selectAllCheckbox"
-                                                    class="rounded border-gray-300 text-green-600 focus:ring-green-500">
-                                            </th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                ID
-                                            </th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Libellé
-                                            </th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <?php if (!empty($listeNiveaux)): ?>
-                                        <?php foreach ($listeNiveaux as $niveau): ?>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                <input type="checkbox" name="selected_ids[]"
-                                                    value="<?= htmlspecialchars($niveau->id_niveau) ?>"
-                                                    class="rounded border-gray-300 text-green-600 focus:ring-green-500">
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <?= htmlspecialchars($niveau->id_niveau) ?>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <?= htmlspecialchars($niveau->lib_niveau) ?>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                                                <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau=<?= htmlspecialchars($niveau->id_niveau) ?>"
-                                                    class="text-green-600 hover:text-green-900">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                        <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                                Aucun niveau enregistré
-                                            </td>
-                                        </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                    </div>
+                    <form method="POST" action="?page=parametres_generaux&action=niveaux_acces" id="formListeNiveaux">
+                        <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="w-16 px-6 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            ID
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Libellé
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php if (!empty($listeNiveaux)): ?>
+                                    <?php foreach ($listeNiveaux as $niveau): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <input type="checkbox" name="selected_ids[]"
+                                                value="<?= htmlspecialchars($niveau->id_niveau_acces_donnees) ?>"
+                                                class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($niveau->id_niveau_acces_donnees) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($niveau->lib_niveau_acces_donnees) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                            <a href="?page=parametres_generaux&action=niveaux_acces&id_niveau=<?= htmlspecialchars($niveau->id_niveau_acces_donnees) ?>"
+                                                class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            Aucun niveau enregistré
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
 
-                        </form>
+                    </form>
+                </div>
+            </div>
+            <!-- Pagination -->
+            <?php if ($total_pages > 1): ?>
+            <div class="bg-white rounded-lg shadow-sm p-4 mt-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-500">
+                        Affichage de <?= $offset + 1 ?> à <?= min($offset + $limit, $total_items) ?> sur
+                        <?= $total_items ?> entrées
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <?php if ($page > 1): ?>
+                        <a href="?page=parametres_generaux&action=entreprises&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left mr-1"></i>Précédent
+                        </a>
+                        <?php endif; ?>
+
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($total_pages, $page + 2);
+                        
+                        if ($start > 1) {
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                        }
+                        
+                        for ($i = $start; $i <= $end; $i++):
+                        ?>
+                        <a href="?page=parametres_generaux&action=niveau_acces&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
+                            <?= $i ?>
+                        </a>
+                        <?php endfor;
+
+                        if ($end < $total_pages) {
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                        }
+                        ?>
+
+                        <?php if ($page < $total_pages): ?>
+                        <a href="?page=parametres_generaux&action=niveau_acces&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Suivant<i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
+            </div>
+            <?php endif; ?>
         </main>
     </div>
 
@@ -387,7 +462,7 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
     const deleteModal = document.getElementById('deleteModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-    const formListeNiveaux = document.getElementById('FormListeNiveaux');
+    const formListeNiveaux = document.getElementById('formListeNiveaux');
     const submitDeleteHidden = document.getElementById('submitDeleteHidden');
     const btnModifier = document.getElementById('btnModifier');
     const modifyModal = document.getElementById('modifyModal');
@@ -414,7 +489,7 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
 
     // Checkbox change events
     document.addEventListener('change', function(e) {
-        if (e.target.name === 'selected_ids[]') {
+        if (e.target.classList.contains('row-checkbox')) {
             updateDeleteButtonState();
             const allCheckboxes = document.querySelectorAll('.row-checkbox');
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
@@ -423,42 +498,36 @@ $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
         }
     });
 
-    // Delete modal
-    deleteSelectedBtn.addEventListener('click', function(e) {
+    // Gestion de la suppression
+    deleteSelectedBtn?.addEventListener('click', function(e) {
         e.preventDefault();
         deleteModal.classList.remove('hidden');
     });
 
-    confirmDelete.addEventListener('click', function() {
+    confirmDelete?.addEventListener('click', function() {
         submitDeleteHidden.value = '1';
-        if (formListeNiveaux) formListeNiveaux.submit();
+        formListeNiveaux.submit();
+    });
+
+    cancelDelete?.addEventListener('click', function() {
         deleteModal.classList.add('hidden');
     });
 
-    cancelDelete.addEventListener('click', function() {
-        deleteModal.classList.add('hidden');
+    // Gestion de la modification
+    btnModifier?.addEventListener('click', function() {
+        modifyModal.classList.remove('hidden');
     });
 
-    // Modify modal
-    if (btnModifier) {
-        btnModifier.addEventListener('click', function() {
-            modifyModal.classList.remove('hidden');
-        });
-    }
+    confirmModify?.addEventListener('click', function() {
+        submitModifierHidden.value = '1';
+        niveauForm.submit();
+    });
 
-    confirmModify.addEventListener('click', function() {
-        if (submitModifierHidden) {
-            submitModifierHidden.value = '1';
-            if (niveauForm) niveauForm.submit();
-        }
+    cancelModify?.addEventListener('click', function() {
         modifyModal.classList.add('hidden');
     });
 
-    cancelModify.addEventListener('click', function() {
-        modifyModal.classList.add('hidden');
-    });
-
-    // Fermer les modales si on clique en dehors
+    // Fermeture des modales en cliquant en dehors
     window.addEventListener('click', function(e) {
         if (e.target === deleteModal) {
             deleteModal.classList.add('hidden');
