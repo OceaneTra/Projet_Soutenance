@@ -16,7 +16,7 @@ class Traitement
         $sql = "SELECT * FROM traitement ORDER BY lib_traitement";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     /**
@@ -34,55 +34,27 @@ class Traitement
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Ajoute un nouveau traitement
-     * @param string $lib_traitement Libellé du traitement
-     * @return bool Succès de l'opération
-     */
-    public function ajouterTraitement($lib_traitement) {
-        $sql = "INSERT INTO traitement (lib_traitement) VALUES (:lib_traitement)";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':lib_traitement' => $lib_traitement]);
-    }
-
-    /**
-     * Modifie un traitement existant
-     * @param int $id_traitement ID du traitement
-     * @param string $lib_traitement Nouveau libellé du traitement
-     * @return bool Succès de l'opération
-     */
-    public function modifierTraitement($id_traitement, $lib_traitement) {
-        $sql = "UPDATE traitement SET lib_traitement = :lib_traitement 
-                WHERE id_traitement = :id_traitement";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            ':id_traitement' => $id_traitement,
-            ':lib_traitement' => $lib_traitement
-        ]);
-    }
-
-    /**
-     * Supprime un traitement
-     * @param int $id_traitement ID du traitement
-     * @return bool Succès de l'opération
-     */
-    public function supprimerTraitement($id_traitement) {
-        // Supprimer d'abord les attributions
-        $sql = "DELETE FROM rattacher WHERE id_traitement = :id_traitement";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id_traitement' => $id_traitement]);
-
-        // Puis supprimer le traitement
-        $sql = "DELETE FROM traitement WHERE id_traitement = :id_traitement";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id_traitement' => $id_traitement]);
-    }
+   
+    
 
     public function getTraitementById($id_traitement) {
         $stmt = $this->db->prepare("SELECT * FROM traitement WHERE id_traitement = ?");
         $stmt->execute([$id_traitement]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
+
+    public function getTraitementByLib($lib_traitement) {
+        $stmt = $this->db->prepare("SELECT * FROM traitement WHERE lib_traitement = ?");
+        $stmt->execute([$lib_traitement]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function addTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement) {
+        $stmt = $this->db->prepare("INSERT INTO traitement (lib_traitement, label_traitement, icone_traitement, ordre_traitement) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$lib_traitement,$label_traitement,$icone_traitement,$ordre_traitement]);
+    }
+
+    
 
     public function updateTraitement($id_traitement, $lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement) {
         $stmt = $this->db->prepare("UPDATE traitement SET lib_traitement = ?, label_traitement = ?, icone_traitement = ?, ordre_traitement = ? WHERE id_traitement = ?");

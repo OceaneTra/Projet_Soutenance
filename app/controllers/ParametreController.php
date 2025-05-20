@@ -655,15 +655,16 @@ class ParametreController
 
         if (isset($_POST['btn_add_semestre']) || isset($_POST['btn_modifier_semestre'])) {
             $lib_semestre = $_POST['lib_semestre'];
+            $id_niv_etude = $_POST['niveau_etude'];
 
             if (!empty($_POST['id_semestre'])) {
-                if ($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre)) {
+                if ($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre, $id_niv_etude)) {
                     $messageSuccess = "Semestre modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du semestre.";
                 }
             } else {
-                if ($this->semestre->ajouterSemestre($lib_semestre)) {
+                if ($this->semestre->ajouterSemestre($lib_semestre, $id_niv_etude)) {
                     $messageSuccess = "Semestre ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du semestre.";
@@ -693,6 +694,7 @@ class ParametreController
 
         $GLOBALS['semestre_a_modifier'] = $semestre_a_modifier;
         $GLOBALS['listeSemestres'] = $this->semestre->getAllSemestres();
+        $GLOBALS['listeNiveauxEtude'] = $this->niveauEtude->getAllNiveauxEtudes();
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
@@ -773,7 +775,7 @@ class ParametreController
                     $messageErreur = "Erreur lors de la modification du traitement.";
                 }
             } else {
-                if ($this->traitement->ajouterTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
+                if ($this->traitement->addTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du traitement.";

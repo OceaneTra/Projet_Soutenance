@@ -11,7 +11,7 @@ $attribution = new Attribution($db);
 
 // Récupérer les données
 $groupes = $groupeUtilisateur->getAllGroupeUtilisateur();
-$traitements = $trait
+$traitements = $traitement->getAllTraitements();
 
 // Gérer les actions POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

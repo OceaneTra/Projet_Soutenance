@@ -7,14 +7,14 @@ class Semestre {
         $this->db = $db;
     }
 
-    public function ajouterSemestre($lib_semestre) {
-        $stmt = $this->db->prepare("INSERT INTO semestre (lib_semestre) VALUES (?)");
-        return $stmt->execute([$lib_semestre]);
+    public function ajouterSemestre($lib_semestre, $id_niv_etude) {
+        $stmt = $this->db->prepare("INSERT INTO semestre (lib_semestre,id_niv_etude) VALUES (?,?)");
+        return $stmt->execute([$lib_semestre, $id_niv_etude]);
     }
 
-    public function updateSemestre($id_semestre, $lib_semestre) {
-        $stmt = $this->db->prepare("UPDATE semestre SET lib_semestre = ? WHERE id_semestre = ?");
-        return $stmt->execute([$lib_semestre, $id_semestre]);
+    public function updateSemestre($id_semestre, $lib_semestre,$id_niv_etude) {
+        $stmt = $this->db->prepare("UPDATE semestre SET lib_semestre = ?,id_niv_etude= ?  WHERE id_semestre = ?");
+        return $stmt->execute([$lib_semestre,$id_niv_etude, $id_semestre]);
     }
 
     public function deleteSemestre($id_semestre) {
