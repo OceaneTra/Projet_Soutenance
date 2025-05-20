@@ -1,8 +1,10 @@
 <?php
 
     $ue_a_modifier = $GLOBALS['ue_a_modifier'] ?? null;
-   var_dump($GLOBALS['listeAnnees']);
-   var_dump($GLOBALS['listeNiveauxEtude']);
+    $listeAnnees = $GLOBALS['listeAnnees'] ?? [];
+    $listeNiveauxEtude = $GLOBALS['listeNiveauxEtude'] ?? [];
+    $listeSemestres = $GLOBALS['listeSemestres'] ?? [];
+ 
     // Pagination
     $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
     $limit = 10;
@@ -208,9 +210,9 @@
                             <select id="annee_academique" name="annee_academique" required
                                 class="form-select w-50 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez une année</option>
-                                <?php foreach ($GLOBALS['listeAnnees'] as $annee): ?>
+                                <?php foreach ($listeAnnees as $annee): ?>
                                 <option value="<?= $annee->id_annee_acad ?>"
-                                    <?= $ue_a_modifier && $ue_a_modifier->id_annee_acad == $annee->id_annee_acad ? 'selected' : '' ?>>
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_annee_academique == $annee->id_annee_acad ? 'selected' : '' ?>>
                                     <?= htmlspecialchars(date('Y', strtotime($annee->date_deb)) . '-' . date('Y', strtotime($annee->date_fin)))  ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -226,9 +228,9 @@
                             <select id="niveau_etude" name="niveau_etude" required
                                 class="form-select w-2/3 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez un niveau</option>
-                                <?php foreach ($GLOBALS['listeNiveauxEtude'] as $niveau): ?>
+                                <?php foreach ($listeNiveauxEtude as $niveau): ?>
                                 <option value="<?= $niveau->id_niv_etude ?>"
-                                    <?= $ue_a_modifier && $ue_a_modifier->id_niv_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_niveau_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($niveau->lib_niv_etude) ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -249,7 +251,7 @@
                             <select id="semestre" name="semestre" required
                                 class="form-select w-2/3 mb-3 px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez un semestre</option>
-                                <?php foreach ($GLOBALS['listeSemestres'] as $semestre): ?>
+                                <?php foreach ($listeSemestres as $semestre): ?>
                                 <option value="<?= $semestre->id_semestre ?>"
                                     <?= $ue_a_modifier && $ue_a_modifier->id_semestre == $semestre->id_semestre ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($semestre->lib_semestre) ?>
