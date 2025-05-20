@@ -222,7 +222,7 @@ $listeFonctions = array_slice($listeFonctions, $offset, $limit);
                             class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             <i class="fas fa-times mr-2"></i>Annuler
                         </button>
-                        <button type="submit" name="btn_modifier_fonction"
+                        <button type="submit" name="btn_modifier_fonction" id="btnModifier"
                             class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             <i class="fas fa-save mr-2"></i>Modifier
                             <input type="hidden" name="btn_modifier_fonction" id="btn_modifier_fonction_hidden"
@@ -509,17 +509,20 @@ $listeFonctions = array_slice($listeFonctions, $offset, $limit);
         deleteModal.classList.add('hidden');
     });
 
-    // Gestion de la modification
-    btnModifier?.addEventListener('click', function() {
-        modifyModal.classList.remove('hidden');
-    });
 
-    confirmModify?.addEventListener('click', function() {
+    // Modify modal
+    if (btnModifier) {
+        btnModifier.addEventListener('click', function() {
+            modifyModal.classList.remove('hidden');
+        });
+    }
+
+    confirmModify.addEventListener('click', function() {
         submitModifierHidden.value = '1';
         fonctionForm.submit();
     });
 
-    cancelModify?.addEventListener('click', function() {
+    cancelModify.addEventListener('click', function() {
         modifyModal.classList.add('hidden');
     });
 

@@ -10,12 +10,12 @@ class Traitement
 
     public function ajouterTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement) {
         $stmt = $this->db->prepare("INSERT INTO traitement (lib_traitement,label_traitement,icone_traitement,ordre_traitement) VALUES (?,?,?,?)");
-        return $stmt->execute([$lib_traitement], [$label_traitement], [$icone_traitement], [$ordre_traitement]);
+        return $stmt->execute([$lib_traitement, $label_traitement,$icone_traitement,$ordre_traitement]);
     }
 
     public function updateTraitement($id_traitement, $lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement) {
         $stmt = $this->db->prepare("UPDATE traitement SET lib_traitement = ?, label_traitement = ?, icone_traitement = ?, ordre_traitement = ? WHERE id_traitement = ?");
-        return $stmt->execute([$lib_traitement, $id_traitement], [$label_traitement], [$icone_traitement], [$ordre_traitement]);
+        return $stmt->execute([$lib_traitement,$label_traitement,$icone_traitement,$ordre_traitement,$id_traitement]);
     }
 
     public function deleteTraitement($id_traitement) {

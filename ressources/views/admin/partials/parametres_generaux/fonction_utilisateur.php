@@ -258,11 +258,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="submit" name="submit_modifier_groupe" id="btnModifier"
+                            <button type="button" name="btn_modifier_groupe" id="btn_modifier_groupe"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
-                                <input type="hidden" name="submit_modifier_groupe" id="submitModifierHidden" value="0">
                             </button>
+                            <input type="hidden" name="submit_modifier_groupe" id="submit_modifier_groupe" value="0">
                             <?php else: ?>
                             <div></div>
                             <button type="submit" name="submit_add_groupe"
@@ -442,11 +442,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                                 class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>Annuler
                             </button>
-                            <button type="submit" name="submit_modifier_type" id="btnModifierType"
+                            <button type="button" name="btn_modifier_type" id="btn_modifier_type"
                                 class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                 <i class="fas fa-save mr-2"></i>Modifier
-                                <input type="hidden" name="submit_modifier_type" id="submitDeleteHiddenTypes" value="0">
                             </button>
+                            <input type="hidden" name="submit_modifier_type" id="submit_modifier_type" value="0">
                             <?php else: ?>
                             <div></div>
                             <button type="submit" name="submit_add_type"
@@ -649,33 +649,38 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
     </div>
 
     <script>
-    // Gestion des checkboxes et du bouton de suppression pour les groupes
+    // Variables globales pour les formulaires et les boutons
+    const groupeForm = document.getElementById('groupeForm');
+    const typeForm = document.getElementById('typeForm');
+    const formListeGroupes = document.getElementById('formListeGroupes');
+    const formListeTypes = document.getElementById('formListeTypes');
+
+    // Variables pour les groupes
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
-    const formListeGroupes = document.getElementById('formListeGroupes');
     const submitDeleteHidden = document.getElementById('submitDeleteHidden');
-    const btnModifier = document.getElementById('btnModifier');
-    const submitModifierHidden = document.getElementById('submitModifierHidden');
+    const btnModifierGroupe = document.getElementById('btn_modifier_groupe');
+    const submitModifierHidden = document.getElementById('submit_modifier_groupe');
 
-    // Gestion des checkboxes et du bouton de suppression pour les types
+    // Variables pour les types
     const selectAllCheckboxTypes = document.getElementById('selectAllCheckboxTypes');
     const deleteSelectedBtnTypes = document.getElementById('deleteSelectedBtnTypes');
-    const formListeTypes = document.getElementById('formListeTypes');
     const submitDeleteHiddenTypes = document.getElementById('submitDeleteHiddenTypes');
-    const btnModifierType = document.getElementById('btnModifierType');
-    const submitModifierHiddenTypes = document.getElementById('submitModifierHiddenTypes');
+    const btnModifierType = document.getElementById('btn_modifier_type');
+    const submitModifierHiddenTypes = document.getElementById('submit_modifier_type');
 
-
-
-    // Modales
+    // Variables pour les modales
     const deleteModal = document.getElementById('deleteModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-    const modifyModal = document.getElementById('modifyModal');
-    const confirmModify = document.getElementById('confirmModify');
-    const cancelModify = document.getElementById('cancelModify');
+    const modifyModalGroupes = document.getElementById('modifyModalGroupes');
+    const modifyModalTypes = document.getElementById('modifyModalTypes');
+    const confirmModifyGroupes = document.getElementById('confirmModifyGroupes');
+    const confirmModifyTypes = document.getElementById('confirmModifyTypes');
+    const cancelModifyGroupes = document.getElementById('cancelModifyGroupes');
+    const cancelModifyTypes = document.getElementById('cancelModifyTypes');
 
-    // Initialisation
+    // Initialisation des checkboxes
     function initializeCheckboxes(selectAllCheckbox, deleteSelectedBtn, form) {
         if (selectAllCheckbox && deleteSelectedBtn) {
             selectAllCheckbox.addEventListener('change', function() {
@@ -684,7 +689,6 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                 updateDeleteButtonState(deleteSelectedBtn, form);
             });
 
-            // Checkbox change events
             form.addEventListener('change', function(e) {
                 if (e.target.name === 'selected_ids[]') {
                     updateDeleteButtonState(deleteSelectedBtn, form);
@@ -697,7 +701,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         }
     }
 
-    // Update delete button state
+    // Mise à jour de l'état du bouton de suppression
     function updateDeleteButtonState(deleteBtn, form) {
         if (deleteBtn && form) {
             const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
@@ -705,11 +709,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         }
     }
 
-    // Initialize both sections
+    // Initialisation des deux sections
     initializeCheckboxes(selectAllCheckbox, deleteSelectedBtn, formListeGroupes);
     initializeCheckboxes(selectAllCheckboxTypes, deleteSelectedBtnTypes, formListeTypes);
 
-    // Delete modal
+    // Gestion de la modale de suppression
     if (deleteSelectedBtn) {
         deleteSelectedBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -740,33 +744,45 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         deleteModal.classList.add('hidden');
     });
 
-    // Modify modal
-    if (btnModifier) {
-        btnModifier.addEventListener('click', function() {
-            modifyModal.classList.remove('hidden');
+    // Gestion des modales de modification
+    if (btnModifierGroupe) {
+        btnModifierGroupe.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Opening modify modal for groups'); // Debug log
+            modifyModalGroupes.classList.remove('hidden');
         });
     }
 
     if (btnModifierType) {
-        btnModifierType.addEventListener('click', function() {
-            modifyModal.classList.remove('hidden');
+        btnModifierType.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Opening modify modal for types'); // Debug log
+            modifyModalTypes.classList.remove('hidden');
         });
     }
 
-    confirmModify.addEventListener('click', function() {
-        if (formListeGroupes) {
+    confirmModifyGroupes.addEventListener('click', function() {
+        if (groupeForm) {
             submitModifierHidden.value = '1';
-            formListeGroupes.submit();
+            groupeForm.submit();
         }
-        if (formListeTypes) {
-            submitModifierHiddenTypes.value = '1';
-            formListeTypes.submit();
-        }
-        modifyModal.classList.add('hidden');
+        modifyModalGroupes.classList.add('hidden');
     });
 
-    cancelModify.addEventListener('click', function() {
-        modifyModal.classList.add('hidden');
+    confirmModifyTypes.addEventListener('click', function() {
+        if (typeForm) {
+            submitModifierHiddenTypes.value = '1';
+            typeForm.submit();
+        }
+        modifyModalTypes.classList.add('hidden');
+    });
+
+    cancelModifyGroupes.addEventListener('click', function() {
+        modifyModalGroupes.classList.add('hidden');
+    });
+
+    cancelModifyTypes.addEventListener('click', function() {
+        modifyModalTypes.classList.add('hidden');
     });
 
     // Fermer les modales si on clique en dehors
@@ -774,8 +790,11 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         if (e.target === deleteModal) {
             deleteModal.classList.add('hidden');
         }
-        if (e.target === modifyModal) {
-            modifyModal.classList.add('hidden');
+        if (e.target === modifyModalGroupes) {
+            modifyModalGroupes.classList.add('hidden');
+        }
+        if (e.target === modifyModalTypes) {
+            modifyModalTypes.classList.add('hidden');
         }
     });
 
@@ -813,7 +832,6 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
 
     // Fonction pour imprimer
     function printTable(type = 'groupes') {
-
         const table = document.querySelector(type === 'groupes' ? '#formListeGroupes table' : '#formListeTypes table');
         const printWindow = window.open('', '_blank');
 
@@ -835,7 +853,6 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
             const actionCell = row.querySelector('th:last-child, td:last-child');
             if (actionCell) actionCell.remove();
         });
-
 
         printWindow.document.write(`
             <html>

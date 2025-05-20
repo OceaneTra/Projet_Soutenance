@@ -257,7 +257,7 @@ class ParametreController
 
         //======PARTIE TYPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'types') {
-            if (isset($_POST['submit_add_type']) || isset($_POST['submit_modifier_type'])) {
+            if (isset($_POST['submit_add_type']) || isset($_POST['btnModifierType'])) {
                 $lib_type = $_POST['lib_type_utilisateur'];
 
                 if (!empty($_POST['id_type_utilisateur'])) {
@@ -543,7 +543,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_statut_jury'])) {
+        if (isset($_POST['btn_add_statut_jury']) || isset($_POST['btn_modifier_statut_jury'])) {
             $lib_statut = $_POST['statut_jury'];
 
             if (!empty($_POST['id_statut_jury'])) {
@@ -865,7 +865,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_action'])) {
+        if (isset($_POST['btn_add_action']) || isset($_POST['btn_modifier_action'])) {
             $lib_action = $_POST['action'];
 
             if (!empty($_POST['id_action'])) {

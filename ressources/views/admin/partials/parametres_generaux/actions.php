@@ -195,13 +195,15 @@ $listeActions = array_slice($listeActions, $offset, $limit);
             <!-- Formulaire -->
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-                    <i class="fas <?= isset($_GET['id_action']) ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
+                    <i
+                        class="fas <?= isset($_GET['id_action']) ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
                     <?= isset($_GET['id_action']) ? "Modifier l'action" : "Ajouter une nouvelle action" ?>
                 </h3>
 
                 <form method="POST" action="?page=parametres_generaux&action=actions" id="actionForm">
                     <?php if($action_a_modifier): ?>
-                    <input type="hidden" name="id_action" value="<?= htmlspecialchars($action_a_modifier->id_action) ?>">
+                    <input type="hidden" name="id_action"
+                        value="<?= htmlspecialchars($action_a_modifier->id_action) ?>">
                     <?php endif ?>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -210,7 +212,7 @@ $listeActions = array_slice($listeActions, $offset, $limit);
                             <label class="block text-sm font-medium text-gray-700 mb-2">Libellé de l'action</label>
                             <input type="text" id="lib_action" name="action" required
                                 value="<?= $action_a_modifier ? htmlspecialchars($action_a_modifier->lib_action) : '' ?>"
-                                placeholder="Ex: Créer un utilisateur"
+                                placeholder="Ex: Modifier"
                                 class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                         </div>
                     </div>
@@ -240,23 +242,51 @@ $listeActions = array_slice($listeActions, $offset, $limit);
 
             <!-- Liste des actions -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <input type="text" id="searchInput" placeholder="Rechercher une action..."
-                                class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        </div>
-                        <button id="exportExcel" class="btn-hover px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                            <i class="fas fa-file-excel mr-2"></i>Exporter
+                <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                    <i class="fas fa-list-ul text-green-500 mr-2"></i>
+                    Liste des actions
+                </h3>
+                <div class="flex items-center justify-between mb-6">
+                    <!-- Barre de recherche -->
+                    <div class="flex-1 max-w-md">
+                        <form action="" method="GET" class="flex gap-3">
+                            <input type="hidden" name="page" value="parametres_generaux">
+                            <input type="hidden" name="action" value="actions">
+                            <div class="relative flex-1">
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
+                                    class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
+                            </div>
+                            <button type="submit"
+                                class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <i class="fas fa-search mr-2"></i>Rechercher
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="flex gap-3">
+                        <button id="exportBtn" onclick="exportToExcel()"
+                            class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+                            <i class="fas fa-file-export mr-2"></i>Exporter
                         </button>
-                        <button id="printTable" class="btn-hover px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <button id="printBtn" onclick="printTable()"
+                            class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                             <i class="fas fa-print mr-2"></i>Imprimer
                         </button>
+                        <button type="button" id="deleteSelectedBtn" disabled
+                            class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                        </button>
                     </div>
+
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- Liste des actions -->
+
+                <form method="POST" action="?page=parametres_generaux&action=actions" id="formListeActions">
+                    <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
@@ -266,7 +296,8 @@ $listeActions = array_slice($listeActions, $offset, $limit);
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -290,10 +321,7 @@ $listeActions = array_slice($listeActions, $offset, $limit);
                                             class="text-blue-500 hover:text-blue-700 transition-colors">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="text-red-500 hover:text-red-700 transition-colors delete-btn"
-                                            data-id="<?= $action->id_action ?>">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+
                                     </div>
                                 </td>
                             </tr>
@@ -307,7 +335,7 @@ $listeActions = array_slice($listeActions, $offset, $limit);
                             <?php endif; ?>
                         </tbody>
                     </table>
-                </div>
+                </form>
 
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
@@ -321,7 +349,8 @@ $listeActions = array_slice($listeActions, $offset, $limit);
                             </p>
                         </div>
                         <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                aria-label="Pagination">
                                 <?php if ($page > 1): ?>
                                 <a href="?page=parametres_generaux&action=actions&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
                                     class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
@@ -364,70 +393,249 @@ $listeActions = array_slice($listeActions, $offset, $limit);
             </div>
         </main>
     </div>
+    <!-- Modale de confirmation de suppression -->
+    <div id="deleteModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir supprimer les actions sélectionnées ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmDelete"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelDelete"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation de modification -->
+    <div id="modifyModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir modifier cette action ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmModify"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelModify"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Fonction pour l'export Excel
-        document.getElementById('exportExcel').addEventListener('click', function() {
-            const table = document.querySelector('table');
-            const rows = Array.from(table.querySelectorAll('tr'));
-            
-            // Créer le contenu CSV
-            let csvContent = "data:text/csv;charset=utf-8,";
-            
-            // Ajouter les en-têtes
-            const headers = Array.from(table.querySelectorAll('th'))
-                .map(th => th.textContent.trim())
-                .filter(text => text !== '');
-            csvContent += headers.join(',') + '\n';
-            
-            // Ajouter les données
-            rows.slice(1).forEach(row => {
-                const cells = Array.from(row.querySelectorAll('td'))
-                    .map(td => td.textContent.trim())
-                    .filter(text => text !== '');
-                csvContent += cells.join(',') + '\n';
-            });
-            
-            // Créer le lien de téléchargement
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'actions.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    // Gestion des checkboxes et du bouton de suppression
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const deleteButton = document.getElementById('deleteSelectedBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const formListeActions = document.getElementById('formListeActions');
+    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+    const btnModifier = document.getElementById('btnModifier');
+    const modifyModal = document.getElementById('modifyModal');
+    const confirmModify = document.getElementById('confirmModify');
+    const cancelModify = document.getElementById('cancelModify');
+    const actionForm = document.getElementById('actionForm');
+    const submitModifierHidden = document.getElementById('btn_modifier_action_hidden');
+
+    // Initialisation
+    updateDeleteButtonState();
+
+    // Select all checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateDeleteButtonState();
+    });
+
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        deleteButton.disabled = checkedBoxes.length === 0;
+    }
+
+    // Checkbox change events
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('row-checkbox')) {
+            updateDeleteButtonState();
+            const allCheckboxes = document.querySelectorAll('.row-checkbox');
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
+        }
+    });
+
+    // Delete modal
+    deleteButton.addEventListener('click', function() {
+        if (!this.disabled) {
+            deleteModal.classList.remove('hidden');
+        }
+    });
+
+    confirmDelete.addEventListener('click', function() {
+        submitDeleteHidden.value = '1';
+        formListeActions.submit();
+    });
+
+    cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+    });
+
+    // Modify modal
+    if (btnModifier) {
+        btnModifier.addEventListener('click', function() {
+            modifyModal.classList.remove('hidden');
+        });
+    }
+
+    confirmModify.addEventListener('click', function() {
+        submitModifierHidden.value = '1';
+        actionForm.submit();
+    });
+
+    cancelModify.addEventListener('click', function() {
+        modifyModal.classList.add('hidden');
+    });
+
+    // Fonction pour exporter en Excel
+    function exportToExcel() {
+        const table = document.querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tr'));
+
+        // Créer le contenu CSV
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Ajouter les en-têtes
+        const headers = Array.from(rows[0].querySelectorAll('th'))
+            .map(header => header.textContent.trim())
+            .filter(header => header !== ''); // Exclure la colonne des checkboxes
+        csvContent += headers.join(',') + '\n';
+
+        // Ajouter les données
+        rows.slice(1).forEach(row => {
+            const cells = Array.from(row.querySelectorAll('td'))
+                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
+                .map(cell => `"${cell.textContent.trim()}"`);
+            csvContent += cells.join(',') + '\n';
         });
 
-        // Fonction pour l'impression
-        document.getElementById('printTable').addEventListener('click', function() {
-            window.print();
+        // Créer le lien de téléchargement
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'actions.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+
+    // Fonction pour imprimer
+    function printTable() {
+        const table = document.querySelector('table');
+        const printWindow = window.open('', '_blank');
+
+        // Créer une copie de la table pour la modification
+        const tableClone = table.cloneNode(true);
+
+        // Supprimer les colonnes ID, Actions et Checkboxes
+        const rows = tableClone.querySelectorAll('tr');
+        rows.forEach(row => {
+            // Supprimer la colonne des checkboxes (première colonne)
+            const checkboxCell = row.querySelector('th:first-child, td:first-child');
+            if (checkboxCell) checkboxCell.remove();
+
+            // Supprimer la colonne ID (maintenant première colonne)
+            const idCell = row.querySelector('th:first-child, td:first-child');
+            if (idCell) idCell.remove();
+
+            // Supprimer la colonne Actions (dernière colonne)
+            const actionCell = row.querySelector('th:last-child, td:last-child');
+            if (actionCell) actionCell.remove();
         });
 
-        // Fonction pour la recherche
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchText) ? '' : 'none';
-            });
-        });
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liste des actions</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        @media print {
+                            body { margin: 0; padding: 15px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des actions</h2>
+                    ${tableClone.outerHTML}
+                </body>
+            </html>
+        `);
 
-        // Fonction pour la sélection multiple
-        document.getElementById('selectAllCheckbox').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.row-checkbox');
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        });
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
 
-        // Gestion des notifications
-        const notifications = document.querySelectorAll('.notification');
-        notifications.forEach(notification => {
+
+    // Gestion des notifications
+    document.addEventListener('DOMContentLoaded', function() {
+        const successNotification = document.getElementById('successNotification');
+        const errorNotification = document.getElementById('errorNotification');
+
+        if (successNotification) {
             setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        });
+                successNotification.classList.remove('animate__fadeIn');
+                successNotification.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    successNotification.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        if (errorNotification) {
+            setTimeout(() => {
+                errorNotification.classList.remove('animate__fadeIn');
+                errorNotification.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    errorNotification.remove();
+                }, 500);
+            }, 5000);
+        }
+    });
     </script>
+
+    <?php
+    unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);
+    ?>
 </body>
+
 </html>
