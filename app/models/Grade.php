@@ -30,7 +30,7 @@ class Grade
             $stmt = $this->pdo->prepare("UPDATE grade SET lib_grade = ? WHERE id_grade = ?");
             return $stmt->execute([$lib_grade, $id_grade]);
         } catch (PDOException $e) {
-            error_log("Erreur pendant la maj du grade");
+            error_log("Erreur pendant la maj du grade" . $e->getMessage());
             return false;
         }
     }

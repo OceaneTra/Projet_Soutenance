@@ -34,4 +34,17 @@ class Traitement
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    public function getTraitementByGU($id_GU) {
+        $stmt = $this->db->prepare("SELECT t.* FROM traitement t 
+        JOIN rattacher r ON r.id_traitement = t.id_traitement
+        WHERE r.id_GU = ?");
+        $stmt->execute([$id_GU]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    
 }
+
+    
+    

@@ -1,115 +1,592 @@
 <?php
 $niveau_a_modifier = $GLOBALS['niveau_a_modifier'] ?? null;
+
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+$listeNiveaux = $GLOBALS['listeNiveaux'] ?? [];
+if (!empty($search)) {
+    $listeNiveaux = array_filter($listeNiveaux, function($niveauEtude) use ($search) {
+        return stripos($niveauEtude->lib_niv_etude, $search) !== false;
+    });
+}
+
+// Total pages calculation
+$total_items = count($listeNiveaux);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
+
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
-    <title>Gestion des niveaux d'études</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Niveaux d'Étude</title>
+    <style>
+    /* Animations et transitions */
+    .animate__animated {
+        animation-duration: 0.3s;
+    }
+
+    .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+    }
+
+    /* Personnalisation des inputs */
+    .form-input:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        background-color: #f0fdf4;
+    }
+
+    /* Style pour le hover des lignes du tableau */
+    .table-row:hover {
+        background-color: #f0fdf4;
+    }
+
+    /* Style pour les checkboxes */
+    input[type="checkbox"]:checked {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+    /* Style pour la pagination active */
+    .pagination-active {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+    /* Boutons avec dégradés */
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .btn-gradient-secondary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .btn-gradient-warning {
+        background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    }
+
+    .btn-gradient-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* Effet de hover sur les boutons */
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .container table,
+        .container table * {
+            visibility: visible;
+        }
+
+        .container table {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        button,
+        .actions,
+        input[type="checkbox"] {
+            display: none !important;
+        }
+    }
+
+    /* Styles pour les notifications */
+    .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: white;
+        max-width: 24rem;
+        z-index: 50;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .notification.success {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+    </style>
 </head>
 
-<body class="bg-gray-100">
-<div class="min-h-screen flex flex-col">
-    <main class="flex-grow container mx-auto px-4 py-5">
-        <div class="mb-6 flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-700">Gestion des niveaux d'études</h2>
+<body class="bg-gray-50">
+    <!-- Système de notification -->
+    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <div id="successNotification" class="notification success animate__animated animate__fadeIn">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
         </div>
+    </div>
+    <?php endif; ?>
 
-        <!-- Formulaire d'ajout/modification -->
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-            <h3 class="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">
-                <?= isset($_GET['id_niveau_etude']) ? "Modifier le niveau d'étude" : "Ajouter un nouveau niveau d'étude" ?>
-            </h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveaux_etude">
-                <?php if ($niveau_a_modifier): ?>
-                    <input type="hidden" name="id_niveau_etude" value="<?= htmlspecialchars($niveau_a_modifier->id_niv_etude) ?>">
-                <?php endif; ?>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-600 mb-2">Libellé du niveau d'étude</label>
-                    <input type="text" name="niveau_etude" required
-                           value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niv_etude) : '' ?>"
-                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600 focus:outline-none">
-                </div>
-                <div class="flex space-x-3">
-                    <button type="submit" name="btn_add_niveau_etude"
-                            class="inline-flex items-center px-6 py-2.5 text-sm font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-<?= $niveau_a_modifier ? 'save' : 'plus' ?> mr-2"></i>
-                        <?= $niveau_a_modifier ? 'Modifier' : 'Ajouter' ?>
-                    </button>
-                    <?php if ($niveau_a_modifier): ?>
-                        <a href="?page=parametres_generaux&action=niveaux_etude"
-                           class="inline-flex items-center px-6 py-2.5 text-sm font-medium rounded-lg shadow-sm text-white bg-orange-500 hover:bg-orange-600">
-                            <i class="fas fa-times mr-2"></i> Annuler
-                        </a>
+    <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <div id="errorNotification" class="notification error animate__animated animate__fadeIn">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="min-h-screen">
+        <main class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-600">
+                    <i class="fas fa-graduation-cap mr-2 text-green-600"></i>
+                    Gestion des Niveaux d'Étude
+                </h2>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                    <i
+                        class="fas <?= isset($_GET['id_niv_etude']) ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
+                    <?= isset($_GET['id_niv_etude']) ? "Modifier le niveau d'étude" : "Ajouter un nouveau niveau d'étude" ?>
+                </h3>
+
+                <form method="POST" action="?page=parametres_generaux&action=niveaux_etude" id="niveauEtudeForm">
+                    <?php if($niveau_a_modifier): ?>
+                    <input type="hidden" name="id_niv_etude"
+                        value="<?= htmlspecialchars($niveau_a_modifier->id_niv_etude) ?>">
                     <?php endif; ?>
-                </div>
-            </form>
-        </div>
 
-        <!-- Tableau de données -->
-        <div class="mt-8">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">Liste des niveaux d'études</h3>
-            <form method="POST" action="?page=parametres_generaux&action=niveaux_etude" id="formListeNiveaux">
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <div style="width: 80%;" class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full divide-y divide-gray-200">
+                    <div class="mb-4">
+                        <label for="lib_niv_etude" class="block text-sm font-medium text-gray-700 mb-2">Libellé du
+                            niveau</label>
+                        <input type="text" name="lib_niv_etude" id="lib_niv_etude" required
+                            value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->lib_niv_etude) : '' ?>"
+                            class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                    </div>
+
+                    <div class="flex justify-between mt-6">
+                        <?php if (isset($_GET['id_niv_etude'])): ?>
+                        <button type="button" name="btn_annuler" id="btnAnnuler"
+                            onclick="window.location.href='?page=parametres_generaux&action=niveaux_etude'"
+                            class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="button" name="btn_modifier_niveau_etude" id="btnModifier"
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-save mr-2"></i>Modifier
+                            <input type="hidden" name="btn_modifier_niveau_etude" id="btn_modifier_niveau_etude_hidden"
+                                value="0">
+                        </button>
+
+                        <?php else: ?>
+                        <div></div>
+                        <button type="submit" name="btn_add_niveau_etude" id="btnAjouter"
+                            class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-plus mr-2"></i>Ajouter un niveau
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Liste des niveaux -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6">
+
+                    <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                        <i class="fas fa-list-ul text-green-500 mr-2"></i>
+                        Liste des niveau d'étude
+                    </h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <!-- Barre de recherche -->
+                        <div class="flex-1 max-w-md">
+                            <form action="" method="GET" class="flex gap-3">
+                                <input type="hidden" name="page" value="parametres_generaux">
+                                <input type="hidden" name="action" value="niveaux_etude">
+                                <div class="relative flex-1">
+                                    <i
+                                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
+                                        class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
+                                </div>
+                                <button type="submit"
+                                    class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <i class="fas fa-search mr-2"></i>Rechercher
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="flex gap-3">
+                            <button id="exportBtn" onclick="exportToExcel()"
+                                class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+                                <i class="fas fa-file-export mr-2"></i>Exporter
+                            </button>
+                            <button id="printBtn" onclick="printTable()"
+                                class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <i class="fas fa-print mr-2"></i>Imprimer
+                            </button>
+                            <button type="button" id="deleteSelectedBtn" disabled
+                                class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                    <form method="POST" action="?page=parametres_generaux&action=niveaux_etude" id="FormListeNiveaux">
+                        <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-center">
-                                        <input type="checkbox" id="selectAllCheckbox"
-                                               class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                    </th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                </tr>
+                                    <tr>
+                                        <th scope="col" class="w-16 px-6 py-3 text-center">
+                                            <input type="checkbox" id="selectAllCheckbox"
+                                                class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            ID
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Libellé
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                <?php $listeNiveaux = $GLOBALS['listeNiveaux'] ?? []; ?>
-                                <?php if (!empty($listeNiveaux)): ?>
+                                    <?php if (!empty($listeNiveaux)): ?>
                                     <?php foreach ($listeNiveaux as $niveau): ?>
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3 text-center">
-                                                <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($niveau->id_niv_etude) ?>"
-                                                       class="form-checkbox text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-gray-700">
-                                                <?= htmlspecialchars($niveau->lib_niv_etude) ?>
-                                            </td>
-                                            <td class="px-4 py-3 text-center">
-                                                <a href="?page=parametres_generaux&action=niveaux_etude&id_niveau_etude=<?= $niveau->id_niv_etude ?>"
-                                                   class="text-orange-500 hover:underline">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center text-sm text-gray-500 py-4">
-                                            Aucun niveau enregistré.
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <input type="checkbox" name="selected_ids[]"
+                                                value="<?= htmlspecialchars($niveau->id_niv_etude) ?>"
+                                                class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($niveau->id_niv_etude) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($niveau->lib_niv_etude) ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                            <a href="?page=parametres_generaux&action=niveaux_etude&id_niv_etude=<?= htmlspecialchars($niveau->id_niv_etude) ?>"
+                                                class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                         </td>
                                     </tr>
-                                <?php endif; ?>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            Aucun niveau d'étude enregistré
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
 
-                    <!-- Bouton suppression -->
-                    <div style="width: 10%;" class="flex flex-col gap-4 justify-center">
-                        <button type="submit" name="submit_delete_multiple"
-                                class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600">
-                            <i class="fas fa-trash-alt mr-2"></i> Supprimer
-                        </button>
-                    </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+        </main>
+    </div>
+
+    <?php
+    unset($GLOBALS['messageErreur'], $GLOBALS['messageSucces']);
+    ?>
+
+
+    <!-- Modale de confirmation de suppression -->
+    <div id="deleteModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir supprimer les éléments sélectionnés ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmDelete"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelDelete"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
         </div>
-    </main>
-</div>
+    </div>
+
+    <!-- Modale de confirmation de modification -->
+    <div id="modifyModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir modifier cet élément ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmModify"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelModify"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Gestion des checkboxes et du bouton de suppression
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const formListeNiveaux = document.getElementById('FormListeNiveaux');
+    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+    const btnModifier = document.getElementById('btnModifier');
+    const modifyModal = document.getElementById('modifyModal');
+    const confirmModify = document.getElementById('confirmModify');
+    const cancelModify = document.getElementById('cancelModify');
+    const niveauEtudeForm = document.getElementById('niveauEtudeForm');
+    const submitModifierHidden = document.getElementById('btn_modifier_niveau_etude_hidden');
+
+    // Initialisation
+    updateDeleteButtonState();
+
+    // Select all checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateDeleteButtonState();
+    });
+
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+    }
+
+    // Checkbox change events
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'selected_ids[]') {
+            updateDeleteButtonState();
+            const allCheckboxes = document.querySelectorAll('.row-checkbox');
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
+        }
+    });
+
+    // Delete modal
+    deleteSelectedBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        deleteModal.classList.remove('hidden');
+    });
+
+    confirmDelete.addEventListener('click', function() {
+        submitDeleteHidden.value = '1';
+        if (formListeNiveaux) formListeNiveaux.submit();
+        deleteModal.classList.add('hidden');
+    });
+
+    cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+    });
+
+    // Modify modal
+    if (btnModifier) {
+        btnModifier.addEventListener('click', function() {
+            modifyModal.classList.remove('hidden');
+        });
+    }
+
+    confirmModify.addEventListener('click', function() {
+        if (submitModifierHidden) {
+            submitModifierHidden.value = '1';
+            if (niveauEtudeForm) niveauEtudeForm.submit();
+        }
+        modifyModal.classList.add('hidden');
+    });
+
+    cancelModify.addEventListener('click', function() {
+        modifyModal.classList.add('hidden');
+    });
+
+    // Fermer les modales si on clique en dehors
+    window.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            deleteModal.classList.add('hidden');
+        }
+        if (e.target === modifyModal) {
+            modifyModal.classList.add('hidden');
+        }
+    });
+
+    // Fonction pour exporter en Excel
+    function exportToExcel() {
+        const table = document.querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tr'));
+
+        // Créer le contenu CSV
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Ajouter les en-têtes
+        const headers = Array.from(rows[0].querySelectorAll('th'))
+            .map(header => header.textContent.trim())
+            .filter(header => header !== ''); // Exclure la colonne des checkboxes
+        csvContent += headers.join(',') + '\n';
+
+        // Ajouter les données
+        rows.slice(1).forEach(row => {
+            const cells = Array.from(row.querySelectorAll('td'))
+                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
+                .map(cell => `"${cell.textContent.trim()}"`);
+            csvContent += cells.join(',') + '\n';
+        });
+
+        // Créer le lien de téléchargement
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'niveaux_etude.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Fonction pour imprimer
+    function printTable() {
+        const table = document.querySelector('table');
+        const printWindow = window.open('', '_blank');
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liste des niveaux d'étude</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        @media print {
+                            body { margin: 0; padding: 15px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des niveaux d'étude</h2>
+                    ${table.outerHTML}
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
+
+    // Gestion des notifications
+    document.addEventListener('DOMContentLoaded', function() {
+        const successNotification = document.getElementById('successNotification');
+        const errorNotification = document.getElementById('errorNotification');
+
+        if (successNotification) {
+            setTimeout(() => {
+                successNotification.classList.remove('animate__fadeIn');
+                successNotification.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    successNotification.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        if (errorNotification) {
+            setTimeout(() => {
+                errorNotification.classList.remove('animate__fadeIn');
+                errorNotification.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    errorNotification.remove();
+                }, 500);
+            }, 5000);
+        }
+    });
+    </script>
+
 </body>
+
 </html>
