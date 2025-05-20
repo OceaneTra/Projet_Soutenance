@@ -110,5 +110,19 @@ public function getAllUserLabels($idUtilisateur) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+public function getAllUtilisateurs() {
+    $query = "SELECT u.*, 
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              ORDER BY u.nom_utilisateur";
+    $stmt = $this->db->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_OBJ);
+}
 
 }

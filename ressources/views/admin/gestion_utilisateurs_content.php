@@ -1,10 +1,29 @@
 <?php
-// Placeholder data for users
-$users = [
-    ['id' => 1, 'username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'Administrateur', 'status' => 'Actif', 'created_at' => '2023-01-15'],
-    ['id' => 2, 'username' => 'editor_user', 'email' => 'editor@example.com', 'role' => 'Éditeur', 'status' => 'Actif', 'created_at' => '2023-02-20'],
-    ['id' => 3, 'username' => 'viewer_user', 'email' => 'viewer@example.com', 'role' => 'Lecteur', 'status' => 'Inactif', 'created_at' => '2023-03-10'],
-];
+require_once __DIR__ . '/../../../app/models/GroupeUtilisateur.php';
+require_once __DIR__ . '/../../../app/models/TypeUtilisateur.php';
+require_once __DIR__ . '/../../../app/models/Fonction.php';
+require_once __DIR__ . '/../../../app/models/NiveauAccesDonnees.php';
+require_once __DIR__ . '/../../../app/models/Utilisateur.php';
+require_once __DIR__ . '/../../../app/config/database.php';
+
+$db = Database::getConnection();
+$groupeUtilisateur = new GroupeUtilisateur($db);
+$typeUtilisateur = new TypeUtilisateur($db);
+$fonction = new Fonction($db);
+$niveauAccesDonnees = new NiveauAccesDonnees($db);
+$utilisateur = new Utilisateur($db);
+
+// Récupérer les données depuis la base de données
+$groupes = $groupeUtilisateur->getAllGroupeUtilisateur();
+$types = $typeUtilisateur->getAllTypeUtilisateur();
+$fonctions = $fonction->getAllFonction();
+$niveauxAcces = $niveauAccesDonnees->getAllNiveauxAccesDonnees();
+$utilisateurs = $utilisateur->getAllUtilisateurs();
+
+// Calculer les statistiques
+$totalUtilisateurs = count($utilisateurs);
+$utilisateursActifs = count(array_filter($utilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
+$utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
 
 // Placeholder for roles/groups
 $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
@@ -62,8 +81,14 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             <label for="type_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-id-badge text-green-500 mr-2"></i>Type utilisateur
                             </label>
-                            <input type="text" name="type_utilisateur" id="type_utilisateur"
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                            <select name="type_utilisateur" id="type_utilisateur" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <?php foreach($types as $type): ?>
+                                <option value="<?php echo htmlspecialchars($type->id_type_utilisateur); ?>">
+                                    <?php echo htmlspecialchars($type->lib_type_utilisateur); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="space-y-2">
                             <label for="fonction" class="block text-sm font-medium text-gray-700">
@@ -71,9 +96,9 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             </label>
                             <select name="fonction" id="fonction" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
+                                <?php foreach($fonctions as $f): ?>
+                                <option value="<?php echo htmlspecialchars($f->id_fonction); ?>">
+                                    <?php echo htmlspecialchars($f->lib_fonction); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -86,9 +111,9 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             </label>
                             <select name="gu" id="gu" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
+                                <?php foreach($groupes as $groupe): ?>
+                                <option value="<?php echo htmlspecialchars($groupe->id_GU); ?>">
+                                    <?php echo htmlspecialchars($groupe->lib_GU); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -99,9 +124,9 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             </label>
                             <select name="niveau_acces" id="niveau_acces" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($roles as $role): ?>
-                                <option value="<?php echo htmlspecialchars($role); ?>">
-                                    <?php echo htmlspecialchars($role); ?>
+                                <?php foreach($niveauxAcces as $niveau): ?>
+                                <option value="<?php echo htmlspecialchars($niveau->id_niveau_acces_donnees); ?>">
+                                    <?php echo htmlspecialchars($niveau->lib_niveau_acces_donnees); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -142,7 +167,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Total Utilisateurs</p>
-                        <h3 class="text-2xl font-bold text-gray-800"><?php echo count($users); ?></h3>
+                        <h3 class="text-2xl font-bold text-gray-800"><?php echo $totalUtilisateurs; ?></h3>
                     </div>
                 </div>
             </div>
@@ -153,7 +178,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Utilisateurs Actifs</p>
-                        <h3 class="text-2xl font-bold text-gray-800">2</h3>
+                        <h3 class="text-2xl font-bold text-gray-800"><?php echo $utilisateursActifs; ?></h3>
                     </div>
                 </div>
             </div>
@@ -164,7 +189,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Utilisateurs Inactifs</p>
-                        <h3 class="text-2xl font-bold text-gray-800">1</h3>
+                        <h3 class="text-2xl font-bold text-gray-800"><?php echo $utilisateursInactifs; ?></h3>
                     </div>
                 </div>
             </div>
@@ -253,7 +278,7 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                        <?php if (empty($users)): ?>
+                        <?php if (empty($utilisateurs)): ?>
                         <tr>
                             <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
@@ -265,47 +290,47 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                             </td>
                         </tr>
                         <?php else: ?>
-                        <?php foreach ($users as $index => $user): ?>
+                        <?php foreach ($utilisateurs as $index => $user): ?>
                         <tr class="table-row-hover">
                             <td class="px-4 py-4 text-center">
                                 <input type="checkbox" name="userCheckbox"
-                                    value="<?php echo htmlspecialchars($user['id']); ?>"
+                                    value="<?php echo htmlspecialchars($user->id_utilisateur); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <span
-                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($user['id']); ?></span>
+                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($user->id_utilisateur); ?></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
                                     <div
                                         class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                         <span
-                                            class="text-green-600 font-medium"><?php echo substr(htmlspecialchars($user['username']), 0, 1); ?></span>
+                                            class="text-green-600 font-medium"><?php echo substr(htmlspecialchars($user->nom_utilisateur), 0, 1); ?></span>
                                     </div>
-                                    <span><?php echo htmlspecialchars($user['username']); ?></span>
+                                    <span><?php echo htmlspecialchars($user->nom_utilisateur); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
                                     <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user['email']); ?>
+                                    <?php echo htmlspecialchars($user->email_utilisateur); ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
                                     <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user['role']); ?>
+                                    <?php echo htmlspecialchars($user->role_utilisateur); ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="status-badge px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?php echo $user['status'] === 'Actif' 
+                                    <?php echo $user->statut_utilisateur === 'Actif' 
                                         ? 'bg-green-100 text-green-800' 
                                         : 'bg-red-100 text-red-800'; ?>">
                                     <i
-                                        class="fas <?php echo $user['status'] === 'Actif' ? 'fa-check-circle' : 'fa-times-circle'; ?> mr-1 text-center pt-1"></i>
-                                    <?php echo htmlspecialchars($user['status']); ?>
+                                        class="fas <?php echo $user->statut_utilisateur === 'Actif' ? 'fa-check-circle' : 'fa-times-circle'; ?> mr-1 text-center pt-1"></i>
+                                    <?php echo htmlspecialchars($user->statut_utilisateur); ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -330,8 +355,8 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-700">
                         Affichage de <span class="font-medium">1</span> à <span
-                            class="font-medium"><?php echo count($users); ?></span> sur <span
-                            class="font-medium"><?php echo count($users); ?></span> résultats
+                            class="font-medium"><?php echo count($utilisateurs); ?></span> sur <span
+                            class="font-medium"><?php echo count($utilisateurs); ?></span> résultats
                     </p>
                     <div class="flex items-center space-x-1">
                         <button
@@ -361,48 +386,47 @@ $roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
     </div>
 
     <script>
-    // Manage the user modal
+    // Variables pour le modal utilisateur
     const userModal = document.getElementById('userModal');
     const userForm = document.getElementById('userForm');
     const userModalTitle = document.getElementById('userModalTitle');
+    const userModalSubmitButton = document.getElementById('userModalSubmitButton');
     const userIdField = document.getElementById('userId');
     const usernameField = document.getElementById('username');
     const emailField = document.getElementById('email');
     const fonctionField = document.getElementById('fonction');
-    const niveau_acces = document.getElementById('niveau_acces');
-    const guField = document.getElementById('gu');
-    const typeField = document.getElementById('type_utilisateur');
     const statusField = document.getElementById('status');
-    const userModalSubmitButton = document.getElementById('userModalSubmitButton');
+    const typeField = document.getElementById('type_utilisateur');
+    const guField = document.getElementById('gu');
+    const niveau_acces = document.getElementById('niveau_acces');
     const searchInput = document.getElementById('searchInput');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('deleteButton');
 
-    function openUserModal(userData = null) {
-        userForm.reset(); // Reset form fields
+    // Fonction pour ouvrir le modal
+    function openUserModal(userData) {
         if (userData) {
             userModalTitle.textContent = 'Modifier l\'Utilisateur';
             userModalSubmitButton.textContent = 'Mettre à jour';
-            userIdField.value = userData.id;
-            usernameField.value = userData.username;
-            emailField.value = userData.email;
-            fonctionField.value = userData.role;
-            statusField.value = userData.status;
-            typeField.value = userData.type || '';
+            userIdField.value = userData.id_utilisateur;
+            usernameField.value = userData.nom_utilisateur;
+            emailField.value = userData.email_utilisateur;
+            fonctionField.value = userData.role_utilisateur;
+            statusField.value = userData.statut_utilisateur;
+            typeField.value = userData.type_utilisateur || '';
             guField.value = userData.gu || 'Administrateur';
             niveau_acces.value = userData.niveau_acces || 'Administrateur';
         } else {
             userModalTitle.textContent = 'Ajouter un Utilisateur';
             userModalSubmitButton.textContent = 'Enregistrer';
-            userIdField.value = '';
+            userForm.reset();
         }
         userModal.classList.remove('hidden');
-
     }
 
+    // Fonction pour fermer le modal
     function closeUserModal() {
         userModal.classList.add('hidden');
-
     }
 
     // Search functionality

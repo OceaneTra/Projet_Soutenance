@@ -17,6 +17,7 @@ require_once __DIR__ . '/../models/Semestre.php';
 require_once __DIR__ . '/../models/Traitement.php';
 require_once __DIR__ . '/../models/Entreprise.php';
 require_once __DIR__ . '/../models/Message.php';
+require_once __DIR__ . '/../models/Attribution.php';
 
 class ParametreController
 {
@@ -39,6 +40,8 @@ class ParametreController
     private $traitement;
     private $message;
 
+    private $attribution;
+
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/partials/parametres_generaux/';
@@ -59,6 +62,7 @@ class ParametreController
         $this->traitement = new Traitement(Database::getConnection());
         $this->entreprise = new Entreprise(Database::getConnection());
         $this->message = new Message(Database::getConnection());
+        $this->attribution = new Attribution(Database::getConnection());
     }
 
 
@@ -76,35 +80,35 @@ class ParametreController
             $annee1 = date("Y", strtotime($dateDebut));
             $annee2 = date("Y", strtotime($dateFin));
             // Calculer le nouvel ID basé sur les nouvelles dates
-            $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);  
-             if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
-                    $messageErreur = "Les dates de début et de fin ne sont pas valides.";
-                } 
+            $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
+            if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
+                $messageErreur = "Les dates de début et de fin ne sont pas valides.";
+            }
             if ($this->anneeAcademique->isAnneeAcademiqueExist($nouvel_id, $dateDebut, $dateFin)) {
-                        $messageErreur = "Cette année académique existe déjà.";
-                    }
-        // Vérification de l'existence de l'année académique
-                if ($this->anneeAcademique->isAnneeAcademiqueInUse($nouvel_id)) {
-                    $messageErreur = "Cette année académique est déjà utilisée.";
-                }
+                $messageErreur = "Cette année académique existe déjà.";
+            }
+            // Vérification de l'existence de l'année académique
+            if ($this->anneeAcademique->isAnneeAcademiqueInUse($nouvel_id)) {
+                $messageErreur = "Cette année académique est déjà utilisée.";
+            }
             if (!empty($_POST['id_annee_acad'])) {
-                
+
                 // Calculer le nouvel ID basé sur les nouvelles dates
-                $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);     
+                $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
                 // MODIFICATION
-               if($this->anneeAcademique->updateAnneeAcademique($nouvel_id, $dateDebut, $dateFin)){
+                if ($this->anneeAcademique->updateAnneeAcademique($nouvel_id, $dateDebut, $dateFin)) {
                     $messageSuccess = "Année académique modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la mise à jour de l'année académique.";
                 }
             } else {
                 // AJOUT
-                if ($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)){
+                if ($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
                     $messageSuccess = "Année académique ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'année académique.";
                 }
-               
+
             }
         }
 
@@ -112,16 +116,16 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && $_POST['submit_delete_multiple'] == '1' && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->anneeAcademique->deleteAnneeAcademique($id)) {
+                if (!$this->anneeAcademique->deleteAnneeAcademique($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Années académiques supprimées avec succès.";
             } else {
-               $messageErreur = "Erreur lors de la suppression des années académiques.";
+                $messageErreur = "Erreur lors de la suppression des années académiques.";
             }
         }
 
@@ -152,14 +156,14 @@ class ParametreController
 
             if (!empty($_POST['id_grade'])) {
                 // MODIFICATION
-                if($this->grade->updateGrade($_POST['id_grade'], $lib_grade)) {
+                if ($this->grade->updateGrade($_POST['id_grade'], $lib_grade)) {
                     $messageSuccess = "Grade modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du grade.";
                 }
             } else {
                 // AJOUT
-                if($this->grade->ajouterGrade($lib_grade)) {
+                if ($this->grade->ajouterGrade($lib_grade)) {
                     $messageSuccess = "Grade ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du grade.";
@@ -171,12 +175,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->grade->deleteGrade($id)) {
+                if (!$this->grade->deleteGrade($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Grades supprimés avec succès.";
             } else {
@@ -214,13 +218,13 @@ class ParametreController
                 $lib_groupe = $_POST['lib_groupe'];
 
                 if (!empty($_POST['id_groupe'])) {
-                    if($this->groupeUtilisateur->updateGroupeUtilisateur($_POST['id_groupe'], $lib_groupe)) {
+                    if ($this->groupeUtilisateur->updateGroupeUtilisateur($_POST['id_groupe'], $lib_groupe)) {
                         $messageSuccess = "Groupe utilisateur modifié avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de la modification du groupe utilisateur.";
                     }
                 } else {
-                    if($this->groupeUtilisateur->ajouterGroupeUtilisateur($lib_groupe)) {
+                    if ($this->groupeUtilisateur->ajouterGroupeUtilisateur($lib_groupe)) {
                         $messageSuccess = "Groupe utilisateur ajouté avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du groupe utilisateur.";
@@ -232,12 +236,12 @@ class ParametreController
             if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
                 $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
-                    if(!$this->groupeUtilisateur->deleteGroupeUtilisateur($id)) {
+                    if (!$this->groupeUtilisateur->deleteGroupeUtilisateur($id)) {
                         $success = false;
                         break;
                     }
                 }
-                
+
                 if ($success) {
                     $messageSuccess = "Groupes utilisateurs supprimés avec succès.";
                 } else {
@@ -257,17 +261,17 @@ class ParametreController
 
         //======PARTIE TYPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'types') {
-            if (isset($_POST['submit_add_type']) || isset($_POST['btnModifierType'])) {
+            if (isset($_POST['submit_add_type']) || isset($_POST['btn_modifier_type'])) {
                 $lib_type = $_POST['lib_type_utilisateur'];
 
                 if (!empty($_POST['id_type_utilisateur'])) {
-                    if($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type)) {
+                    if ($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type)) {
                         $messageSuccess = "Type utilisateur modifié avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de la modification du type utilisateur.";
                     }
                 } else {
-                    if($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type)) {
+                    if ($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type)) {
                         $messageSuccess = "Type utilisateur ajouté avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du type utilisateur.";
@@ -279,12 +283,12 @@ class ParametreController
             if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
                 $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
-                    if(!$this->typeUtilisateur->deleteTypeUtilisateur($id)) {
+                    if (!$this->typeUtilisateur->deleteTypeUtilisateur($id)) {
                         $success = false;
                         break;
                     }
                 }
-                
+
                 if ($success) {
                     $messageSuccess = "Types utilisateurs supprimés avec succès.";
                 } else {
@@ -306,10 +310,10 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION FONCTION UTILISATEUR=============================
+    //=============================FIN GESTION FONCTION UTILISATEUR=============================
 
 
-//=============================GESTION SPECIALITE=============================
+    //=============================GESTION SPECIALITE=============================
     public function gestionSpecialite()
     {
         $specialite_a_modifier = null;
@@ -317,17 +321,17 @@ class ParametreController
         $messageSuccess = '';
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_specialite'])|| isset($_POST['btn_modifier_specialite'])) {
+        if (isset($_POST['btn_add_specialite']) || isset($_POST['btn_modifier_specialite'])) {
             $lib_specialite = $_POST['specialite'];
 
             if (!empty($_POST['id_specialite'])) {
-                if($this->specialite->updateSpecialite($_POST['id_specialite'], $lib_specialite)) {
+                if ($this->specialite->updateSpecialite($_POST['id_specialite'], $lib_specialite)) {
                     $messageSuccess = "Spécialité modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de la spécialité.";
                 }
             } else {
-                if($this->specialite->ajouterSpecialite($lib_specialite)) {
+                if ($this->specialite->ajouterSpecialite($lib_specialite)) {
                     $messageSuccess = "Spécialité ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de la spécialité.";
@@ -339,12 +343,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->specialite->deleteSpecialite($id)) {
+                if (!$this->specialite->deleteSpecialite($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Spécialités supprimées avec succès.";
             } else {
@@ -373,17 +377,17 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_niveau_etude']) || isset($_POST['btn_modifier_niveau_etude'])) {
+        if (isset($_POST['btn_add_niveau']) || isset($_POST['btn_modifier_niveau'])) {
             $lib_niveau = $_POST['lib_niv_etude'];
 
             if (!empty($_POST['id_niv_etude'])) {
-                if($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau)) {
+                if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'étude modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'étude.";
                 }
             } else {
-                if($this->niveauEtude->ajouterNiveauEtude($lib_niveau)) {
+                if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau)) {
                     $messageSuccess = "Niveau d'étude ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'étude.";
@@ -394,12 +398,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->niveauEtude->deleteNiveauEtude($id)) {
+                if (!$this->niveauEtude->deleteNiveauEtude($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Niveaux d'étude supprimés avec succès.";
             } else {
@@ -426,21 +430,21 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['submit_add_ue'])) {
+        if (isset($_POST['btn_add_ue']) || isset($_POST['btn_modifier_ue'])) {
             $lib_ue = $_POST['lib_ue'];
-            $credit = $_POST['credits'];
-            $id_niveau_etude = $_POST['niveau'];
+            $credit = $_POST['credit'];
+            $id_niveau_etude = $_POST['niveau_etude'];
             $id_semestre = $_POST['semestre'];
-            $id_annee = $_POST['annee_academiques'];
+            $id_annee = $_POST['annee_academique'];
 
             if (!empty($_POST['id_ue'])) {
-                if($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                if ($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
                     $messageSuccess = "UE modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'UE.";
                 }
             } else {
-                if($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                if ($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
                     $messageSuccess = "UE ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'UE.";
@@ -451,12 +455,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->ue->deleteUe($id)) {
+                if (!$this->ue->deleteUe($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "UEs supprimées avec succès.";
             } else {
@@ -492,13 +496,13 @@ class ParametreController
             $credit = $_POST['credits'];
 
             if (!empty($_POST['id_ecue'])) {
-                if($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit)) {
+                if ($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit)) {
                     $messageSuccess = "ECUE modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'ECUE.";
                 }
             } else {
-                if($this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit)) {
+                if ($this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit)) {
                     $messageSuccess = "ECUE ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'ECUE.";
@@ -509,12 +513,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->ecue->deleteEcue($id)) {
+                if (!$this->ecue->deleteEcue($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "ECUEs supprimées avec succès.";
             } else {
@@ -547,13 +551,13 @@ class ParametreController
             $lib_statut = $_POST['statut_jury'];
 
             if (!empty($_POST['id_statut_jury'])) {
-                if($this->statutJury->updateStatutJury($_POST['id_statut_jury'], $lib_statut)) {
+                if ($this->statutJury->updateStatutJury($_POST['id_statut_jury'], $lib_statut)) {
                     $messageSuccess = "Statut jury modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du statut jury.";
                 }
             } else {
-                if($this->statutJury->ajouterStatutJury($lib_statut)) {
+                if ($this->statutJury->ajouterStatutJury($lib_statut)) {
                     $messageSuccess = "Statut jury ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du statut jury.";
@@ -564,12 +568,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->statutJury->deleteStatutJury($id)) {
+                if (!$this->statutJury->deleteStatutJury($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Statuts jury supprimés avec succès.";
             } else {
@@ -600,13 +604,13 @@ class ParametreController
             $lib_niveau = $_POST['niveaux_approbation'];
 
             if (!empty($_POST['id_approb'])) {
-                if($this->niveauApprobation->updateNiveauApprobation($_POST['id_approb'], $lib_niveau)) {
+                if ($this->niveauApprobation->updateNiveauApprobation($_POST['id_approb'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'approbation modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'approbation.";
                 }
             } else {
-                if($this->niveauApprobation->ajouterNiveauApprobation($lib_niveau)) {
+                if ($this->niveauApprobation->ajouterNiveauApprobation($lib_niveau)) {
                     $messageSuccess = "Niveau d'approbation ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'approbation.";
@@ -617,12 +621,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->niveauApprobation->deleteNiveauApprobation($id)) {
+                if (!$this->niveauApprobation->deleteNiveauApprobation($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Niveaux d'approbation supprimés avec succès.";
             } else {
@@ -642,7 +646,7 @@ class ParametreController
     //=============================FIN GESTION NIVEAU APPROBATION=============================
 
 
-//=============================GESTION SEMESTRES=============================
+    //=============================GESTION SEMESTRES=============================
     public function gestionSemestre()
     {
         $semestre_a_modifier = null;
@@ -653,13 +657,13 @@ class ParametreController
             $lib_semestre = $_POST['lib_semestre'];
 
             if (!empty($_POST['id_semestre'])) {
-                if($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre)) {
+                if ($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre)) {
                     $messageSuccess = "Semestre modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du semestre.";
                 }
             } else {
-                if($this->semestre->ajouterSemestre($lib_semestre)) {
+                if ($this->semestre->ajouterSemestre($lib_semestre)) {
                     $messageSuccess = "Semestre ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du semestre.";
@@ -670,12 +674,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->semestre->deleteSemestre($id)) {
+                if (!$this->semestre->deleteSemestre($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Semestres supprimés avec succès.";
             } else {
@@ -692,10 +696,10 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION SEMESTRES=============================
+    //=============================FIN GESTION SEMESTRES=============================
 
 
-//=============================GESTION NIVEAU ACCES DONNEES=============================
+    //=============================GESTION NIVEAU ACCES DONNEES=============================
     public function gestionNiveauAccesDonnees()
     {
         $niveau_a_modifier = null;
@@ -706,13 +710,13 @@ class ParametreController
             $lib_niveau = $_POST['lib_niveau_acces_donnees'];
 
             if (!empty($_POST['id_niveau_acces_donnees'])) {
-                if($this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
+                if ($this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'accès modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'accès.";
                 }
             } else {
-                if($this->niveauAccesDonnees->ajouterNiveauAccesDonnees($lib_niveau)) {
+                if ($this->niveauAccesDonnees->ajouterNiveauAccesDonnees($lib_niveau)) {
                     $messageSuccess = "Niveau d'accès ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'accès.";
@@ -723,12 +727,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->niveauAccesDonnees->deleteNiveauAccesDonnees($id)) {
+                if (!$this->niveauAccesDonnees->deleteNiveauAccesDonnees($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Niveaux d'accès supprimés avec succès.";
             } else {
@@ -756,20 +760,20 @@ class ParametreController
         $messageSuccess = '';
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_traitement'] )|| isset($_POST['btn_modifier_traitement'])) {
+        if (isset($_POST['btn_add_traitement']) || isset($_POST['btn_modifier_traitement'])) {
             $lib_traitement = $_POST['lib_traitement'];
             $label_traitement = $_POST['label_traitement'];
             $icone_traitement = $_POST['icone_traitement'];
             $ordre_traitement = $_POST['ordre_traitement'];
 
             if (!empty($_POST['id_traitement'])) {
-                if($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
+                if ($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du traitement.";
                 }
             } else {
-                if($this->traitement->ajouterTraitement($lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
+                if ($this->traitement->ajouterTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du traitement.";
@@ -781,12 +785,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->traitement->deleteTraitement($id)) {
+                if (!$this->traitement->deleteTraitement($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Traitements supprimés avec succès.";
             } else {
@@ -803,7 +807,7 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION TRAITEMENT============================
+    //=============================FIN GESTION TRAITEMENT============================
 
 
     //=============================GESTION ENTREPRISE=============================
@@ -817,13 +821,13 @@ class ParametreController
             $lib_entreprise = $_POST['lib_entreprise'];
 
             if (!empty($_POST['id_entreprise'])) {
-                if($this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise)) {
+                if ($this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise)) {
                     $messageSuccess = "Entreprise modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'entreprise.";
                 }
             } else {
-                if($this->entreprise->ajouterEntreprise($lib_entreprise)) {
+                if ($this->entreprise->ajouterEntreprise($lib_entreprise)) {
                     $messageSuccess = "Entreprise ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'entreprise.";
@@ -834,12 +838,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->entreprise->deleteEntreprise($id)) {
+                if (!$this->entreprise->deleteEntreprise($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Entreprises supprimées avec succès.";
             } else {
@@ -856,9 +860,9 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION ENTREPRISE============================
+    //=============================FIN GESTION ENTREPRISE============================
 
-//=============================GESTION ACTION=============================
+    //=============================GESTION ACTION=============================
     public function gestionAction()
     {
         $action_a_modifier = null;
@@ -869,13 +873,13 @@ class ParametreController
             $lib_action = $_POST['action'];
 
             if (!empty($_POST['id_action'])) {
-                if($this->action->updateAction($_POST['id_action'], $lib_action)) {
+                if ($this->action->updateAction($_POST['id_action'], $lib_action)) {
                     $messageSuccess = "Action modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'action.";
                 }
             } else {
-                if($this->action->ajouterAction($lib_action)) {
+                if ($this->action->ajouterAction($lib_action)) {
                     $messageSuccess = "Action ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'action.";
@@ -886,12 +890,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->action->deleteAction($id)) {
+                if (!$this->action->deleteAction($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Actions supprimées avec succès.";
             } else {
@@ -908,9 +912,9 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION ACTION============================
+    //=============================FIN GESTION ACTION============================
 
-//=============================GESTION FONCTION=============================
+    //=============================GESTION FONCTION=============================
     public function gestionFonction()
     {
         $fonction_a_modifier = null;
@@ -921,13 +925,13 @@ class ParametreController
             $lib_fonction = $_POST['lib_fonction'];
 
             if (!empty($_POST['id_fonction'])) {
-                if($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
+                if ($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
                     $messageSuccess = "Fonction modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de la fonction.";
                 }
             } else {
-                if($this->fonction->ajouterFonction($lib_fonction)) {
+                if ($this->fonction->ajouterFonction($lib_fonction)) {
                     $messageSuccess = "Fonction ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de la fonction.";
@@ -938,12 +942,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->fonction->deleteFonction($id)) {
+                if (!$this->fonction->deleteFonction($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Fonctions supprimées avec succès.";
             } else {
@@ -960,9 +964,9 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION FONCTION============================
+    //=============================FIN GESTION FONCTION============================
 
-//=============================GESTION MESSAGERIE=============================
+    //=============================GESTION MESSAGERIE=============================
     public function gestionMessagerie()
     {
         $message_a_modifier = null;
@@ -975,13 +979,13 @@ class ParametreController
             $type_message = $_POST['type_message'];
 
             if (!empty($_POST['id_message'])) {
-                if($this->message->updateMessage($_POST['id_message'], $contenu_message, $lib_message, $type_message)) {
+                if ($this->message->updateMessage($_POST['id_message'], $contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du message.";
                 }
             } else {
-                if($this->message->ajouterMessage($contenu_message, $lib_message, $type_message)) {
+                if ($this->message->ajouterMessage($contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du message.";
@@ -992,12 +996,12 @@ class ParametreController
         if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
             $success = true;
             foreach ($_POST['selected_ids'] as $id) {
-                if(!$this->message->deleteMessage($id)) {
+                if (!$this->message->deleteMessage($id)) {
                     $success = false;
                     break;
                 }
             }
-            
+
             if ($success) {
                 $messageSuccess = "Messages supprimés avec succès.";
             } else {
@@ -1014,10 +1018,69 @@ class ParametreController
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-//=============================FIN GESTION MESSAGERIE============================
+    //=============================FIN GESTION MESSAGERIE============================
 
 
+    //============================GESTION ATTRIBUTION==================================
+
+    public function gestionAttribution()
+    {
+        $attribution_a_modifier = null;
+        $messageErreur = '';
+        $messageSuccess = '';
+
+        if (isset($_POST['btn_add_attribution']) || isset($_POST['btn_modifier_attribution'])) {
+            $lib_attribution = $_POST['lib_attribution'];
+            /*
+                    if (!empty($_POST['id_attribution'])) {
+                        if($this->attribution->updateAttribution($_POST['id_attribution'], $lib_attribution)) {
+                            $messageSuccess = "Attribution modifiée avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de la modification de l'attribution.";
+                        }
+                    } else {
+                        if($this->attribution->ajouterAttribution($lib_attribution)) {
+                            $messageSuccess = "Attribution ajoutée avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de l'ajout de l'attribution.";
+                        }
+                    }
+                }
+
+                if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
+                    $success = true;
+                    foreach ($_POST['selected_ids'] as $id) {
+                        if(!$this->attribution->deleteAttribution($id)) {
+                            $success = false;
+                            break;
+                        }
+                    }
+                    
+                    if ($success) {
+                        $messageSuccess = "Attributions supprimées avec succès.";
+                    } else {
+                        $messageErreur = "Erreur lors de la suppression des attributions.";
+                    }
+                }
+
+                if (isset($_GET['id_attribution'])) {
+                    $attribution_a_modifier = $this->attribution->getAttributionById($_GET['id_attribution']);
+                }
+
+                $GLOBALS['attribution_a_modifier'] = $attribution_a_modifier;
+                $GLOBALS['listeAttributions'] = $this->attribution->getAllAttributions();
+                $GLOBALS['messageErreur'] = $messageErreur;
+                $GLOBALS['messageSuccess'] = $messageSuccess;
+                */
+        }
+    }
 }
+
+
+//==============================FIN GESTION ATTRIBUTION==============================
+
+
+
 /*Ce fichier est le contrôleur principal pour la gestion des paramètres généraux de l'application.
     Il gère les actions liées aux entités telles que les années académiques, les grades, les ECUE, etc.
     Chaque méthode correspond à une fonctionnalité spécifique et interagit avec le modèle approprié. */

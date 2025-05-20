@@ -827,17 +827,13 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
         // Supprimer les colonnes ID, Actions et Checkboxes
         const rows = tableClone.querySelectorAll('tr');
         rows.forEach(row => {
+            const cells = row.querySelectorAll('th, td');
             // Supprimer la colonne des checkboxes (première colonne)
-            const checkboxCell = row.querySelector('th:first-child, td:first-child');
-            if (checkboxCell) checkboxCell.remove();
-
+            if (cells[0]) cells[0].remove();
             // Supprimer la colonne ID (maintenant première colonne)
-            const idCell = row.querySelector('th:first-child, td:first-child');
-            if (idCell) idCell.remove();
-
+            if (cells[0]) cells[0].remove();
             // Supprimer la colonne Actions (dernière colonne)
-            const actionCell = row.querySelector('th:last-child, td:last-child');
-            if (actionCell) actionCell.remove();
+            if (cells[cells.length - 1]) cells[cells.length - 1].remove();
         });
 
         printWindow.document.write(`
@@ -855,7 +851,7 @@ if (!in_array($activeTab, ['groupes', 'types'])) {
                 </head>
                 <body>
                     <h2>Liste des ${type} utilisateur</h2>
-                    ${table.outerHTML}
+                    ${tableClone.outerHTML}
                 </body>
             </html>
         `);

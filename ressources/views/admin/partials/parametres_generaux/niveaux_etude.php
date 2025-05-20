@@ -217,12 +217,7 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 placeholder="Ex: Licence 1"
                                 class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea id="description" name="description" rows="3"
-                                placeholder="Description du niveau d'étude"
-                                class="form-textarea w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200"><?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->description) : '' ?></textarea>
-                        </div>
+
                     </div>
 
                     <div class="flex justify-between mt-6">
@@ -261,7 +256,8 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                             <input type="hidden" name="page" value="parametres_generaux">
                             <input type="hidden" name="action" value="niveaux_etude">
                             <div class="relative flex-1">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
                                     class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
                             </div>
@@ -301,8 +297,8 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -319,9 +315,6 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-700">
                                     <?= htmlspecialchars($niveau->lib_niv_etude) ?>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    <?= htmlspecialchars($niveau->description) ?>
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex justify-center space-x-2">
@@ -493,7 +486,8 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
             updateDeleteButtonState();
             const allCheckboxes = document.querySelectorAll('.row-checkbox');
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
         }
     });
 
