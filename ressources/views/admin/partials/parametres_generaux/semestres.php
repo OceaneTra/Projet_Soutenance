@@ -213,7 +213,20 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                             <input type="text" id="lib_semestre" name="lib_semestre" required
                                 value="<?= $semestre_a_modifier ? htmlspecialchars($semestre_a_modifier->lib_semestre) : '' ?>"
                                 placeholder="Ex: Semestre 1"
-                                class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Niveau d'étude</label>
+                            <select id="niveau_etude" name="niveau_etude" required
+                                class="form-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                <option value="">Sélectionnez un niveau</option>
+                                <?php foreach ($GLOBALS['listeNiveaux'] as $niveau): ?>
+                                <option value="<?= $niveau->id_niv_etude ?>"
+                                    <?= $semestre_a_modifier && $semestre_a_modifier->id_niveau_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($niveau->lib_niv_etude) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 
@@ -245,17 +258,16 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
             <div class="bg-white rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
                     <i class="fas fa-list-ul text-green-500 mr-2"></i>
-                    Liste des niveau d'étude
+                    Liste des semestres
                 </h3>
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex justify-between items-center mb-4">
                     <!-- Barre de recherche -->
                     <div class="flex-1 max-w-md">
                         <form action="" method="GET" class="flex gap-3">
                             <input type="hidden" name="page" value="parametres_generaux">
-                            <input type="hidden" name="action" value="niveaux_etude">
+                            <input type="hidden" name="action" value="semestres">
                             <div class="relative flex-1">
-                                <i
-                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
                                     class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
                             </div>
@@ -283,8 +295,8 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                     </div>
                 </div>
 
-                <form method="POST" action="?page=parametres_generaux&action=semestres" id="FormListeSemestre"
-                    class="overflow-x-auto">
+                <form class="overflow-x-auto" method="POST" action="?page=parametres_generaux&action=semestres"
+                    id="formListeSemestres">
                     <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
                     <table class="w-full">
                         <thead class="bg-gray-50">
@@ -295,8 +307,8 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
-                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -314,20 +326,22 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                                 <td class="px-4 py-3 text-sm text-gray-700">
                                     <?= htmlspecialchars($semestre->lib_semestre) ?>
                                 </td>
+                                <td class="px-4 py-3 text-sm text-gray-700">
+                                    <?= htmlspecialchars($semestre->lib_niv_etude) ?>
+                                </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex justify-center space-x-2">
                                         <a href="?page=parametres_generaux&action=semestres&id_semestre=<?= $semestre->id_semestre ?>"
                                             class="text-blue-500 hover:text-blue-700 transition-colors">
                                             <i class="fas fa-edit"></i>
                                         </a>
-
                                     </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                             <?php else : ?>
                             <tr>
-                                <td colspan="4" class="text-center text-sm text-gray-500 py-4">
+                                <td colspan="5" class="text-center text-sm text-gray-500 py-4">
                                     Aucun semestre enregistré.
                                 </td>
                             </tr>
@@ -393,10 +407,6 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
         </main>
     </div>
 
-    <?php
-    unset($GLOBALS['messageErreur'], $GLOBALS['messageSucces']);
-    ?>
-
     <!-- Modale de confirmation de suppression -->
     <div id="deleteModal"
         class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
@@ -408,7 +418,7 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
                 <p class="text-sm text-gray-500 mb-6">
                     <i class="fas fa-info-circle mr-2"></i>
-                    Êtes-vous sûr de vouloir supprimer les éléments sélectionnés ?
+                    Êtes-vous sûr de vouloir supprimer les semestres sélectionnés ?
                 </p>
                 <div class="flex justify-center gap-4">
                     <button type="button" id="confirmDelete"
@@ -435,7 +445,7 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
                 <p class="text-sm text-gray-500 mb-6">
                     <i class="fas fa-info-circle mr-2"></i>
-                    Êtes-vous sûr de vouloir modifier cet élément ?
+                    Êtes-vous sûr de vouloir modifier ce semestre ?
                 </p>
                 <div class="flex justify-center gap-4">
                     <button type="button" id="confirmModify"
@@ -454,11 +464,11 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
     <script>
     // Gestion des checkboxes et du bouton de suppression
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const deleteButton = document.getElementById('deleteSelectedBtn');
     const deleteModal = document.getElementById('deleteModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-    const formListeSemestre = document.getElementById('FormListeSemestre');
+    const formListeSemestres = document.getElementById('formListeSemestres');
     const submitDeleteHidden = document.getElementById('submitDeleteHidden');
     const btnModifier = document.getElementById('btnModifier');
     const modifyModal = document.getElementById('modifyModal');
@@ -480,30 +490,29 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
     // Update delete button state
     function updateDeleteButtonState() {
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-        deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+        deleteButton.disabled = checkedBoxes.length === 0;
     }
 
     // Checkbox change events
     document.addEventListener('change', function(e) {
-        if (e.target.name === 'selected_ids[]') {
+        if (e.target.classList.contains('row-checkbox')) {
             updateDeleteButtonState();
             const allCheckboxes = document.querySelectorAll('.row-checkbox');
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
-                0;
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length > 0;
         }
     });
 
     // Delete modal
-    deleteSelectedBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        deleteModal.classList.remove('hidden');
+    deleteButton.addEventListener('click', function() {
+        if (!this.disabled) {
+            deleteModal.classList.remove('hidden');
+        }
     });
 
     confirmDelete.addEventListener('click', function() {
         submitDeleteHidden.value = '1';
-        if (formListeSemestre) formListeSemestre.submit();
-        deleteModal.classList.add('hidden');
+        formListeSemestres.submit();
     });
 
     cancelDelete.addEventListener('click', function() {
@@ -518,25 +527,12 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
     }
 
     confirmModify.addEventListener('click', function() {
-        if (submitModifierHidden) {
-            submitModifierHidden.value = '1';
-            if (semestreForm) semestreForm.submit();
-        }
-        modifyModal.classList.add('hidden');
+        submitModifierHidden.value = '1';
+        semestreForm.submit();
     });
 
     cancelModify.addEventListener('click', function() {
         modifyModal.classList.add('hidden');
-    });
-
-    // Fermer les modales si on clique en dehors
-    window.addEventListener('click', function(e) {
-        if (e.target === deleteModal) {
-            deleteModal.classList.add('hidden');
-        }
-        if (e.target === modifyModal) {
-            modifyModal.classList.add('hidden');
-        }
     });
 
     // Fonction pour exporter en Excel
@@ -565,7 +561,7 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'Semestre.csv');
+        link.setAttribute('download', 'semestres.csv');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -598,7 +594,7 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
         printWindow.document.write(`
             <html>
                 <head>
-                    <title>Liste des Semestres</title>
+                    <title>Liste des semestres</title>
                     <style>
                         table { width: 100%; border-collapse: collapse; }
                         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -609,7 +605,7 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                     </style>
                 </head>
                 <body>
-                    <h2>Liste des Semestres</h2>
+                    <h2>Liste des semestres</h2>
                     ${tableClone.outerHTML}
                 </body>
             </html>
@@ -647,6 +643,10 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
         }
     });
     </script>
+
+    <?php
+    unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);
+    ?>
 </body>
 
 </html>

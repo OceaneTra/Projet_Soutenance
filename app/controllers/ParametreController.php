@@ -210,7 +210,7 @@ class ParametreController
 
         //======PARTIE GROUPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'groupes') {
-            if (isset($_POST['submit_add_groupe']) || isset($_POST['submit_modifier_groupe'])) {
+            if (isset($_POST['submit_add_groupe']) || isset($_POST['btn_modifier_groupe'])) {
                 $lib_groupe = $_POST['lib_groupe'];
 
                 if (!empty($_POST['id_groupe'])) {
@@ -969,17 +969,19 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_message'])) {
-            $contenu_message = $_POST['message'];
+        if (isset($_POST['btn_add_message']) || isset($_POST['btn_modifier_message'])) {
+            $contenu_message = $_POST['contenu_message'];
+            $lib_message = $_POST['lib_message'];
+            $type_message = $_POST['type_message'];
 
             if (!empty($_POST['id_message'])) {
-                if($this->message->updateMessage($_POST['id_message'], $contenu_message)) {
+                if($this->message->updateMessage($_POST['id_message'], $contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du message.";
                 }
             } else {
-                if($this->message->ajouterMessage($contenu_message)) {
+                if($this->message->ajouterMessage($contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du message.";
