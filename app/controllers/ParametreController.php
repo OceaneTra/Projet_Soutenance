@@ -210,7 +210,7 @@ class ParametreController
 
         //======PARTIE GROUPE UTILISATEUR======
         if (isset($_GET['tab']) && $_GET['tab'] === 'groupes') {
-            if (isset($_POST['submit_add_groupe'])) {
+            if (isset($_POST['submit_add_groupe']) || isset($_POST['btn_modifier_groupe'])) {
                 $lib_groupe = $_POST['lib_groupe'];
 
                 if (!empty($_POST['id_groupe'])) {
@@ -229,7 +229,7 @@ class ParametreController
             }
 
             // Suppression multiple
-            if (isset($_POST['submit_delete_multiple_groupe']) && isset($_POST['selected_ids'])) {
+            if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
                 $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
                     if(!$this->groupeUtilisateur->deleteGroupeUtilisateur($id)) {
@@ -245,7 +245,7 @@ class ParametreController
                 }
             }
 
-            // Récupération du grade à modifier pour affichage dans le formulaire
+            // Récupération du groupe à modifier
             if (isset($_GET['id_groupe'])) {
                 $groupe_a_modifier = $this->groupeUtilisateur->getGroupeUtilisateurById($_GET['id_groupe']);
             }
@@ -254,21 +254,20 @@ class ParametreController
             $GLOBALS['groupe_a_modifier'] = $groupe_a_modifier;
             $GLOBALS['listeGroupes'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
         }
-        //======FIN PARTIE GROUPE UTILISATEUR======
-
 
         //======PARTIE TYPE UTILISATEUR======
-        if (isset($_GET['tab']) && $_GET['tab'] == 'types') {
-            if (isset($_POST['submit_add_type'])) {
-                $lib_type_utilisateur = $_POST['lib_type_utilisateur'];
+        if (isset($_GET['tab']) && $_GET['tab'] === 'types') {
+            if (isset($_POST['submit_add_type']) || isset($_POST['btnModifierType'])) {
+                $lib_type = $_POST['lib_type_utilisateur'];
+
                 if (!empty($_POST['id_type_utilisateur'])) {
-                    if($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type_utilisateur)) {
+                    if($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type)) {
                         $messageSuccess = "Type utilisateur modifié avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de la modification du type utilisateur.";
                     }
                 } else {
-                    if($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type_utilisateur)) {
+                    if($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type)) {
                         $messageSuccess = "Type utilisateur ajouté avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du type utilisateur.";
@@ -277,7 +276,7 @@ class ParametreController
             }
 
             // Suppression multiple
-            if (isset($_POST['submit_delete_multiple_type']) && isset($_POST['selected_ids'])) {
+            if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
                 $success = true;
                 foreach ($_POST['selected_ids'] as $id) {
                     if(!$this->typeUtilisateur->deleteTypeUtilisateur($id)) {
@@ -293,7 +292,7 @@ class ParametreController
                 }
             }
 
-            // Récupération du grade à modifier pour affichage dans le formulaire
+            // Récupération du type à modifier
             if (isset($_GET['id_type'])) {
                 $type_a_modifier = $this->typeUtilisateur->getTypeUtilisateurById($_GET['id_type']);
             }
@@ -303,9 +302,7 @@ class ParametreController
             $GLOBALS['listeTypes'] = $this->typeUtilisateur->getAllTypeUtilisateur();
         }
 
-        // 📦 Variables disponibles pour la vue
-        $GLOBALS['groupe_a_modifier'] = $groupe_a_modifier;
-        $GLOBALS['type_a_modifier'] = $type_a_modifier;
+        // 📦 Variables communes pour la vue
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
@@ -546,7 +543,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_statut_jury'])) {
+        if (isset($_POST['btn_add_statut_jury']) || isset($_POST['btn_modifier_statut_jury'])) {
             $lib_statut = $_POST['statut_jury'];
 
             if (!empty($_POST['id_statut_jury'])) {
@@ -599,7 +596,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_niveau_approbation'])) {
+        if (isset($_POST['btn_add_niveau_approbation']) || isset($_POST['btn_modifier_niveau_approbation'])) {
             $lib_niveau = $_POST['niveaux_approbation'];
 
             if (!empty($_POST['id_approb'])) {
@@ -652,8 +649,8 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_semestres'])) {
-            $lib_semestre = $_POST['semestres'];
+        if (isset($_POST['btn_add_semestre']) || isset($_POST['btn_modifier_semestre'])) {
+            $lib_semestre = $_POST['lib_semestre'];
 
             if (!empty($_POST['id_semestre'])) {
                 if($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre)) {
@@ -705,11 +702,11 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_niveau_acces_donnees'])) {
-            $lib_niveau = $_POST['niveau_acces_donnees'];
+        if (isset($_POST['btn_add_niveau']) || isset($_POST['btn_modifier_niveau_acces'])) {
+            $lib_niveau = $_POST['lib_niveau_acces_donnees'];
 
-            if (!empty($_POST['id_niveau_acces'])) {
-                if($this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces'], $lib_niveau)) {
+            if (!empty($_POST['id_niveau_acces_donnees'])) {
+                if($this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'accès modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'accès.";
@@ -739,8 +736,8 @@ class ParametreController
             }
         }
 
-        if (isset($_GET['id_niveau_acces'])) {
-            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau_acces']);
+        if (isset($_GET['id_niveau'])) {
+            $niveau_a_modifier = $this->niveauAccesDonnees->getNiveauAccesDonneesById($_GET['id_niveau']);
         }
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
@@ -759,17 +756,20 @@ class ParametreController
         $messageSuccess = '';
 
         // Ajout ou modification
-        if (isset($_POST['btn_add_traitement'])) {
-            $lib_traitement = $_POST['traitement'];
+        if (isset($_POST['btn_add_traitement'] )|| isset($_POST['btn_modifier_traitement'])) {
+            $lib_traitement = $_POST['lib_traitement'];
+            $label_traitement = $_POST['label_traitement'];
+            $icone_traitement = $_POST['icone_traitement'];
+            $ordre_traitement = $_POST['ordre_traitement'];
 
             if (!empty($_POST['id_traitement'])) {
-                if($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement)) {
+                if($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du traitement.";
                 }
             } else {
-                if($this->traitement->ajouterTraitement($lib_traitement)) {
+                if($this->traitement->ajouterTraitement($lib_traitement,$label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du traitement.";
@@ -813,8 +813,8 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_entreprise'])) {
-            $lib_entreprise = $_POST['entreprise'];
+        if (isset($_POST['btn_add_entreprise']) || isset($_POST['btn_modifier_entreprise'])) {
+            $lib_entreprise = $_POST['lib_entreprise'];
 
             if (!empty($_POST['id_entreprise'])) {
                 if($this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise)) {
@@ -865,7 +865,7 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_action'])) {
+        if (isset($_POST['btn_add_action']) || isset($_POST['btn_modifier_action'])) {
             $lib_action = $_POST['action'];
 
             if (!empty($_POST['id_action'])) {
@@ -917,8 +917,8 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_fonction'])) {
-            $lib_fonction = $_POST['fonction'];
+        if (isset($_POST['btn_add_fonction']) || isset($_POST['btn_modifier_fonction'])) {
+            $lib_fonction = $_POST['lib_fonction'];
 
             if (!empty($_POST['id_fonction'])) {
                 if($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
@@ -969,17 +969,19 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_message'])) {
-            $contenu_message = $_POST['message'];
+        if (isset($_POST['btn_add_message']) || isset($_POST['btn_modifier_message'])) {
+            $contenu_message = $_POST['contenu_message'];
+            $lib_message = $_POST['lib_message'];
+            $type_message = $_POST['type_message'];
 
             if (!empty($_POST['id_message'])) {
-                if($this->message->updateMessage($_POST['id_message'], $contenu_message)) {
+                if($this->message->updateMessage($_POST['id_message'], $contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du message.";
                 }
             } else {
-                if($this->message->ajouterMessage($contenu_message)) {
+                if($this->message->ajouterMessage($contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du message.";

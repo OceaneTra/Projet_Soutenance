@@ -270,11 +270,11 @@ $listeSpecialites = array_slice($listeSpecialites, $offset, $limit);
                     </div>
                     <!-- Bouton de suppression multiple -->
                     <div class="flex items-center space-x-4">
-                        <button id="exportBtn"
+                        <button id="exportBtn" onclick="exportToExcel()"
                             class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
                             <i class="fas fa-file-export mr-2"></i>Exporter
                         </button>
-                        <button id="printBtn"
+                        <button id="printBtn" onclick="printTable()"
                             class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                             <i class="fas fa-print mr-2"></i>Imprimer
                         </button>
@@ -505,38 +505,84 @@ $listeSpecialites = array_slice($listeSpecialites, $offset, $limit);
         modifyModal.classList.add('hidden');
     });
 
-    // Export functionality
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        // Créer un CSV à partir des données du tableau
-        let csv = [];
-        const rows = document.querySelectorAll('table tr');
+    // Fonction pour exporter en Excel
+    function exportToExcel() {
+        const table = document.querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tr'));
 
-        rows.forEach(row => {
-            const cols = row.querySelectorAll('td, th');
-            const rowData = Array.from(cols)
-                .map(col => col.textContent.trim())
-                .filter((col, index) => index !== 0 && index !==
-                    5); // Exclure la colonne checkbox et actions
-            if (rowData.length > 0) {
-                csv.push(rowData.join(','));
-            }
+        // Créer le contenu CSV
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Ajouter les en-têtes
+        const headers = Array.from(rows[0].querySelectorAll('th'))
+            .map(header => header.textContent.trim())
+            .filter(header => header !== ''); // Exclure la colonne des checkboxes
+        csvContent += headers.join(',') + '\n';
+
+        // Ajouter les données
+        rows.slice(1).forEach(row => {
+            const cells = Array.from(row.querySelectorAll('td'))
+                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
+                .map(cell => `"${cell.textContent.trim()}"`);
+            csvContent += cells.join(',') + '\n';
         });
 
-        // Créer et télécharger le fichier CSV
-        const csvContent = "data:text/csv;charset=utf-8," + csv.join('\n');
+        // Créer le lien de téléchargement
         const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "annees_academiques.csv");
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'specialites.csv');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    });
+    }
 
-    // Print functionality
-    document.getElementById('printBtn').addEventListener('click', function() {
-        window.print();
-    });
+
+    // Fonction pour imprimer
+    function printTable() {
+        const table = document.querySelector('table');
+        const printWindow = window.open('', '_blank');
+
+        // Créer une copie de la table pour la modification
+        const tableClone = table.cloneNode(true);
+
+        // Supprimer les colonnes ID, Actions et Checkboxes
+        const rows = tableClone.querySelectorAll('tr');
+        rows.forEach(row => {
+            // Supprimer la colonne des checkboxes (première colonne)
+            const checkboxCell = row.querySelector('th:first-child, td:first-child');
+            if (checkboxCell) checkboxCell.remove();
+
+            // Supprimer la colonne Actions (dernière colonne)
+            const actionCell = row.querySelector('th:last-child, td:last-child');
+            if (actionCell) actionCell.remove();
+        });
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liste des spécialités</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        @media print {
+                            body { margin: 0; padding: 15px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des spécialités</h2>
+                    ${tableClone.outerHTML}
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
 
     // Gestion des notifications
     document.addEventListener('DOMContentLoaded', function() {
