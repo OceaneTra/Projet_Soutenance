@@ -1,8 +1,29 @@
 <?php
 // Connexion à la base de données et récupération des données
-$listeGroupes = $GLOBALS['listeGroupe'];
+$listeGroupes = $GLOBALS['listeGroupes'];
 $listeTraitements = $GLOBALS['listeTraitements'];
-$attributions = $GLOBALS['attributions'] ?? [];
+$selectedGroupe = $GLOBALS['selectedGroupe'] ?? null;
+$attributionsGroupe = $GLOBALS['attributionsGroupe'] ?? [];
+$messageSuccess = $GLOBALS['messageSuccess'] ?? '';
+$messageErreur = $GLOBALS['messageErreur'] ?? '';
+
+// Gestion de la recherche
+$searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+$searchType = isset($_GET['search_type']) ? $_GET['search_type'] : '';
+
+// Filtrer les groupes si une recherche est effectuée
+if ($searchType === 'groupe' && !empty($searchTerm)) {
+    $listeGroupes = array_filter($listeGroupes, function($groupe) use ($searchTerm) {
+        return stripos($groupe->lib_GU, $searchTerm) !== false;
+    });
+}
+
+// Filtrer les traitements si une recherche est effectuée
+if ($searchType === 'traitement' && !empty($searchTerm)) {
+    $listeTraitements = array_filter($listeTraitements, function($traitement) use ($searchTerm) {
+        return stripos($traitement->label_traitement, $searchTerm) !== false;
+    });
+}
 ?>
 
 <!DOCTYPE html>
@@ -214,20 +235,20 @@ $attributions = $GLOBALS['attributions'] ?? [];
 <body class="bg-gray-100 min-h-screen">
 
     <!-- Système de notification -->
-    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <?php if (!empty($messageSuccess)): ?>
     <div id="successNotification" class="notification success animate__animated animate__fadeIn">
         <div class="flex items-center">
             <i class="fas fa-check-circle mr-2"></i>
-            <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
+            <p><?= htmlspecialchars($messageSuccess) ?></p>
         </div>
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <?php if (!empty($messageErreur)): ?>
     <div id="errorNotification" class="notification error animate__animated animate__fadeIn">
         <div class="flex items-center">
             <i class="fas fa-exclamation-circle mr-2"></i>
-            <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+            <p><?= htmlspecialchars($messageErreur) ?></p>
         </div>
     </div>
     <?php endif; ?>
@@ -258,19 +279,22 @@ $attributions = $GLOBALS['attributions'] ?? [];
                 </div>
 
                 <div class="p-4">
-                    <div class="relative mb-4">
-                        <input type="text" id="mobileSearchGroupe" placeholder="Rechercher un groupe..."
-                            class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 w-full">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
+                    <form method="GET" class="mb-4">
+                        <input type="hidden" name="page" value="parametres_generaux">
+                        <input type="hidden" name="action" value="gestion_attribution">
+                        <input type="hidden" name="search_type" value="groupe">
+                        <div class="relative">
+                            <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>"
+                                placeholder="Rechercher un groupe..."
+                                class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 w-full">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </form>
 
                     <div class="space-y-2 overflow-y-auto min-h-screen" id="groupesList">
                         <?php foreach ($listeGroupes as $groupe): ?>
-                        <button
-                            onclick="selectGroupe(<?php echo $groupe->id_GU; ?>, '<?php echo htmlspecialchars($groupe->lib_GU); ?>')"
-                            class="w-full text-left px-4 py-3  rounded-lg transition-all groupe-btn group"
-                            data-groupe-id="<?php echo $groupe->id_GU; ?>"
-                            data-groupe-name="<?php echo htmlspecialchars($groupe->lib_GU); ?>">
+                        <a href="?page=parametres_generaux&action=gestion_attribution&groupe=<?= $groupe->id_GU ?>"
+                            class="block w-full text-left px-4 py-3 rounded-lg transition-all groupe-btn <?= ($selectedGroupe && $selectedGroupe->id_GU == $groupe->id_GU) ? 'selected' : '' ?>">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <div
@@ -278,12 +302,10 @@ $attributions = $GLOBALS['attributions'] ?? [];
                                         <i class="fas fa-user-group text-sm"></i>
                                     </div>
                                     <span
-                                        class="font-medium text-gray-700"><?php echo htmlspecialchars($groupe->lib_GU); ?></span>
+                                        class="font-medium text-gray-700"><?= htmlspecialchars($groupe->lib_GU) ?></span>
                                 </div>
-                                <i
-                                    class="fas fa-chevron-right text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                             </div>
-                        </button>
+                        </a>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -301,13 +323,15 @@ $attributions = $GLOBALS['attributions'] ?? [];
                             </h3>
                             <span id="attributionCounter"
                                 class="bg-white text-green-700 text-sm px-3 py-1 rounded-full font-medium">
-                                0 traitements attribués
+                                <?= count($attributionsGroupe) ?>
+                                traitement<?= count($attributionsGroupe) > 1 ? 's' : '' ?>
+                                attribué<?= count($attributionsGroupe) > 1 ? 's' : '' ?>
                             </span>
                         </div>
                         <p class="text-green-100 text-sm mt-1">Attribuez des traitements au groupe sélectionné</p>
                     </div>
-                    <?php if(isset($_GET['groupe'])): ?>
 
+                    <?php if ($selectedGroupe): ?>
                     <div id="attributionContent" class="p-6 flex-1 flex flex-col">
                         <div class="mb-6">
                             <div class="flex items-center mb-4">
@@ -316,80 +340,82 @@ $attributions = $GLOBALS['attributions'] ?? [];
                                     <i class="fas fa-user-group text-green-500"></i>
                                 </div>
                                 <div>
-                                    <h4 id="s></h4>
-                                    <p class=" text-gray-500 text-sm">Sélectionnez les traitements à attribuer</p>
+                                    <h4 id="selectedGroupeName" class="text-lg font-semibold text-gray-900">
+                                        <?= htmlspecialchars($selectedGroupe->lib_GU) ?>
+                                    </h4>
+                                    <p class="text-gray-500 text-sm">Sélectionnez les traitements à attribuer</p>
                                 </div>
                             </div>
 
-                            <div class="mb-4 relative">
-                                <input type="text" id="searchTraitements" placeholder="Filtrer les traitements..."
-                                    class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-full">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                            </div>
+                            <form method="GET" class="mb-4">
+                                <input type="hidden" name="page" value="parametres_generaux">
+                                <input type="hidden" name="action" value="gestion_attribution">
+                                <input type="hidden" name="groupe" value="<?= $selectedGroupe->id_GU ?>">
+                                <input type="hidden" name="search_type" value="traitement">
+                                <div class="relative">
+                                    <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>"
+                                        placeholder="Filtrer les traitements..."
+                                        class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 w-full">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                            </form>
                         </div>
-                        <form id="attributionForm" method="POST" class="space-y-4 flex-1 flex flex-col">
-                            <input type="hidden" name="id_GU" id="selectedGroupeId">
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="traitementsContainer">
+                        <form method="POST" class="space-y-4 flex-1 flex flex-col">
+                            <input type="hidden" name="id_GU" value="<?= $selectedGroupe->id_GU ?>">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <?php if (!empty($listeTraitements)): ?>
                                 <?php foreach ($listeTraitements as $traitement): ?>
-                                <div class="traitement-item border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
-                                    data-traitement-id="<?= htmlspecialchars($traitement->id_traitement) ?>"
-                                    data-traitement-name="<?= htmlspecialchars($traitement->label_traitement) ?>">
+                                <div
+                                    class="traitement-item border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-3">
                                             <div class="relative">
-                                                <input type="checkbox"
-                                                    id="traitement_<?= htmlspecialchars($traitement->id_traitement) ?>"
-                                                    name="traitements[]"
-                                                    value="<?= htmlspecialchars($traitement->id_traitement) ?>"
-                                                    class="traitement-checkbox h-5 w-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                                                    onchange="updateAttributionCounter()">
+                                                <input type="checkbox" id="traitement_<?= $traitement->id_traitement ?>"
+                                                    name="traitements[]" value="<?= $traitement->id_traitement ?>"
+                                                    class="h-5 w-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                                    <?= in_array($traitement->id_traitement, array_column($attributionsGroupe, 'id_traitement')) ? 'checked' : '' ?>>
                                             </div>
-                                            <label for="traitement_<?= htmlspecialchars($traitement->id_traitement) ?>"
+                                            <label for="traitement_<?= $traitement->id_traitement ?>"
                                                 class="text-gray-700 font-medium cursor-pointer hover:text-emerald-600 transition-colors">
                                                 <?= htmlspecialchars($traitement->label_traitement) ?>
                                             </label>
                                         </div>
-                                        <div class="flex items-center space-x-2">
-
-                                            <?php if (isset($traitement->description)): ?>
-                                            <button type="button"
-                                                onclick="showTraitementDetails(<?= htmlspecialchars($traitement->id_traitement) ?>)"
-                                                class="text-gray-400 hover:text-emerald-600 transition-colors">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                            <?php endif; ?>
-                                        </div>
+                                        <?php if (isset($traitement->description)): ?>
+                                        <button type="button"
+                                            onclick="showTraitementDetails(<?= $traitement->id_traitement ?>)"
+                                            class="text-gray-400 hover:text-emerald-600 transition-colors">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
+                                <?php else: ?>
+                                <div class="col-span-full text-center text-gray-500 py-4">
+                                    Aucun traitement disponible
+                                </div>
+                                <?php endif; ?>
                             </div>
 
                             <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                                <button type="button" onclick="resetForm()"
+                                <a href="?page=parametres_generaux&action=gestion_attribution&groupe=<?= $selectedGroupe->id_GU ?>"
                                     class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all">
                                     <i class="fas fa-undo mr-2"></i>Réinitialiser
-                                </button>
-                                <button type="submit" id="saveButton"
+                                </a>
+                                <button type="submit"
                                     class="px-4 py-2 bg-emerald-600 text-white rounded-md text-sm font-medium hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all">
                                     <i class="fas fa-save mr-2"></i>Enregistrer
                                 </button>
                             </div>
                         </form>
-                        <?php else: ?>
-                        <div id="noSelectionMessage"
-                            class="flex flex-col items-center justify-center p-8 text-center h-full min-h-[300px]">
-                            <div class="mb-6 text-gray-300">
-                                <i class="fas fa-hand-pointer text-4xl"></i>
-                            </div>
-                            <h3 class="text-xl font-medium text-gray-600 mb-2">Aucun groupe sélectionné</h3>
-                            <p class="text-gray-500 max-w-md">Veuillez sélectionner un groupe d'utilisateurs dans la
-                                liste
-                                de gauche pour commencer</p>
-                        </div>
-                        <?php endif; ?>
                     </div>
-
+                    <?php else: ?>
+                    <div class="p-6 text-center text-gray-500">
+                        Veuillez sélectionner un groupe d'utilisateurs
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -537,7 +563,7 @@ $attributions = $GLOBALS['attributions'] ?? [];
 
         // Récupérer les attributions pour ce groupe
         const groupeAttributions = existingAttributions[id] || [];
-        const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr));
+        const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr.id_traitement));
 
         // Mettre à jour les cases à cocher
         traitementCheckboxes.forEach(checkbox => {
@@ -561,7 +587,7 @@ $attributions = $GLOBALS['attributions'] ?? [];
     function resetForm() {
         if (currentGroupeId) {
             const groupeAttributions = existingAttributions[currentGroupeId] || [];
-            const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr));
+            const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr.id_traitement));
 
             traitementCheckboxes.forEach(checkbox => {
                 const traitementId = Number(checkbox.value);
@@ -612,7 +638,8 @@ $attributions = $GLOBALS['attributions'] ?? [];
         // Vérifier les modifications
         const currentAttributions = Array.from(document.querySelectorAll('.traitement-checkbox:checked')).map(
             cb => Number(cb.value));
-        const originalAttributions = (existingAttributions[currentGroupeId] || []).map(attr => Number(attr));
+        const originalAttributions = (existingAttributions[currentGroupeId] || []).map(attr => Number(attr
+            .id_traitement));
 
         const noChanges = currentAttributions.length === originalAttributions.length &&
             currentAttributions.every(attr => originalAttributions.includes(attr)) &&

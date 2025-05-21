@@ -1,32 +1,13 @@
 <?php
-require_once __DIR__ . '/../../../app/models/GroupeUtilisateur.php';
-require_once __DIR__ . '/../../../app/models/TypeUtilisateur.php';
-require_once __DIR__ . '/../../../app/models/Fonction.php';
-require_once __DIR__ . '/../../../app/models/NiveauAccesDonnees.php';
-require_once __DIR__ . '/../../../app/models/Utilisateur.php';
-require_once __DIR__ . '/../../../app/config/database.php';
 
-$db = Database::getConnection();
-$groupeUtilisateur = new GroupeUtilisateur($db);
-$typeUtilisateur = new TypeUtilisateur($db);
-$fonction = new Fonction($db);
-$niveauAccesDonnees = new NiveauAccesDonnees($db);
-$utilisateur = new Utilisateur($db);
-
-// Récupérer les données depuis la base de données
-$groupes = $groupeUtilisateur->getAllGroupeUtilisateur();
-$types = $typeUtilisateur->getAllTypeUtilisateur();
-$fonctions = $fonction->getAllFonction();
-$niveauxAcces = $niveauAccesDonnees->getAllNiveauxAccesDonnees();
-$utilisateurs = $utilisateur->getAllUtilisateurs();
+$utilisateurs = $GLOBALS['utilisateurs'] ?? [];
+$types = $GLOBALS['types'] ?? [];
 
 // Calculer les statistiques
 $totalUtilisateurs = count($utilisateurs);
 $utilisateursActifs = count(array_filter($utilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
 $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
 
-// Placeholder for roles/groups
-$roles = ['Administrateur', 'Éditeur', 'Lecteur', 'Membre'];
 ?>
 
 <!DOCTYPE html>

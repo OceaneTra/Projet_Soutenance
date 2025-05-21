@@ -43,12 +43,23 @@ class Attribution{
      * @return array Liste des traitements
      */
     public function getTraitementsByGroupe($id_GU) {
-        $sql = "SELECT t.* FROM traitement t 
-                INNER JOIN rattacher r ON t.id_traitement = r.id_traitement 
-                WHERE r.id_GU = :id_GU";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id_GU' => $id_GU]);
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        try {
+            $sql = "SELECT t.* FROM traitement t 
+                    INNER JOIN rattacher r ON t.id_traitement = r.id_traitement 
+                    WHERE r.id_GU = :id_GU
+                    ORDER BY t.ordre_traitement ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':id_GU' => $id_GU]);
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            
+            // Debug
+            error_log("Traitements pour le groupe $id_GU: " . print_r($result, true));
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Erreur dans getTraitementsByGroupe: " . $e->getMessage());
+            return [];
+        }
     }
 
     /**
