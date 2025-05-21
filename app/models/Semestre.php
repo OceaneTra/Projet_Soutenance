@@ -29,7 +29,8 @@ class Semestre {
     }
 
     public function getAllSemestres() {
-        $stmt = $this->db->prepare("SELECT * FROM semestre ORDER BY lib_semestre");
+        $stmt = $this->db->prepare("SELECT s.*, n.lib_niv_etude FROM semestre s
+     JOIN niveau_etude n ON s.id_niv_etude = n.id_niv_etude ORDER BY s.lib_semestre");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }

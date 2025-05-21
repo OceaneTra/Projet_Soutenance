@@ -1,32 +1,40 @@
 <?php
 
-$ecue_a_modifier = $GLOBALS['listeEcues'] ?? null;
-$listeAnnees = $GLOBALS['listeAnnees'] ?? null;
-$listeSemestres = $GLOBALS['listeSemestres'] ?? null;
-$listeNiveaux = $GLOBALS['listeNiveauxEtude'] ?? null;
+$ecue_a_modifier = $GLOBALS['ecue_a_modifier'] ?? null;
+$listeEcues = $GLOBALS['listeEcues'] ?? [];
+$listeUes = $GLOBALS['listeUes'] ?? [];
 
- // Pagination
- $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
- $limit = 10;
- $offset = ($page - 1) * $limit;
+// Récupérer les informations de l'UE sélectionnée
+$ue_selected = null;
+if (isset($_POST['id_ue']) && !empty($_POST['id_ue'])) {
+    foreach ($listeUes as $ue) {
+        if ($ue->id_ue == $_POST['id_ue']) {
+            $ue_selected = $ue;
+            break;
+        }
+    }
+}
 
- // Search functionality
- $search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
 
- // Filter the list based on search
- $listeUes = $GLOBALS['listeEcues'] ?? [];
- if (!empty($search)) {
-     $listeUes = array_filter($listeEcues, function($ecue) use ($search) {
-         return stripos($ecue->lib_ecue, $search) !== false;
-     });
- }
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
 
- // Total pages calculation
- $total_items = count($listeUes);
- $total_pages = ceil($total_items / $limit);
+if (!empty($search)) {
+    $listeEcues = array_filter($listeEcues, function($ecue) use ($search) {
+        return stripos($ecue->lib_ecue, $search) !== false;
+    });
+}
 
- // Slice the array for pagination
- $listeEcues = array_slice($listeEcues, $offset, $limit);
+// Total pages calculation
+$total_items = count($listeUes);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$listeEcues = array_slice($listeEcues, $offset, $limit);
 
 ?>
 
@@ -198,260 +206,254 @@ $listeNiveaux = $GLOBALS['listeNiveauxEtude'] ?? null;
         </div>
 
         <!-- Formulaire d'ajout/modification -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div class="flex justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-600 mb-4">
-                    <i
-                        class="fas <?= $ecue_a_modifier ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
-                    <?= $ecue_a_modifier ? 'Modifier l\'ECUE' : 'Ajouter un nouvel ECUE' ?>
-                </h3>
-                <div>
-                    <label for="id_ue" class="block text-sm font-medium text-gray-700 mb-3">
-                        <i class="fas fa-calendar text-green-500 mr-2"></i>Année académique
-                    </label>
-                    <select name="id_annee_acad" id="id_annee_acad" required
-                        class="form-select w-50 x-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                        <option value="">Sélectionnez une année</option>
-                        <?php foreach ($listeAnnees as $annee): ?>
-                        <option value="<?= htmlspecialchars($annee->id_annee_acad) ?>"
-                            <?= ($ecue_a_modifier && $ecue_a_modifier->id_annee_acad == $ue->id_annee_acad) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars(date('Y', strtotime($annee->date_deb)) . '-' . date('Y', strtotime($annee->date_fin)))?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
+        <form method="POST" action="?page=parametres_generaux&action=ecue" id="ecueForm" class="space-y-4">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-600 mb-4">
+                        <i
+                            class="fas <?= $ecue_a_modifier ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
+                        <?= $ecue_a_modifier ? 'Modifier l\'ECUE' : 'Ajouter un nouvel ECUE' ?>
+                    </h3>
+                    <div>
+                        <label for="id_annee_acad" class="block text-sm font-medium text-gray-700 mb-3">
+                            <i class="fas fa-calendar text-green-500 mr-2"></i>Année académique
+                        </label>
+                        <input type="text" name="id_annee_acad" id="id_annee_acad" required disabled
+                            value="<?= isset($ue_selected) ? htmlspecialchars($ue_selected->annee) : '' ?>"
+                            class="form-input w-50 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                    </div>
                 </div>
-            </div>
 
-
-            <form method="POST" action="" id="ecueForm" class="space-y-4">
-                <input type="hidden" name="action" value="<?= $ecue_a_modifier ? 'update' : 'add' ?>">
                 <?php if ($ecue_a_modifier): ?>
                 <input type="hidden" name="id_ecue" value="<?= htmlspecialchars($ecue_a_modifier->id_ecue) ?>">
                 <?php endif; ?>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label for="id_ue" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Niveau d'étude
-                        </label>
-                        <select name="id_ue" id="id_ue" required
-                            class="form-select w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                            <option value="">Sélectionnez une UE</option>
-                            <?php foreach ($ues as $ue): ?>
-                            <option value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                <?= ($ecue_a_modifier && $ecue_a_modifier->id_ue == $ue->id_ue) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($ue->lib_ue) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label for="id_ue" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Semestre
-                        </label>
-                        <select name="id_ue" id="id_ue" required
-                            class="form-select w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                            <option value="">Sélectionnez une semestre</option>
-                            <?php foreach ($ues as $ue): ?>
-                            <option value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                <?= ($ecue_a_modifier && $ecue_a_modifier->id_ue == $ue->id_ue) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($ue->lib_ue) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label for="id_ue" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Unité d'Enseignement
-                        </label>
-                        <select name="id_ue" id="id_ue" required
-                            class="form-select w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                            <option value="">Sélectionnez une UE</option>
-                            <?php foreach ($ues as $ue): ?>
-                            <option value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                <?= ($ecue_a_modifier && $ecue_a_modifier->id_ue == $ue->id_ue) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($ue->lib_ue) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="lib_ecue" class="block text-sm font-medium text-gray-700">
-                            <i class="fas fa-book text-green-500 mr-2"></i>Libellé de l'ECUE
-                        </label>
-                        <input type="text" name="lib_ecue" id="lib_ecue" required
-                            value="<?= $ecue_a_modifier ? htmlspecialchars($ecue_a_modifier->lib_ecue) : '' ?>"
-                            class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
-
-                        <div class="space-y-2">
-                            <label for="credit" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-star text-green-500 mr-2"></i>Crédits
+                <div class="gap-6 ">
+                    <div class="flex gap-6 items-center">
+                        <div>
+                            <label for="niveau_etude" class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Niveau d'étude
                             </label>
-                            <input type="number" name="credit" id="credit" required min="1" max="30"
-                                value="<?= $ecue_a_modifier ? htmlspecialchars($ecue_a_modifier->credit) : '' ?>"
-                                class="form-input w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                            <input type="text" name="niveau_etude" id="niveau_etude" required disabled
+                                value="<?= isset($ue_selected) ? htmlspecialchars($ue_selected->lib_niv_etude) : '' ?>"
+                                class="form-input w-2/3 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                        </div>
+                        <div>
+                            <label for="semestre" class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-calendar-alt text-green-500 mr-2"></i>Semestre
+                            </label>
+                            <input type="text" name="semestre" id="semestre" required disabled
+                                value="<?= isset($ue_selected) ? htmlspecialchars($ue_selected->lib_semestre) : '' ?>"
+                                class="form-input w-2/3 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                        </div>
+                        <div>
+                            <label for="id_ue" class="block text-sm font-medium text-gray-700 mb-4">
+                                <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Unité d'Enseignement
+                            </label>
+                            <select id="id_ue" name="id_ue" required onchange="this.form.submit()"
+                                class="form-select w-50 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                <option value="">Sélectionnez une UE</option>
+                                <?php if (!empty($listeUes)): ?>
+                                <?php foreach ($listeUes as $ue): ?>
+                                <option value="<?= htmlspecialchars($ue->id_ue) ?>"
+                                    <?= (isset($_POST['id_ue']) && $_POST['id_ue'] == $ue->id_ue) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($ue->lib_ue) ?>
+                                </option>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
                         </div>
                     </div>
 
+                    <div class="space-y-2 mt-3 flex gap-6 w-full ">
+                        <div class="w-full">
+                            <label for="lib_ecue" class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-book text-green-500 mr-2"></i>Libellé de l'ECUE
+                            </label>
+                            <input type="text" name="lib_ecue" id="lib_ecue" required
+                                placeholder="Ex: Mathématiques appliquées"
+                                value="<?= $ecue_a_modifier ? htmlspecialchars($ecue_a_modifier->lib_ecue) : '' ?>"
+                                class="form-input w-full px-4 py-2.5  border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-green-500 outline-0 bg-white transition-all duration-200">
+                        </div>
+
+
+                        <div>
+                            <label for="credit" class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-star text-green-500 mr-2"></i>Crédits
+                            </label>
+                            <input type="number" name="credit" id="credit" required min="1" max="10"
+                                value="<?= $ecue_a_modifier ? htmlspecialchars($ecue_a_modifier->credit) : '' ?>"
+                                class="form-input w-50 px-4 py-2.5  border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:outline-2 focus:outline-green-500  focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                        </div>
+                    </div>
 
                 </div>
 
-                <div class="flex justify-end space-x-4 mt-6">
-                    <?php if ($ecue_a_modifier): ?>
-                    <a href="?page=parametres_generaux&action=ecue"
-                        class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <div class="flex justify-between mt-6">
+                    <?php if (isset($_GET['id_ecue'])): ?>
+                    <button type="button" name="btn_annuler" id="btnAnnuler"
+                        onclick="window.location.href='?page=parametres_generaux&action=ecue'"
+                        class="btn-hover px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                         <i class="fas fa-times mr-2"></i>Annuler
-                    </a>
+                    </button>
+                    <button type="button" id="btnModifier" name="btn_modifier_ecue"
+                        class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        <i class="fas fa-save mr-2"></i>Modifier
+                        <input type="hidden" name="btn_modifier_ecue" id="btn_modifier_ecue_hidden" value="0">
+                    </button>
+                    <?php else: ?>
+                    <div></div>
+                    <button type="submit" name="btn_add_ecue"
+                        class="btn-hover px-4 py-2 btn-gradient-primary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        <i class="fas fa-plus mr-2"></i>Ajouter une ECUE
+                    </button>
                     <?php endif; ?>
-                    <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        <i class="fas <?= $ecue_a_modifier ? 'fa-save' : 'fa-plus' ?> mr-2"></i>
-                        <?= $ecue_a_modifier ? 'Modifier' : 'Ajouter' ?>
+                </div>
+        </form>
+    </div>
+
+    <!-- Liste des ECUE -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-600 mb-4">
+                <i class="fas fa-list-ul text-green-500 mr-2"></i>
+                Liste des ECUE
+            </h3>
+            <div class="flex justify-between items-center mb-4">
+                <!-- Barre de recherche -->
+                <div class="flex-1 max-w-md">
+                    <form action="" method="GET" class="flex gap-3">
+                        <input type="hidden" name="page" value="parametres_generaux">
+                        <input type="hidden" name="action" value="ue">
+                        <div class="relative flex-1">
+                            <i
+                                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
+                                class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
+                        </div>
+                        <button type="submit"
+                            class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            <i class="fas fa-search mr-2"></i>Rechercher
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="flex gap-3">
+                    <button id="exportBtn" onclick="exportToExcel()"
+                        class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+                        <i class="fas fa-file-export mr-2"></i>Exporter
+                    </button>
+                    <button id="printBtn" onclick="printTable()"
+                        class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <i class="fas fa-print mr-2"></i>Imprimer
+                    </button>
+                    <button type="button" id="deleteSelectedBtn" disabled
+                        class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-trash-alt mr-2"></i>Supprimer
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
 
-        <!-- Liste des ECUE -->
-        <div class="bg-white rounded-lg shadow-sm">
-            <div class="p-6">
-                <h3 class="text-lg font-semibold text-gray-600 mb-4">
-                    <i class="fas fa-list-ul text-green-500 mr-2"></i>
-                    Liste des ECUE
-                </h3>
-                <div class="flex justify-between items-center mb-4">
-                    <!-- Barre de recherche -->
-                    <div class="flex-1 max-w-md">
-                        <form action="" method="GET" class="flex gap-3">
-                            <input type="hidden" name="page" value="parametres_generaux">
-                            <input type="hidden" name="action" value="ue">
-                            <div class="relative flex-1">
-                                <i
-                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
-                                    class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
-                            </div>
-                            <button type="submit"
-                                class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                <i class="fas fa-search mr-2"></i>Rechercher
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Boutons d'action -->
-                    <div class="flex gap-3">
-                        <button id="exportBtn" onclick="exportToExcel()"
-                            class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
-                            <i class="fas fa-file-export mr-2"></i>Exporter
-                        </button>
-                        <button id="printBtn" onclick="printTable()"
-                            class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            <i class="fas fa-print mr-2"></i>Imprimer
-                        </button>
-                        <button type="button" id="deleteSelectedBtn" disabled
-                            class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-trash-alt mr-2"></i>Supprimer
-                        </button>
-                    </div>
-                </div>
-
-                <form action="?page=parametres_generaux&action=ecue" method="POST" id="formListeEcues">
-                    <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Année académique
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Niveau d'étude
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Semestre
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        UE
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Libellé ECUE
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Crédits
-                                    </th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php if (!empty($ecues)): ?>
-                                <?php foreach ($ecues as $ecue): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->id_annee_acad) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->lib_niv_etude) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->lib_semestre) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->lib_ue) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->lib_ecue) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($ecue->credit) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                                        <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= htmlspecialchars($ecue->id_ecue) ?>"
-                                            class="text-green-600 hover:text-green-900 mr-3">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                                <?php else: ?>
-                                <tr class="items-center">
-                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                        Aucun ECUE enregistré
-                                    </td>
-                                </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Pagination -->
-                    <?php if ($total_pages > 1): ?>
-                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm text-gray-700">
-                                    Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
-                                    à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
-                                    sur <span class="font-medium"><?= $total_items ?></span> résultats
-                                </p>
-                            </div>
-                            <div>
-                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                                    aria-label="Pagination">
-                                    <?php if ($page > 1): ?>
-                                    <a href="?page=parametres_generaux&action=ecue&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                        <i class="fas fa-chevron-left"></i>
+            <form action="?page=parametres_generaux&action=ecue" method="POST" id="formListeEcues">
+                <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Année académique
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Niveau d'étude
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Semestre
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    UE
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Libellé ECUE
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Crédits
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php if (!empty($listeEcues)): ?>
+                            <?php foreach ($listeEcues as $ecue): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->id_annee_acad) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->lib_niv_etude) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->lib_semestre) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->lib_ue) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->lib_ecue) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->credit) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                    <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= htmlspecialchars($ecue->id_ecue) ?>"
+                                        class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <?php endif; ?>
 
-                                    <?php
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php else: ?>
+                            <tr class="items-center">
+                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Aucun ECUE enregistré
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <?php if ($total_pages > 1): ?>
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
+                                à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
+                                sur <span class="font-medium"><?= $total_items ?></span> résultats
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                aria-label="Pagination">
+                                <?php if ($page > 1): ?>
+                                <a href="?page=parametres_generaux&action=ecue&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <?php endif; ?>
+
+                                <?php
                                 $start = max(1, $page - 2);
                                 $end = min($total_pages, $page + 2);
                                 
@@ -461,31 +463,31 @@ $listeNiveaux = $GLOBALS['listeNiveauxEtude'] ?? null;
                                 
                                 for ($i = $start; $i <= $end; $i++):
                                 ?>
-                                    <a href="?page=parametres_generaux&action=ecue&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                                        class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
-                                        <?= $i ?>
-                                    </a>
-                                    <?php endfor;
+                                <a href="?page=parametres_generaux&action=ecue&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
+                                    <?= $i ?>
+                                </a>
+                                <?php endfor;
 
                                 if ($end < $total_pages) {
                                     echo '<span class="px-3 py-2 text-gray-500">...</span>';
                                 }
                                 ?>
 
-                                    <?php if ($page < $total_pages): ?>
-                                    <a href="?page=parametres_generaux&action=ecue&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
-                                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                    <?php endif; ?>
-                                </nav>
-                            </div>
+                                <?php if ($page < $total_pages): ?>
+                                <a href="?page=parametres_generaux&action=ecue&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <?php endif; ?>
+                            </nav>
                         </div>
                     </div>
-                    <?php endif; ?>
-                </form>
-            </div>
+                </div>
+                <?php endif; ?>
+            </form>
         </div>
+    </div>
 
     </div>
     <!-- Modale de confirmation de suppression -->

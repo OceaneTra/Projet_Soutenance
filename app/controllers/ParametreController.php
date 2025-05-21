@@ -490,10 +490,10 @@ class ParametreController
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['submit_add_ecue'])) {
-            $id_ue = $_POST['ue'];
+        if (isset($_POST['btn_add_ecue']) || isset($_POST['btn_modifier_ecue'])) {
+            $id_ue = $_POST['id_ue'];
             $lib_ecue = $_POST['lib_ecue'];
-            $credit = $_POST['credits'];
+            $credit = $_POST['credit'];
 
             if (!empty($_POST['id_ecue'])) {
                 if ($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit)) {
@@ -1026,55 +1026,31 @@ class ParametreController
     //============================GESTION ATTRIBUTION==================================
 
     public function gestionAttribution()
-    {
+    {  
+        
         $attribution_a_modifier = null;
         $messageErreur = '';
         $messageSuccess = '';
 
-        if (isset($_POST['btn_add_attribution']) || isset($_POST['btn_modifier_attribution'])) {
-            $lib_attribution = $_POST['lib_attribution'];
-            /*
-                    if (!empty($_POST['id_attribution'])) {
-                        if($this->attribution->updateAttribution($_POST['id_attribution'], $lib_attribution)) {
-                            $messageSuccess = "Attribution modifiée avec succès.";
-                        } else {
-                            $messageErreur = "Erreur lors de la modification de l'attribution.";
-                        }
-                    } else {
-                        if($this->attribution->ajouterAttribution($lib_attribution)) {
-                            $messageSuccess = "Attribution ajoutée avec succès.";
-                        } else {
-                            $messageErreur = "Erreur lors de l'ajout de l'attribution.";
-                        }
-                    }
-                }
 
-                if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
-                    $success = true;
-                    foreach ($_POST['selected_ids'] as $id) {
-                        if(!$this->attribution->deleteAttribution($id)) {
-                            $success = false;
-                            break;
-                        }
-                    }
-                    
-                    if ($success) {
-                        $messageSuccess = "Attributions supprimées avec succès.";
-                    } else {
-                        $messageErreur = "Erreur lors de la suppression des attributions.";
-                    }
-                }
 
-                if (isset($_GET['id_attribution'])) {
-                    $attribution_a_modifier = $this->attribution->getAttributionById($_GET['id_attribution']);
-                }
 
-                $GLOBALS['attribution_a_modifier'] = $attribution_a_modifier;
-                $GLOBALS['listeAttributions'] = $this->attribution->getAllAttributions();
-                $GLOBALS['messageErreur'] = $messageErreur;
-                $GLOBALS['messageSuccess'] = $messageSuccess;
-                */
-        }
+
+
+
+
+
+
+
+
+
+        $GLOBALS['attribution_a_modifier'] = $attribution_a_modifier;
+        $GLOBALS['listeGroupe'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
+        $GLOBALS['listeTraitements'] = $this->traitement->getAllTraitements();
+        $GLOBALS['listeAttributions'] = $this->attribution->getAllAttributions();
+        $GLOBALS['messageErreur'] = $messageErreur; 
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+        
     }
 }
 
