@@ -1026,34 +1026,85 @@ class ParametreController
     //============================GESTION ATTRIBUTION==================================
 
     public function gestionAttribution()
-    {  
-        
+    {
         $attribution_a_modifier = null;
         $messageErreur = '';
         $messageSuccess = '';
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
+        // Si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_GU = $_POST['id_GU'] ?? null;
+            $selectedTraitements = $_POST['traitements'] ?? [];
+            
+            if ($id_GU) {
+                // Stocker les anciennes attributions pour journalisation ou comparaison si nécessaire
+                $anciennesAttributions = $this->attribution->getTraitementsByGroupe($id_GU);
+                
+                // Début de transaction pour assurer la cohérence des données
+                try {
+                
+                    // Supprimer toutes les attributions existantes pour ce groupe
+                    $suppressionReussie = $this->attribution->deleteAttribution($id_GU);
+                    
+                    if (!$suppressionReussie) {
+                        throw new Exception("Erreur lors de la suppression des attributions existantes.");
+                    }
+                    
+                    // Insérer les nouvelles attributions
+                    $ajoutReussi = true;
+                    if (!empty($selectedTraitements)) {
+                        foreach ($selectedTraitements as $id_traitement) {
+                            if (!$this->attribution->ajouterAttribution($id_GU, $id_traitement)) {
+                                $ajoutReussi = false;
+                                throw new Exception("Erreur lors de l'ajout de l'attribution pour le traitement ID: $id_traitement");
+                            }
+                        }
+                    }
+                    
+                    // Si on arrive ici, tout s'est bien passé
+                    // $this->db->commit();
+                    $messageSuccess = "Les attributions ont été mises à jour avec succès.";
+                    
+                } catch (Exception $e) {
+                    // En cas d'erreur, on annule toutes les modifications
+                    // $this->db->rollback();
+                    $messageErreur = $e->getMessage();
+                }
+            } else {
+                $messageErreur = "Aucun groupe d'utilisateurs n'a été sélectionné.";
+            }
+        }
+        
+        // Charger les données nécessaires pour la vue
         $GLOBALS['attribution_a_modifier'] = $attribution_a_modifier;
         $GLOBALS['listeGroupe'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
         $GLOBALS['listeTraitements'] = $this->traitement->getAllTraitements();
-        $GLOBALS['listeAttributions'] = $this->attribution->getAllAttributions();
-        $GLOBALS['messageErreur'] = $messageErreur; 
-        $GLOBALS['messageSuccess'] = $messageSuccess;
         
+        // Mettre à disposition les attributions pour chaque groupe
+        // Cette ligne est importante pour que le JS puisse initialiser correctement les cases à cocher
+        $GLOBALS['attributionsMap'] = $this->getAttributionsMapForAllGroups();
+        
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+    }
+    
+    /**
+     * Récupère les attributions pour tous les groupes d'utilisateurs
+     * Retourne un tableau associatif [id_groupe => [id_traitement1, id_traitement2, ...]]
+     */
+    private function getAttributionsMapForAllGroups()
+    {
+        $groupes = $this->groupeUtilisateur->getAllGroupeUtilisateur();
+        $attributionsMap = [];
+        
+        foreach ($groupes as $groupe) {
+            $attributionsMap[$groupe->id_GU] = $this->attribution->getTraitementsByGroupe($groupe->id_GU);
+        }
+        
+        return $attributionsMap;
     }
 }
-
+    
 
 //==============================FIN GESTION ATTRIBUTION==============================
 

@@ -68,8 +68,14 @@ class Attribution{
         return $stmt->fetchColumn() > 0;
     }
 
-    public function updateAttribution()
+    public function updateAttribution($id_GU, $id_traitement)
     {
+        $sql = "UPDATE rattacher SET id_traitement = :id_traitement WHERE id_GU = :id_GU";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':id_GU' => $this->$id_GU,
+            ':id_traitement' => $this->$id_traitement
+        ]);
     }
     public function getAttributionById($id_attribution)
     {

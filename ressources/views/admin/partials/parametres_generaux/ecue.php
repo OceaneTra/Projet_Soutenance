@@ -4,13 +4,23 @@ $ecue_a_modifier = $GLOBALS['ecue_a_modifier'] ?? null;
 $listeEcues = $GLOBALS['listeEcues'] ?? [];
 $listeUes = $GLOBALS['listeUes'] ?? [];
 
-// Récupérer les informations de l'UE sélectionnée
-$ue_selected = null;
-if (isset($_POST['id_ue']) && !empty($_POST['id_ue'])) {
+// Si on est en mode modification, récupérer l'UE correspondante
+if ($ecue_a_modifier) {
     foreach ($listeUes as $ue) {
-        if ($ue->id_ue == $_POST['id_ue']) {
+        if ($ue->id_ue == $ecue_a_modifier->id_ue) {
             $ue_selected = $ue;
             break;
+        }
+    }
+} else {
+    // Récupérer les informations de l'UE sélectionnée seulement si on n'est pas en mode modification
+    $ue_selected = null;
+    if (isset($_POST['id_ue']) && !empty($_POST['id_ue']) && !isset($_POST['btn_add_ecue'])) {
+        foreach ($listeUes as $ue) {
+            if ($ue->id_ue == $_POST['id_ue']) {
+                $ue_selected = $ue;
+                break;
+            }
         }
     }
 }
@@ -250,13 +260,13 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                             <label for="id_ue" class="block text-sm font-medium text-gray-700 mb-4">
                                 <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Unité d'Enseignement
                             </label>
-                            <select id="id_ue" name="id_ue" required onchange="this.form.submit()"
+                            <select id="id_ue" name="id_ue" required onchange="updateFields(this.value)"
                                 class="form-select w-50 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez une UE</option>
                                 <?php if (!empty($listeUes)): ?>
                                 <?php foreach ($listeUes as $ue): ?>
                                 <option value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                    <?= (isset($_POST['id_ue']) && $_POST['id_ue'] == $ue->id_ue) ? 'selected' : '' ?>>
+                                    <?= ($ecue_a_modifier && $ecue_a_modifier->id_ue == $ue->id_ue) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($ue->lib_ue) ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -308,6 +318,7 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                         <i class="fas fa-plus mr-2"></i>Ajouter une ECUE
                     </button>
                     <?php endif; ?>
+
                 </div>
         </form>
     </div>
@@ -361,6 +372,10 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="w-[5%] px-4 py-3 text-center">
+                                    <input type="checkbox" id="selectAllCheckbox"
+                                        class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                </th>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Année académique
@@ -395,6 +410,11 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                             <?php if (!empty($listeEcues)): ?>
                             <?php foreach ($listeEcues as $ecue): ?>
                             <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" name="selected_ids[]"
+                                        value="<?= htmlspecialchars($ecue->id_ecue) ?>"
+                                        class="row-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <?= htmlspecialchars($ecue->id_annee_acad) ?>
                                 </td>
@@ -727,6 +747,34 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
             }, 5000);
         }
     });
+
+    function updateFields(ueId) {
+        if (ueId) {
+            // Récupérer l'UE sélectionnée depuis le tableau PHP
+            const ues = <?= json_encode($listeUes) ?>;
+            // Convertir ueId en nombre pour la comparaison
+            const selectedUe = ues.find(ue => parseInt(ue.id_ue) === parseInt(ueId));
+
+            if (selectedUe) {
+                document.getElementById('id_annee_acad').value = selectedUe.annee || '';
+                document.getElementById('niveau_etude').value = selectedUe.lib_niv_etude || '';
+                document.getElementById('semestre').value = selectedUe.lib_semestre || '';
+            }
+        } else {
+            // Vider les champs si aucune UE n'est sélectionnée
+            document.getElementById('id_annee_acad').value = '';
+            document.getElementById('niveau_etude').value = '';
+            document.getElementById('semestre').value = '';
+        }
+    }
+
+    // Appeler updateFields au chargement de la page si une UE est déjà sélectionnée
+    document.addEventListener('DOMContentLoaded', function() {
+        const ueSelect = document.getElementById('id_ue');
+        if (ueSelect.value) {
+            updateFields(ueSelect.value);
+        }
+    });
     </script>
 
     <?php
@@ -734,5 +782,7 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
     ?>
 
 </body>
+
+</html>
 
 </html>

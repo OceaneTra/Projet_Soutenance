@@ -1,51 +1,11 @@
 <?php
 // Connexion à la base de données et récupération des données
- $listeGroupes = $GLOBALS['listeGroupe'];
- $listeTraitements = $GLOBALS['listeTraitements'];
+$listeGroupes = $GLOBALS['listeGroupe'];
+$listeTraitements = $GLOBALS['listeTraitements'];
 $attributions = $GLOBALS['attributions'] ?? [];
 
-// Fonction pour récupérer les attributions existantes pour un groupe
-function getAttributionsForGroupe($groupeId) {
-    global $DB;
-    $query = "SELECT id_traitement FROM rattacher WHERE id_GU = :id_GU";
-    $stmt = $DB->prepare($query);
-    $stmt->execute(['id_GU' => $groupeId]);
-    
-    $attributions = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $attributions[] = $row['id_traitement'];
-    }
-    
-    return $attributions;
-}
 
-// Si le formulaire a été soumis
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_GU = $_POST['id_GU'] ?? null;
-    $selectedTraitements = $_POST['traitements'] ?? [];
-    
-    if ($id_GU) {
-        // Supprimer toutes les attributions existantes pour ce groupe
-        $deleteQuery = "DELETE FROM rattacher WHERE id_GU = :id_GU";
-        $deleteStmt = $DB->prepare($deleteQuery);
-        $deleteStmt->execute(['id_GU' => $id_GU]);
-        
-        // Insérer les nouvelles attributions
-        if (!empty($selectedTraitements)) {
-            $insertQuery = "INSERT INTO rattacher (id_GU, id_traitement) VALUES (:id_GU, :id_traitement)";
-            $insertStmt = $DB->prepare($insertQuery);
-            
-            foreach ($selectedTraitements as $id_traitement) {
-                $insertStmt->execute([
-                    'id_GU' => $id_GU,
-                    'id_traitement' => $id_traitement
-                ]);
-            }
-        }
-        
-        $messageSuccess = "Les attributions ont été mises à jour avec succès.";
-    }
-}
+
 ?>
 
 <!DOCTYPE html>
@@ -57,39 +17,157 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Gestion des Attributions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-    .fade-in {
-        animation: fadeIn 0.3s ease-in-out;
+    /* Animations et transitions */
+    .animate__animated {
+        animation-duration: 0.3s;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
+    .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+    }
+
+    /* Personnalisation des inputs */
+    .form-input:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        background-color: #f0fdf4;
+    }
+
+    /* Style pour le hover des lignes du tableau */
+    .table-row:hover {
+        background-color: #f0fdf4;
+    }
+
+    /* Style pour les checkboxes */
+    input[type="checkbox"]:checked {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+    /* Style pour la pagination active */
+    .pagination-active {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+    /* Boutons avec dégradés */
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .btn-gradient-secondary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .btn-gradient-warning {
+        background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    }
+
+    .btn-gradient-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* Effet de hover sur les boutons */
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
         }
 
-        to {
-            opacity: 1;
+        .container table,
+        .container table * {
+            visibility: visible;
+        }
+
+        .container table {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        button,
+        .actions,
+        input[type="checkbox"] {
+            display: none !important;
         }
     }
 
-    .slide-in {
-        animation: slideIn 0.3s ease-in-out;
+    /* Styles pour les notifications */
+    .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: white;
+        max-width: 24rem;
+        z-index: 50;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .notification.success {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
 
     @keyframes slideIn {
         from {
-            transform: translateY(10px);
+            transform: translateX(100%);
             opacity: 0;
         }
 
         to {
-            transform: translateY(0);
+            transform: translateX(0);
             opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
         }
     }
     </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
+
+    <!-- Système de notification -->
+    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <div id="successNotification" class="notification success animate__animated animate__fadeIn">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <div id="errorNotification" class="notification error animate__animated animate__fadeIn">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
     <div class="container mx-auto px-4 py-8">
         <header class="mb-8">
             <div class="flex items-center justify-between">
@@ -110,25 +188,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </header>
 
-        <?php if (isset($messageSuccess)): ?>
-        <div class="bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded-lg shadow mb-6"
-            role="alert">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-emerald-500 mr-3 text-lg"></i>
-                <span><?php echo $messageSuccess; ?></span>
-            </div>
-        </div>
-        <?php endif; ?>
+
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Liste des groupes -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 p-4">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 p-4">
                     <h3 class="text-lg font-semibold text-white">
                         <i class="fas fa-users mr-2"></i>
                         Groupes d'utilisateurs
                     </h3>
-                    <p class="text-emerald-100 text-sm mt-1">Sélectionnez un groupe pour gérer ses traitements</p>
+                    <p class="text-green-100 text-sm mt-1">Sélectionnez un groupe pour gérer ses traitements</p>
                 </div>
 
                 <div class="p-4">
@@ -138,18 +208,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     </div>
 
-                    <div class="space-y-2 max-h-96 overflow-y-auto" id="groupesList">
+                    <div class="space-y-2 min-h-screen overflow-y-auto" id="groupesList">
                         <?php foreach ($listeGroupes as $groupe): ?>
                         <button
                             onclick="selectGroupe(<?php echo $groupe->id_GU; ?>, '<?php echo htmlspecialchars($groupe->lib_GU); ?>')"
-                            class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-all duration-200 groupe-btn group"
+                            class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 focus:ring-2 focus:border-l-4 focus:border-green-500 focus:outline-none focus:ring-opacity-50 transition-all duration-200 groupe-btn group"
                             data-groupe-id="<?php echo $groupe->id_GU; ?>"
                             data-groupe-name="<?php echo htmlspecialchars($groupe->lib_GU); ?>">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <div
-                                        class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
-                                        <i class="fas fa-user-group"></i>
+                                        class=" text-green-700 flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                        <i class="fas fa-user-group text-green-500 text-sm"></i>
                                     </div>
                                     <span
                                         class="font-medium text-gray-700"><?php echo htmlspecialchars($groupe->lib_GU); ?></span>
@@ -169,28 +239,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="lg:col-span-2">
                 <div id="attributionContainer"
                     class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 h-full">
-                    <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 p-4">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-4">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-white">
                                 <i class="fas fa-cogs mr-2"></i>
                                 Gestion des traitements
                             </h3>
                             <span id="attributionCounter"
-                                class="bg-white text-emerald-700 text-sm px-3 py-1 rounded-full font-medium">
+                                class="bg-white text-green-700 text-sm px-3 py-1 rounded-full font-medium">
                                 0 traitements attribués
                             </span>
                         </div>
-                        <p class="text-emerald-100 text-sm mt-1">Attribuez des traitements au groupe sélectionné</p>
+                        <p class="text-green-100 text-sm mt-1">Attribuez des traitements au groupe sélectionné</p>
                     </div>
-
-                    <div id="noSelectionMessage" class="p-16 text-center">
+                    <?php if(!isset($_GET['groupe'])) : ?>
+                    <div id="noSelectionMessage" class="p-16 text-center items-center self-center">
                         <div class="mb-6 text-gray-300">
-                            <i class="fas fa-hand-pointer text-6xl"></i>
+                            <i class="fas fa-hand-pointer text-4xl"></i>
                         </div>
                         <h3 class="text-xl font-medium text-gray-600 mb-2">Aucun groupe sélectionné</h3>
                         <p class="text-gray-500">Veuillez sélectionner un groupe d'utilisateurs dans la liste</p>
                     </div>
-
+                    <?php endif; ?>
                     <div id="attributionContent" class="hidden p-6">
                         <div class="mb-6">
                             <div class="flex items-center mb-4">
@@ -256,6 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </form>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -280,13 +351,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const searchTraitements = document.getElementById('searchTraitements');
 
     // Structure pour stocker les attributions existantes
-    const existingAttributions = <?php 
-        $attributionsMap = [];
-        foreach ($listeGroupes as $groupe) {
-            $attributionsMap[$groupe->id_GU] = getAttributionsForGroupe($groupe->id_GU);
-        }
-        echo json_encode($attributionsMap);
-    ?>;
+    // Cette variable sera remplie par les données PHP générées dans gestionAttribution()
+    const existingAttributions = attributionsMap || {};
 
     // Initialisation
     document.addEventListener('DOMContentLoaded', function() {
@@ -296,6 +362,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Désactiver le bouton d'enregistrement si aucun groupe n'est sélectionné
         saveButton.disabled = true;
         saveButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+        // Si un groupe est présent dans l'URL (par exemple ?groupe=5), le sélectionner automatiquement
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupeIdFromUrl = urlParams.get('groupe');
+
+        if (groupeIdFromUrl) {
+            // Trouver le bouton correspondant à cet ID et simuler un clic
+            const groupeButton = document.querySelector(`.groupe-btn[data-groupe-id="${groupeIdFromUrl}"]`);
+            if (groupeButton) {
+                const groupeId = groupeButton.dataset.groupeId;
+                const groupeName = groupeButton.dataset.groupeName;
+                selectGroupe(groupeId, groupeName);
+            }
+        }
     });
 
     // Configuration des champs de recherche
@@ -359,6 +439,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         selectedGroupeId.value = id;
         selectedGroupeName.textContent = name;
 
+        // Mettre à jour l'URL pour permettre le partage direct
+        const newUrl = '?page=parametres_generaux&action=gestion_attribution' + '&groupe=' + id;
+        window.history.replaceState({
+            path: newUrl
+        }, '', newUrl);
+
         // Activer le bouton d'enregistrement
         saveButton.disabled = false;
         saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -377,16 +463,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
 
-        // Récupérer les attributions pour ce groupe
+        // Récupérer les attributions pour ce groupe et convertir en nombres
         const groupeAttributions = existingAttributions[id] || [];
+        const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr));
 
         // Mettre à jour les cases à cocher
-        let attributionCount = 0;
-
         traitementCheckboxes.forEach(checkbox => {
-            const isChecked = groupeAttributions.includes(checkbox.value);
-            checkbox.checked = isChecked;
-            if (isChecked) attributionCount++;
+            const traitementId = Number(checkbox.value);
+            checkbox.checked = groupeAttributionsNumeric.includes(traitementId);
         });
 
         // Mettre à jour le compteur
@@ -403,16 +487,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Fonction pour réinitialiser le formulaire
     function resetForm() {
         if (currentGroupeId) {
-            // Récupérer les attributions originales
+            // Récupérer les attributions originales et convertir en nombres
             const groupeAttributions = existingAttributions[currentGroupeId] || [];
+            const groupeAttributionsNumeric = groupeAttributions.map(attr => Number(attr));
 
             // Réinitialiser les cases à cocher
             traitementCheckboxes.forEach(checkbox => {
-                checkbox.checked = groupeAttributions.includes(checkbox.value);
+                const traitementId = Number(checkbox.value);
+                checkbox.checked = groupeAttributionsNumeric.includes(traitementId);
             });
 
             // Mettre à jour le compteur
             updateAttributionCounter();
+
+            // Notification visuelle de réinitialisation
+            const notification = document.createElement('div');
+            notification.className =
+                'fixed top-4 right-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow slide-in';
+            notification.innerHTML =
+                '<div class="flex items-center"><i class="fas fa-info-circle text-blue-500 mr-3 text-lg"></i><span>Les attributions ont été réinitialisées</span></div>';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease-out';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
         }
     }
 
@@ -422,12 +522,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             e.preventDefault();
             alert('Veuillez sélectionner un groupe d\'utilisateurs.');
         } else {
+            // Vérifier si des modifications ont été apportées
+            const currentAttributions = [];
+            document.querySelectorAll('.traitement-checkbox:checked').forEach(checkbox => {
+                currentAttributions.push(Number(checkbox.value));
+            });
+
+            const originalAttributions = (existingAttributions[currentGroupeId] || []).map(attr => Number(
+                attr));
+
+            // Comparer les deux ensembles d'attributions
+            const noChanges =
+                currentAttributions.length === originalAttributions.length &&
+                currentAttributions.every(attr => originalAttributions.includes(attr)) &&
+                originalAttributions.every(attr => currentAttributions.includes(attr));
+
+            if (noChanges) {
+                e.preventDefault();
+                alert('Aucune modification n\'a été effectuée.');
+                return;
+            }
+
             // Ajouter un effet de chargement au bouton lors de la soumission
             saveButton.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Enregistrement...';
             saveButton.disabled = true;
         }
     });
     </script>
+
+
+
+    <!-- Passer les attributions à JavaScript -->
+    <script>
+    // Créer la variable attributionsMap à partir des données PHP
+    const attributionsMap = <?php echo json_encode($GLOBALS['attributionsMap'] ?? []); ?>;
+    </script>
+
+    <!-- Si besoin de debuggage -->
+    <?php if (isset($_GET['debug']) && $_GET['debug'] === 'attributions'): ?>
+    <div class="fixed bottom-4 left-4 p-4 bg-gray-800 text-white rounded-lg text-xs max-w-lg max-h-64 overflow-auto">
+        <h4 class="font-bold mb-2">Débug des attributions:</h4>
+        <pre><?php echo json_encode($GLOBALS['attributionsMap'] ?? [], JSON_PRETTY_PRINT); ?></pre>
+    </div>
+    <?php endif; ?>
 </body>
 
 </html>

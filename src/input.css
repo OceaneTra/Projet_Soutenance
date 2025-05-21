@@ -480,6 +480,9 @@
     display: block;
 }
 
+.focus:outline-none {
+    outline: none;
+}
 
 
 .table-row-hover:hover {
