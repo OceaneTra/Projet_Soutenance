@@ -1,6 +1,10 @@
 <?php
-    $ue_a_modifier = $GLOBALS['ue_a_modifier'] ?? null;
 
+    $ue_a_modifier = $GLOBALS['ue_a_modifier'] ?? null;
+    $listeAnnees = $GLOBALS['listeAnnees'] ?? [];
+    $listeNiveauxEtude = $GLOBALS['listeNiveauxEtude'] ?? [];
+    $listeSemestres = $GLOBALS['listeSemestres'] ?? [];
+ 
     // Pagination
     $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
     $limit = 10;
@@ -191,39 +195,40 @@
                     Gestion des UE
                 </h2>
             </div>
-
-            <!-- Formulaire -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-                    <i class="fas <?= isset($_GET['id_ue']) ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
-                    <?= isset($_GET['id_ue']) ? "Modifier l'UE" : "Ajouter une nouvelle UE" ?>
-                </h3>
-
-                <form method="POST" action="?page=parametres_generaux&action=ue" id="ueForm">
+            <form method="POST" action="?page=parametres_generaux&action=ue" id="ueForm">
+                <!-- Formulaire -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                            <i
+                                class="fas <?= isset($_GET['id_ue']) ? 'fa-edit text-green-500' : 'fa-plus-circle text-green-500' ?> mr-2"></i>
+                            <?= isset($_GET['id_ue']) ? "Modifier l'UE" : "Ajouter une nouvelle UE" ?>
+                        </h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="annee_academique">Année
+                                académique</label>
+                            <select id="annee_academique" name="annee_academique" required
+                                class="form-select w-50 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                <option value="">Sélectionnez une année</option>
+                                <?php foreach ($listeAnnees as $annee): ?>
+                                <option value="<?= $annee->id_annee_acad ?>"
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_annee_academique == $annee->id_annee_acad ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars(date('Y', strtotime($annee->date_deb)) . '-' . date('Y', strtotime($annee->date_fin)))  ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
                     <?php if($ue_a_modifier): ?>
                     <input type="hidden" name="id_ue" value="<?= htmlspecialchars($ue_a_modifier->id_ue) ?>">
                     <?php endif ?>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <!-- Libellé UE -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Libellé de l'UE</label>
-                            <input type="text" id="lib_ue" name="lib_ue" required
-                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->lib_ue) : '' ?>"
-                                placeholder="Ex: UE1"
-                                class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Crédits</label>
-                            <input type="number" id="credit" name="credit" required min="1" max="30"
-                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->credit) : '' ?>"
-                                placeholder="Ex: 6"
-                                class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
-                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Niveau d'étude</label>
                             <select id="niveau_etude" name="niveau_etude" required
-                                class="form-select w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                class="form-select w-2/3 px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez un niveau</option>
-                                <?php foreach ($GLOBALS['listeNiveaux'] as $niveau): ?>
+                                <?php foreach ($listeNiveauxEtude as $niveau): ?>
                                 <option value="<?= $niveau->id_niv_etude ?>"
                                     <?= $ue_a_modifier && $ue_a_modifier->id_niveau_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($niveau->lib_niv_etude) ?>
@@ -231,17 +236,35 @@
                                 <?php endforeach; ?>
                             </select>
 
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Libellé de l'UE</label>
+                            <input type="text" id="lib_ue" name="lib_ue" required
+                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->lib_ue) : '' ?>"
+                                placeholder="Ex: UE1"
+                                class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+
+
+
+                        </div>
+                        <div>
+
                             <label class="block text-sm font-medium text-gray-700 mb-2">Semestre</label>
                             <select id="semestre" name="semestre" required
-                                class="form-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                class="form-select w-2/3 mb-3 px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez un semestre</option>
-                                <?php foreach ($GLOBALS['listeSemestres'] as $semestre): ?>
+                                <?php foreach ($listeSemestres as $semestre): ?>
                                 <option value="<?= $semestre->id_semestre ?>"
                                     <?= $ue_a_modifier && $ue_a_modifier->id_semestre == $semestre->id_semestre ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($semestre->lib_semestre) ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Crédits</label>
+                            <input type="number" id="credit" name="credit" required min="1" max="30"
+                                value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->credit) : '' ?>"
+                                placeholder="Ex: 6"
+                                class="form-input w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+
                         </div>
                     </div>
 
@@ -265,135 +288,134 @@
                         </button>
                         <?php endif; ?>
                     </div>
+            </form>
+    </div>
+
+    <!-- Liste des UE -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+            <i class="fas fa-list-ul text-green-500 mr-2"></i>
+            Liste des UE
+        </h3>
+        <div class="flex justify-between items-center mb-4">
+            <!-- Barre de recherche -->
+            <div class="flex-1 max-w-md">
+                <form action="" method="GET" class="flex gap-3">
+                    <input type="hidden" name="page" value="parametres_generaux">
+                    <input type="hidden" name="action" value="ue">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
+                            class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
+                    </div>
+                    <button type="submit"
+                        class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <i class="fas fa-search mr-2"></i>Rechercher
+                    </button>
                 </form>
             </div>
 
-            <!-- Liste des UE -->
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-                    <i class="fas fa-list-ul text-green-500 mr-2"></i>
-                    Liste des UE
-                </h3>
-                <div class="flex justify-between items-center mb-4">
-                    <!-- Barre de recherche -->
-                    <div class="flex-1 max-w-md">
-                        <form action="" method="GET" class="flex gap-3">
-                            <input type="hidden" name="page" value="parametres_generaux">
-                            <input type="hidden" name="action" value="ue">
-                            <div class="relative flex-1">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
-                                    class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
-                            </div>
-                            <button type="submit"
-                                class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                <i class="fas fa-search mr-2"></i>Rechercher
-                            </button>
-                        </form>
-                    </div>
+            <!-- Boutons d'action -->
+            <div class="flex gap-3">
+                <button id="exportBtn" onclick="exportToExcel()"
+                    class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+                    <i class="fas fa-file-export mr-2"></i>Exporter
+                </button>
+                <button id="printBtn" onclick="printTable()"
+                    class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <i class="fas fa-print mr-2"></i>Imprimer
+                </button>
+                <button type="button" id="deleteSelectedBtn" disabled
+                    class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                </button>
+            </div>
+        </div>
 
-                    <!-- Boutons d'action -->
-                    <div class="flex gap-3">
-                        <button id="exportBtn" onclick="exportToExcel()"
-                            class="btn-hover px-4 py-2 btn-gradient-warning text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
-                            <i class="fas fa-file-export mr-2"></i>Exporter
-                        </button>
-                        <button id="printBtn" onclick="printTable()"
-                            class="btn-hover px-4 py-2 btn-gradient-secondary text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            <i class="fas fa-print mr-2"></i>Imprimer
-                        </button>
-                        <button type="button" id="deleteSelectedBtn" disabled
-                            class="btn-hover px-4 py-2 btn-gradient-danger text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-trash-alt mr-2"></i>Supprimer
-                        </button>
-                    </div>
-                </div>
-
-                <form class="overflow-x-auto" method="POST" action="?page=parametres_generaux&action=ue"
-                    id="formListeUes">
-                    <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="w-[5%] px-4 py-3 text-center">
-                                    <input type="checkbox" id="selectAllCheckbox"
-                                        class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                </th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crédits</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semestre</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php if (!empty($listeUes)) : ?>
-                            <?php foreach ($listeUes as $ue) : ?>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" name="selected_ids[]"
-                                        value="<?= htmlspecialchars($ue->id_ue) ?>"
-                                        class="row-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-900 font-medium">
-                                    <?= htmlspecialchars($ue->id_ue) ?>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    <?= htmlspecialchars($ue->lib_ue) ?>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    <?= htmlspecialchars($ue->credit) ?>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    <?= htmlspecialchars($ue->lib_niv_etude) ?>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    <?= htmlspecialchars($ue->lib_semestre) ?>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex justify-center space-x-2">
-                                        <a href="?page=parametres_generaux&action=ue&id_ue=<?= $ue->id_ue ?>"
-                                            class="text-blue-500 hover:text-blue-700 transition-colors">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                            <?php else : ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-sm text-gray-500 py-4">
-                                    Aucune UE enregistrée.
-                                </td>
-                            </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </form>
-
-                <!-- Pagination -->
-                <?php if ($total_pages > 1): ?>
-                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
-                                à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
-                                sur <span class="font-medium"><?= $total_items ?></span> résultats
-                            </p>
-                        </div>
-                        <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                                aria-label="Pagination">
-                                <?php if ($page > 1): ?>
-                                <a href="?page=parametres_generaux&action=ue&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
-                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <i class="fas fa-chevron-left"></i>
+        <form class="overflow-x-auto" method="POST" action="?page=parametres_generaux&action=ue" id="formListeUes">
+            <input type="hidden" name="submit_delete_multiple" id="submitDeleteHidden" value="0">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="w-[5%] px-4 py-3 text-center">
+                            <input type="checkbox" id="selectAllCheckbox"
+                                class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crédits</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semestre
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php if (!empty($listeUes)) : ?>
+                    <?php foreach ($listeUes as $ue) : ?>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3 text-center">
+                            <input type="checkbox" name="selected_ids[]" value="<?= htmlspecialchars($ue->id_ue) ?>"
+                                class="row-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-medium">
+                            <?= htmlspecialchars($ue->id_ue) ?>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <?= htmlspecialchars($ue->lib_ue) ?>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <?= htmlspecialchars($ue->credit) ?>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <?= htmlspecialchars($ue->lib_niv_etude) ?>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <?= htmlspecialchars($ue->lib_semestre) ?>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex justify-center space-x-2">
+                                <a href="?page=parametres_generaux&action=ue&id_ue=<?= $ue->id_ue ?>"
+                                    class="text-blue-500 hover:text-blue-700 transition-colors">
+                                    <i class="fas fa-edit"></i>
                                 </a>
-                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php else : ?>
+                    <tr>
+                        <td colspan="7" class="text-center text-sm text-gray-500 py-4">
+                            Aucune UE enregistrée.
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </form>
 
-                                <?php
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Affichage de <span class="font-medium"><?= $offset + 1 ?></span>
+                        à <span class="font-medium"><?= min($offset + $limit, $total_items) ?></span>
+                        sur <span class="font-medium"><?= $total_items ?></span> résultats
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        <?php if ($page > 1): ?>
+                        <a href="?page=parametres_generaux&action=ue&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        <?php endif; ?>
+
+                        <?php
                                 $start = max(1, $page - 2);
                                 $end = min($total_pages, $page + 2);
                                 
@@ -403,30 +425,30 @@
                                 
                                 for ($i = $start; $i <= $end; $i++):
                                 ?>
-                                <a href="?page=parametres_generaux&action=ue&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                                    class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
-                                    <?= $i ?>
-                                </a>
-                                <?php endfor;
+                        <a href="?page=parametres_generaux&action=ue&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                            class="relative inline-flex items-center px-4 py-2 border <?= $i === $page ? 'bg-green-50 text-green-600 border-green-500' : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-300' ?>">
+                            <?= $i ?>
+                        </a>
+                        <?php endfor;
 
                                 if ($end < $total_pages) {
                                     echo '<span class="px-3 py-2 text-gray-500">...</span>';
                                 }
                                 ?>
 
-                                <?php if ($page < $total_pages): ?>
-                                <a href="?page=parametres_generaux&action=ue&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
-                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                                <?php endif; ?>
-                            </nav>
-                        </div>
-                    </div>
+                        <?php if ($page < $total_pages): ?>
+                        <a href="?page=parametres_generaux&action=ue&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <?php endif; ?>
+                    </nav>
                 </div>
-                <?php endif; ?>
             </div>
-        </main>
+        </div>
+        <?php endif; ?>
+    </div>
+    </main>
     </div>
 
     <!-- Modale de confirmation de suppression -->
@@ -521,7 +543,8 @@
             updateDeleteButtonState();
             const allCheckboxes = document.querySelectorAll('.row-checkbox');
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
         }
     });
 

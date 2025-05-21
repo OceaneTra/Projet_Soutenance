@@ -11,12 +11,13 @@ class Ue
 
     public function getAllUes()
     {
-        $stmt = $this->pdo->query("SELECT ue.*, n.lib_niv_etude, s.lib_semestre, CONCAT(a.date_deb, ' / ', a.date_fin) AS annee 
-                                   FROM ue 
-                                   JOIN niveau_etude n ON ue.id_niveau_etude = n.id_niv_etude
-                                   JOIN semestre s ON ue.id_semestre = s.id_semestre
-                                   JOIN annee_academique a ON ue.id_annee_academique = a.id_annee_acad
-                                   ORDER BY lib_ue");
+      $stmt = $this->pdo->query("SELECT ue.*, n.lib_niv_etude, s.lib_semestre, 
+                          CONCAT(YEAR(a.date_deb), ' - ', YEAR(a.date_fin)) AS annee 
+                          FROM ue 
+                          JOIN niveau_etude n ON ue.id_niveau_etude = n.id_niv_etude
+                          JOIN semestre s ON ue.id_semestre = s.id_semestre
+                          JOIN annee_academique a ON ue.id_annee_academique = a.id_annee_acad
+                          ORDER BY lib_ue");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 

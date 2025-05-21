@@ -220,9 +220,9 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                             <select id="niveau_etude" name="niveau_etude" required
                                 class="form-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                                 <option value="">Sélectionnez un niveau</option>
-                                <?php foreach ($GLOBALS['listeNiveaux'] as $niveau): ?>
+                                <?php foreach ($GLOBALS['listeNiveauxEtude'] as $niveau): ?>
                                 <option value="<?= $niveau->id_niv_etude ?>"
-                                    <?= $semestre_a_modifier && $semestre_a_modifier->id_niveau_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
+                                    <?= $semestre_a_modifier && $semestre_a_modifier->id_niv_etude == $niveau->id_niv_etude ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($niveau->lib_niv_etude) ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -267,7 +267,8 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                             <input type="hidden" name="page" value="parametres_generaux">
                             <input type="hidden" name="action" value="semestres">
                             <div class="relative flex-1">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 <input type="text" name="search" value="<?= $search ?>" placeholder="Rechercher..."
                                     class="form-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200">
                             </div>
@@ -308,7 +309,8 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -499,7 +501,8 @@ $listeSemestres = array_slice($listeSemestres, $offset, $limit);
             updateDeleteButtonState();
             const allCheckboxes = document.querySelectorAll('.row-checkbox');
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+            selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes.length >
+                0;
         }
     });
 
