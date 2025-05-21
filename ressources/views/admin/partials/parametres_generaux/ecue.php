@@ -749,19 +749,26 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
     });
 
     function updateFields(ueId) {
-        if (ueId) {
-            // Récupérer l'UE sélectionnée depuis le tableau PHP
-            const ues = <?= json_encode($listeUes) ?>;
-            // Convertir ueId en nombre pour la comparaison
-            const selectedUe = ues.find(ue => parseInt(ue.id_ue) === parseInt(ueId));
+        // Récupérer l'UE sélectionnée depuis le tableau PHP
+        const ues = <?= json_encode($listeUes) ?>;
 
-            if (selectedUe) {
-                document.getElementById('id_annee_acad').value = selectedUe.annee || '';
-                document.getElementById('niveau_etude').value = selectedUe.lib_niv_etude || '';
-                document.getElementById('semestre').value = selectedUe.lib_semestre || '';
-            }
+        // Si aucun ID n'est fourni ou si l'ID est vide, vider tous les champs
+        if (!ueId || ueId === '') {
+            document.getElementById('id_annee_acad').value = '';
+            document.getElementById('niveau_etude').value = '';
+            document.getElementById('semestre').value = '';
+            return;
+        }
+
+        // Convertir ueId en nombre pour la comparaison
+        const selectedUe = ues.find(ue => parseInt(ue.id_ue) === parseInt(ueId));
+
+        if (selectedUe) {
+            document.getElementById('id_annee_acad').value = selectedUe.annee || '';
+            document.getElementById('niveau_etude').value = selectedUe.lib_niv_etude || '';
+            document.getElementById('semestre').value = selectedUe.lib_semestre || '';
         } else {
-            // Vider les champs si aucune UE n'est sélectionnée
+            // Si l'UE n'est pas trouvée, vider les champs
             document.getElementById('id_annee_acad').value = '';
             document.getElementById('niveau_etude').value = '';
             document.getElementById('semestre').value = '';
@@ -771,9 +778,13 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
     // Appeler updateFields au chargement de la page si une UE est déjà sélectionnée
     document.addEventListener('DOMContentLoaded', function() {
         const ueSelect = document.getElementById('id_ue');
-        if (ueSelect.value) {
-            updateFields(ueSelect.value);
-        }
+        // Toujours appeler updateFields au chargement pour s'assurer que les champs sont correctement initialisés
+        updateFields(ueSelect.value);
+    });
+
+    // Ajouter un écouteur d'événement pour le changement de sélection
+    document.getElementById('id_ue').addEventListener('change', function() {
+        updateFields(this.value);
     });
     </script>
 
@@ -782,7 +793,5 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
     ?>
 
 </body>
-
-</html>
 
 </html>
