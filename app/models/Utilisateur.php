@@ -144,20 +144,11 @@ class Utilisateur
 
     }
 
-    // Fonction pour générer un mot de passe aléatoire
-function generateRandomPassword($length = 12)
-{
-    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
-    $password = '';
-    for ($i = 0; $i < $length; $i++) {
-        $password .= $chars[rand(0, strlen($chars) - 1)];
-    }
-    return $password;
-}
-    public function ajouterUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login)
+
+    public function ajouterUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login,$mdp)
     {
-        $mdp = $this->generateRandomPassword();
-        $query = "INSERT INTO utilisateur (nom_utilisateur,id_type_utilisateur,id_GU,id_niv_acces_donnees,statut_utilisateur, login_utilisateur, mdp_utilisateur ) 
+        
+        $query = "INSERT INTO utilisateur (nom_utilisateur,id_type_utilisateur,id_GU,id_niv_acces_donnee,statut_utilisateur, login_utilisateur, mdp_utilisateur ) 
                   VALUES (:nom,:id_type_utilisateur ,:id_GU,:id_niv_acces_donnees, :statut_utilisateur,:login, :mdp )";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':nom', $nom);

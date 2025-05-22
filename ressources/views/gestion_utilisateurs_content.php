@@ -67,30 +67,30 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </div>
                     <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
                 </div>
-                <form id="userForm" class="space-y-4">
-                    <input type="hidden" id="userId" name="userId">
+                <form id="userForm" class="space-y-4" method="POST" action="?page=gestion_utilisateurs">
+                    <input type="hidden" id="userId" name="id_utilisateur">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label for="username" class="block text-sm font-medium text-gray-700">
+                            <label for="nom_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
                             </label>
-                            <input type="text" name="username" id="username" required
+                            <input type="text" name="nom_utilisateur" id="nom_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                         <div class="space-y-2">
-                            <label for="email" class="block text-sm font-medium text-gray-700">
+                            <label for="login_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-envelope text-green-500 mr-2"></i>Login
                             </label>
-                            <input type="email" name="email" id="email" required
+                            <input type="text" name="login_utilisateur" id="login_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label for="type_utilisateur" class="block text-sm font-medium text-gray-700">
+                            <label for="id_type_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-id-badge text-green-500 mr-2"></i>Type utilisateur
                             </label>
-                            <select name="type_utilisateur" id="type_utilisateur" required
+                            <select name="id_type_utilisateur" id="id_type_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
                                 <option value="">Sélectionner un type utilisateur</option>
                                 <?php foreach($types_utilisateur as $type): ?>
@@ -101,23 +101,22 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label for="status" class="block text-sm font-medium text-gray-700">
+                            <label for="statut_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-toggle-on text-green-500 mr-2"></i>Statut
                             </label>
-                            <select name="status" id="status" required
+                            <select name="statut_utilisateur" id="statut_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
                                 <option value="Actif">Actif</option>
                                 <option value="Inactif">Inactif</option>
                             </select>
                         </div>
-
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label for="gu" class="block text-sm font-medium text-gray-700">
+                            <label for="id_GU" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-users text-green-500 mr-2"></i>Groupe utilisateur
                             </label>
-                            <select name="gu" id="gu" required
+                            <select name="id_GU" id="id_GU" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
                                 <option value="">Sélectionner un groupe utilisateur</option>
                                 <?php foreach($groupes_utilisateur as $groupe): ?>
@@ -128,10 +127,10 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label for="niveau_acces" class="block text-sm font-medium text-gray-700">
+                            <label for="id_niveau_acces" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-lock text-green-500 mr-2"></i>Niveau d'accès
                             </label>
-                            <select name="niveau_acces" id="niveau_acces" required
+                            <select name="id_niveau_acces" id="id_niveau_acces" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
                                 <option value="">Sélectionner un niveau</option>
                                 <?php foreach($niveau_acces as $niveau): ?>
@@ -143,16 +142,14 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         </div>
                     </div>
                     <div class="flex justify-between">
-
                         <button type="button" onclick="closeUserModal()"
                             class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
                             <i class="fas fa-times mr-2"></i>Annuler
                         </button>
-                        <button type="submit"
+                        <button type="submit" name="btn_add_utilisateur"
                             class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
                         </button>
-
                     </div>
                 </form>
             </div>
@@ -359,7 +356,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </div>
                     <div class="flex flex-wrap justify-center gap-2">
                         <?php if ($page > 1): ?>
-                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             <i class="fas fa-chevron-left mr-1"></i>Précédent
                         </a>
@@ -375,7 +372,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         
                         for ($i = $start; $i <= $end; $i++):
                         ?>
-                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $i ?>&search=<?= urlencode($search) ?>"
                             class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
                             <?= $i ?>
                         </a>
@@ -387,7 +384,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         ?>
 
                         <?php if ($page < $total_pages): ?>
-                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             Suivant<i class="fas fa-chevron-right ml-1"></i>
                         </a>
@@ -410,13 +407,13 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const userModalTitle = document.getElementById('userModalTitle');
     const userModalSubmitButton = document.getElementById('userModalSubmitButton');
     const userIdField = document.getElementById('userId');
-    const usernameField = document.getElementById('username');
-    const emailField = document.getElementById('email');
-    const utilisateurField = document.getElementById('utilisateur');
-    const statusField = document.getElementById('status');
-    const typeField = document.getElementById('type_utilisateur');
-    const guField = document.getElementById('gu');
-    const niveau_acces = document.getElementById('niveau_acces');
+    const usernameField = document.getElementById('nom_utilisateur');
+    const emailField = document.getElementById('login_utilisateur');
+    const utilisateurField = document.getElementById('role_utilisateur');
+    const statusField = document.getElementById('statut_utilisateur');
+    const typeField = document.getElementById('id_type_utilisateur');
+    const guField = document.getElementById('id_GU');
+    const niveau_acces = document.getElementById('id_niveau_acces');
     const searchInput = document.getElementById('searchInput');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('deleteButton');
@@ -428,12 +425,12 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             userModalSubmitButton.textContent = 'Mettre à jour';
             userIdField.value = userData.id_utilisateur;
             usernameField.value = userData.nom_utilisateur;
-            emailField.value = userData.email_utilisateur;
+            emailField.value = userData.login_utilisateur;
             utilisateurField.value = userData.role_utilisateur;
             statusField.value = userData.statut_utilisateur;
-            typeField.value = userData.type_utilisateur || '';
-            guField.value = userData.gu || 'Administrateur';
-            niveau_acces.value = userData.niveau_acces || 'Administrateur';
+            typeField.value = userData.id_type_utilisateur || '';
+            guField.value = userData.id_GU || 'Administrateur';
+            niveau_acces.value = userData.id_niveau_acces || 'Administrateur';
         } else {
             userModalTitle.textContent = 'Ajouter un Utilisateur';
             userModalSubmitButton.textContent = 'Enregistrer';
