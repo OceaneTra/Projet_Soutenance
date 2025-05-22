@@ -1,7 +1,35 @@
 <?php
 
+$utilisateur_a_modifier = $GLOBALS['utilisateur_a_modifier'];
+
 $utilisateurs = $GLOBALS['utilisateurs'] ?? [];
-$types = $GLOBALS['types'] ?? [];
+$niveau_acces = $GLOBALS['niveau_acces'];
+$types_utilisateur =$GLOBALS['types_utilisateur'];
+$groupes_utilisateur =$GLOBALS['groupes_utilisateur'] ;
+
+
+// Pagination
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+if (!empty($search)) {
+    $utilisateurs = array_filter($utilisateurs, function($utilisateur) use ($search) {
+        return stripos($utilisateur->nom_utilisateur, $search) !== false;
+    });
+}
+
+// Total pages calculation
+$total_items = count($utilisateurs);
+$total_pages = ceil($total_items / $limit);
+
+// Slice the array for pagination
+$utilisateurs = array_slice($utilisateurs, $offset, $limit);
+
 
 // Calculer les statistiques
 $totalUtilisateurs = count($utilisateurs);
@@ -51,7 +79,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         </div>
                         <div class="space-y-2">
                             <label for="email" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-envelope text-green-500 mr-2"></i>Email
+                                <i class="fas fa-envelope text-green-500 mr-2"></i>Login
                             </label>
                             <input type="email" name="email" id="email" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
@@ -64,7 +92,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="type_utilisateur" id="type_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($types as $type): ?>
+                                <option value="">Sélectionner un type utilisateur</option>
+                                <?php foreach($types_utilisateur as $type): ?>
                                 <option value="<?php echo htmlspecialchars($type->id_type_utilisateur); ?>">
                                     <?php echo htmlspecialchars($type->lib_type_utilisateur); ?>
                                 </option>
@@ -72,18 +101,16 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label for="fonction" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-briefcase text-green-500 mr-2"></i>Fonction
+                            <label for="status" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-toggle-on text-green-500 mr-2"></i>Statut
                             </label>
-                            <select name="fonction" id="fonction" required
+                            <select name="status" id="status" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($fonctions as $f): ?>
-                                <option value="<?php echo htmlspecialchars($f->id_fonction); ?>">
-                                    <?php echo htmlspecialchars($f->lib_fonction); ?>
-                                </option>
-                                <?php endforeach; ?>
+                                <option value="Actif">Actif</option>
+                                <option value="Inactif">Inactif</option>
                             </select>
                         </div>
+
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
@@ -92,7 +119,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="gu" id="gu" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($groupes as $groupe): ?>
+                                <option value="">Sélectionner un groupe utilisateur</option>
+                                <?php foreach($groupes_utilisateur as $groupe): ?>
                                 <option value="<?php echo htmlspecialchars($groupe->id_GU); ?>">
                                     <?php echo htmlspecialchars($groupe->lib_GU); ?>
                                 </option>
@@ -105,7 +133,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="niveau_acces" id="niveau_acces" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <?php foreach($niveauxAcces as $niveau): ?>
+                                <option value="">Sélectionner un niveau</option>
+                                <?php foreach($niveau_acces as $niveau): ?>
                                 <option value="<?php echo htmlspecialchars($niveau->id_niveau_acces_donnees); ?>">
                                     <?php echo htmlspecialchars($niveau->lib_niveau_acces_donnees); ?>
                                 </option>
@@ -113,27 +142,17 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label for="status" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-toggle-on text-green-500 mr-2"></i>Statut
-                            </label>
-                            <select name="status" id="status" required
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <option value="Actif">Actif</option>
-                                <option value="Inactif">Inactif</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end space-x-4 self-end pt-6">
-                            <button type="button" onclick="closeUserModal()"
-                                class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
-                                <i class="fas fa-times mr-2"></i>Annuler
-                            </button>
-                            <button type="submit"
-                                class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
-                                <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
-                            </button>
-                        </div>
+                    <div class="flex justify-between">
+
+                        <button type="button" onclick="closeUserModal()"
+                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i><span id="userModalSubmitButton">Enregistrer</span>
+                        </button>
+
                     </div>
                 </form>
             </div>
@@ -209,7 +228,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </button>
                     <button id="deleteButton"
                         class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
-                        <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                        <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
                     </button>
                 </div>
             </div>
@@ -225,19 +244,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>ID</span>
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center">
                                     <span>Nom d'utilisateur</span>
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center">
-                                    <span>Email</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
@@ -249,7 +256,19 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
+                                    <span>Groupe utilisateur</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
                                     <span>Statut</span>
+                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>Login</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
@@ -278,10 +297,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                                     value="<?php echo htmlspecialchars($user->id_utilisateur); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <span
-                                    class="bg-gray-100 px-2 py-1 rounded-md"><?php echo htmlspecialchars($user->id_utilisateur); ?></span>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
                                     <div
@@ -294,26 +309,29 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
-                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user->email_utilisateur); ?>
+
+                                    <span><?php echo htmlspecialchars($user->role_utilisateur); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
-                                    <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-                                    <?php echo htmlspecialchars($user->role_utilisateur); ?>
+
+                                    <span><?php echo htmlspecialchars($user->gu); ?></span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="status-badge px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    <?php echo $user->statut_utilisateur === 'Actif' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800'; ?>">
-                                    <i
-                                        class="fas <?php echo $user->statut_utilisateur === 'Actif' ? 'fa-check-circle' : 'fa-times-circle'; ?> mr-1 text-center pt-1"></i>
-                                    <?php echo htmlspecialchars($user->statut_utilisateur); ?>
-                                </span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+
+                                    <span><?php echo htmlspecialchars($user->statut_utilisateur); ?></span>
+                                </div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                                    <?php echo htmlspecialchars($user->login_utilisateur); ?>
+                                </div>
+                            </td>
+
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center space-x-3">
                                     <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
@@ -332,33 +350,52 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             </div>
 
             <!-- Pagination -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                <div class="flex items-center justify-between">
-                    <p class="text-sm text-gray-700">
-                        Affichage de <span class="font-medium">1</span> à <span
-                            class="font-medium"><?php echo count($utilisateurs); ?></span> sur <span
-                            class="font-medium"><?php echo count($utilisateurs); ?></span> résultats
-                    </p>
-                    <div class="flex items-center space-x-1">
-                        <button
-                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-green-600 hover:bg-green-50 transition-colors">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button
-                            class="px-3 py-1 rounded-md bg-green-500 text-white border border-green-500 text-sm hover:bg-green-600 transition-colors">
-                            1
-                        </button>
-                        <button
-                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                            2
-                        </button>
-                        <button
-                            class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm text-green-600 hover:bg-green-50 transition-colors">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+            <?php if ($total_pages > 1): ?>
+            <div class="bg-white rounded-lg shadow-sm p-4 mt-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-500">
+                        Affichage de <?= $offset + 1 ?> à <?= min($offset + $limit, $total_items) ?> sur
+                        <?= $total_items ?> entrées
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <?php if ($page > 1): ?>
+                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left mr-1"></i>Précédent
+                        </a>
+                        <?php endif; ?>
+
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($total_pages, $page + 2);
+                        
+                        if ($start > 1) {
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                        }
+                        
+                        for ($i = $start; $i <= $end; $i++):
+                        ?>
+                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $i ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
+                            <?= $i ?>
+                        </a>
+                        <?php endfor;
+
+                        if ($end < $total_pages) {
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                        }
+                        ?>
+
+                        <?php if ($page < $total_pages): ?>
+                        <a href="?page=parametres_generaux&action=gestion_utilisateurs&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                            class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Suivant<i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
         <!-- Footer -->
         <div class="mt-8 text-center text-gray-500 text-sm">
@@ -375,7 +412,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const userIdField = document.getElementById('userId');
     const usernameField = document.getElementById('username');
     const emailField = document.getElementById('email');
-    const fonctionField = document.getElementById('fonction');
+    const utilisateurField = document.getElementById('utilisateur');
     const statusField = document.getElementById('status');
     const typeField = document.getElementById('type_utilisateur');
     const guField = document.getElementById('gu');
@@ -384,7 +421,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('deleteButton');
 
-    // Fonction pour ouvrir le modal
+    // Utilisateur pour ouvrir le modal
     function openUserModal(userData) {
         if (userData) {
             userModalTitle.textContent = 'Modifier l\'Utilisateur';
@@ -392,7 +429,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             userIdField.value = userData.id_utilisateur;
             usernameField.value = userData.nom_utilisateur;
             emailField.value = userData.email_utilisateur;
-            fonctionField.value = userData.role_utilisateur;
+            utilisateurField.value = userData.role_utilisateur;
             statusField.value = userData.statut_utilisateur;
             typeField.value = userData.type_utilisateur || '';
             guField.value = userData.gu || 'Administrateur';
@@ -405,7 +442,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         userModal.classList.remove('hidden');
     }
 
-    // Fonction pour fermer le modal
+    // Utilisateur pour fermer le modal
     function closeUserModal() {
         userModal.classList.add('hidden');
     }
@@ -426,6 +463,9 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             }
         });
     });
+
+    updateDeleteButtonState();
+
 
     // Select all checkboxes
     selectAllCheckbox.addEventListener('change', function() {

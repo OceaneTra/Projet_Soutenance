@@ -1,3 +1,19 @@
+<?php
+
+$nom_user = $_SESSION['nom_utilisateur'] ?? '';
+$login_user = $_SESSION['login_utilisateur'] ?? '';
+$statut_user = $_SESSION['statut_utilisateur'] ?? '';
+$niveau_acces = $_SESSION['niveau_acces'] ?? '';
+$lib_GU = $_SESSION['lib_GU'] ?? '';
+$libelle_type_utilisateur = $_SESSION['type_utilisateur'] ?? '';
+$libelle_niveau_acces = $_SESSION['niveau_acces'] ?? '';
+$libelle_GU = $_SESSION['lib_GU'] ?? '';
+
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -29,17 +45,6 @@
         <!-- Main Content -->
         <div class="profile-card bg-white rounded-xl shadow-lg overflow-hidden ">
             <div class="md:flex">
-                <!-- Sidebar -->
-                <div class="w-full md:w-1/4 bg-green-300 text-white p-6">
-                    <div class="flex flex-col items-center md:items-start space-y-6">
-
-                        <div class="text-center md:text-left">
-                            <h2 class="text-xl font-bold">Nathaniel Poole</h2>
-                            <p class="text-gray-200 text-sm">Administrateur</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Form Content -->
                 <div class="w-full md:w-3/4 p-6 md:p-8" @change="formChanged = true">
                     <div class="mb-6">
@@ -57,7 +62,7 @@
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
                                         <i class="fas fa-user text-gray-400"></i>
                                     </span>
-                                    <input id="nom" type="text"
+                                    <input id="nom" type="text" value=""
                                         class="form-input w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
                                 </div>
                             </div>
@@ -71,32 +76,11 @@
                                         class="form-input w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
                                 </div>
                             </div>
-                            <div class="mb-5">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="mdp">Mot de
-                                    passe</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <i class="fas fa-mask text-gray-400"></i>
-                                    </span>
-                                    <input id="mdp" type="password"
-                                        class="form-input w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
-                                </div>
-                            </div>
 
                         </div>
 
                         <!-- Second column -->
                         <div>
-                            <div class="mb-5">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="prenom">Prénom</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <i class="fas fa-user text-gray-400"></i>
-                                    </span>
-                                    <input id="prenom" type="text"
-                                        class="form-input w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
-                                </div>
-                            </div>
                             <div class="mb-5">
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email</label>
                                 <div class="relative">

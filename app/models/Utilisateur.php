@@ -143,31 +143,42 @@ class Utilisateur
 
 
     }
-    public function ajouterUtilisateur($nom, $prenom, $login, $mdp, $id_GU, $id_fonction, $id_type_utilisateur, $id_niv_acces_donnees)
+
+    // Fonction pour générer un mot de passe aléatoire
+function generateRandomPassword($length = 12)
+{
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
+    $password = '';
+    for ($i = 0; $i < $length; $i++) {
+        $password .= $chars[rand(0, strlen($chars) - 1)];
+    }
+    return $password;
+}
+    public function ajouterUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login)
     {
-        $query = "INSERT INTO utilisateur (nom_utilisateur, prenom_utilisateur, login_utilisateur, mdp_utilisateur, id_GU, id_fonction, id_type_utilisateur, id_niv_acces_donnees) 
-                  VALUES (:nom, :prenom, :login, :mdp, :id_GU, :id_fonction, :id_type_utilisateur, :id_niv_acces_donnees)";
+        $mdp = $this->generateRandomPassword();
+        $query = "INSERT INTO utilisateur (nom_utilisateur,id_type_utilisateur,id_GU,id_niv_acces_donnees,statut_utilisateur, login_utilisateur, mdp_utilisateur ) 
+                  VALUES (:nom,:id_type_utilisateur ,:id_GU,:id_niv_acces_donnees, :statut_utilisateur,:login, :mdp )";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':nom', $nom);
-        $stmt->bindParam(':prenom', $prenom);
+        $stmt->bindParam(':id_type_utilisateur', $id_type_utilisateur);
+        $stmt->bindParam(':id_GU', $id_GU);
+        $stmt->bindParam(':id_niv_acces_donnees', $id_niv_acces_donnees);
+        $stmt->bindParam(':statut_utilisateur', $statut_utilisateur);
         $stmt->bindParam(':login', $login);
         $stmt->bindParam(':mdp', $mdp);
-        $stmt->bindParam(':id_GU', $id_GU);
-        $stmt->bindParam(':id_fonction', $id_fonction);
-        $stmt->bindParam(':id_type_utilisateur', $id_type_utilisateur);
-        $stmt->bindParam(':id_niv_acces_donnees', $id_niv_acces_donnees);
         return $stmt->execute();
     }
 
-    public function updateUtilisateur($id, $nom, $login, $mdp, $id_GU, $id_fonction, $id_type_utilisateur, $id_niv_acces_donnees)
+    public function updateUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login, $mdp, $id)
     {
-        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, mdp_utilisateur = :mdp, id_GU = :id_GU, id_fonction = :id_fonction, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees WHERE id_utilisateur = :id";
+        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, mdp_utilisateur = :mdp, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':nom', $nom);
         $stmt->bindParam(':login', $login);
         $stmt->bindParam(':mdp', $mdp);
         $stmt->bindParam(':id_GU', $id_GU);
-        $stmt->bindParam(':id_fonction', $id_fonction);
+        $stmt->bindParam(':statut', $statut_utilisateur);
         $stmt->bindParam(':id_type_utilisateur', $id_type_utilisateur);
         $stmt->bindParam(':id_niv_acces_donnees', $id_niv_acces_donnees);
         $stmt->bindParam(':id', $id);

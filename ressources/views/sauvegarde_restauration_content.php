@@ -98,10 +98,7 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Pagination (if many backups) -->
-            <div class="px-6 py-4 border-t border-gray-200">
-                <p class="text-sm text-gray-700">Pagination ici si nécessaire...</p>
-            </div>
+
         </div>
 
         <!-- Restore from Upload Section (Optional) -->
