@@ -44,7 +44,7 @@ class ParametreController
 
     public function __construct()
     {
-        $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/partials/parametres_generaux/';
+        $this->baseViewPath = __DIR__ . '/../../ressources/views/parametres_generaux/';
         $this->anneeAcademique = new AnneeAcademique(Database::getConnection());
         $this->action = new Action(Database::getConnection());
         $this->fonction = new Fonction(Database::getConnection());
@@ -962,7 +962,7 @@ class ParametreController
         }
 
         $GLOBALS['fonction_a_modifier'] = $fonction_a_modifier;
-        $GLOBALS['listeFonctions'] = $this->fonction->getAllFonction();
+        $GLOBALS['listeFonctions'] = $this->fonction->getAllFonctions();
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }

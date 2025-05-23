@@ -38,13 +38,23 @@ class GestionUtilisateurController
     // Afficher la liste des étudiants
     public function index()
     {
-
         $utilisateur_a_modifier = null;
         $messageErreur = '';
         $messageSuccess = '';
+        $action = $_GET['action'] ?? '';
+
         try {
-            // Vérifier si une action a été demandée
+            // Gestion des actions GET pour les modales
+            if ($action === 'edit' && isset($_GET['id_utilisateur'])) {
+                $utilisateur_a_modifier = $this->utilisateur->getUtilisateurById($_GET['id_utilisateur']);
+                if (!$utilisateur_a_modifier) {
+                    $messageErreur = "Utilisateur non trouvé.";
+                }
+            }
+
+            // Gestion des actions POST
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Ajout d'un nouvel utilisateur
                 if (isset($_POST['btn_add_utilisateur'])) {
                     $nom_utilisateur = $_POST['nom_utilisateur'] ?? '';
                     $id_type_utilisateur = $_POST['id_type_utilisateur'] ?? '';
@@ -53,15 +63,11 @@ class GestionUtilisateurController
                     $statut_utilisateur = $_POST['statut_utilisateur'] ?? '';
                     $id_niveau_acces = $_POST['id_niveau_acces'] ?? '';
                     
-                    // Vérification des champs requis
                     if (empty($nom_utilisateur) || empty($id_type_utilisateur) || empty($id_GU) || 
                         empty($login_utilisateur) || empty($statut_utilisateur) || empty($id_niveau_acces)) {
                         $messageErreur = "Tous les champs sont obligatoires.";
                     } else {
-                        // Génération du mot de passe
                         $mdp = $this->generateRandomPassword();
-                        
-                        // Tentative d'ajout de l'utilisateur
                         if ($this->utilisateur->ajouterUtilisateur(
                             $nom_utilisateur,
                             $id_type_utilisateur,
@@ -71,66 +77,83 @@ class GestionUtilisateurController
                             $login_utilisateur,
                             $mdp
                         )) {
-                            error_log("Tentative d'envoi d'email pour le nouvel utilisateur : " . $login_utilisateur);
-                            // Envoi de l'email avec les identifiants
                             $emailSent = $this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp);
-                            if ($emailSent) {
-                                $messageSuccess = "Utilisateur ajouté avec succès et email envoyé.";
-                            } else {
-                                $messageSuccess = "Utilisateur ajouté avec succès mais l'envoi de l'email a échoué.";
-                            }
+                            $messageSuccess = $emailSent ? 
+                                "Utilisateur ajouté avec succès et email envoyé." : 
+                                "Utilisateur ajouté avec succès mais l'envoi de l'email a échoué.";
                         } else {
                             $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
                         }
                     }
                 }
 
+                // Modification d'un utilisateur
                 if (isset($_POST['btn_modifier_utilisateur'])) {
-                    $nom_utilisateur = $_POST['nom_utilisateur'];
-                    $id_type_utilisateur = $_POST['id_type_utilisateur'];
-                    $id_GU = $_POST['id_GU'];
-                    $login_utilisateur = $_POST['login_utilisateur'];
-                    $mdp_utilisateur = $_POST['mdp_utilisateur'];
-                    $statut_utilisateur = $_POST['statut_utilisateur'];
-                    $id_utilisateur = $_POST['id_utilisateur'];
-                    $id_niveau_acces = $_POST['id_niveau_acces'];
-                    $mdp = $this->generateRandomPassword();
+                    $id_utilisateur = $_POST['id_utilisateur'] ?? '';
+                    $nom_utilisateur = $_POST['nom_utilisateur'] ?? '';
+                    $id_type_utilisateur = $_POST['id_type_utilisateur'] ?? '';
+                    $id_GU = $_POST['id_GU'] ?? '';
+                    $login_utilisateur = $_POST['login_utilisateur'] ?? '';
+                    $statut_utilisateur = $_POST['statut_utilisateur'] ?? '';
+                    $id_niveau_acces = $_POST['id_niveau_acces'] ?? '';
+                    $mdp_utilisateur = $_POST['mdp_utilisateur'] ?? '';
 
-                    if ($this->utilisateur->updateUtilisateur($nom_utilisateur, $id_type_utilisateur, $id_GU, $id_niveau_acces, $statut_utilisateur, $login_utilisateur, $mdp_utilisateur, $id_utilisateur)) {
-                        $messageSuccess = "Utilisateur modifié avec succès.";
+                    if (empty($id_utilisateur) || empty($nom_utilisateur) || empty($id_type_utilisateur) || 
+                        empty($id_GU) || empty($login_utilisateur) || empty($statut_utilisateur) || 
+                        empty($id_niveau_acces)) {
+                        $messageErreur = "Tous les champs sont obligatoires.";
                     } else {
-                        $messageErreur = "Erreur lors de la modification de l'utilisateur.";
-                    }
-
-                    if (isset($_POST['submit_delete_multiple']) && isset($_POST['selected_ids'])) {
-                        $success = true;
-                        foreach ($_POST['selected_ids'] as $id) {
-                            if (!$this->utilisateur->desactiverUtilisateur($id)) {
-                                $success = false;
-                                break;
-                            }
-                        }
-
-                        if ($success) {
-                            $messageSuccess = "Utilisateurs désactiver avec succès.";
+                        if ($this->utilisateur->updateUtilisateur(
+                            $nom_utilisateur,
+                            $id_type_utilisateur,
+                            $id_GU,
+                            $id_niveau_acces,
+                            $statut_utilisateur,
+                            $login_utilisateur,
+                            $mdp_utilisateur,
+                            $id_utilisateur
+                        )) {
+                            $messageSuccess = "Utilisateur modifié avec succès.";
                         } else {
-                            $messageErreur = "Erreur lors de la désactivation des utilisateurs.";
+                            $messageErreur = "Erreur lors de la modification de l'utilisateur.";
                         }
-                    }
-
-                    if (isset($_GET['id_utilisateur'])) {
-                        $utilisateur_a_modifier = $this->utilisateur->getUtilisateurById($_GET['id_utilisateur']);
                     }
                 }
+
+                // Désactivation d'un utilisateur
+                if (isset($_POST['btn_desactiver_utilisateur'])) {
+                    $id_utilisateur = $_POST['id_utilisateur'] ?? '';
+                    if (empty($id_utilisateur)) {
+                        $messageErreur = "ID utilisateur manquant.";
+                    } else {
+                        if ($this->utilisateur->desactiverUtilisateur($id_utilisateur)) {
+                            $messageSuccess = "Utilisateur désactivé avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de la désactivation de l'utilisateur.";
+                        }
+                    }
+                }
+
+                // Désactivation multiple d'utilisateurs
+                if (isset($_POST['btn_desactiver_multiple']) && isset($_POST['userCheckbox'])) {
+                    $success = true;
+                    foreach ($_POST['userCheckbox'] as $id) {
+                        if (!$this->utilisateur->desactiverUtilisateur($id)) {
+                            $success = false;
+                            break;
+                        }
+                    }
+                    $messageSuccess = $success ? 
+                        "Utilisateurs désactivés avec succès." : 
+                        "Erreur lors de la désactivation des utilisateurs.";
+                }
             }
-
-
 
         } catch (Exception $e) {
             $messageErreur = "Erreur : " . $e->getMessage();
         }
 
-
+        // Préparation des données pour la vue
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
         $GLOBALS['utilisateurs'] = $this->utilisateur->getAllUtilisateurs();
@@ -138,82 +161,81 @@ class GestionUtilisateurController
         $GLOBALS['groupes_utilisateur'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
         $GLOBALS['niveau_acces'] = $this->niveauAcces->getAllNiveauxAccesDonnees();
         $GLOBALS['utilisateur_a_modifier'] = $utilisateur_a_modifier;
-
-
+        $GLOBALS['action'] = $action;
     }
 
-        // Fonction pour générer un mot de passe aléatoire
-function generateRandomPassword($length = 12)
-{
-    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
-    $password = '';
-    for ($i = 0; $i < $length; $i++) {
-        $password .= $chars[rand(0, strlen($chars) - 1)];
+    // Fonction pour générer un mot de passe aléatoire
+    function generateRandomPassword($length = 12)
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[rand(0, strlen($chars) - 1)];
+        }
+        return $password;
     }
-    return $password;
-}
 
     function construireMessageHTML($nom, $login, $motDePasse)
     {
         // Construction du sujet
-    $sujet = "Bienvenue sur notre Soutenance Manager, " . htmlspecialchars($nom) . " !";
+        $sujet = "Bienvenue sur Soutenance Manager, " . htmlspecialchars($nom) . " !";
 
-    // Construction du corps du message HTML
-    $message = '
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>Bienvenue</title>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #10b981; color: white; padding: 20px; text-align: center; }
-            .content { padding: 20px; background-color: #f9fafb; }
-            .footer { margin-top: 20px; padding: 10px; text-align: center; font-size: 12px; color: #6b7280; }
-            .button {
-                display: inline-block; padding: 10px 20px; background-color: #10b981; 
-                color: white; text-decoration: none; border-radius: 5px; margin: 15px 0;
-            }
-            .credentials { background-color: #e5e7eb; padding: 15px; border-radius: 5px; margin: 15px 0; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1> '.htmlspecialchars($sujet).'</h1>
-            </div>
-            
-            <div class="content">
-                <p>Bonjour ' . htmlspecialchars($nom) . ',</p>
-                <p>Votre compte a été créé avec succès sur notre plateforme.</p>
-                
-                <div class="credentials">
-                    <p><strong>Identifiant de connexion:</strong> ' . htmlspecialchars($login) . '</p>';
-    
-                  // Ajout du mot de passe temporaire si fourni
-               if ($motDePasse) {
-            $message .= '<p><strong>Mot de passe temporaire:</strong> ' . htmlspecialchars($motDePasse) . '</p>
-                    <p style="color: #ef4444; font-size: 0.9em;">
-                        Pour des raisons de sécurité, nous vous recommandons de changer ce mot de passe après votre première connexion.
-                    </p>';
-                  }
-    
-              $message .= '
+        // Construction du corps du message HTML
+        $message = '
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <title>Bienvenue</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #10b981; color: white; padding: 20px; text-align: center; }
+                .content { padding: 20px; background-color: #f9fafb; }
+                .footer { margin-top: 20px; padding: 10px; text-align: center; font-size: 12px; color: #6b7280; }
+                .button {
+                    display: inline-block; padding: 10px 20px; background-color: #10b981; 
+                    color: white; text-decoration: none; border-radius: 5px; margin: 15px 0;
+                }
+                .credentials { background-color: #e5e7eb; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1> '.htmlspecialchars($sujet).'</h1>
                 </div>
                 
-                <p>Vous pouvez dès maintenant vous connecter à votre compte :</p>
-                <a href="http://localhost:8080/page_connexion.php" class="button">Se connecter</a>
+                <div class="content">
+                    <p>Bonjour ' . htmlspecialchars($nom) . ',</p>
+                    <p>Votre compte a été créé avec succès sur notre plateforme.</p>
+                    
+                    <div class="credentials">
+                        <p><strong>Identifiant de connexion:</strong> ' . htmlspecialchars($login) . '</p>';
+        
+                      // Ajout du mot de passe temporaire si fourni
+                   if ($motDePasse) {
+                $message .= '<p><strong>Mot de passe temporaire:</strong> ' . htmlspecialchars($motDePasse) . '</p>
+                        <p style="color: #ef4444; font-size: 0.9em;">
+                            Pour des raisons de sécurité, nous vous recommandons de changer ce mot de passe après votre première connexion.
+                        </p>';
+                      }
+        
+                $message .= '
+                    </div>
+                    
+                    <p>Vous pouvez dès maintenant vous connecter à votre compte :</p>
+                    <a href="http://localhost:8080/page_connexion.php" class="button " style="color:#fff">Se connecter</a>
+                    
+                    <p>Si vous n\'êtes pas à l\'origine de cette création de compte, veuillez ignorer cet email ou contacter notre support.</p>
+                </div>
                 
-                <p>Si vous n\'êtes pas à l\'origine de cette création de compte, veuillez ignorer cet email ou contacter notre support.</p>
+                <div class="footer">
+                    <p>© ' . date('Y') . ' Soutenance Manager. Tous droits réservés.</p>
+                </div>
             </div>
-            
-            <div class="footer">
-                <p>© ' . date('Y') . ' Soutenance Manager. Tous droits réservés.</p>
-            </div>
-        </div>
-    </body>
-    </html>';
+        </body>
+        </html>';
 
 
         return $message;

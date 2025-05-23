@@ -8,7 +8,8 @@ include 'menu.php';
 
 
 //inclusion des routes
-include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php'; 
+include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
