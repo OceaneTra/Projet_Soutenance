@@ -165,8 +165,10 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                     </div>
 
                     <!-- Table de listing du personnel administratif -->
-                    <form class="bg-white shadow-md rounded-lg overflow-hidden mb-6" method="post"
+                    <form class="bg-white shadow-md rounded-lg overflow-hidden mb-6" method="POST"
                         action="?page=gestion_rh&tab=pers_admin">
+                        <input type="hidden" name="submit_delete_multiple" id="submitDeletePersHidden" value="0">
+
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -327,7 +329,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                     <div>
                                         <label for="date_embauche"
                                             class="block text-sm font-medium text-gray-700 mb-2">Date d'embauche</label>
-                                        <input type="date" name="date_embauche" id="date_embauche" style="outline: none;"
+                                        <input type="date" name="date_embauche" id="date_embauche"
+                                            style="outline: none;"
                                             value="<?= ($action === 'edit' && isset($pers_admin_a_modifier)) ? htmlspecialchars($pers_admin_a_modifier->date_embauche) : '' ?>"
                                             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                             required>
@@ -769,8 +772,7 @@ function showDeleteModal(type, id) {
 
     if (id === 'multiple') {
         // Suppression multiple
-        const form = document.querySelector(`#tab-${type} form`);
-        const checkboxes = form.querySelectorAll('.user-checkbox:checked');
+        const checkboxes = document.querySelectorAll(`#tab-${type} .user-checkbox:checked`);
 
         if (checkboxes.length === 0) {
             alert('Veuillez sélectionner au moins un élément à supprimer');
@@ -846,51 +848,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Fonction d'export
-function exporterData(type) {
-    const table = document.getElementById(`tab-${type}`);
-    const rows = table.getElementsByTagName("tr");
-    let csv = [];
-
-    // En-têtes
-    const headers = [];
-    const headerCells = rows[0].getElementsByTagName("th");
-    for (let i = 1; i < headerCells.length - 1; i++) {
-        headers.push(headerCells[i].textContent.trim());
-    }
-    csv.push(headers.join(","));
-
-    // Données
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        if (row.style.display !== "none") {
-            const cells = row.getElementsByTagName("td");
-            const rowData = [];
-            for (let j = 1; j < cells.length - 1; j++) {
-                rowData.push(cells[j].textContent.trim());
-            }
-            csv.push(rowData.join(","));
-        }
-    }
-
-    // Création et téléchargement du fichier
-    const csvContent = csv.join("\n");
-    const blob = new Blob([csvContent], {
-        type: 'text/csv;charset=utf-8;'
-    });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${type}_export.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
 // Fonction d'impression
 function printTable(type) {
-    const table = document.getElementById(`tab-${type}`);
+    const table = document.querySelector(`#tab-${type} table`);
     const printWindow = window.open('', '_blank');
 
     // Création du contenu HTML pour l'impression
@@ -942,6 +902,43 @@ function printTable(type) {
     };
 }
 
+// Fonction d'export
+function exporterData(type) {
+    const table = document.querySelector(`#tab-${type} table`);
+    const rows = Array.from(table.querySelectorAll('tr'));
+    let csv = [];
+
+    // En-têtes
+    const headers = Array.from(rows[0].querySelectorAll('th'))
+        .slice(1, -1) // Exclure la colonne des checkboxes et des actions
+        .map(header => header.textContent.trim());
+    csv.push(headers.join(","));
+
+    // Données
+    rows.slice(1).forEach(row => {
+        if (row.style.display !== "none") {
+            const cells = Array.from(row.querySelectorAll('td'))
+                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
+                .map(cell => `"${cell.textContent.trim()}"`);
+            csv.push(cells.join(","));
+        }
+    });
+
+    // Création et téléchargement du fichier
+    const csvContent = csv.join("\n");
+    const blob = new Blob([csvContent], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${type}_export.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Gestion des messages temporisés
 document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.getElementById('success-message');
@@ -949,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function hideMessage(element) {
         if (element) {
-            element.style.transition = 'opacity 0.5s ease-out';
+            element.style.transition = 'opacity 0.3s ease-out';
             element.style.opacity = '0';
             setTimeout(() => {
                 element.style.display = 'none';
@@ -959,10 +956,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Masquer les messages après 5 secondes
     if (successMessage) {
-        setTimeout(() => hideMessage(successMessage), 5000);
+        setTimeout(() => hideMessage(successMessage), 3000);
     }
     if (errorMessage) {
-        setTimeout(() => hideMessage(errorMessage), 5000);
+        setTimeout(() => hideMessage(errorMessage), 3000);
     }
 });
 </script>

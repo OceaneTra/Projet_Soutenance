@@ -7,6 +7,16 @@ $lib_GU = $_SESSION['lib_GU'] ?? '';
 $libelle_type_utilisateur = $_SESSION['type_utilisateur'] ?? '';
 $libelle_niveau_acces = $_SESSION['niveau_acces'] ?? '';
 $libelle_GU = $_SESSION['lib_GU'] ?? '';
+
+// Récupération des informations spécifiques selon le type d'utilisateur
+$specialite = $_SESSION['specialite'] ?? '';
+$grade = $_SESSION['grade'] ?? '';
+$fonction = $_SESSION['fonction'] ?? '';
+$date_grade = $_SESSION['date_grade'] ?? '';
+$date_fonction = $_SESSION['date_fonction'] ?? '';
+$telephone = $_SESSION['telephone'] ?? '';
+$poste = $_SESSION['poste'] ?? '';
+$date_embauche = $_SESSION['date_embauche'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -78,10 +88,7 @@ $libelle_GU = $_SESSION['lib_GU'] ?? '';
                         <h3 class="text-lg font-semibold text-gray-800">
                             Informations personnelles
                         </h3>
-                        <span x-show="formChanged" class="text-sm text-amber-600 flex items-center">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            Modifications non enregistrées
-                        </span>
+
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -95,7 +102,7 @@ $libelle_GU = $_SESSION['lib_GU'] ?? '';
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-user"></i>
                                     </div>
-                                    <input id="nom" type="text" value="<?= $nom_user ?>"
+                                    <input id="nom" type="text" value="<?= $nom_user ?>" disabled
                                         class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
@@ -107,10 +114,23 @@ $libelle_GU = $_SESSION['lib_GU'] ?? '';
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-envelope"></i>
                                     </div>
-                                    <input id="email" type="email" value="<?= $login_user ?>@example.com"
+                                    <input id="email" type="email" value="<?= $login_user ?>" disabled
                                         class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
+                            <div class="mb-5">
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="gu">Groupe
+                                    utilisateur</label>
+                                <div class="relative">
+                                    <div
+                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <input id="gu" type="text" value="<?= $libelle_GU ?>" disabled
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                                </div>
+                            </div>
+
                         </div>
 
                         <!-- Second Column -->
@@ -118,43 +138,137 @@ $libelle_GU = $_SESSION['lib_GU'] ?? '';
                             <div class="mb-5">
                                 <label class="block text-sm font-medium text-gray-700 mb-2"
                                     for="login">Identifiant</label>
-                                <div class="relative bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-at text-gray-400 mr-2"></i>
-                                        <span><?= $login_user ?></span>
+                                <div class="relative">
+                                    <div
+                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                                        <i class="fas fa-at"></i>
                                     </div>
+                                    <input id="login" type="text" value="<?= $login_user ?>" disabled
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
 
                             <div class="mb-5">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
-                                <div class="relative bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Type d'utilisateur</label>
+                                <div class="relative  rounded-lg pl-3 pr-4 py-2  border border-gray-200">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user-tag text-gray-400 mr-2"></i>
+                                        <span><?= $libelle_type_utilisateur ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-5">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Niveau d'accès</label>
+                                <div class="relative rounded-lg pl-3 pr-4 py-2  border border-gray-200">
                                     <div class="flex items-center">
                                         <i class="fas fa-shield-alt text-gray-400 mr-2"></i>
-                                        <span><?= $libelle_type_utilisateur ?> (<?= $libelle_niveau_acces ?>)</span>
+                                        <span><?= $libelle_niveau_acces ?></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="text-sm text-gray-500">
-                            <i class="fas fa-building mr-1"></i> <?= $libelle_GU ?>
-                        </div>
-                        <div class="flex space-x-3">
-                            <button @click="formChanged = false"
-                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
-                                Annuler
-                            </button>
-                            <button @click="saveChanges()"
-                                class="px-4 py-2 bg-green-600 rounded-lg text-white font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition flex items-center">
-                                <i class="fas fa-save mr-2"></i>
-                                Enregistrer
-                            </button>
+                    <!-- Informations spécifiques selon le type d'utilisateur -->
+                    <?php if ($libelle_type_utilisateur === 'Enseignant simple' || $libelle_type_utilisateur === 'Enseignant administratif'): ?>
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                            Informations professionnelles
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Spécialité</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-graduation-cap text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($specialite) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-award text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($grade) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Fonction</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-briefcase text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($fonction) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'obtention du
+                                        grade</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-calendar-check text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($date_grade) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'occupation de la
+                                        fonction</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($date_fonction) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <?php elseif ($libelle_type_utilisateur === 'Personnel administratif'): ?>
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                            Informations professionnelles
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-phone text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($telephone) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-briefcase text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($poste) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'embauche</label>
+                                    <div class="relative rounded-lg pl-3 pr-4 py-2 border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
+                                            <span><?= htmlspecialchars($date_embauche) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -225,13 +339,17 @@ $libelle_GU = $_SESSION['lib_GU'] ?? '';
                     <i class="fas fa-info-circle mr-2"></i> Exigences pour le mot de passe
                 </h4>
                 <ul class="text-xs text-blue-700 space-y-1">
-                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Minimum 8
+                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i>
+                        Minimum 8
                         caractères</li>
-                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au moins une
+                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
+                        moins une
                         majuscule</li>
-                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au moins un
+                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
+                        moins un
                         chiffre</li>
-                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au moins un
+                    <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
+                        moins un
                         caractère spécial</li>
                 </ul>
             </div>
