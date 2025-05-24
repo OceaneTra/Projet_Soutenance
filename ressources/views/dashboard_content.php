@@ -13,60 +13,9 @@
 
         <!-- Main Content -->
         <div class="flex-grow">
-            <!-- Top Navigation Bar -->
-            <header class="bg-white shadow-sm p-4">
-                <div class="container mx-auto flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <button class="md:hidden text-gray-500 focus:outline-none">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                        <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
-                    </div>
-
-                    <div class="flex items-center space-x-4">
-
-
-                        <!-- Notifications -->
-                        <div class="tooltip">
-                            <button
-                                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 relative">
-                                <i class="fas fa-bell"></i>
-                                <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
-                            </button>
-
-                        </div>
-
-                        <!-- Messages -->
-                        <div class="tooltip">
-                            <button
-                                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
-                                <i class="fas fa-envelope"></i>
-                            </button>
-
-                        </div>
-
-                        <!-- User Profile -->
-                        <div class="flex items-center space-x-2">
-                            <div class="w-10 h-10 bg-indigo-600 rounded-full overflow-hidden block md:hidden">
-                                <img src="/api/placeholder/40/40" alt="User profile"
-                                    class="w-full h-full object-cover" />
-                            </div>
-                            <div class="hidden md:block">
-                                <h3 class="text-sm font-medium">Thomas Martin</h3>
-                                <p class="text-xs text-gray-500">Admin</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
 
             <!-- Main Dashboard Content -->
             <div class="container mx-auto p-6">
-                <!-- Welcome Section -->
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800">Bonjour, Thomas 👋</h2>
-                    <p class="text-gray-600">Voici votre résumé de performance pour cette semaine</p>
-                </div>
 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">

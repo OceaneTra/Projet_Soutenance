@@ -143,7 +143,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                                 <i class="fas fa-print mr-2"></i>Imprimer
                             </button>
-                            <button type="button" onclick="exporterData('pers_admin')"
+                            <button type="button" onclick="exportToExcel('pers_admin')"
                                 class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
                                 <i class="fas fa-file-export mr-2"></i>Exporter
                             </button>
@@ -168,7 +168,6 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                     <form class="bg-white shadow-md rounded-lg overflow-hidden mb-6" method="POST"
                         action="?page=gestion_rh&tab=pers_admin">
                         <input type="hidden" name="submit_delete_multiple" id="submitDeletePersHidden" value="0">
-
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -177,9 +176,6 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                             <input type="checkbox" id="selectAllCheckbox"
                                                 class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                                         </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ID</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nom</th>
@@ -216,10 +212,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                         <td class="px-4 py-4 text-center">
                                             <input type="checkbox" name="selected_ids[]"
                                                 value="<?= htmlspecialchars($admin->id_pers_admin) ?>"
-                                                class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <?= htmlspecialchars($admin->id_pers_admin) ?>
+                                                class="form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <?= htmlspecialchars($admin->nom_pers_admin) ?>
@@ -230,22 +223,20 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($admin->email_pers_admin) ?>
                                         </td>
-
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($admin->tel_pers_admin) ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($admin->poste) ?>
-
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= htmlspecialchars($admin->date_embauche) ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2 ">
+                                            <div class="flex space-x-2">
                                                 <a href="?page=gestion_rh&tab=pers_admin&action=edit&id_pers_admin=<?= $admin->id_pers_admin ?>"
-                                                    class="text-indigo-600 hover:text-indigo-900 ">
-                                                    <i class="fas fa-edit "></i>
+                                                    class="text-indigo-600 hover:text-indigo-900">
+                                                    <i class="fas fa-edit"></i>
                                                 </a>
                                             </div>
                                         </td>
@@ -328,7 +319,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                     </div>
                                     <div>
                                         <label for="date_embauche"
-                                            class="block text-sm font-medium text-gray-700 mb-2">Date d'embauche</label>
+                                            class="block text-sm font-medium text-gray-700 mb-2">Date
+                                            d'embauche</label>
                                         <input type="date" name="date_embauche" id="date_embauche"
                                             style="outline: none;"
                                             value="<?= ($action === 'edit' && isset($pers_admin_a_modifier)) ? htmlspecialchars($pers_admin_a_modifier->date_embauche) : '' ?>"
@@ -396,7 +388,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                                 <i class="fas fa-print mr-2"></i>Imprimer
                             </button>
-                            <button type="button" onclick="exporterData('enseignant')"
+                            <button type="button" onclick="exportToExcel('enseignant')"
                                 class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
                                 <i class="fas fa-file-export mr-2"></i>Exporter
                             </button>
@@ -616,7 +608,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
 
                                     <div>
                                         <label for="date_grade"
-                                            class="block text-sm font-medium text-gray-700 mb-2">Date d'obtention du
+                                            class="block text-sm font-medium text-gray-700 mb-2">Date
+                                            d'obtention du
                                             grade</label>
                                         <input type="date" name="date_grade" id="date_grade" style="outline: none;"
                                             value="<?= ($action === 'edit' && isset($enseignant_a_modifier)) ? htmlspecialchars($enseignant_a_modifier->date_grade) : '' ?>"
@@ -646,133 +639,127 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
         </main>
     </div>
 
-    <!-- Modal de confirmation pour la suppression -->
-    <div id="modal-confirm-delete" class="modal">
-        <div class="modal-content bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto">
+    <!-- Modale de confirmation de suppression -->
+    <div id="deleteModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                     <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Confirmer la suppression</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
                 <p class="text-sm text-gray-500 mb-6">
-                    Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir supprimer les éléments sélectionnés ?
                 </p>
-                <div class="flex justify-center space-x-3">
-                    <a href="?page=gestion_rh&tab=<?= $activeTab ?>"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">
-                        Annuler
-                    </a>
-                    <form id="delete-form" action="" method="post" class="inline">
-                        <input type="hidden" name="submit_delete_multiple" value="1">
-                        <input type="hidden" name="selected_ids[]" id="delete_id" value="">
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
-                            Supprimer
-                        </button>
-                    </form>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmDelete"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelDelete"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modale de confirmation de modification -->
+    <div id="modifyModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir modifier cet élément ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmModify"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelModify"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 <script>
-// Fonction de recherche
-function searchTable(inputId, tableId) {
-    const input = document.getElementById(inputId);
-    const table = document.getElementById(tableId);
-    const filter = input.value.toUpperCase();
-    const rows = table.querySelectorAll('tbody tr');
+// Variables globales pour les formulaires et les boutons
+const formListePersAdmin = document.querySelector('#tab-pers-admin form');
+const formListeEnseignant = document.querySelector('#tab-enseignant form');
 
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let found = false;
+// Variables pour le personnel administratif
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+const deleteButtonPersAdmin = document.getElementById('deleteButtonPersAdmin');
+const submitDeletePersHidden = document.getElementById('submitDeletePersHidden');
 
-        cells.forEach(cell => {
-            const text = cell.textContent || cell.innerText;
-            if (text.toUpperCase().indexOf(filter) > -1) {
-                found = true;
+// Variables pour les enseignants
+const selectAllCheckboxEnseignant = document.getElementById('selectAllCheckboxEnseignant');
+const deleteButtonEnseignant = document.getElementById('deleteButtonEnseignant');
+const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+
+// Variables pour les modales
+const deleteModal = document.getElementById('deleteModal');
+const confirmDelete = document.getElementById('confirmDelete');
+const cancelDelete = document.getElementById('cancelDelete');
+const modifyModal = document.getElementById('modifyModal');
+const confirmModify = document.getElementById('confirmModify');
+const cancelModify = document.getElementById('cancelModify');
+
+// Initialisation des checkboxes
+function initializeCheckboxes(selectAllCheckbox, deleteButton, form) {
+    if (selectAllCheckbox && deleteButton) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = form.querySelectorAll('input[name="selected_ids[]"]');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            updateDeleteButtonState(deleteButton, form);
+        });
+
+        form.addEventListener('change', function(e) {
+            if (e.target.name === 'selected_ids[]') {
+                updateDeleteButtonState(deleteButton, form);
+                const allCheckboxes = form.querySelectorAll('input[name="selected_ids[]"]');
+                const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
+                selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes
+                    .length > 0;
             }
         });
-
-        row.style.display = found ? "" : "none";
-    });
+    }
 }
 
-// Écouteurs d'événements pour la recherche
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchInputEnseignant = document.getElementById('searchInputEnseignant');
-
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            searchTable('searchInput', 'tab-pers-admin');
-        });
+// Mise à jour de l'état du bouton de suppression
+function updateDeleteButtonState(deleteBtn, form) {
+    if (deleteBtn && form) {
+        const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
+        deleteBtn.disabled = checkedBoxes.length === 0;
     }
+}
 
-    if (searchInputEnseignant) {
-        searchInputEnseignant.addEventListener('keyup', function() {
-            searchTable('searchInputEnseignant', 'tab-enseignant');
-        });
-    }
-});
+// Initialisation des deux sections
+initializeCheckboxes(selectAllCheckbox, deleteButtonPersAdmin, formListePersAdmin);
+initializeCheckboxes(selectAllCheckboxEnseignant, deleteButtonEnseignant, formListeEnseignant);
 
-// Gestion des cases à cocher et du bouton de suppression
-document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const selectAllCheckboxEnseignant = document.getElementById('selectAllCheckboxEnseignant');
-    const deleteButtonPersAdmin = document.getElementById('deleteButtonPersAdmin');
-    const deleteButtonEnseignant = document.getElementById('deleteButtonEnseignant');
-
-    function updateDeleteButton(type) {
-        const checkboxes = document.querySelectorAll(`#tab-${type} .user-checkbox`);
-        const deleteButton = type === 'pers_admin' ? deleteButtonPersAdmin : deleteButtonEnseignant;
-        const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-        deleteButton.disabled = !anyChecked;
-    }
-
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('#tab-pers-admin .user-checkbox');
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-            updateDeleteButton('pers_admin');
-        });
-
-        // Ajouter des écouteurs pour chaque checkbox individuelle
-        const persAdminCheckboxes = document.querySelectorAll('#tab-pers-admin .user-checkbox');
-        persAdminCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => updateDeleteButton('pers_admin'));
-        });
-    }
-
-    if (selectAllCheckboxEnseignant) {
-        selectAllCheckboxEnseignant.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('#tab-enseignant .user-checkbox');
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-            updateDeleteButton('enseignant');
-        });
-
-        // Ajouter des écouteurs pour chaque checkbox individuelle
-        const enseignantCheckboxes = document.querySelectorAll('#tab-enseignant .user-checkbox');
-        enseignantCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => updateDeleteButton('enseignant'));
-        });
-    }
-
-    // Initialiser l'état des boutons
-    updateDeleteButton('pers_admin');
-    updateDeleteButton('enseignant');
-});
-
-// Gestion de la modale de confirmation de suppression
+// Gestion de la modale de suppression
 function showDeleteModal(type, id) {
-    const modal = document.getElementById('modal-confirm-delete');
+    if (!deleteModal) return;
+
     const form = document.getElementById('delete-form');
     const deleteId = document.getElementById('delete_id');
 
     if (id === 'multiple') {
         // Suppression multiple
-        const checkboxes = document.querySelectorAll(`#tab-${type} .user-checkbox:checked`);
+        const checkboxes = document.querySelectorAll(`#tab-${type} input[name="selected_ids[]"]:checked`);
 
         if (checkboxes.length === 0) {
             alert('Veuillez sélectionner au moins un élément à supprimer');
@@ -787,17 +774,16 @@ function showDeleteModal(type, id) {
     }
 
     form.action = `?page=gestion_rh&tab=${type}`;
-    modal.style.display = 'block';
+    deleteModal.classList.remove('hidden');
 }
 
 // Gestion de la suppression
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteForm = document.getElementById('delete-form');
-    if (deleteForm) {
-        deleteForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const type = this.action.split('tab=')[1];
+if (confirmDelete) {
+    confirmDelete.addEventListener('click', function() {
+        const form = document.getElementById('delete-form');
+        if (form) {
+            const formData = new FormData(form);
+            const type = form.action.split('tab=')[1];
             const ids = formData.get('selected_ids[]').split(',');
 
             // Créer un formulaire temporaire pour la soumission
@@ -824,34 +810,85 @@ document.addEventListener('DOMContentLoaded', function() {
             // Ajouter le formulaire au document et le soumettre
             document.body.appendChild(tempForm);
             tempForm.submit();
-        });
+        }
+        deleteModal.classList.add('hidden');
+    });
+}
+
+if (cancelDelete) {
+    cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+    });
+}
+
+// Gestion de la modale de modification
+function showModifyModal(type, id) {
+    if (!modifyModal) return;
+    modifyModal.classList.remove('hidden');
+}
+
+if (confirmModify) {
+    confirmModify.addEventListener('click', function() {
+        const form = document.querySelector(`#tab-${type} form`);
+        if (form) {
+            form.submit();
+        }
+        modifyModal.classList.add('hidden');
+    });
+}
+
+if (cancelModify) {
+    cancelModify.addEventListener('click', function() {
+        modifyModal.classList.add('hidden');
+    });
+}
+
+// Fermer les modales si on clique en dehors
+window.addEventListener('click', function(e) {
+    if (e.target === deleteModal) {
+        deleteModal.classList.add('hidden');
+    }
+    if (e.target === modifyModal) {
+        modifyModal.classList.add('hidden');
     }
 });
 
-// Fermeture des modales
-document.addEventListener('DOMContentLoaded', function() {
-    // Fermeture par le bouton de fermeture
-    document.querySelectorAll('.modal .close, .modal a[href*="tab="]').forEach(element => {
-        element.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        });
+// Fonction pour exporter vers Excel
+function exportToExcel(type) {
+    const table = document.querySelector('table');
+    const rows = Array.from(table.querySelectorAll('tr'));
+
+    // Créer le contenu CSV
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Ajouter les en-têtes
+    const headers = Array.from(rows[0].querySelectorAll('th'))
+        .slice(1, -1) // Exclure la première colonne (checkbox) et la dernière (actions)
+        .map(th => th.textContent.trim());
+    csvContent += headers.join(',') + '\n';
+
+    // Ajouter les données
+    rows.slice(1).forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td'))
+            .slice(1, -1) // Exclure la première colonne (checkbox) et la dernière (actions)
+            .map(td => `"${td.textContent.trim()}"`);
+        csvContent += cells.join(',') + '\n';
     });
 
-    // Fermeture en cliquant en dehors
-    window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    });
-});
+    // Créer le lien de téléchargement
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${type === 'pers_admin' ? 'personnel_administratif' : 'enseignants'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
-// Fonction d'impression
+// Fonction pour imprimer
 function printTable(type) {
-    const table = document.querySelector(`#tab-${type} table`);
     const printWindow = window.open('', '_blank');
+    const table = document.querySelector('table');
 
     // Création du contenu HTML pour l'impression
     const content = `
@@ -902,42 +939,45 @@ function printTable(type) {
     };
 }
 
-// Fonction d'export
-function exporterData(type) {
-    const table = document.querySelector(`#tab-${type} table`);
-    const rows = Array.from(table.querySelectorAll('tr'));
-    let csv = [];
+// Fonction de recherche
+function searchTable(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+    const filter = input.value.toUpperCase();
+    const rows = table.querySelectorAll('tbody tr');
 
-    // En-têtes
-    const headers = Array.from(rows[0].querySelectorAll('th'))
-        .slice(1, -1) // Exclure la colonne des checkboxes et des actions
-        .map(header => header.textContent.trim());
-    csv.push(headers.join(","));
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
 
-    // Données
-    rows.slice(1).forEach(row => {
-        if (row.style.display !== "none") {
-            const cells = Array.from(row.querySelectorAll('td'))
-                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
-                .map(cell => `"${cell.textContent.trim()}"`);
-            csv.push(cells.join(","));
-        }
+        cells.forEach(cell => {
+            const text = cell.textContent || cell.innerText;
+            if (text.toUpperCase().indexOf(filter) > -1) {
+                found = true;
+            }
+        });
+
+        row.style.display = found ? "" : "none";
     });
-
-    // Création et téléchargement du fichier
-    const csvContent = csv.join("\n");
-    const blob = new Blob([csvContent], {
-        type: 'text/csv;charset=utf-8;'
-    });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${type}_export.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }
+
+// Écouteurs d'événements pour la recherche
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchInputEnseignant = document.getElementById('searchInputEnseignant');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            searchTable('searchInput', 'tab-pers-admin');
+        });
+    }
+
+    if (searchInputEnseignant) {
+        searchInputEnseignant.addEventListener('keyup', function() {
+            searchTable('searchInputEnseignant', 'tab-enseignant');
+        });
+    }
+});
 
 // Gestion des messages temporisés
 document.addEventListener('DOMContentLoaded', function() {

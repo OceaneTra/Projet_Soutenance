@@ -9,10 +9,6 @@ require_once __DIR__ . '/../models/Fonction.php';
 require_once __DIR__ . '/../models/Specialite.php';
  // Si nécessaire pour d'autres opérations
 
-
-
-
-
 class AuthController {
     private $db;
     private $enseignantModel;
