@@ -34,7 +34,7 @@ class GestionRhController
         $pers_admin_a_modifier = null;
 
         // Gestion des enseignants
-        if (isset($_GET['tab']) && $_GET['tab'] === 'enseignants') {
+        if (isset($_GET['tab']) && $_GET['tab'] === 'enseignant') {
             // Ajout ou modification d'un enseignant
             if (isset($_POST['btn_add_enseignant']) || isset($_POST['btn_modifier_enseignant'])) {
                 $nom = $_POST['nom'] ?? '';
@@ -96,17 +96,20 @@ class GestionRhController
                 $nom = $_POST['nom'] ?? '';
                 $prenom = $_POST['prenom'] ?? '';
                 $email = $_POST['email'] ?? '';
+                $telephone = $_POST['telephone'] ?? '';
+                $poste = $_POST['poste'] ?? '';
+                $date_embauche = $_POST['date_embauche'] ?? '';
 
                 if (!empty($_POST['id_pers_admin'])) {
                     // Modification
-                    if ($this->persAdminModel->modifierPersAdmin($_POST['id_pers_admin'], $nom, $prenom, $email)) {
+                    if ($this->persAdminModel->modifierPersAdmin($_POST['id_pers_admin'], $nom, $prenom, $email, $telephone, $poste, $date_embauche)) {
                         $messageSuccess = "Personnel administratif modifié avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de la modification du personnel administratif.";
                     }
                 } else {
                     // Ajout
-                    if ($this->persAdminModel->ajouterPersAdmin($nom, $prenom, $email)) {
+                    if ($this->persAdminModel->ajouterPersAdmin($nom, $prenom, $email, $telephone, $poste, $date_embauche)) {
                         $messageSuccess = "Personnel administratif ajouté avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du personnel administratif.";
@@ -132,11 +135,9 @@ class GestionRhController
             }
 
             // Récupération du membre à modifier
-            $pers_admin_a_modifier = null;
-            if (isset($_GET['id_pers_admin'])) {
+            if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id_pers_admin'])) {
                 $pers_admin_a_modifier = $this->persAdminModel->getPersAdminById($_GET['id_pers_admin']);
             }
-
         }
        
 
