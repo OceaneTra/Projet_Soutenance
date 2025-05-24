@@ -104,29 +104,75 @@ class AuthController {
     }
 
     public function updatePassword($currentPassword, $newPassword, $confirmPassword) {
-
         $utilisateur = new Utilisateur($this->db);
         $user = $utilisateur->getUtilisateurById($_SESSION['id_utilisateur']);
+        $messageErreur = '';
+        $messageSuccess = '';
+
         // Vérifier si le mot de passe actuel est correct
-        if (!password_verify($currentPassword, $user['mdp_utilisateur'])) {
+        if (!password_verify($currentPassword, $user->mdp_utilisateur)) {
+            $messageErreur = 'Le mot de passe actuel est incorrect.';
+            $GLOBALS['messageErreur'] = $messageErreur;
             return false;
         }   
 
         // Vérifier si les nouveaux mots de passe correspondent
         if ($newPassword !== $confirmPassword) {
+            $messageErreur = 'Les mots de passe ne correspondent pas.';
+            $GLOBALS['messageErreur'] = $messageErreur;
             return false;
         }
 
-    
         // Vérifier si le nouveau mot de passe est différent du mot de passe actuel
-        if (password_verify($newPassword, $currentPassword)) {
+        if (password_verify($newPassword, $user->mdp_utilisateur)) {
+            $messageErreur = 'Le nouveau mot de passe doit être différent de l\'ancien.';
+            $GLOBALS['messageErreur'] = $messageErreur;
             return false;
         }
 
+        // Vérifier la longueur minimale
+        if (strlen($newPassword) < 8) {
+            $messageErreur = 'Le mot de passe doit contenir au moins 8 caractères.';
+            $GLOBALS['messageErreur'] = $messageErreur;
+            return false;
+        }
+
+        // Vérifier la présence d'au moins une majuscule
+        if (!preg_match('/[A-Z]/', $newPassword)) {
+            $messageErreur = 'Le mot de passe doit contenir au moins une majuscule.';
+            $GLOBALS['messageErreur'] = $messageErreur;
+            return false;
+        }
+
+        // Vérifier la présence d'au moins un chiffre
+        if (!preg_match('/[0-9]/', $newPassword)) {
+            $messageErreur = 'Le mot de passe doit contenir au moins un chiffre.';
+            $GLOBALS['messageErreur'] = $messageErreur;
+            return false;
+        }
+
+        // Vérifier la présence d'au moins un caractère spécial
+        if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]+/', $newPassword)) {
+            $messageErreur = 'Le mot de passe doit contenir au moins un caractère spécial.';
+            $GLOBALS['messageErreur'] = $messageErreur;
+            return false;
+        }
+
+        // Hasher le nouveau mot de passe
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         
-        $utilisateur->updatePassword($newPassword, $_SESSION['id_utilisateur']);
-    
-        return true;
+        // Mettre à jour le mot de passe
+        if ($utilisateur->updatePassword($hashedPassword, $_SESSION['id_utilisateur'])) {
+            $messageSuccess = 'Mot de passe mis à jour avec succès.';
+            $GLOBALS['messageSuccess'] = $messageSuccess;
+            return true;
+        }
+        
+        $messageErreur = 'Erreur lors de la mise à jour du mot de passe.';
+        $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+
+        return false;
     }
 
 }

@@ -47,16 +47,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800" x-data="{
-    formChanged: false,
-    showNotification: false,
-    currentTab: 'profile',
-    updatePassword() {
-        this.showNotification = true;
-        this.formChanged = false;
-        setTimeout(() => this.showNotification = false, 3000);
-    }
-}">
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800" x-data="{ currentTab: 'profile' }">
     <div class="container max-w-4xl mx-auto px-4 py-8">
         <!-- Header -->
         <header class="mb-8">
@@ -275,12 +266,25 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
 
         <!-- Password Tab Content -->
         <div x-show="currentTab === 'password'" class="fade-in" x-transition>
-            <form action="x-show=currentTab === 'password'" method="POST" x-on:submit.prevent="updatePassword">
+            <form action="?page=profil" method="POST">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-6">
                             Changer mon mot de passe
                         </h3>
+
+                        <?php if (isset($_SESSION['password_error'])): ?>
+                        <div class="mb-4 bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md" role="alert">
+                            <p><?= htmlspecialchars($_SESSION['password_error']) ?></p>
+                        </div>
+                        <?php unset($_SESSION['password_error']); endif; ?>
+
+                        <?php if (isset($_SESSION['password_success'])): ?>
+                        <div class="mb-4 bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md"
+                            role="alert">
+                            <p><?= htmlspecialchars($_SESSION['password_success']) ?></p>
+                        </div>
+                        <?php unset($_SESSION['password_success']); endif; ?>
 
                         <div class="space-y-4">
                             <div>
@@ -291,7 +295,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-lock"></i>
                                     </div>
-                                    <input id="currentPassword" type="password" name="currentPassword"
+                                    <input id="currentPassword" type="password" name="currentPassword" required
                                         class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
@@ -306,11 +310,10 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                             <i class="fas fa-lock"></i>
                                         </div>
-                                        <input id="newPassword" type="password" name="newPassword"
+                                        <input id="newPassword" type="password" name="newPassword" required
                                             class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                     </div>
                                 </div>
-
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2"
                                         for="confirmPassword">Confirmer le mot de passe</label>
@@ -319,15 +322,16 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                             <i class="fas fa-lock"></i>
                                         </div>
-                                        <input id="confirmPassword" type="password" name="confirmPassword"
+                                        <input id="confirmPassword" type="password" name="confirmPassword" required
                                             class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="pt-4 flex justify-end">
-                                <button type="submit"
-                                    class="px-4 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg shadow transition">
+                            <div class="mt-6">
+                                <button type="submit" name="update_password"
+                                    class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center">
+                                    <i class="fas fa-save mr-2"></i>
                                     Mettre à jour le mot de passe
                                 </button>
                             </div>
@@ -342,30 +346,16 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                 </h4>
                 <ul class="text-xs text-blue-700 space-y-1">
                     <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i>
-                        Minimum 8
-                        caractères</li>
+                        Minimum 8 caractères</li>
                     <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
-                        moins une
-                        majuscule</li>
+                        moins une majuscule</li>
                     <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
-                        moins un
-                        chiffre</li>
+                        moins un chiffre</li>
                     <li class="flex items-center"><i class="fas fa-check-circle mr-2 text-green-500"></i> Au
-                        moins un
-                        caractère spécial</li>
+                        moins un caractère spécial</li>
                 </ul>
             </div>
         </div>
-    </div>
-
-    <!-- Success Notification -->
-    <div x-show="showNotification" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 translate-y-2"
-        class="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center">
-        <i class="fas fa-check-circle mr-2"></i>
-        <span>Modifications enregistrées avec succès</span>
     </div>
 </body>
 
