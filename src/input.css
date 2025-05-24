@@ -267,6 +267,10 @@
     outline-color: #7C2D12; 
 }
 
+.outline-none{
+    outline: none;
+}
+
 ::-webkit-scrollbar {
     display: none;
 }

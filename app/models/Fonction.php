@@ -3,11 +3,21 @@
 class Fonction {
 
     private $db;
+    private $id_fonction;
+    private $lib_fonction;
 
     public function __construct($db)
     {
         $this->db = $db;
     }
+
+    // Getters
+    public function getIdFonction() { return $this->id_fonction; }
+    public function getLibFonction() { return $this->lib_fonction; }
+
+    // Setters
+    public function setIdFonction($id) { $this->id_fonction = $id; }
+    public function setLibFonction($lib) { $this->lib_fonction = $lib; }
 
     public function ajouterFonction($lib_fonction)
     {
@@ -27,16 +37,19 @@ class Fonction {
         return $stmt->execute([$id_fonction]);
     }
 
-    public function getFonctionById($id_fonction)
+    public function getFonctionById($id)
     {
-        $stmt = $this->db->prepare("SELECT * FROM fonction WHERE id_fonction = ?");
-        $stmt->execute([$id_fonction]);
+        $query = "SELECT * FROM fonction WHERE id_fonction = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function getAllfonction()
+    public function getAllFonctions()
     {
-        $stmt = $this->db->prepare("SELECT * FROM fonction ORDER BY lib_fonction");
+        $query = "SELECT * FROM fonction ORDER BY lib_fonction";
+        $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }

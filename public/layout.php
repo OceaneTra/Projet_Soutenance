@@ -6,6 +6,11 @@ include '../app/controllers/AuthController.php';
 include '../app/controllers/MenuController.php';
 include 'menu.php';
 
+
+//inclusion des routes
+include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
+
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
     header('Location : page_connexion.php');
@@ -44,15 +49,8 @@ $currentAction = null;
 $contentFile = '';
 
 
-$partialsBasePathAdmin = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR;
-$partialsBasePathEtudiant = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'etudiant' . DIRECTORY_SEPARATOR;
-$partialsBasePathSecretaire = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'secretaire' . DIRECTORY_SEPARATOR;
-$partialsBasePathResponsableScolarite = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_scolarite' . DIRECTORY_SEPARATOR;
-$partialsBasePathResponsableFiliere = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_filiere' . DIRECTORY_SEPARATOR;
-$partialsBasePathResponsableNiveau = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'responsable_niveau' . DIRECTORY_SEPARATOR;  
-$partialsBasePathEnseignant = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'enseignant' . DIRECTORY_SEPARATOR;
-$partialsBasePathCommissionValidation = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'commission_validation' . DIRECTORY_SEPARATOR;    
-$partialsBasePathChargéCommunication = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'charge_communication' . DIRECTORY_SEPARATOR;
+$partialsBasePath= '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR ;
+
     
 
 // Utilisation d'une structure switch...case 
@@ -67,7 +65,7 @@ switch ($currentMenuSlug) {
             ];
             if (in_array($_GET['action'], $allowedActions)) {
                 $currentAction = $_GET['action'];
-                $contentFile = $partialsBasePathAdmin . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
+                $contentFile = $partialsBasePath . 'parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
                 // Pour le label, vous voudrez peut-être un mapping plus précis
                 // que de simplement formater le slug de l'action.
                 // Par exemple, récupérer le titre de la carte correspondante.
@@ -76,7 +74,7 @@ switch ($currentMenuSlug) {
             }
         } else {
                 // Action non valide, afficher la page des cartes par défaut ou une erreur
-                $contentFile = $partialsBasePathAdmin . 'parametres_generaux_content.php';
+                $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
                 $currentPageLabel = 'Paramètres Généraux';
                 // Optionnel: afficher un message d'erreur pour action non valide
             }
@@ -89,11 +87,11 @@ switch ($currentMenuSlug) {
         
         if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePathEtudiant . 'partials/gestion_reclamations/' . $currentAction . '.php';
+            $contentFile = $partialsBasePath. 'gestion_reclamations/' . $currentAction . '.php';
             $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
         } else {
             // Si aucune action valide n'est spécifiée, affichez la page par défaut
-            $contentFile = $partialsBasePathEtudiant . 'gestion_reclamations_content.php';
+            $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
             $currentPageLabel = 'Gestion des réclamations';
         }
         
@@ -106,15 +104,15 @@ switch ($currentMenuSlug) {
         
         if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePathEtudiant . 'partials/gestion_rapports/' . $currentAction . '.php';
+            $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
             $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
         } else {
             // Si aucune action valide n'est spécifiée, affichez la page par défaut
-            $contentFile = $partialsBasePathEtudiant . 'gestion_rapport_content.php';
+            $contentFile = $partialsBasePath . 'gestion_rapport_content.php';
             $currentPageLabel = 'Gestion des rapports';
         }
         // Logique pour les autres pages du menu principal (dashboard, users, etc.)
-        $contentFile = $partialsBasePathEtudiant . $currentMenuSlug . '_content.php';
+        $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
         
     break;
     
@@ -123,37 +121,10 @@ switch ($currentMenuSlug) {
    $groupeUtilisateur = $_SESSION['lib_GU'];
 
 
-        switch($groupeUtilisateur) {
-            case 'Administrateur':
-                
-                $contentFile = $partialsBasePathAdmin . $currentMenuSlug . '_content.php';
-                break;
-            case 'Enseignant sans responsabilité administrative':
-                $contentFile = $partialsBasePathEnseignant . $currentMenuSlug . '_content.php';
-                break;
-            case 'Responsable de filière':
-                $contentFile = $partialsBasePathResponsableFiliere . $currentMenuSlug . '_content.php';
-                break;
-            case 'Responsable de niveau':
-                $contentFile = $partialsBasePathResponsableNiveau . $currentMenuSlug . '_content.php';
-                break;
-            case 'Secretaire':
-                $contentFile = $partialsBasePathSecretaire . $currentMenuSlug . '_content.php';
-                break;
-            case'Chargé de communication':
-                $contentFile = $partialsBasePathChargéCommunication . $currentMenuSlug . '_content.php';
-                break;
-            case 'Etudiant':
-                $contentFile = $partialsBasePathEtudiant . $currentMenuSlug . '_content.php';
-                 break;
-            case 'Responsable scolarité':
-                $contentFile = $partialsBasePathResponsableScolarite . $currentMenuSlug . '_content.php';
-                break;
-            case 'Commission de validation':
-                $contentFile = $partialsBasePathCommissionValidation . $currentMenuSlug . '_content.php';
-                break;
-            default:
-                break;
+        if($groupeUtilisateur) {
+            
+                $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
+             
         }
  
     // Vérification du fichier de contenu

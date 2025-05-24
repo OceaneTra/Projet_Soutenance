@@ -15,7 +15,7 @@ class GestionEtudiantController
             session_start();
         }
 
-        $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/';
+        $this->baseViewPath = __DIR__ . '/../../ressources/views/';
         echo "DEBUG CONTROLLER: Base view path: " . $this->baseViewPath . "<br>";
 
         try {
