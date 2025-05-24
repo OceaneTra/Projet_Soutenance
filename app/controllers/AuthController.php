@@ -102,4 +102,31 @@ class AuthController {
         // Finalement, détruire la session
         return session_destroy();
     }
+
+    public function updatePassword($currentPassword, $newPassword, $confirmPassword) {
+
+        $utilisateur = new Utilisateur($this->db);
+        $user = $utilisateur->getUtilisateurById($_SESSION['id_utilisateur']);
+        // Vérifier si le mot de passe actuel est correct
+        if (!password_verify($currentPassword, $user['mdp_utilisateur'])) {
+            return false;
+        }   
+
+        // Vérifier si les nouveaux mots de passe correspondent
+        if ($newPassword !== $confirmPassword) {
+            return false;
+        }
+
+    
+        // Vérifier si le nouveau mot de passe est différent du mot de passe actuel
+        if (password_verify($newPassword, $currentPassword)) {
+            return false;
+        }
+
+        
+        $utilisateur->updatePassword($newPassword, $_SESSION['id_utilisateur']);
+    
+        return true;
+    }
+
 }

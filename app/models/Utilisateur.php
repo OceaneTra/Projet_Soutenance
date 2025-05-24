@@ -186,4 +186,12 @@ class Utilisateur
         return $stmt->execute();
     }
 
+    public function updatePassword($newPassword, $id)
+    {
+        $query = "UPDATE utilisateur SET mdp_utilisateur = :mdp  WHERE id_utilisateur = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':mdp', $newPassword);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
 }

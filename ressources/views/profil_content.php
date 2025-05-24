@@ -51,7 +51,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
     formChanged: false,
     showNotification: false,
     currentTab: 'profile',
-    saveChanges() {
+    updatePassword() {
         this.showNotification = true;
         this.formChanged = false;
         setTimeout(() => this.showNotification = false, 3000);
@@ -275,64 +275,66 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
 
         <!-- Password Tab Content -->
         <div x-show="currentTab === 'password'" class="fade-in" x-transition>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-6">
-                        Changer mon mot de passe
-                    </h3>
+            <form action="x-show=currentTab === 'password'" method="POST" x-on:submit.prevent="updatePassword">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                            Changer mon mot de passe
+                        </h3>
 
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" for="currentPassword">Mot de
-                                passe actuel</label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                                    <i class="fas fa-lock"></i>
-                                </div>
-                                <input id="currentPassword" type="password"
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" for="newPassword">Nouveau
-                                    mot de passe</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="currentPassword">Mot de
+                                    passe actuel</label>
                                 <div class="relative">
                                     <div
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-lock"></i>
                                     </div>
-                                    <input id="newPassword" type="password"
+                                    <input id="currentPassword" type="password" name="currentPassword"
                                         class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2"
-                                    for="confirmPassword">Confirmer le mot de passe</label>
-                                <div class="relative">
-                                    <div
-                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                                        <i class="fas fa-lock"></i>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                                        for="newPassword">Nouveau
+                                        mot de passe</label>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                                            <i class="fas fa-lock"></i>
+                                        </div>
+                                        <input id="newPassword" type="password" name="newPassword"
+                                            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                     </div>
-                                    <input id="confirmPassword" type="password"
-                                        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                                        for="confirmPassword">Confirmer le mot de passe</label>
+                                    <div class="relative">
+                                        <div
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                                            <i class="fas fa-lock"></i>
+                                        </div>
+                                        <input id="confirmPassword" type="password" name="confirmPassword"
+                                            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="pt-4 flex justify-end">
-                            <button
-                                class="px-4 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg shadow transition">
-                                Mettre à jour le mot de passe
-                            </button>
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit"
+                                    class="px-4 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg shadow transition">
+                                    Mettre à jour le mot de passe
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
+            </form>
             <!-- Password Requirements -->
             <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 class="text-sm font-medium text-blue-800 mb-2 flex items-center">
