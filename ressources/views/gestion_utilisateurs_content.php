@@ -246,10 +246,13 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="userType" id="userType" required onchange="loadUsersList()"
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+
                                 <option value="">Sélectionner un type d'utilisateur</option>
-                                <option value="etudiant">Étudiants</option>
-                                <option value="enseignant">Enseignants</option>
-                                <option value="pers_admin">Personnel administratif</option>
+                                <?php foreach($types_utilisateur as $type): ?>
+                                <option value="<?php echo htmlspecialchars($type->id_type_utilisateur); ?>">
+                                    <?php echo htmlspecialchars($type->lib_type_utilisateur); ?>
+                                </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
