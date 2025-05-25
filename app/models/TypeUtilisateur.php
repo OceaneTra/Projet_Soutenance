@@ -48,4 +48,13 @@ class TypeUtilisateur
         $stmt->execute([$id_type_utilisateur]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
+
+    public function getTypeUtilisateurByLibelle($lib_type_utilisateur)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM type_utilisateur WHERE lib_type_utilisateur = ?");
+        $stmt->execute([$lib_type_utilisateur]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+
 }

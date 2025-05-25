@@ -22,7 +22,46 @@ class GestionUtilisateurController
 
     private $niveauAcces;
 
-
+    private $typeConfig = [
+        '1' => [
+            'model' => 'Etudiants',
+            'fields' => [
+                'id' => 'num_etu',
+                'nom' => 'nom_etu',
+                'prenom' => 'prenom_etu',
+                'email' => 'login_etu'
+            ]
+        ],
+        '2' => [
+            'model' => 'Enseignant',
+            'fields' => [
+                'id' => 'id_enseignant',
+                'nom' => 'nom_enseignant',
+                'prenom' => 'prenom_enseignant',
+                'email' => 'mail_enseignant'
+            ],
+            'type' => 'simple'
+        ],
+        '3' => [
+            'model' => 'Enseignant',
+            'fields' => [
+                'id' => 'id_enseignant',
+                'nom' => 'nom_enseignant',
+                'prenom' => 'prenom_enseignant',
+                'email' => 'mail_enseignant'
+            ],
+            'type' => 'administratif'
+        ],
+        '4' => [
+            'model' => 'PersAdmin',
+            'fields' => [
+                'id' => 'id_pers_admin',
+                'nom' => 'nom_pers_admin',
+                'prenom' => 'prenom_pers_admin',
+                'email' => 'email_pers_admin'
+            ]
+        ]
+    ];
 
     public function __construct()
     {
@@ -38,103 +77,105 @@ class GestionUtilisateurController
     // Afficher la liste des étudiants
     public function index()
     {
-        $utilisateur_a_modifier = null;
-        $messageErreur = '';
-        $messageSuccess = '';
-        $action = $_GET['action'] ?? '';
+        // Initialisation des variables globales
+        $GLOBALS['utilisateur_a_modifier'] = null;
+        $GLOBALS['utilisateurs'] = $this->utilisateur->getAllUtilisateurs();
+        $GLOBALS['types_utilisateur'] = $this->typeUtilisateur->getAllTypeUtilisateur();
+        $GLOBALS['groupes_utilisateur'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
+        $GLOBALS['niveau_acces'] = $this->niveauAcces->getAllNiveauxAccesDonnees();
+        $GLOBALS['messageErreur'] = '';
+        $GLOBALS['messageSuccess'] = '';
+        $GLOBALS['users_list'] = [];
+
+        $action = $_POST['action'] ?? $_GET['action'] ?? '';
+        $selectedType = $_POST['type'] ?? $_GET['type'] ?? '';
 
         try {
             // Gestion des actions GET pour les modales
             if ($action === 'edit' && isset($_GET['id_utilisateur'])) {
-                $utilisateur_a_modifier = $this->utilisateur->getUtilisateurById($_GET['id_utilisateur']);
-                if (!$utilisateur_a_modifier) {
-                    $messageErreur = "Utilisateur non trouvé.";
+                $GLOBALS['utilisateur_a_modifier'] = $this->utilisateur->getUtilisateurById($_GET['id_utilisateur']);
+                if (!$GLOBALS['utilisateur_a_modifier']) {
+                    $GLOBALS['messageErreur'] = "Utilisateur non trouvé.";
                 }
             }
-            // Gestion de la requête AJAX pour obtenir la liste des utilisateurs
-            else if ($action === 'get_users' && isset($_GET['type'])) {
-                $type = $_GET['type'];
+            // Gestion de l'affichage dynamique des utilisateurs selon le type
+            else if ($action === 'get_users' && $selectedType) {
                 $users = [];
                 
-                switch ($type) {
-                    case 'etudiant':
-                        require_once __DIR__ . "/../models/Etudiants.php";
-                        $etudiantModel = new Etudiants(Database::getConnection());
-                        $etudiants = $etudiantModel->getAllEtudiant();
-                        foreach ($etudiants as $etudiant) {
-                            if (!$this->utilisateur->getUtilisateurByLogin($etudiant->login_etu)) {
-                                $users[] = [
-                                    'id' => $etudiant->num_etu,
-                                    'nom' => $etudiant->nom_etu,
-                                    'prenom' => $etudiant->prenom_etu,
-                                    'email' => $etudiant->login_etu
-                                ];
+                if (isset($this->typeConfig[$selectedType])) {
+                    $config = $this->typeConfig[$selectedType];
+                    $model = $this->loadUserModel($config['model']);
+                    $fields = $config['fields'];
+                    
+                    $method = 'getAll' . $config['model'];
+                    $allUsers = $model->$method();
+                    
+                    foreach ($allUsers as $user) {
+                        // Pour les enseignants, vérifier le type
+                        if ($config['model'] === 'Enseignant') {
+                            $typeUtilisateur = $this->typeUtilisateur->getTypeUtilisateurById($selectedType);
+                            if (!$typeUtilisateur || strpos($typeUtilisateur->lib_type_utilisateur, 'Enseignant') !== 0) {
+                                continue;
                             }
                         }
-                        break;
-                    case 'enseignant':
-                        require_once __DIR__ . "/../models/Enseignant.php";
-                        $enseignantModel = new Enseignant(Database::getConnection());
-                        $enseignants = $enseignantModel->getAllEnseignants();
-                        foreach ($enseignants as $enseignant) {
-                            if (!$this->utilisateur->getUtilisateurByLogin($enseignant->email_enseignant)) {
-                                $users[] = [
-                                    'id' => $enseignant->id_enseignant,
-                                    'nom' => $enseignant->nom_enseignant,
-                                    'prenom' => $enseignant->prenom_enseignant,
-                                    'email' => $enseignant->email_enseignant
-                                ];
-                            }
+                        
+                        if (!$this->utilisateur->getUtilisateurByLogin($user->{$fields['email']})) {
+                            $users[] = [
+                                'id' => $user->{$fields['id']},
+                                'nom' => $user->{$fields['nom']},
+                                'prenom' => $user->{$fields['prenom']},
+                                'email' => $user->{$fields['email']}
+                            ];
                         }
-                        break;
-                    case 'pers_admin':
-                        require_once __DIR__ . "/../models/PersAdmin.php";
-                        $persAdminModel = new PersAdmin(Database::getConnection());
-                        $persAdmins = $persAdminModel->getAllPersAdmin();
-                        foreach ($persAdmins as $persAdmin) {
-                            if (!$this->utilisateur->getUtilisateurByLogin($persAdmin->email_pers_admin)) {
-                                $users[] = [
-                                    'id' => $persAdmin->id_pers_admin,
-                                    'nom' => $persAdmin->nom_pers_admin,
-                                    'prenom' => $persAdmin->prenom_pers_admin,
-                                    'email' => $persAdmin->email_pers_admin
-                                ];
-                            }
-                        }
-                        break;
+                    }
                 }
                 
-                header('Content-Type: application/json');
-                echo json_encode($users);
-                exit;
-            }
+                $GLOBALS['users_list'] = $users;
+                
+                // Vérifier si c'est une requête AJAX
+                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'type' => 'usersList',
+                        'content' => $this->renderUsersList($users)
+                    ]);
+                    exit;
+                }
+            
             // Gestion de l'ajout en masse des utilisateurs
             else if (isset($_POST['btn_add_bulk_users'])) {
                 $selectedUsers = $_POST['selected_users'] ?? [];
                 $id_GU = $_POST['id_GU'] ?? null;
-                $userType = $_POST['userType'] ?? '';
+                $id_type_utilisateur = $_POST['userType'] ?? '';
 
-                if (empty($selectedUsers) || !$id_GU || !$userType) {
-                    $messageErreur = "Veuillez sélectionner au moins un utilisateur et un groupe utilisateur.";
+                error_log("ID Type d'utilisateur sélectionné : " . $id_type_utilisateur);
+
+                if (empty($selectedUsers) || !$id_GU || !$id_type_utilisateur) {
+                    $GLOBALS['messageErreur'] = "Veuillez sélectionner au moins un utilisateur et un groupe utilisateur.";
                 } else {
                     $success = true;
                     $addedUsers = [];
 
                     foreach ($selectedUsers as $userId) {
-                        $userInfo = $this->getUserInfo($userType, $userId);
+                        // Récupérer le libellé du type d'utilisateur
+                        $typeUtilisateurObj = $this->typeUtilisateur->getTypeUtilisateurById($id_type_utilisateur);
+                        if (!$typeUtilisateurObj) {
+                            $GLOBALS['messageErreur'] = "Type d'utilisateur non trouvé.";
+                            continue;
+                        }
+                        
+                        $userInfo = $this->getUserInfo($id_type_utilisateur, $userId);
                         if ($userInfo) {
                             // Générer un mot de passe aléatoire
                             $password = $this->generateRandomPassword();
-                            
-                            // Déterminer le type d'utilisateur
-                            $id_type_utilisateur = $this->getTypeUtilisateurId($userType);
+                            $niveauAcces = $this->niveauAcces->getLastNiveauAccesDonnees();
                             
                             // Ajouter l'utilisateur
                             if ($this->utilisateur->ajouterUtilisateur(
                                 $userInfo['nom'] . ' ' . $userInfo['prenom'],
                                 $id_type_utilisateur,
                                 $id_GU,
-                                1, // Niveau d'accès par défaut
+                                $niveauAcces->id_niveau_acces_donnees, // Niveau d'accès par défaut
                                 'Actif',
                                 $userInfo['email'],
                                 password_hash($password, PASSWORD_DEFAULT)
@@ -152,9 +193,9 @@ class GestionUtilisateurController
                     if ($success) {
                         // Envoyer les emails
                         $this->sendWelcomeEmails($addedUsers);
-                        $messageSuccess = count($addedUsers) . " utilisateurs ont été ajoutés avec succès.";
+                        $GLOBALS['messageSuccess'] = count($addedUsers) . " utilisateurs ont été ajoutés avec succès.";
                     } else {
-                        $messageErreur = "Une erreur est survenue lors de l'ajout des utilisateurs.";
+                        $GLOBALS['messageErreur'] = "Une erreur est survenue lors de l'ajout des utilisateurs.";
                     }
                 }
             }
@@ -172,7 +213,7 @@ class GestionUtilisateurController
                     
                     if (empty($nom_utilisateur) || empty($id_type_utilisateur) || empty($id_GU) || 
                         empty($login_utilisateur) || empty($statut_utilisateur) || empty($id_niveau_acces)) {
-                        $messageErreur = "Tous les champs sont obligatoires.";
+                        $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
                     } else {
                         $mdp = $this->generateRandomPassword();
                         if ($this->utilisateur->ajouterUtilisateur(
@@ -185,11 +226,11 @@ class GestionUtilisateurController
                             $mdp
                         )) {
                             $emailSent = $this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp);
-                            $messageSuccess = $emailSent ? 
+                            $GLOBALS['messageSuccess'] = $emailSent ? 
                                 "Utilisateur ajouté avec succès et email envoyé." : 
                                 "Utilisateur ajouté avec succès mais l'envoi de l'email a échoué.";
                         } else {
-                            $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
+                            $GLOBALS['messageErreur'] = "Erreur lors de l'ajout de l'utilisateur.";
                         }
                     }
                 }
@@ -208,7 +249,7 @@ class GestionUtilisateurController
                     if (empty($id_utilisateur) || empty($nom_utilisateur) || empty($id_type_utilisateur) || 
                         empty($id_GU) || empty($login_utilisateur) || empty($statut_utilisateur) || 
                         empty($id_niveau_acces)) {
-                        $messageErreur = "Tous les champs sont obligatoires.";
+                        $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
                     } else {
                         if ($this->utilisateur->updateUtilisateur(
                             $nom_utilisateur,
@@ -220,9 +261,9 @@ class GestionUtilisateurController
                             $mdp_utilisateur,
                             $id_utilisateur
                         )) {
-                            $messageSuccess = "Utilisateur modifié avec succès.";
+                            $GLOBALS['messageSuccess'] = "Utilisateur modifié avec succès.";
                         } else {
-                            $messageErreur = "Erreur lors de la modification de l'utilisateur.";
+                            $GLOBALS['messageErreur'] = "Erreur lors de la modification de l'utilisateur.";
                         }
                     }
                 }
@@ -231,12 +272,12 @@ class GestionUtilisateurController
                 if (isset($_POST['btn_desactiver_utilisateur'])) {
                     $id_utilisateur = $_POST['id_utilisateur'] ?? '';
                     if (empty($id_utilisateur)) {
-                        $messageErreur = "ID utilisateur manquant.";
+                        $GLOBALS['messageErreur'] = "ID utilisateur manquant.";
                     } else {
                         if ($this->utilisateur->desactiverUtilisateur($id_utilisateur)) {
-                            $messageSuccess = "Utilisateur désactivé avec succès.";
+                            $GLOBALS['messageSuccess'] = "Utilisateur désactivé avec succès.";
                         } else {
-                            $messageErreur = "Erreur lors de la désactivation de l'utilisateur.";
+                            $GLOBALS['messageErreur'] = "Erreur lors de la désactivation de l'utilisateur.";
                         }
                     }
                 }
@@ -250,25 +291,16 @@ class GestionUtilisateurController
                             break;
                         }
                     }
-                    $messageSuccess = $success ? 
+                    $GLOBALS['messageSuccess'] = $success ? 
                         "Utilisateurs désactivés avec succès." : 
                         "Erreur lors de la désactivation des utilisateurs.";
                 }
             }
-
-        } catch (Exception $e) {
-            $messageErreur = "Erreur : " . $e->getMessage();
         }
 
-        // Préparation des données pour la vue
-        $GLOBALS['messageErreur'] = $messageErreur;
-        $GLOBALS['messageSuccess'] = $messageSuccess;
-        $GLOBALS['utilisateurs'] = $this->utilisateur->getAllUtilisateurs();
-        $GLOBALS['types_utilisateur'] = $this->typeUtilisateur->getAllTypeUtilisateur();
-        $GLOBALS['groupes_utilisateur'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
-        $GLOBALS['niveau_acces'] = $this->niveauAcces->getAllNiveauxAccesDonnees();
-        $GLOBALS['utilisateur_a_modifier'] = $utilisateur_a_modifier;
-        $GLOBALS['action'] = $action;
+        } catch (Exception $e) {
+            $GLOBALS['messageErreur'] = "Erreur : " . $e->getMessage();
+        }
     }
 
     // Fonction pour générer un mot de passe aléatoire
@@ -394,59 +426,32 @@ class GestionUtilisateurController
         }
     }
 
-    private function getUserInfo($type, $id) {
-        switch ($type) {
-            case 'etudiant':
-                require_once __DIR__ . "/../models/Etudiants.php";
-                $etudiantModel = new Etudiants(Database::getConnection());
-                $etudiant = $etudiantModel->getEtudiantById($id);
-                if ($etudiant) {
-                    return [
-                        'nom' => $etudiant->nom_etu,
-                        'prenom' => $etudiant->prenom_etu,
-                        'email' => $etudiant->login_etu
-                    ];
-                }
-                break;
-            case 'enseignant':
-                require_once __DIR__ . "/../models/Enseignant.php";
-                $enseignantModel = new Enseignant(Database::getConnection());
-                $enseignant = $enseignantModel->getEnseignantById($id);
-                if ($enseignant) {
-                    return [
-                        'nom' => $enseignant->nom_enseignant,
-                        'prenom' => $enseignant->prenom_enseignant,
-                        'email' => $enseignant->email_enseignant
-                    ];
-                }
-                break;
-            case 'pers_admin':
-                require_once __DIR__ . "/../models/PersAdmin.php";
-                $persAdminModel = new PersAdmin(Database::getConnection());
-                $persAdmin = $persAdminModel->getPersAdminById($id);
-                if ($persAdmin) {
-                    return [
-                        'nom' => $persAdmin->nom_pers_admin,
-                        'prenom' => $persAdmin->prenom_pers_admin,
-                        'email' => $persAdmin->email_pers_admin
-                    ];
-                }
-                break;
-        }
-        return null;
+    private function loadUserModel($modelName) {
+        require_once __DIR__ . "/../models/{$modelName}.php";
+        return new $modelName(Database::getConnection());
     }
 
-    private function getTypeUtilisateurId($type) {
-        switch ($type) {
-            case 'etudiant':
-                return 7; // ID pour Etudiant
-            case 'enseignant':
-                return 6; // ID pour Enseignant simple
-            case 'pers_admin':
-                return 4; // ID pour Personnel administratif
-            default:
-                return null;
+    private function getUserInfo($type, $id) {
+        if (!isset($this->typeConfig[$type])) {
+            return null;
         }
+
+        $config = $this->typeConfig[$type];
+        $model = $this->loadUserModel($config['model']);
+        $fields = $config['fields'];
+
+        $method = 'get' . $config['model'] . 'ById';
+        $user = $model->$method($id);
+
+        if (!$user) {
+            return null;
+        }
+
+        return [
+            'nom' => $user->{$fields['nom']},
+            'prenom' => $user->{$fields['prenom']},
+            'email' => $user->{$fields['email']}
+        ];
     }
 
     private function sendWelcomeEmails($users) {
@@ -488,6 +493,32 @@ class GestionUtilisateurController
         } catch (Exception $e) {
             error_log("Erreur lors de l'envoi des emails : " . $e->getMessage());
         }
+    }
+
+    private function renderUsersList($users) {
+        ob_start();
+        if (empty($users)) {
+            echo '<div class="text-center text-gray-500 py-4">
+                    <i class="fas fa-users text-gray-300 text-4xl mb-2"></i>
+                    <p>Aucun utilisateur disponible pour ce type.</p>
+                  </div>';
+        } else {
+            foreach ($users as $user) {
+                echo '<div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                        <input type="checkbox" name="selected_users[]" value="' . htmlspecialchars($user['id']) . '" 
+                               class="user-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">
+                                ' . htmlspecialchars($user['nom'] . ' ' . $user['prenom']) . '
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ' . htmlspecialchars($user['email']) . '
+                            </div>
+                        </div>
+                      </div>';
+            }
+        }
+        return ob_get_clean();
     }
 
 }

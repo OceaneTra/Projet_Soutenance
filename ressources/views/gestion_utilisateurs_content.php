@@ -246,7 +246,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="userType" id="userType" required onchange="loadUsersList()"
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
-
                                 <option value="">Sélectionner un type d'utilisateur</option>
                                 <?php foreach($types_utilisateur as $type): ?>
                                 <option value="<?php echo htmlspecialchars($type->id_type_utilisateur); ?>">
@@ -260,9 +259,38 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <label class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-list text-blue-500 mr-2"></i>Liste des utilisateurs
                             </label>
+                            <div class="flex justify-between items-center mb-2">
+                                <button type="button" onclick="toggleSelectAll()"
+                                    class="text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-check-square mr-1"></i>Sélectionner tout
+                                </button>
+                            </div>
                             <div class="border border-gray-300 rounded-lg p-4 max-h-96 overflow-y-auto">
                                 <div id="usersList" class="space-y-2">
-                                    <!-- La liste des utilisateurs sera chargée dynamiquement ici -->
+                                    <?php if (isset($GLOBALS['users_list'])): ?>
+                                    <?php if (empty($GLOBALS['users_list'])): ?>
+                                    <div class="text-center text-gray-500 py-4">
+                                        <i class="fas fa-users text-gray-300 text-4xl mb-2"></i>
+                                        <p>Aucun utilisateur disponible pour ce type.</p>
+                                    </div>
+                                    <?php else: ?>
+                                    <?php foreach ($GLOBALS['users_list'] as $user): ?>
+                                    <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                                        <input type="checkbox" name="selected_users[]"
+                                            value="<?php echo htmlspecialchars($user['id']); ?>"
+                                            class="user-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                <?php echo htmlspecialchars($user['nom'] . ' ' . $user['prenom']); ?>
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                <?php echo htmlspecialchars($user['email']); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -820,26 +848,60 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             return;
         }
 
-        // Faire une requête AJAX pour charger la liste des utilisateurs
-        fetch(`?page=gestion_utilisateurs&action=get_users&type=${userType}`)
+        // Afficher un indicateur de chargement
+        usersList.innerHTML =
+            '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i><p class="mt-2 text-gray-500">Chargement...</p></div>';
+
+        // Faire une requête AJAX
+        fetch(`?page=gestion_utilisateurs&action=get_users&type=${userType}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
             .then(response => response.json())
             .then(data => {
-                usersList.innerHTML = data.map(user => `
-                    <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                        <input type="checkbox" name="selected_users[]" value="${user.id}" 
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-900">${user.nom} ${user.prenom}</div>
-                            <div class="text-sm text-gray-500">${user.email}</div>
-                        </div>
-                    </div>
-                `).join('');
+                if (data.type === 'usersList') {
+                    usersList.innerHTML = data.content;
+                }
             })
             .catch(error => {
                 console.error('Erreur lors du chargement des utilisateurs:', error);
-                usersList.innerHTML = '<div class="text-red-500">Erreur lors du chargement des utilisateurs</div>';
+                usersList.innerHTML =
+                    '<div class="text-center text-red-500 py-4"><i class="fas fa-exclamation-circle text-2xl"></i><p class="mt-2">Erreur lors du chargement des utilisateurs</p></div>';
             });
     }
+
+    // Fonction pour sélectionner/désélectionner tous les utilisateurs
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        const selectAllButton = document.querySelector('button[onclick="toggleSelectAll()"]');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+
+        // Mettre à jour le texte du bouton
+        selectAllButton.innerHTML = allChecked ?
+            '<i class="fas fa-check-square mr-1"></i>Sélectionner tout' :
+            '<i class="fas fa-square mr-1"></i>Désélectionner tout';
+    }
+
+    // Ajouter un iframe caché pour la soumission du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const iframe = document.createElement('iframe');
+        iframe.name = 'usersListFrame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        // Écouter les messages de l'iframe
+        window.addEventListener('message', function(e) {
+            if (e.data.type === 'usersList') {
+                document.getElementById('usersList').innerHTML = e.data.content;
+            }
+        });
+    });
     </script>
     <?php
     unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);

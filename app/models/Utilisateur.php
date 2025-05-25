@@ -135,11 +135,11 @@ class Utilisateur
 
     public function getUtilisateurById($id)
     {
-        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niv_acces_donnee
+        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niveau_acces_donnees
                  FROM utilisateur u 
                  JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
                  JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
-                 JOIN niveau_acces_donnee n ON u.id_niv_acces_donnee = n.id_niv_acces_donnee
+                 JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
                  WHERE u.id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -149,11 +149,11 @@ class Utilisateur
 
     public function getUtilisateurByLogin($login)
     {
-        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niv_acces_donnee
+        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niveau_acces_donnees
                  FROM utilisateur u 
                  JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
                  JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
-                 JOIN niveau_acces_donnee n ON u.id_niv_acces_donnee = n.id_niv_acces_donnee
+                 JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
                  WHERE u.login_utilisateur = :login";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':login', $login);
@@ -161,9 +161,9 @@ class Utilisateur
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function ajouterUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login,$mdp)
+    public function ajouterUtilisateur($nom, $id_type_utilisateur, $id_GU, $id_niv_acces_donnees, $statut_utilisateur, $login, $mdp)
     {
-        
+
         $query = "INSERT INTO utilisateur (nom_utilisateur,id_type_utilisateur,id_GU,id_niv_acces_donnee,statut_utilisateur, login_utilisateur, mdp_utilisateur ) 
                   VALUES (:nom,:id_type_utilisateur ,:id_GU,:id_niv_acces_donnees, :statut_utilisateur,:login, :mdp )";
         $stmt = $this->db->prepare($query);
@@ -177,7 +177,7 @@ class Utilisateur
         return $stmt->execute();
     }
 
-    public function updateUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login, $mdp, $id)
+    public function updateUtilisateur($nom, $id_type_utilisateur, $id_GU, $id_niv_acces_donnees, $statut_utilisateur, $login, $mdp, $id)
     {
         $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, mdp_utilisateur = :mdp, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
