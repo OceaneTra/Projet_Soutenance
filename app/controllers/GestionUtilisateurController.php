@@ -51,6 +51,113 @@ class GestionUtilisateurController
                     $messageErreur = "Utilisateur non trouvé.";
                 }
             }
+            // Gestion de la requête AJAX pour obtenir la liste des utilisateurs
+            else if ($action === 'get_users' && isset($_GET['type'])) {
+                $type = $_GET['type'];
+                $users = [];
+                
+                switch ($type) {
+                    case 'etudiant':
+                        require_once __DIR__ . "/../models/Etudiants.php";
+                        $etudiantModel = new Etudiants(Database::getConnection());
+                        $etudiants = $etudiantModel->getAllEtudiant();
+                        foreach ($etudiants as $etudiant) {
+                            if (!$this->utilisateur->getUtilisateurByLogin($etudiant->login_etu)) {
+                                $users[] = [
+                                    'id' => $etudiant->num_etu,
+                                    'nom' => $etudiant->nom_etu,
+                                    'prenom' => $etudiant->prenom_etu,
+                                    'email' => $etudiant->login_etu
+                                ];
+                            }
+                        }
+                        break;
+                    case 'enseignant':
+                        require_once __DIR__ . "/../models/Enseignant.php";
+                        $enseignantModel = new Enseignant(Database::getConnection());
+                        $enseignants = $enseignantModel->getAllEnseignants();
+                        foreach ($enseignants as $enseignant) {
+                            if (!$this->utilisateur->getUtilisateurByLogin($enseignant->email_enseignant)) {
+                                $users[] = [
+                                    'id' => $enseignant->id_enseignant,
+                                    'nom' => $enseignant->nom_enseignant,
+                                    'prenom' => $enseignant->prenom_enseignant,
+                                    'email' => $enseignant->email_enseignant
+                                ];
+                            }
+                        }
+                        break;
+                    case 'pers_admin':
+                        require_once __DIR__ . "/../models/PersAdmin.php";
+                        $persAdminModel = new PersAdmin(Database::getConnection());
+                        $persAdmins = $persAdminModel->getAllPersAdmin();
+                        foreach ($persAdmins as $persAdmin) {
+                            if (!$this->utilisateur->getUtilisateurByLogin($persAdmin->email_pers_admin)) {
+                                $users[] = [
+                                    'id' => $persAdmin->id_pers_admin,
+                                    'nom' => $persAdmin->nom_pers_admin,
+                                    'prenom' => $persAdmin->prenom_pers_admin,
+                                    'email' => $persAdmin->email_pers_admin
+                                ];
+                            }
+                        }
+                        break;
+                }
+                
+                header('Content-Type: application/json');
+                echo json_encode($users);
+                exit;
+            }
+            // Gestion de l'ajout en masse des utilisateurs
+            else if (isset($_POST['btn_add_bulk_users'])) {
+                $selectedUsers = $_POST['selected_users'] ?? [];
+                $id_GU = $_POST['id_GU'] ?? null;
+                $userType = $_POST['userType'] ?? '';
+
+                if (empty($selectedUsers) || !$id_GU || !$userType) {
+                    $messageErreur = "Veuillez sélectionner au moins un utilisateur et un groupe utilisateur.";
+                } else {
+                    $success = true;
+                    $addedUsers = [];
+
+                    foreach ($selectedUsers as $userId) {
+                        $userInfo = $this->getUserInfo($userType, $userId);
+                        if ($userInfo) {
+                            // Générer un mot de passe aléatoire
+                            $password = $this->generateRandomPassword();
+                            
+                            // Déterminer le type d'utilisateur
+                            $id_type_utilisateur = $this->getTypeUtilisateurId($userType);
+                            
+                            // Ajouter l'utilisateur
+                            if ($this->utilisateur->ajouterUtilisateur(
+                                $userInfo['nom'] . ' ' . $userInfo['prenom'],
+                                $id_type_utilisateur,
+                                $id_GU,
+                                1, // Niveau d'accès par défaut
+                                'Actif',
+                                $userInfo['email'],
+                                password_hash($password, PASSWORD_DEFAULT)
+                            )) {
+                                $addedUsers[] = [
+                                    'email' => $userInfo['email'],
+                                    'password' => $password
+                                ];
+                            } else {
+                                $success = false;
+                            }
+                        }
+                    }
+
+                    if ($success) {
+                        // Envoyer les emails
+                        $this->sendWelcomeEmails($addedUsers);
+                        $messageSuccess = count($addedUsers) . " utilisateurs ont été ajoutés avec succès.";
+                    } else {
+                        $messageErreur = "Une erreur est survenue lors de l'ajout des utilisateurs.";
+                    }
+                }
+            }
 
             // Gestion des actions POST
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -287,6 +394,100 @@ class GestionUtilisateurController
         }
     }
 
-   
+    private function getUserInfo($type, $id) {
+        switch ($type) {
+            case 'etudiant':
+                require_once __DIR__ . "/../models/Etudiants.php";
+                $etudiantModel = new Etudiants(Database::getConnection());
+                $etudiant = $etudiantModel->getEtudiantById($id);
+                if ($etudiant) {
+                    return [
+                        'nom' => $etudiant->nom_etu,
+                        'prenom' => $etudiant->prenom_etu,
+                        'email' => $etudiant->login_etu
+                    ];
+                }
+                break;
+            case 'enseignant':
+                require_once __DIR__ . "/../models/Enseignant.php";
+                $enseignantModel = new Enseignant(Database::getConnection());
+                $enseignant = $enseignantModel->getEnseignantById($id);
+                if ($enseignant) {
+                    return [
+                        'nom' => $enseignant->nom_enseignant,
+                        'prenom' => $enseignant->prenom_enseignant,
+                        'email' => $enseignant->email_enseignant
+                    ];
+                }
+                break;
+            case 'pers_admin':
+                require_once __DIR__ . "/../models/PersAdmin.php";
+                $persAdminModel = new PersAdmin(Database::getConnection());
+                $persAdmin = $persAdminModel->getPersAdminById($id);
+                if ($persAdmin) {
+                    return [
+                        'nom' => $persAdmin->nom_pers_admin,
+                        'prenom' => $persAdmin->prenom_pers_admin,
+                        'email' => $persAdmin->email_pers_admin
+                    ];
+                }
+                break;
+        }
+        return null;
+    }
+
+    private function getTypeUtilisateurId($type) {
+        switch ($type) {
+            case 'etudiant':
+                return 7; // ID pour Etudiant
+            case 'enseignant':
+                return 6; // ID pour Enseignant simple
+            case 'pers_admin':
+                return 4; // ID pour Personnel administratif
+            default:
+                return null;
+        }
+    }
+
+    private function sendWelcomeEmails($users) {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Configuration du serveur SMTP
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // Remplacez par votre serveur SMTP
+            $mail->SMTPAuth = true;
+            $mail->Username = 'votre_email@gmail.com'; // Remplacez par votre email
+            $mail->Password = 'votre_mot_de_passe'; // Remplacez par votre mot de passe
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            // Configuration de l'expéditeur
+            $mail->setFrom('votre_email@gmail.com', 'Système de gestion');
+
+            foreach ($users as $user) {
+                $mail->clearAddresses();
+                $mail->addAddress($user['email']);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Bienvenue sur la plateforme de gestion';
+                $mail->Body = "
+                    <h2>Bienvenue sur la plateforme de gestion</h2>
+                    <p>Votre compte a été créé avec succès.</p>
+                    <p>Voici vos identifiants de connexion :</p>
+                    <ul>
+                        <li>Email : {$user['email']}</li>
+                        <li>Mot de passe : {$user['password']}</li>
+                    </ul>
+                    <p>Nous vous recommandons de changer votre mot de passe après votre première connexion.</p>
+                ";
+
+                $mail->send();
+            }
+        } catch (Exception $e) {
+            error_log("Erreur lors de l'envoi des emails : " . $e->getMessage());
+        }
+    }
 
 }

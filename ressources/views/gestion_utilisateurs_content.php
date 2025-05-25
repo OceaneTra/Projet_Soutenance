@@ -222,6 +222,78 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             </div>
         </div>
 
+        <!-- Bulk Add Users Modal -->
+        <div id="bulkUserModal"
+            class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex hidden items-center justify-center modal-transition">
+            <div class="relative p-8 w-full max-w-4xl shadow-2xl rounded-xl bg-white fade-in transform">
+                <div class="absolute top-0 right-0 m-3">
+                    <button onclick="closeBulkUserModal()"
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none btn-icon">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <div class="flex items-center mb-6 pb-2 border-b border-gray-200">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-users text-blue-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-700">Ajouter des Utilisateurs en masse</h3>
+                </div>
+                <form id="bulkUserForm" class="space-y-4" method="POST" action="?page=gestion_utilisateurs">
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="space-y-2">
+                            <label for="userType" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-user-tag text-blue-500 mr-2"></i>Type d'utilisateur
+                            </label>
+                            <select name="userType" id="userType" required onchange="loadUsersList()"
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                                <option value="">Sélectionner un type d'utilisateur</option>
+                                <option value="etudiant">Étudiants</option>
+                                <option value="enseignant">Enseignants</option>
+                                <option value="pers_admin">Personnel administratif</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-list text-blue-500 mr-2"></i>Liste des utilisateurs
+                            </label>
+                            <div class="border border-gray-300 rounded-lg p-4 max-h-96 overflow-y-auto">
+                                <div id="usersList" class="space-y-2">
+                                    <!-- La liste des utilisateurs sera chargée dynamiquement ici -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="id_GU" class="block text-sm font-medium text-gray-700">
+                                <i class="fas fa-users text-blue-500 mr-2"></i>Groupe utilisateur
+                            </label>
+                            <select name="id_GU" id="id_GU" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                                <option value="">Sélectionner un groupe utilisateur</option>
+                                <?php foreach($groupes_utilisateur as $groupe): ?>
+                                <option value="<?php echo htmlspecialchars($groupe->id_GU); ?>">
+                                    <?php echo htmlspecialchars($groupe->lib_GU); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-6">
+                        <button type="button" onclick="closeBulkUserModal()"
+                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
+                        <button type="submit" name="btn_add_bulk_users"
+                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- User Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
@@ -266,10 +338,16 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             <!-- Dashboard Header -->
             <div class=" bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
-                <button onclick="openUserModal(null)"
-                    class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
-                </button>
+                <div class="flex space-x-4">
+                    <button onclick="openBulkUserModal()"
+                        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        <i class="fas fa-users mr-2"></i>Ajouter en masse
+                    </button>
+                    <button onclick="openUserModal(null)"
+                        class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                    </button>
+                </div>
             </div>
 
             <!-- Action Bar for Table -->
@@ -721,6 +799,44 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             }, 5000);
         }
     });
+
+    function openBulkUserModal() {
+        document.getElementById('bulkUserModal').classList.remove('hidden');
+    }
+
+    function closeBulkUserModal() {
+        document.getElementById('bulkUserModal').classList.add('hidden');
+    }
+
+    function loadUsersList() {
+        const userType = document.getElementById('userType').value;
+        const usersList = document.getElementById('usersList');
+
+        if (!userType) {
+            usersList.innerHTML = '';
+            return;
+        }
+
+        // Faire une requête AJAX pour charger la liste des utilisateurs
+        fetch(`?page=gestion_utilisateurs&action=get_users&type=${userType}`)
+            .then(response => response.json())
+            .then(data => {
+                usersList.innerHTML = data.map(user => `
+                    <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                        <input type="checkbox" name="selected_users[]" value="${user.id}" 
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">${user.nom} ${user.prenom}</div>
+                            <div class="text-sm text-gray-500">${user.email}</div>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des utilisateurs:', error);
+                usersList.innerHTML = '<div class="text-red-500">Erreur lors du chargement des utilisateurs</div>';
+            });
+    }
     </script>
     <?php
     unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);

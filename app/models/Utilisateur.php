@@ -135,15 +135,31 @@ class Utilisateur
 
     public function getUtilisateurById($id)
     {
-        $query = "SELECT * FROM utilisateur WHERE id_utilisateur = :id";
+        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niv_acces_donnee
+                 FROM utilisateur u 
+                 JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+                 JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+                 JOIN niveau_acces_donnee n ON u.id_niv_acces_donnee = n.id_niv_acces_donnee
+                 WHERE u.id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_OBJ);
-
-
     }
 
+    public function getUtilisateurByLogin($login)
+    {
+        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niv_acces_donnee
+                 FROM utilisateur u 
+                 JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+                 JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+                 JOIN niveau_acces_donnee n ON u.id_niv_acces_donnee = n.id_niv_acces_donnee
+                 WHERE u.login_utilisateur = :login";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':login', $login);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
 
     public function ajouterUtilisateur($nom,$id_type_utilisateur, $id_GU, $id_niv_acces_donnees ,$statut_utilisateur,$login,$mdp)
     {
