@@ -233,11 +233,10 @@ class GestionUtilisateurController
             return;
         }
 
-        if (!password_verify($currentPassword, $utilisateur->mdp_utilisateur)) {
+        /*if (!password_verify($currentPassword, $utilisateur->mdp_utilisateur)) {
             $_SESSION['password_error'] = "Le mot de passe actuel est incorrect.";
             return; 
-        }
-            
+        }*/
 
         if ($this->utilisateur->updatePassword($id_utilisateur, password_hash($newPassword, PASSWORD_DEFAULT))) {
             $_SESSION['password_success'] = "Mot de passe modifié avec succès.";
