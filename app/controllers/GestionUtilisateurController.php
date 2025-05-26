@@ -208,10 +208,6 @@ class GestionUtilisateurController
             return true;
         }
 
-        if (isset($_POST['btn_desactiver_multiple']) && isset($_POST['userCheckbox'])) {
-            $this->handleDeactivateMultipleUsers();
-            return true;
-        }
 
         if (isset($_POST['btn_add_bulk_users'])) {
             $this->handleBulkAddUsers();
@@ -327,16 +323,7 @@ class GestionUtilisateurController
      */
     private function handleDeactivateUser()
     {
-        if (empty($_POST['id_utilisateur'])) {
-            $GLOBALS['messageErreur'] = "ID utilisateur manquant.";
-            return;
-        }
-
-        if ($this->utilisateur->desactiverUtilisateur($_POST['id_utilisateur'])) {
-            $GLOBALS['messageSuccess'] = "Utilisateur désactivé avec succès.";
-        } else {
-            $GLOBALS['messageErreur'] = "Erreur lors de la désactivation de l'utilisateur.";
-        }
+        
     }
 
     /**
@@ -652,7 +639,8 @@ class GestionUtilisateurController
             $mail->CharSet = 'UTF-8';
 
             // Configuration de l'expéditeur
-            $mail->setFrom($this->smtpConfig['username'], 'Système de gestion');
+            $mail->setFrom($this->smtpConfig['username'], 'Soutenance Manager');
+            $mail->addReplyTo($this->smtpConfig['username'], 'Soutenance Manager');
 
             foreach ($users as $user) {
                 // Vérification des données requises
