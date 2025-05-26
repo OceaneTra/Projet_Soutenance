@@ -65,8 +65,7 @@ class DashboardController
         // Récupération des données pour le graphique
         $this->getChartData();
         
-        // Chargement de la vue
-        include $this->baseViewPath . 'dashboard_content.php';
+ 
     }
 
     /**
@@ -75,21 +74,26 @@ class DashboardController
     private function getGlobalStats()
     {
         // Statistiques des étudiants
-        $GLOBALS['total_etudiants'] = $this->etudiant->getAllEtudiant() ?? 0;
-
-   
-       
+        $GLOBALS['total_etudiants'] = count($this->etudiant->getAllEtudiant() ) ?? 0;
+        $GLOBALS['etudiants_actifs'] = count($this->utilisateur->getEtudiantActif() ) ?? 0;
+        $GLOBALS['etudiants_inactifs'] = count($this->utilisateur->getEtudiantInactif() ) ?? 0;
 
         // Statistiques des enseignants
-        $GLOBALS['total_enseignants'] = $this->enseignant->getAllEnseignants() ?? 0;
+        $GLOBALS['total_enseignants'] = count( $this->enseignant->getAllEnseignants() ) ?? 0;
+        $GLOBALS['enseignants_actifs'] = count($this->utilisateur->getEnseignantActif() ) ?? 0;
+        $GLOBALS['enseignants_inactifs'] = count($this->utilisateur->getEnseignantInactif() ) ?? 0;
        
 
         // Statistiques du personnel administratif
-        $GLOBALS['total_pers_admin'] = $this->personnel->getAllPersAdmin() ?? 0;
+        $GLOBALS['total_pers_admin'] = count( $this->personnel->getAllPersAdmin() ) ?? 0;
+        $GLOBALS['pers_admin_actifs'] = count($this->utilisateur->getPersAdminActif() ) ?? 0;
+        $GLOBALS['pers_admin_inactifs'] = count($this->utilisateur->getPersAdminInactif() ) ?? 0;
    
 
         // Statistiques des utilisateurs
-        $GLOBALS['total_utilisateurs'] = $this->utilisateur->getAllUtilisateurs() ?? 0;
+        $GLOBALS['total_utilisateurs'] = count($this->utilisateur->getAllUtilisateurs() ) ?? 0;
+        $GLOBALS['utilisateurs_actifs'] = count($this->utilisateur->getUtilisateurActif() ) ?? 0;
+        $GLOBALS['utilisateurs_inactifs'] = count($this->utilisateur->getUtilisateurInactif() ) ?? 0;
         
     }
 

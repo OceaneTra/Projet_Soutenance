@@ -5,7 +5,11 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . "/../models/Utilisateur.php";
 require_once __DIR__ . "/../models/TypeUtilisateur.php";
 require_once __DIR__ . "/../models/GroupeUtilisateur.php";
+require_once __DIR__ . "/../models/Etudiants.php";
+require_once __DIR__ . "/../models/Enseignant.php";
+require_once __DIR__ . "/../models/PersAdmin.php";
 require_once __DIR__ . "/../models/NiveauAccesDonnees.php";
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -36,6 +40,11 @@ class GestionUtilisateurController
 
     /** @var NiveauAccesDonnees */
     private $niveauAcces;
+
+    private $etudiant;
+    private $pers_admin;
+
+    private $enseignant;
 
     /** @var array Configuration des types d'utilisateurs */
     private $typeConfig = [
@@ -99,6 +108,10 @@ class GestionUtilisateurController
         $this->groupeUtilisateur = new GroupeUtilisateur(Database::getConnection());
         $this->typeUtilisateur = new TypeUtilisateur(Database::getConnection());
         $this->niveauAcces = new NiveauAccesDonnees(Database::getConnection());
+        $this->enseignant = new Enseignant(Database::getConnection());
+        $this->etudiant = new Etudiants(Database::getConnection());
+        $this->pers_admin = new PersAdmin(Database::getConnection());
+
     }
 
     /**
@@ -138,6 +151,9 @@ class GestionUtilisateurController
         $GLOBALS['types_utilisateur'] = $this->typeUtilisateur->getAllTypeUtilisateur();
         $GLOBALS['groupes_utilisateur'] = $this->groupeUtilisateur->getAllGroupeUtilisateur();
         $GLOBALS['niveau_acces'] = $this->niveauAcces->getAllNiveauxAccesDonnees();
+        $GLOBALS['enseignants'] = $this->enseignant->getAllEnseignants();
+        $GLOBALS['etudiants'] = $this->etudiant->getAllEtudiant();
+        $GLOBALS['pers_admin'] = $this->pers_admin->getAllPersAdmin();
         $GLOBALS['messageErreur'] = '';
         $GLOBALS['messageSuccess'] = '';
         $GLOBALS['users_list'] = [];
@@ -258,6 +274,7 @@ class GestionUtilisateurController
         }
 
         $mdp = $this->generateRandomPassword();
+        $nom_user = $this->utilisateur->getUtilisateurById($_POST['nom_utilisateur']);
         if ($this->utilisateur->ajouterUtilisateur(
             $_POST['nom_utilisateur'],
             $_POST['id_type_utilisateur'],
@@ -327,16 +344,32 @@ class GestionUtilisateurController
      */
     private function handleDeactivateMultipleUsers()
     {
+        if (!isset($_POST['userCheckbox']) || !is_array($_POST['userCheckbox'])) {
+            $GLOBALS['messageErreur'] = "Aucun utilisateur sélectionné.";
+            return;
+        }
+
         $success = true;
+        $isReactivation = isset($_POST['btn_reactiver_multiple']) && $_POST['btn_reactiver_multiple'] === "1";
+        
         foreach ($_POST['userCheckbox'] as $id) {
-            if (!$this->utilisateur->desactiverUtilisateur($id)) {
-                $success = false;
-                break;
+            if ($isReactivation) {
+                if (!$this->utilisateur->reactiverUtilisateur($id)) {
+                    $success = false;
+                    break;
+                }
+            } else {
+                if (!$this->utilisateur->desactiverUtilisateur($id)) {
+                    $success = false;
+                    break;
+                }
             }
         }
+        
+        $action = $isReactivation ? "réactivés" : "désactivés";
         $GLOBALS['messageSuccess'] = $success ? 
-            "Utilisateurs désactivés avec succès." : 
-            "Erreur lors de la désactivation des utilisateurs.";
+            "Utilisateurs " . $action . " avec succès." : 
+            "Erreur lors de la " . ($isReactivation ? "réactivation" : "désactivation") . " des utilisateurs.";
     }
 
     /**

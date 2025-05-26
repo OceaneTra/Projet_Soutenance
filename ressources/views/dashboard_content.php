@@ -1,3 +1,13 @@
+<?php
+
+$stat_etudiants = $GLOBALS['stats_etudiants'] ?? [];
+$stat_enseignants = $GLOBALS['stats_enseignants'] ?? [];
+$stat_personnel = $GLOBALS['stats_personnel'] ?? [];
+$stat_utilisateurs = $GLOBALS['stats_utilisateurs'] ?? [];
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -147,7 +157,7 @@
                                 <i class="fas fa-user-graduate text-purple-500 text-xl"></i>
                             </div>
                             <div class="text-right">
-                                <h3 class="text-3xl font-bold"><?php echo $GLOBALS['total_etudiants'] ?? '0'; ?></h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stat_etudiants['total']; ?></h3>
                                 <p class="text-sm opacity-90">Étudiants</p>
                             </div>
                         </div>
@@ -160,7 +170,7 @@
                                 <i class="fas fa-chalkboard text-blue-500 text-xl"></i>
                             </div>
                             <div class="text-right">
-                                <h3 class="text-3xl font-bold"><?php echo $GLOBALS['total_enseignants'] ?? '0'; ?></h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stat_enseignants['total']; ?></h3>
                                 <p class="text-sm opacity-90">Enseignants</p>
                             </div>
                         </div>
@@ -173,7 +183,7 @@
                                 <i class="fas fa-user-tie text-red-500 text-xl"></i>
                             </div>
                             <div class="text-right">
-                                <h3 class="text-3xl font-bold"><?php echo $GLOBALS['total_pers_admin'] ?? '0'; ?></h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stat_personnel['total']; ?></h3>
                                 <p class="text-sm opacity-90">Personnels Administratifs</p>
                             </div>
                         </div>
@@ -186,7 +196,7 @@
                                 <i class="fas fa-users text-orange-500 text-xl"></i>
                             </div>
                             <div class="text-right">
-                                <h3 class="text-3xl font-bold"><?php echo $GLOBALS['total_utilisateurs'] ?? '0'; ?></h3>
+                                <h3 class="text-3xl font-bold"><?php echo $stat_utilisateurs['total']; ?></h3>
                                 <p class="text-sm opacity-90">Utilisateurs</p>
                             </div>
                         </div>
@@ -201,7 +211,7 @@
                         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 card-hover">
                             <div class="flex justify-between items-center mb-6">
                                 <div>
-                                    <h2 class="text-lg font-bold text-indigo-800">Évolution des utilisateurs</h2>
+                                    <h2 class="text-lg font-bold text-green-800">Évolution des utilisateurs</h2>
                                     <p class="text-sm text-indigo-500">Sur les 6 derniers mois</p>
                                 </div>
                                 <div class="flex space-x-1 text-xs bg-indigo-50 rounded-lg p-1">
@@ -211,6 +221,8 @@
                                         data-type="enseignants">ENSEIGNANTS</button>
                                     <button class="btn-tab active px-3 py-1 rounded-md"
                                         data-type="utilisateurs">UTILISATEURS</button>
+                                    <button class="btn-tab px-3 py-1 rounded-md" data-type="personnels">PERSONNEL
+                                        ADMINISTRATIF</button>
                                 </div>
                             </div>
                             <div class="h-80">
@@ -220,7 +232,7 @@
 
                         <!-- Tableau des statistiques -->
                         <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                            <h2 class="text-lg font-bold text-indigo-800 mb-4">Statistiques détaillées</h2>
+                            <h2 class="text-lg font-bold text-green-800 mb-4">Statistiques détaillées</h2>
                             <div class="overflow-x-auto">
                                 <table class="stats-table w-full">
                                     <thead>
@@ -235,47 +247,31 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-purple-600">Étudiants</td>
-                                            <td><?php echo $GLOBALS['total_etudiants'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['etudiants_actifs'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['etudiants_inactifs'] ?? '0'; ?></td>
-                                            <td><?php 
-                                                $total = $GLOBALS['total_etudiants'] ?? 0;
-                                                $actifs = $GLOBALS['etudiants_actifs'] ?? 0;
-                                                echo $total > 0 ? round(($actifs / $total) * 100, 1) . '%' : '0%';
-                                            ?></td>
+                                            <td><?php echo $stat_etudiants['total']; ?></td>
+                                            <td><?php echo $stat_etudiants['actifs']; ?></td>
+                                            <td><?php echo $stat_etudiants['inactifs']; ?></td>
+                                            <td><?php echo $stat_etudiants['taux_activite']; ?>%</td>
                                         </tr>
                                         <tr>
                                             <td class="text-blue-600">Enseignants</td>
-                                            <td><?php echo $GLOBALS['total_enseignants'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['enseignants_actifs'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['enseignants_inactifs'] ?? '0'; ?></td>
-                                            <td><?php 
-                                                $total = $GLOBALS['total_enseignants'] ?? 0;
-                                                $actifs = $GLOBALS['enseignants_actifs'] ?? 0;
-                                                echo $total > 0 ? round(($actifs / $total) * 100, 1) . '%' : '0%';
-                                            ?></td>
+                                            <td><?php echo $stat_enseignants['total']; ?></td>
+                                            <td><?php echo $stat_enseignants['actifs']; ?></td>
+                                            <td><?php echo $stat_enseignants['inactifs']; ?></td>
+                                            <td><?php echo $stat_enseignants['taux_activite']; ?>%</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-red-600">Salles</td>
-                                            <td><?php echo $GLOBALS['total_salles'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['salles_disponibles'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['salles_occupees'] ?? '0'; ?></td>
-                                            <td><?php 
-                                                $total = $GLOBALS['total_salles'] ?? 0;
-                                                $dispo = $GLOBALS['salles_disponibles'] ?? 0;
-                                                echo $total > 0 ? round(($dispo / $total) * 100, 1) . '%' : '0%';
-                                            ?></td>
+                                            <td class="text-red-600">Personnel Administratif</td>
+                                            <td><?php echo $stat_personnel['total']; ?></td>
+                                            <td><?php echo $stat_personnel['actifs']; ?></td>
+                                            <td><?php echo $stat_personnel['inactifs']; ?></td>
+                                            <td><?php echo $stat_personnel['taux_activite']; ?>%</td>
                                         </tr>
                                         <tr>
                                             <td class="text-orange-600">Utilisateurs</td>
-                                            <td><?php echo $GLOBALS['total_utilisateurs'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['utilisateurs_actifs'] ?? '0'; ?></td>
-                                            <td><?php echo $GLOBALS['utilisateurs_inactifs'] ?? '0'; ?></td>
-                                            <td><?php 
-                                                $total = $GLOBALS['total_utilisateurs'] ?? 0;
-                                                $actifs = $GLOBALS['utilisateurs_actifs'] ?? 0;
-                                                echo $total > 0 ? round(($actifs / $total) * 100, 1) . '%' : '0%';
-                                            ?></td>
+                                            <td><?php echo $stat_utilisateurs['total']; ?></td>
+                                            <td><?php echo $stat_utilisateurs['actifs']; ?></td>
+                                            <td><?php echo $stat_utilisateurs['inactifs']; ?></td>
+                                            <td><?php echo $stat_utilisateurs['taux_activite']; ?>%</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -288,7 +284,7 @@
                         <!-- Calendrier -->
                         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 card-hover">
                             <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-lg font-bold text-indigo-800">Calendrier</h2>
+                                <h2 class="text-lg font-bold text-green-800">Calendrier</h2>
                                 <div class="flex space-x-2">
                                     <button id="prevMonth"
                                         class="w-8 h-8 rounded-md bg-indigo-50 flex items-center justify-center text-indigo-500 hover:bg-indigo-100">
@@ -321,7 +317,7 @@
                         <!-- Activités récentes -->
                         <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
                             <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-lg font-bold text-indigo-800">Activités récentes</h2>
+                                <h2 class="text-lg font-bold text-green-800">Activités récentes</h2>
                                 <button class="text-indigo-400 hover:text-indigo-600">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
@@ -374,6 +370,10 @@
         utilisateurs: {
             labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
             data: [140, 175, 210, 235, 260, 295]
+        },
+        personnels: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+            data: [142, 169, 255, 235, 240, 356]
         }
     };
 

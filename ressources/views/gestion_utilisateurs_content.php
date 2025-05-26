@@ -6,6 +6,9 @@ $utilisateurs = $GLOBALS['utilisateurs'] ?? [];
 $niveau_acces = $GLOBALS['niveau_acces'];
 $types_utilisateur =$GLOBALS['types_utilisateur'];
 $groupes_utilisateur =$GLOBALS['groupes_utilisateur'] ;
+$enseignants = $GLOBALS['enseignants'] ;
+$etudiants = $GLOBALS['etudiants'];
+$pers_admin = $GLOBALS['pers_admin'];
 
 
 // Pagination
@@ -129,9 +132,65 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <label for="nom_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
                             </label>
-                            <input type="text" name="nom_utilisateur" id="nom_utilisateur" required
-                                value="<?php echo $utilisateur_a_modifier ? htmlspecialchars($utilisateur_a_modifier->nom_utilisateur) : ''; ?>"
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                            <select name="nom_utilisateur" id="nom_utilisateur"
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <option value="">Sélectionner un nom</option>
+
+                                <?php
+                                // Tableau pour stocker les noms déjà ajoutés
+                                $noms_ajoutes = array();
+                                
+                                // Fonction pour vérifier si un nom existe déjà
+                                function nomExisteDeja($nom, $prenom, &$noms_ajoutes) {
+                                    $nom_complet = strtolower(trim($nom . ' ' . $prenom));
+                                    if (isset($noms_ajoutes[$nom_complet])) {
+                                        return true;
+                                    }
+                                    $noms_ajoutes[$nom_complet] = true;
+                                    return false;
+                                }
+                                ?>
+
+                                <!-- Groupe des Enseignants -->
+                                <optgroup label="Enseignants">
+                                    <?php foreach($enseignants as $enseignant): 
+                                        if (!nomExisteDeja($enseignant->nom_enseignant, $enseignant->prenom_enseignant, $noms_ajoutes)): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>"
+                                        data-email="<?php echo htmlspecialchars($enseignant->mail_enseignant); ?>"
+                                        <?php echo ($utilisateur_a_modifier && $enseignant->id_enseignant == $utilisateur_a_modifier->id_enseignant) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>
+                                    </option>
+                                    <?php endif; endforeach; ?>
+                                </optgroup>
+
+                                <!-- Groupe des Étudiants -->
+                                <optgroup label="Étudiants">
+                                    <?php foreach($etudiants as $etudiant): 
+                                        if (!nomExisteDeja($etudiant->nom_etu, $etudiant->prenom_etu, $noms_ajoutes)): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>"
+                                        data-email="<?php echo htmlspecialchars($etudiant->login_etu); ?>"
+                                        <?php echo ($utilisateur_a_modifier && $etudiant->num_etu == $utilisateur_a_modifier->num_etu) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
+                                    </option>
+                                    <?php endif; endforeach; ?>
+                                </optgroup>
+
+                                <!-- Groupe du Personnel Administratif -->
+                                <optgroup label="Personnel Administratif">
+                                    <?php foreach($pers_admin as $admin): 
+                                        if (!nomExisteDeja($admin->nom_pers_admin, $admin->prenom_pers_admin, $noms_ajoutes)): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($admin->nom_pers_admin . ' ' . $admin->prenom_pers_admin); ?>"
+                                        data-email="<?php echo htmlspecialchars($admin->email_pers_admin); ?>"
+                                        <?php echo ($utilisateur_a_modifier && $admin->id_pers_admin == $utilisateur_a_modifier->id_pers_admin) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($admin->nom_pers_admin . ' ' . $admin->prenom_pers_admin); ?>
+                                    </option>
+                                    <?php endif; endforeach; ?>
+                                </optgroup>
+                            </select>
+
                         </div>
                         <div class="space-y-2">
                             <label for="login_utilisateur" class="block text-sm font-medium text-gray-700">
@@ -399,17 +458,24 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
                         <i class="fas fa-file-export mr-2"></i>Exporter
                     </button>
-                    <button id="desactiverButton" type="button"
-                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
-                        <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
-                    </button>
+                    <div class="flex space-x-2">
+                        <button id="desactiverButton" type="button"
+                            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                            <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
+                        </button>
+                        <button id="reactiverButton" type="button"
+                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                            <i class="fa-solid fa-eye mr-2"></i>Réactiver
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Users Table -->
 
             <form class="overflow-x-auto" method="POST" action="?page=gestion_utilisateurs" id="formListeUtilisateurs">
-                <input type="hidden" name="submit_disable_multiple" id="submitDisableHidden" value="0">
+                <input type="hidden" name="btn_desactiver_multiple" value="1">
+                <input type="hidden" name="btn_reactiver_multiple" value="1">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -469,7 +535,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         <tr class="table-row-hover">
 
                             <td class="px-4 py-4 text-center">
-                                <input type="checkbox" name="userCheckbox"
+                                <input type="checkbox" name="userCheckbox[]"
                                     value="<?php echo htmlspecialchars($user->id_utilisateur); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
@@ -575,55 +641,41 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         </div>
     </div>
 
-    <!-- Modale de confirmation de suppression -->
-    <div id="deleteModal"
-        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+    <!-- Modal de confirmation de désactivation -->
+    <div class="modal fade" id="confirmDesactivationModal" tabindex="-1"
+        aria-labelledby="confirmDesactivationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDesactivationModalLabel">Confirmer la désactivation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
-                <p class="text-sm text-gray-500 mb-6">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnées ?
-                </p>
-                <div class="flex justify-center gap-4">
-                    <button type="button" id="confirmDelete"
-                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-check mr-2"></i>Confirmer
-                    </button>
-                    <button type="button" id="cancelDelete"
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-times mr-2"></i>Annuler
-                    </button>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnés ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDesactivationBtn">Désactiver</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modale de confirmation de modification -->
-    <div id="modifyModal"
-        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+    <!-- Modal de confirmation d'activation -->
+    <div class="modal fade" id="confirmActivationModal" tabindex="-1" aria-labelledby="confirmActivationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmActivationModalLabel">Confirmer l'activation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
-                <p class="text-sm text-gray-500 mb-6">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Êtes-vous sûr de vouloir modifier cet utilisateur ?
-                </p>
-                <div class="flex justify-center gap-4">
-                    <button type="button" id="confirmModify"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-check mr-2"></i>Confirmer
-                    </button>
-                    <button type="button" id="cancelModify"
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-times mr-2"></i>Annuler
-                    </button>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir activer les utilisateurs sélectionnés ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success" id="confirmActivationBtn">Activer</button>
                 </div>
             </div>
         </div>
@@ -638,17 +690,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const searchInput = document.getElementById('searchInput');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('desactiverButton');
-    const submitDisableHidden = document.getElementById('submitDisableHidden');
-    const btnModifier = document.getElementById('btnModifier');
-    const modifyModal = document.getElementById('modifyModal');
-    const confirmModify = document.getElementById('confirmModify');
-    const cancelModify = document.getElementById('cancelModify');
-    const deleteModal = document.getElementById('deleteModal');
-    const confirmDelete = document.getElementById('confirmDelete');
-    const cancelDelete = document.getElementById('cancelDelete');
-    const formListeUser = document.getElementById('formListeUser');
-    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
-    const submitModifierHidden = document.getElementById('btn_modifier_utilisateur_hidden');
+    const reactiverButton = document.getElementById('reactiverButton');
+    const formListeUtilisateurs = document.getElementById('formListeUtilisateurs');
 
     function openUserModal(userData) {
         if (userData) {
@@ -673,6 +716,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     // Utilisateur pour fermer le modal
     function closeUserModal() {
         userModal.classList.add('hidden');
+        // Réinitialiser le formulaire
+        document.getElementById('userForm').reset();
     }
 
     // Search functionality
@@ -901,6 +946,41 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                 document.getElementById('usersList').innerHTML = e.data.content;
             }
         });
+    });
+
+    // Fonction pour mettre à jour le champ login en fonction de la sélection
+    document.getElementById('nom_utilisateur').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const email = selectedOption.getAttribute('data-email');
+        const loginField = document.getElementById('login_utilisateur');
+
+        if (email) {
+            loginField.value = email;
+        } else {
+            loginField.value = '';
+        }
+    });
+
+    // Fonction pour mettre à jour la liste des utilisateurs
+    function updateUsersList() {
+        const select = document.getElementById('nom_utilisateur');
+        const currentValue = select.value;
+
+        // Sauvegarder l'option par défaut
+        const defaultOption = select.options[0];
+
+        // Vider le select
+        select.innerHTML = '';
+        select.appendChild(defaultOption);
+
+        // Recharger la page pour obtenir la liste mise à jour
+        window.location.reload();
+    }
+
+    // Modifier la soumission du formulaire
+    document.getElementById('userForm').addEventListener('submit', function(e) {
+        // Laisser le formulaire se soumettre normalement
+        // La mise à jour se fera après le rechargement de la page
     });
     </script>
     <?php

@@ -330,6 +330,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                     </div>
                                 </div>
 
+
                                 <div class="flex justify-between space-x-4 pt-6 border-t border-gray-200">
                                     <a href="?page=gestion_rh&tab=pers_admin"
                                         class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors duration-200">
@@ -617,6 +618,23 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                             required>
                                     </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label for="type_enseignant" class="block text-sm font-medium text-gray-700">
+                                            Type d'enseignant
+                                        </label>
+                                        <select name="type_enseignant" id="type_enseignant" required
+                                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                            <option value="Simple"
+                                                <?php echo ($enseignant_a_modifier && $enseignant_a_modifier->type_enseignant) ? 'selected' : ''; ?>>
+                                                Simple</option>
+                                            <option value="Administratif"
+                                                <?php echo ($enseignant_a_modifier && !$enseignant_a_modifier->type_enseignant) ? 'selected' : ''; ?>>
+                                                Administratif</option>
+                                        </select>
+                                    </div>
+
                                 </div>
 
                                 <div class="flex justify-between space-x-4 pt-6 border-t border-gray-200">

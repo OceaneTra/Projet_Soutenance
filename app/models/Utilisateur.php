@@ -119,7 +119,8 @@ class Utilisateur
 
     public function getAllUtilisateurs()
     {
-        $query = "SELECT u.*, 
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
                     t.lib_type_utilisateur as role_utilisateur,
                     g.lib_GU as gu,
                     n.lib_niveau_acces_donnees as niveau_acces
@@ -191,14 +192,30 @@ class Utilisateur
         return $stmt->execute();
     }
 
+    /**
+     * Désactive un utilisateur
+     * 
+     * @param int $id ID de l'utilisateur
+     * @return bool True si la désactivation a réussi
+     */
     public function desactiverUtilisateur($id)
     {
-        $query = "UPDATE utilisateur SET statut_utilisateur = :statut  WHERE id_utilisateur = :id";
-        $stmt = $this->db->prepare($query);
-        $statut = 'Inactif';
-        $stmt->bindParam(':statut', $statut);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $sql = "UPDATE utilisateur SET statut_utilisateur = 'Inactif' WHERE id_utilisateur = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$id]);
+    }
+
+    /**
+     * Réactive un utilisateur
+     * 
+     * @param int $id ID de l'utilisateur
+     * @return bool True si la réactivation a réussi
+     */
+    public function reactiverUtilisateur($id)
+    {
+        $sql = "UPDATE utilisateur SET statut_utilisateur = 'Actif' WHERE id_utilisateur = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id]);
     }
 
     public function updatePassword($id, $newPassword)
@@ -209,4 +226,235 @@ class Utilisateur
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
+
+    public function getAllUtilisateursActifs()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE u.statut_utilisateur = 'Actif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getAllUtilisateursInactifs()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE u.statut_utilisateur = 'Inactif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getAllUtilisateursByType($type)
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE t.lib_type_utilisateur = :type
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':type', $type);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getAllUtilisateursByGroupe($groupe)
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE g.lib_GU = :groupe
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':groupe', $groupe);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getEnseignantActif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE (t.lib_type_utilisateur = 'Enseignant Simple' OR t.lib_type_utilisateur='Enseignant Administratif' ) AND u.statut_utilisateur = 'Actif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getEnseignantInactif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE (t.lib_type_utilisateur = 'Enseignant Simple' OR t.lib_type_utilisateur='Enseignant Administratif' ) AND u.statut_utilisateur = 'Inactif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+   public function getEtudiantActif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE t.lib_type_utilisateur = 'Etudiant' AND u.statut_utilisateur = 'Actif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getEtudiantInactif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE t.lib_type_utilisateur = 'Etudiant' AND u.statut_utilisateur = 'Inactif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getPersAdminActif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE t.lib_type_utilisateur = 'Personnel Administratif' AND u.statut_utilisateur = 'Actif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getPersAdminInactif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE t.lib_type_utilisateur = 'Personnel Administratif' AND u.statut_utilisateur = 'Inactif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getAllUtilisateursByStatut($statut)
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE u.statut_utilisateur = :statut
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':statut', $statut);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getUtilisateurActif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE u.statut_utilisateur = 'Actif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function getUtilisateurInactif()
+    {
+        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
+                    u.statut_utilisateur,
+                    t.lib_type_utilisateur as role_utilisateur,
+                    g.lib_GU as gu,
+                    n.lib_niveau_acces_donnees as niveau_acces
+              FROM utilisateur u
+              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
+              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
+              WHERE u.statut_utilisateur = 'Inactif'
+              ORDER BY u.nom_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
 }

@@ -45,11 +45,12 @@ class GestionRhController
                 $id_fonction = $_POST['id_fonction'] ?? null;
                 $date_grade = $_POST['date_grade'] ?? null;
                 $date_fonction = $_POST['date_fonction'] ?? null;
+                $type_enseignant = $_POST['type_enseignant'];
 
                 if (!empty($_POST['id_enseignant'])) {
                     // Modification
                     if ($this->enseignantModel->modifierEnseignant($_POST['id_enseignant'], $nom, $prenom, $email, 
-                        $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction)) {
+                        $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant)) {
                         $messageSuccess = "Enseignant modifié avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de la modification de l'enseignant.";
@@ -57,7 +58,7 @@ class GestionRhController
                 } else {
                     // Ajout
                     if ($this->enseignantModel->ajouterEnseignant($nom, $prenom, $email, $id_grade, 
-                        $id_specialite, $id_fonction, $date_grade, $date_fonction)) {
+                        $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant)) {
                         $messageSuccess = "Enseignant ajouté avec succès.";
                     } else {
                         $messageErreur = "Erreur lors de l'ajout de l'enseignant.";
