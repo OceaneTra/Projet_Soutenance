@@ -177,13 +177,12 @@ class Utilisateur
         return $stmt->execute();
     }
 
-    public function updateUtilisateur($nom, $id_type_utilisateur, $id_GU, $id_niv_acces_donnees, $statut_utilisateur, $login, $mdp, $id)
+    public function updateUtilisateur($nom, $id_type_utilisateur, $id_GU, $id_niv_acces_donnees, $statut_utilisateur, $login,  $id)
     {
-        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, mdp_utilisateur = :mdp, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
+        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':nom', $nom);
         $stmt->bindParam(':login', $login);
-        $stmt->bindParam(':mdp', $mdp);
         $stmt->bindParam(':id_GU', $id_GU);
         $stmt->bindParam(':statut', $statut_utilisateur);
         $stmt->bindParam(':id_type_utilisateur', $id_type_utilisateur);
@@ -202,9 +201,9 @@ class Utilisateur
         return $stmt->execute();
     }
 
-    public function updatePassword($newPassword, $id)
+    public function updatePassword($id, $newPassword)
     {
-        $query = "UPDATE utilisateur SET mdp_utilisateur = :mdp  WHERE id_utilisateur = :id";
+        $query = "UPDATE utilisateur SET mdp_utilisateur = :mdp WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':mdp', $newPassword);
         $stmt->bindParam(':id', $id);
