@@ -108,7 +108,7 @@ class Utilisateur
               LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
               LEFT JOIN fonction f ON u.id_fonction = f.id_fonction
               LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
-              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnees = n.id_niv_acces_donnees
+              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niv_acces_donnees
               WHERE u.id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $idUtilisateur);
@@ -119,30 +119,23 @@ class Utilisateur
 
     public function getAllUtilisateurs()
     {
-        $query = "SELECT u.id_utilisateur, u.nom_utilisateur, u.login_utilisateur, 
-                    u.statut_utilisateur,
-                    t.lib_type_utilisateur as role_utilisateur,
-                    g.lib_GU as gu,
-                    n.lib_niveau_acces_donnees as niveau_acces
-              FROM utilisateur u
-              LEFT JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
-              LEFT JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
-              LEFT JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
-              ORDER BY u.nom_utilisateur";
-        $stmt = $this->db->prepare($query);
+        $sql = "SELECT u.*, tu.lib_type_utilisateur as role_utilisateur, 
+                       gu.lib_GU, nad.lib_niveau_acces_donnees as niveau_acces
+                FROM utilisateur u
+                LEFT JOIN type_utilisateur tu ON u.id_type_utilisateur = tu.id_type_utilisateur
+                LEFT JOIN groupe_utilisateur gu ON u.id_GU = gu.id_GU
+                LEFT JOIN niveau_acces_donnees nad ON u.id_niv_acces_donnee = nad.id_niveau_acces_donnees
+                ORDER BY u.nom_utilisateur";
+        
+        $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function getUtilisateurById($id)
     {
-        $query = "SELECT u.*, t.lib_type_utilisateur, g.lib_GU, n.lib_niveau_acces_donnees
-                 FROM utilisateur u 
-                 JOIN type_utilisateur t ON u.id_type_utilisateur = t.id_type_utilisateur
-                 JOIN groupe_utilisateur g ON u.id_GU = g.id_GU
-                 JOIN niveau_acces_donnees n ON u.id_niv_acces_donnee = n.id_niveau_acces_donnees
-                 WHERE u.id_utilisateur = :id";
-        $stmt = $this->db->prepare($query);
+        $sql = "SELECT * FROM utilisateur WHERE id_utilisateur = :id";
+        $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_OBJ);
@@ -202,7 +195,8 @@ class Utilisateur
     {
         $sql = "UPDATE utilisateur SET statut_utilisateur = 'Inactif' WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$id]);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
     /**

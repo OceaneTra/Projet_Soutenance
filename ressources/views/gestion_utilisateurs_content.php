@@ -474,8 +474,10 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             <!-- Users Table -->
 
             <form class="overflow-x-auto" method="POST" action="?page=gestion_utilisateurs" id="formListeUtilisateurs">
-                <input type="hidden" name="btn_desactiver_multiple" value="1">
-                <input type="hidden" name="btn_reactiver_multiple" value="1">
+                <input type="hidden" name="btn_desactiver_multiple" value="0">
+                <input type="hidden" name="btn_reactiver_multiple" value="0">
+                <input type="hidden" name="action" id="actionType" value="">
+                <input type="hidden" name="selected_users" id="selectedUsers" value="">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -554,7 +556,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
 
-                                    <span><?php echo htmlspecialchars($user->gu); ?></span>
+                                    <span><?php echo htmlspecialchars($user->lib_GU); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -642,40 +644,57 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     </div>
 
     <!-- Modal de confirmation de désactivation -->
-    <div class="modal fade" id="confirmDesactivationModal" tabindex="-1"
-        aria-labelledby="confirmDesactivationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDesactivationModalLabel">Confirmer la désactivation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnés ?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-danger" id="confirmDesactivationBtn">Désactiver</button>
+    <div id="confirmDesactivationModal" class="fixed inset-0 shadow-lg bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Confirmer la désactivation</h3>
+                        <button type="button" onclick="closeConfirmModal('confirmDesactivationModal')"
+                            class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnés ?
+                    </p>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeConfirmModal('confirmDesactivationModal')"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Annuler
+                        </button>
+                        <button type="button" name="btn_desactiver_utilisateur" id="btn_desactiver_utilisateur"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
+                            Désactiver
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal de confirmation d'activation -->
-    <div class="modal fade" id="confirmActivationModal" tabindex="-1" aria-labelledby="confirmActivationModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmActivationModalLabel">Confirmer l'activation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Êtes-vous sûr de vouloir activer les utilisateurs sélectionnés ?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-success" id="confirmActivationBtn">Activer</button>
+    <div id="confirmActivationModal" class="fixed inset-0 shadow-lg bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Confirmer l'activation</h3>
+                        <button type="button" onclick="closeConfirmModal('confirmActivationModal')"
+                            class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir activer les utilisateurs sélectionnés ?</p>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeConfirmModal('confirmActivationModal')"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Annuler
+                        </button>
+                        <button type="submit" form="formListeUtilisateurs" name="btn_reactiver_multiple" value="1"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
+                            Activer
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -693,18 +712,20 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const reactiverButton = document.getElementById('reactiverButton');
     const formListeUtilisateurs = document.getElementById('formListeUtilisateurs');
 
+    // Fonction pour ouvrir la modale de modification
     function openUserModal(userData) {
         if (userData) {
             userModalTitle.textContent = 'Modifier l\'Utilisateur';
             userModalSubmitButton.textContent = 'Mettre à jour';
-            userIdField.value = userData.id_utilisateur;
-            usernameField.value = userData.nom_utilisateur;
-            emailField.value = userData.login_utilisateur;
-            utilisateurField.value = userData.role_utilisateur;
-            statusField.value = userData.statut_utilisateur;
-            typeField.value = userData.id_type_utilisateur || '';
-            guField.value = userData.id_GU || 'Administrateur';
-            niveau_acces.value = userData.id_niveau_acces || 'Administrateur';
+
+            // Remplir les champs du formulaire avec les données de l'utilisateur
+            document.getElementById('userId').value = userData.id_utilisateur;
+            document.getElementById('nom_utilisateur').value = userData.nom_utilisateur;
+            document.getElementById('login_utilisateur').value = userData.login_utilisateur;
+            document.getElementById('id_type_utilisateur').value = userData.id_type_utilisateur;
+            document.getElementById('id_GU').value = userData.id_GU;
+            document.getElementById('statut_utilisateur').value = userData.statut_utilisateur ? '1' : '0';
+            document.getElementById('id_niveau_acces').value = userData.id_niveau_acces;
         } else {
             userModalTitle.textContent = 'Ajouter un Utilisateur';
             userModalSubmitButton.textContent = 'Enregistrer';
@@ -713,12 +734,57 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         userModal.classList.remove('hidden');
     }
 
-    // Utilisateur pour fermer le modal
+    // Fonction pour fermer la modale
     function closeUserModal() {
         userModal.classList.add('hidden');
-        // Réinitialiser le formulaire
-        document.getElementById('userForm').reset();
+        userForm.reset();
     }
+
+    // Fonction pour ouvrir les modales de confirmation
+    function openConfirmModal(modalId) {
+        const selectedUsers = document.querySelectorAll('.user-checkbox:checked');
+        if (selectedUsers.length === 0) {
+            alert('Veuillez sélectionner au moins un utilisateur');
+            return;
+        }
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    // Fonction pour fermer les modales de confirmation
+    function closeConfirmModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // Gestionnaire d'événements pour les boutons d'activation/désactivation
+    document.getElementById('desactiverButton').addEventListener('click', () => openConfirmModal(
+        'confirmDesactivationModal'));
+    document.getElementById('reactiverButton').addEventListener('click', () => openConfirmModal(
+        'confirmActivationModal'));
+
+    // Gestionnaire d'événements pour le formulaire d'ajout/modification
+    userForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('?page=gestion_utilisateurs', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    closeUserModal();
+                    refreshUserList();
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Une erreur est survenue', 'error');
+                console.error('Erreur:', error);
+            });
+    });
 
     // Search functionality
     searchInput.addEventListener('input', function() {
@@ -976,12 +1042,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         // Recharger la page pour obtenir la liste mise à jour
         window.location.reload();
     }
-
-    // Modifier la soumission du formulaire
-    document.getElementById('userForm').addEventListener('submit', function(e) {
-        // Laisser le formulaire se soumettre normalement
-        // La mise à jour se fera après le rechargement de la page
-    });
     </script>
     <?php
     unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);
