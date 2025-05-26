@@ -20,7 +20,7 @@ class Utilisateur
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && $user['mdp_utilisateur'] == $password && $user['statut_utilisateur'] == 'Actif') {
+        if ($user && password_verify(  $password,$user['mdp_utilisateur'] ) && $user['statut_utilisateur'] == 'Actif') {
             // Vérification du mot de passe
             return $user;
         }
