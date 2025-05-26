@@ -6,9 +6,6 @@ $utilisateurs = $GLOBALS['utilisateurs'] ?? [];
 $niveau_acces = $GLOBALS['niveau_acces'];
 $types_utilisateur =$GLOBALS['types_utilisateur'];
 $groupes_utilisateur =$GLOBALS['groupes_utilisateur'] ;
-$enseignants = $GLOBALS['enseignants'] ;
-$etudiants = $GLOBALS['etudiants'];
-$pers_admin = $GLOBALS['pers_admin'];
 
 
 // Pagination
@@ -132,65 +129,9 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <label for="nom_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
                             </label>
-                            <select name="nom_utilisateur" id="nom_utilisateur"
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <option value="">Sélectionner un nom</option>
-
-                                <?php
-                                // Tableau pour stocker les noms déjà ajoutés
-                                $noms_ajoutes = array();
-                                
-                                // Fonction pour vérifier si un nom existe déjà
-                                function nomExisteDeja($nom, $prenom, &$noms_ajoutes) {
-                                    $nom_complet = strtolower(trim($nom . ' ' . $prenom));
-                                    if (isset($noms_ajoutes[$nom_complet])) {
-                                        return true;
-                                    }
-                                    $noms_ajoutes[$nom_complet] = true;
-                                    return false;
-                                }
-                                ?>
-
-                                <!-- Groupe des Enseignants -->
-                                <optgroup label="Enseignants">
-                                    <?php foreach($enseignants as $enseignant): 
-                                        if (!nomExisteDeja($enseignant->nom_enseignant, $enseignant->prenom_enseignant, $noms_ajoutes)): ?>
-                                    <option
-                                        value="<?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>"
-                                        data-email="<?php echo htmlspecialchars($enseignant->mail_enseignant); ?>"
-                                        <?php echo ($utilisateur_a_modifier && $enseignant->id_enseignant == $utilisateur_a_modifier->id_enseignant) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>
-                                    </option>
-                                    <?php endif; endforeach; ?>
-                                </optgroup>
-
-                                <!-- Groupe des Étudiants -->
-                                <optgroup label="Étudiants">
-                                    <?php foreach($etudiants as $etudiant): 
-                                        if (!nomExisteDeja($etudiant->nom_etu, $etudiant->prenom_etu, $noms_ajoutes)): ?>
-                                    <option
-                                        value="<?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>"
-                                        data-email="<?php echo htmlspecialchars($etudiant->login_etu); ?>"
-                                        <?php echo ($utilisateur_a_modifier && $etudiant->num_etu == $utilisateur_a_modifier->num_etu) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
-                                    </option>
-                                    <?php endif; endforeach; ?>
-                                </optgroup>
-
-                                <!-- Groupe du Personnel Administratif -->
-                                <optgroup label="Personnel Administratif">
-                                    <?php foreach($pers_admin as $admin): 
-                                        if (!nomExisteDeja($admin->nom_pers_admin, $admin->prenom_pers_admin, $noms_ajoutes)): ?>
-                                    <option
-                                        value="<?php echo htmlspecialchars($admin->nom_pers_admin . ' ' . $admin->prenom_pers_admin); ?>"
-                                        data-email="<?php echo htmlspecialchars($admin->email_pers_admin); ?>"
-                                        <?php echo ($utilisateur_a_modifier && $admin->id_pers_admin == $utilisateur_a_modifier->id_pers_admin) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($admin->nom_pers_admin . ' ' . $admin->prenom_pers_admin); ?>
-                                    </option>
-                                    <?php endif; endforeach; ?>
-                                </optgroup>
-                            </select>
-
+                            <input type="text" name="nom_utilisateur" id="nom_utilisateur" required
+                                value="<?php echo $utilisateur_a_modifier ? htmlspecialchars($utilisateur_a_modifier->nom_utilisateur) : ''; ?>"
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
                         </div>
                         <div class="space-y-2">
                             <label for="login_utilisateur" class="block text-sm font-medium text-gray-700">
@@ -281,109 +222,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             </div>
         </div>
 
-        <!-- Bulk Add Users Modal -->
-        <div id="bulkUserModal"
-            class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex hidden items-center justify-center modal-transition">
-            <div class="relative p-8 w-full max-w-4xl shadow-2xl rounded-xl bg-white fade-in transform">
-                <div class="absolute top-0 right-0 m-3">
-                    <button onclick="closeBulkUserModal()"
-                        class="text-gray-400 hover:text-gray-600 focus:outline-none btn-icon">
-                        <i class="fas fa-times fa-lg"></i>
-                    </button>
-                </div>
-                <div class="flex items-center mb-6 pb-2 border-b border-gray-200">
-                    <div class="bg-blue-100 p-2 rounded-full mr-3">
-                        <i class="fas fa-users text-blue-500"></i>
-                    </div>
-                    <h3 class="text-2xl font-semibold text-gray-700">Ajouter des Utilisateurs en masse</h3>
-                </div>
-                <form id="bulkUserForm" class="space-y-4" method="POST" action="?page=gestion_utilisateurs">
-                    <div class="grid grid-cols-1 gap-6">
-                        <div class="space-y-2">
-                            <label for="userType" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-user-tag text-blue-500 mr-2"></i>Type d'utilisateur
-                            </label>
-                            <select name="userType" id="userType" required onchange="loadUsersList()"
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
-                                <option value="">Sélectionner un type d'utilisateur</option>
-                                <?php foreach($types_utilisateur as $type): ?>
-                                <option value="<?php echo htmlspecialchars($type->id_type_utilisateur); ?>">
-                                    <?php echo htmlspecialchars($type->lib_type_utilisateur); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-list text-blue-500 mr-2"></i>Liste des utilisateurs
-                            </label>
-                            <div class="flex justify-between items-center mb-2">
-                                <button type="button" onclick="toggleSelectAll()"
-                                    class="text-sm text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-check-square mr-1"></i>Sélectionner tout
-                                </button>
-                            </div>
-                            <div class="border border-gray-300 rounded-lg p-4 max-h-96 overflow-y-auto">
-                                <div id="usersList" class="space-y-2">
-                                    <?php if (isset($GLOBALS['users_list'])): ?>
-                                    <?php if (empty($GLOBALS['users_list'])): ?>
-                                    <div class="text-center text-gray-500 py-4">
-                                        <i class="fas fa-users text-gray-300 text-4xl mb-2"></i>
-                                        <p>Aucun utilisateur disponible pour ce type.</p>
-                                    </div>
-                                    <?php else: ?>
-                                    <?php foreach ($GLOBALS['users_list'] as $user): ?>
-                                    <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
-                                        <input type="checkbox" name="selected_users[]"
-                                            value="<?php echo htmlspecialchars($user['id']); ?>"
-                                            class="user-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <div class="flex-1">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                <?php echo htmlspecialchars($user['nom'] . ' ' . $user['prenom']); ?>
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                <?php echo htmlspecialchars($user['email']); ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="id_GU" class="block text-sm font-medium text-gray-700">
-                                <i class="fas fa-users text-blue-500 mr-2"></i>Groupe utilisateur
-                            </label>
-                            <select name="id_GU" id="id_GU" required
-                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
-                                <option value="">Sélectionner un groupe utilisateur</option>
-                                <?php foreach($groupes_utilisateur as $groupe): ?>
-                                <option value="<?php echo htmlspecialchars($groupe->id_GU); ?>">
-                                    <?php echo htmlspecialchars($groupe->lib_GU); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between mt-6">
-                        <button type="button" onclick="closeBulkUserModal()"
-                            class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
-                            <i class="fas fa-times mr-2"></i>Annuler
-                        </button>
-                        <button type="submit" name="btn_add_bulk_users"
-                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200">
-                            <i class="fas fa-save mr-2"></i>Enregistrer
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <!-- User Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-card p-6 border border-gray-200">
@@ -428,16 +266,10 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             <!-- Dashboard Header -->
             <div class=" bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
-                <div class="flex space-x-4">
-                    <button onclick="openBulkUserModal()"
-                        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                        <i class="fas fa-users mr-2"></i>Ajouter en masse
-                    </button>
-                    <button onclick="openUserModal(null)"
-                        class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                        <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
-                    </button>
-                </div>
+                <button onclick="openUserModal(null)"
+                    class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                </button>
             </div>
 
             <!-- Action Bar for Table -->
@@ -458,26 +290,17 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
                         <i class="fas fa-file-export mr-2"></i>Exporter
                     </button>
-                    <div class="flex space-x-2">
-                        <button id="desactiverButton" type="button"
-                            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
-                            <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
-                        </button>
-                        <button id="reactiverButton" type="button"
-                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                            <i class="fa-solid fa-eye mr-2"></i>Réactiver
-                        </button>
-                    </div>
+                    <button id="desactiverButton" type="button"
+                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                        <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
+                    </button>
                 </div>
             </div>
 
             <!-- Users Table -->
 
             <form class="overflow-x-auto" method="POST" action="?page=gestion_utilisateurs" id="formListeUtilisateurs">
-                <input type="hidden" name="btn_desactiver_multiple" value="0">
-                <input type="hidden" name="btn_reactiver_multiple" value="0">
-                <input type="hidden" name="action" id="actionType" value="">
-                <input type="hidden" name="selected_users" id="selectedUsers" value="">
+                <input type="hidden" name="submit_disable_multiple" id="submitDisableHidden" value="0">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -537,7 +360,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         <tr class="table-row-hover">
 
                             <td class="px-4 py-4 text-center">
-                                <input type="checkbox" name="userCheckbox[]"
+                                <input type="checkbox" name="userCheckbox"
                                     value="<?php echo htmlspecialchars($user->id_utilisateur); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
@@ -556,7 +379,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
 
-                                    <span><?php echo htmlspecialchars($user->lib_GU); ?></span>
+                                    <span><?php echo htmlspecialchars($user->gu); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -643,58 +466,55 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         </div>
     </div>
 
-    <!-- Modal de confirmation de désactivation -->
-    <div id="confirmDesactivationModal" class="fixed inset-0 shadow-lg bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Confirmer la désactivation</h3>
-                        <button type="button" onclick="closeConfirmModal('confirmDesactivationModal')"
-                            class="text-gray-400 hover:text-gray-500">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnés ?
-                    </p>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeConfirmModal('confirmDesactivationModal')"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            Annuler
-                        </button>
-                        <button type="button" name="btn_desactiver_utilisateur" id="btn_desactiver_utilisateur"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
-                            Désactiver
-                        </button>
-                    </div>
+    <!-- Modale de confirmation de suppression -->
+    <div id="deleteModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnées ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmDelete"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelDelete"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmation d'activation -->
-    <div id="confirmActivationModal" class="fixed inset-0 shadow-lg bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Confirmer l'activation</h3>
-                        <button type="button" onclick="closeConfirmModal('confirmActivationModal')"
-                            class="text-gray-400 hover:text-gray-500">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir activer les utilisateurs sélectionnés ?</p>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeConfirmModal('confirmActivationModal')"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            Annuler
-                        </button>
-                        <button type="submit" form="formListeUtilisateurs" name="btn_reactiver_multiple" value="1"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
-                            Activer
-                        </button>
-                    </div>
+    <!-- Modale de confirmation de modification -->
+    <div id="modifyModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de modification</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir modifier cet utilisateur ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmModify"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelModify"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
                 </div>
             </div>
         </div>
@@ -709,23 +529,30 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const searchInput = document.getElementById('searchInput');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const deleteButton = document.getElementById('desactiverButton');
-    const reactiverButton = document.getElementById('reactiverButton');
-    const formListeUtilisateurs = document.getElementById('formListeUtilisateurs');
+    const submitDisableHidden = document.getElementById('submitDisableHidden');
+    const btnModifier = document.getElementById('btnModifier');
+    const modifyModal = document.getElementById('modifyModal');
+    const confirmModify = document.getElementById('confirmModify');
+    const cancelModify = document.getElementById('cancelModify');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const formListeUser = document.getElementById('formListeUser');
+    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+    const submitModifierHidden = document.getElementById('btn_modifier_utilisateur_hidden');
 
-    // Fonction pour ouvrir la modale de modification
     function openUserModal(userData) {
         if (userData) {
             userModalTitle.textContent = 'Modifier l\'Utilisateur';
             userModalSubmitButton.textContent = 'Mettre à jour';
-
-            // Remplir les champs du formulaire avec les données de l'utilisateur
-            document.getElementById('userId').value = userData.id_utilisateur;
-            document.getElementById('nom_utilisateur').value = userData.nom_utilisateur;
-            document.getElementById('login_utilisateur').value = userData.login_utilisateur;
-            document.getElementById('id_type_utilisateur').value = userData.id_type_utilisateur;
-            document.getElementById('id_GU').value = userData.id_GU;
-            document.getElementById('statut_utilisateur').value = userData.statut_utilisateur ? '1' : '0';
-            document.getElementById('id_niveau_acces').value = userData.id_niveau_acces;
+            userIdField.value = userData.id_utilisateur;
+            usernameField.value = userData.nom_utilisateur;
+            emailField.value = userData.login_utilisateur;
+            utilisateurField.value = userData.role_utilisateur;
+            statusField.value = userData.statut_utilisateur;
+            typeField.value = userData.id_type_utilisateur || '';
+            guField.value = userData.id_GU || 'Administrateur';
+            niveau_acces.value = userData.id_niveau_acces || 'Administrateur';
         } else {
             userModalTitle.textContent = 'Ajouter un Utilisateur';
             userModalSubmitButton.textContent = 'Enregistrer';
@@ -734,57 +561,10 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         userModal.classList.remove('hidden');
     }
 
-    // Fonction pour fermer la modale
+    // Utilisateur pour fermer le modal
     function closeUserModal() {
         userModal.classList.add('hidden');
-        userForm.reset();
     }
-
-    // Fonction pour ouvrir les modales de confirmation
-    function openConfirmModal(modalId) {
-        const selectedUsers = document.querySelectorAll('.user-checkbox:checked');
-        if (selectedUsers.length === 0) {
-            alert('Veuillez sélectionner au moins un utilisateur');
-            return;
-        }
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    // Fonction pour fermer les modales de confirmation
-    function closeConfirmModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
-    // Gestionnaire d'événements pour les boutons d'activation/désactivation
-    document.getElementById('desactiverButton').addEventListener('click', () => openConfirmModal(
-        'confirmDesactivationModal'));
-    document.getElementById('reactiverButton').addEventListener('click', () => openConfirmModal(
-        'confirmActivationModal'));
-
-    // Gestionnaire d'événements pour le formulaire d'ajout/modification
-    userForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-
-        fetch('?page=gestion_utilisateurs', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    closeUserModal();
-                    refreshUserList();
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('Une erreur est survenue', 'error');
-                console.error('Erreur:', error);
-            });
-    });
 
     // Search functionality
     searchInput.addEventListener('input', function() {
@@ -941,107 +721,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             }, 5000);
         }
     });
-
-    function openBulkUserModal() {
-        document.getElementById('bulkUserModal').classList.remove('hidden');
-    }
-
-    function closeBulkUserModal() {
-        document.getElementById('bulkUserModal').classList.add('hidden');
-    }
-
-    function loadUsersList() {
-        const userType = document.getElementById('userType').value;
-        const usersList = document.getElementById('usersList');
-
-        if (!userType) {
-            usersList.innerHTML = '';
-            return;
-        }
-
-        // Afficher un indicateur de chargement
-        usersList.innerHTML =
-            '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i><p class="mt-2 text-gray-500">Chargement...</p></div>';
-
-        // Faire une requête AJAX
-        fetch(`?page=gestion_utilisateurs&action=get_users&type=${userType}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.type === 'usersList') {
-                    usersList.innerHTML = data.content;
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors du chargement des utilisateurs:', error);
-                usersList.innerHTML =
-                    '<div class="text-center text-red-500 py-4"><i class="fas fa-exclamation-circle text-2xl"></i><p class="mt-2">Erreur lors du chargement des utilisateurs</p></div>';
-            });
-    }
-
-    // Fonction pour sélectionner/désélectionner tous les utilisateurs
-    function toggleSelectAll() {
-        const checkboxes = document.querySelectorAll('.user-checkbox');
-        const selectAllButton = document.querySelector('button[onclick="toggleSelectAll()"]');
-        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = !allChecked;
-        });
-
-        // Mettre à jour le texte du bouton
-        selectAllButton.innerHTML = allChecked ?
-            '<i class="fas fa-check-square mr-1"></i>Sélectionner tout' :
-            '<i class="fas fa-square mr-1"></i>Désélectionner tout';
-    }
-
-    // Ajouter un iframe caché pour la soumission du formulaire
-    document.addEventListener('DOMContentLoaded', function() {
-        const iframe = document.createElement('iframe');
-        iframe.name = 'usersListFrame';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-
-        // Écouter les messages de l'iframe
-        window.addEventListener('message', function(e) {
-            if (e.data.type === 'usersList') {
-                document.getElementById('usersList').innerHTML = e.data.content;
-            }
-        });
-    });
-
-    // Fonction pour mettre à jour le champ login en fonction de la sélection
-    document.getElementById('nom_utilisateur').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const email = selectedOption.getAttribute('data-email');
-        const loginField = document.getElementById('login_utilisateur');
-
-        if (email) {
-            loginField.value = email;
-        } else {
-            loginField.value = '';
-        }
-    });
-
-    // Fonction pour mettre à jour la liste des utilisateurs
-    function updateUsersList() {
-        const select = document.getElementById('nom_utilisateur');
-        const currentValue = select.value;
-
-        // Sauvegarder l'option par défaut
-        const defaultOption = select.options[0];
-
-        // Vider le select
-        select.innerHTML = '';
-        select.appendChild(defaultOption);
-
-        // Recharger la page pour obtenir la liste mise à jour
-        window.location.reload();
-    }
     </script>
     <?php
     unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);
