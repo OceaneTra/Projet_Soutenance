@@ -65,7 +65,8 @@ class DashboardController
         // Récupération des données pour le graphique
         $this->getChartData();
         
- 
+        // Chargement de la vue
+        require_once $this->baseViewPath . 'dashboard_content.php';
     }
 
     /**

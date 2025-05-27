@@ -1,9 +1,29 @@
 <?php
 
-$stat_etudiants = $GLOBALS['stats_etudiants'] ?? [];
-$stat_enseignants = $GLOBALS['stats_enseignants'] ?? [];
-$stat_personnel = $GLOBALS['stats_personnel'] ?? [];
-$stat_utilisateurs = $GLOBALS['stats_utilisateurs'] ?? [];
+$stat_etudiants = $GLOBALS['stats_etudiants'] ?? [
+    'total' => 0,
+    'actifs' => 0,
+    'inactifs' => 0,
+    'taux_activite' => 0
+];
+$stat_enseignants = $GLOBALS['stats_enseignants'] ?? [
+    'total' => 0,
+    'actifs' => 0,
+    'inactifs' => 0,
+    'taux_activite' => 0
+];
+$stat_personnel = $GLOBALS['stats_personnel'] ?? [
+    'total' => 0,
+    'actifs' => 0,
+    'inactifs' => 0,
+    'taux_activite' => 0
+];
+$stat_utilisateurs = $GLOBALS['stats_utilisateurs'] ?? [
+    'total' => 0,
+    'actifs' => 0,
+    'inactifs' => 0,
+    'taux_activite' => 0
+];
 
 ?>
 

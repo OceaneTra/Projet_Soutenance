@@ -110,7 +110,6 @@ class GestionUtilisateurController
                             $id_niveau_acces,
                             $statut_utilisateur,
                             $login_utilisateur,
-                            $mdp_utilisateur,
                             $id_utilisateur
                         )) {
                             $messageSuccess = "Utilisateur modifié avec succès.";
@@ -256,16 +255,16 @@ class GestionUtilisateurController
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'oceanetl27@gmail.com';
-            $mail->Password = 'uuzxaeevsqicdxol';
+            $mail->Username = 'managersoutenance@gmail.com';
+            $mail->Password = 'iweglnpanhpkoqfe';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
             $mail->CharSet = 'UTF-8';
 
             // Destinataires
-            $mail->setFrom('oceanetl27@gmail.com', 'Soutenance Manager'); // Utiliser une adresse email valide
+            $mail->setFrom('managersoutenance@gmail.com', 'Soutenance Manager'); // Utiliser une adresse email valide
             $mail->addAddress($email, $nom);
-            $mail->addReplyTo('oceanetl27@gmail.com', 'Support technique');
+            $mail->addReplyTo('managersoutenance@gmail.com', 'Support technique');
 
             // Contenu
             $mail->isHTML(true);
