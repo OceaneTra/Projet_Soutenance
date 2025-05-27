@@ -39,4 +39,10 @@ class NiveauAccesDonnees
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
+
+    public function getLastNiveauAccesDonnees()
+    {
+        $stmt = $this->pdo->query("SELECT * FROM niveau_acces_donnees ORDER BY id_niveau_acces_donnees DESC LIMIT 1");
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
 }

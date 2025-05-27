@@ -1,6 +1,7 @@
 <?php
 
 
+
 class Enseignant{
 
 
@@ -13,6 +14,8 @@ class Enseignant{
     private $id_fonction;
     private $date_grade;
     private $date_fonction;
+
+    private $type_enseignant;
 
     private $id_specialite;
 
@@ -36,6 +39,9 @@ class Enseignant{
     public function getIdSpecialite() { return $this->id_specialite; }
 
     public function getIdGrade() { return $this->id_grade; }
+    public function getTypeEnseignant() { return $this->type_enseignant; }
+
+
 
     // Setters
     public function setIdEnseignant($id) { $this->id_enseignant = $id; }
@@ -50,6 +56,7 @@ class Enseignant{
 
     public function setIdSpecialite($id_specialite) { $this->id_specialite = $id_specialite; }
 
+    public function setTypeEnseignant($type_enseignant) { $this->type_enseignant = $type_enseignant; }
     // Méthodes CRUD
     public function getAllEnseignants() {
         $query = "SELECT e.*, f.lib_fonction,f.id_fonction, g.lib_grade, g.id_grade, s.lib_specialite,
@@ -82,19 +89,20 @@ class Enseignant{
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function ajouterEnseignant($nom, $prenom, $email, $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction) {
+    public function ajouterEnseignant($nom, $prenom, $email, $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant) {
         try {
             $this->db->beginTransaction();
             
 
             // 1. Insérer dans la table enseignants
-            $query = "INSERT INTO enseignants (nom_enseignant, prenom_enseignant, mail_enseignant, id_specialite) 
-                     VALUES (:nom, :prenom, :email, :id_specialite)";
+            $query = "INSERT INTO enseignants (nom_enseignant, prenom_enseignant, mail_enseignant, id_specialite,type_enseignant) 
+                     VALUES (:nom, :prenom, :email, :id_specialite,:type_enseignant)";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':nom', $nom);
             $stmt->bindParam(':prenom', $prenom);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':id_specialite', $id_specialite);
+            $stmt->bindParam(':type_enseignant', $type_enseignant);
             $stmt->execute();
 
             // Récupérer l'ID du dernier enseignant inséré
@@ -130,7 +138,7 @@ class Enseignant{
         }
     }
 
-    public function modifierEnseignant($id, $nom, $prenom, $email, $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction) {
+    public function modifierEnseignant($id, $nom, $prenom, $email, $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant) {
         try {
             $this->db->beginTransaction();
 
@@ -139,7 +147,8 @@ class Enseignant{
                      SET nom_enseignant = :nom, 
                          prenom_enseignant = :prenom, 
                          mail_enseignant = :email,
-                         id_specialite = :id_specialite
+                         id_specialite = :id_specialite,
+                         type_enseignant = :type_enseignant
                      WHERE id_enseignant = :id";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':id', $id);
@@ -147,6 +156,7 @@ class Enseignant{
             $stmt->bindParam(':prenom', $prenom);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':id_specialite', $id_specialite);
+            $stmt->bindParam(':type_enseignant', $type_enseignant);
             $stmt->execute();
 
             // 2. Mettre à jour la table avoir
@@ -211,6 +221,8 @@ class Enseignant{
             return false;
         }
     }
+
+   
 
     
 }

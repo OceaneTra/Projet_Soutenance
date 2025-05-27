@@ -379,7 +379,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <div class="flex items-center">
 
-                                    <span><?php echo htmlspecialchars($user->gu); ?></span>
+                                    <span><?php echo htmlspecialchars($user->lib_GU); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">

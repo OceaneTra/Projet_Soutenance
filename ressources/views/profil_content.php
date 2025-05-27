@@ -32,7 +32,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
     @keyframes fadeIn {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(-10px);
         }
 
         to {
@@ -41,13 +41,68 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
         }
     }
 
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+
     .fade-in {
         animation: fadeIn 0.3s ease-out forwards;
     }
+
+    .fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+
+    .alert-message {
+        opacity: 0;
+        animation: fadeIn 0.3s ease-out forwards;
+        animation-delay: 0.5s;
+    }
+
+    .alert-message.error {
+        background-color: #FEE2E2;
+        border-color: #EF4444;
+        color: #B91C1C;
+    }
+
+    .alert-message.success {
+        background-color: #D1FAE5;
+        border-color: #10B981;
+        color: #065F46;
+    }
     </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-message');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.classList.add('fade-out');
+                setTimeout(() => {
+                    alert.remove();
+                }, 300);
+            }, 3000);
+        });
+
+        // Vérifier si on doit afficher l'onglet mot de passe
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'password') {
+            document.querySelector('[data-tab="password"]').click();
+        }
+    });
+    </script>
 </head>
 
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800" x-data="{ currentTab: 'profile' }">
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800"
+    x-data="{ currentTab: '<?php echo isset($_GET['tab']) && $_GET['tab'] === 'password' ? 'password' : 'profile'; ?>' }">
     <div class="container max-w-4xl mx-auto px-4 py-8">
         <!-- Header -->
         <header class="mb-8">
@@ -61,12 +116,14 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
         <div class="flex border-b border-gray-200 mb-6">
             <button @click="currentTab = 'profile'"
                 :class="{'text-green-600 border-green-600': currentTab === 'profile', 'text-gray-500 hover:text-gray-700': currentTab !== 'profile'}"
-                class="py-2 px-4 font-medium text-sm border-b-2 -mb-px transition duration-150 ease-in-out">
+                class="py-2 px-4 font-medium text-sm border-b-2 -mb-px transition duration-150 ease-in-out"
+                data-tab="profile">
                 <i class="fas fa-user mr-2"></i> Informations
             </button>
             <button @click="currentTab = 'password'"
                 :class="{'text-green-600 border-green-600': currentTab === 'password', 'text-gray-500 hover:text-gray-700': currentTab !== 'password'}"
-                class="py-2 px-4 font-medium text-sm border-b-2 -mb-px transition duration-150 ease-in-out">
+                class="py-2 px-4 font-medium text-sm border-b-2 -mb-px transition duration-150 ease-in-out"
+                data-tab="password">
                 <i class="fas fa-lock mr-2"></i> Mot de passe
             </button>
         </div>
@@ -266,7 +323,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
 
         <!-- Password Tab Content -->
         <div x-show="currentTab === 'password'" class="fade-in" x-transition>
-            <form action="?page=profil" method="POST">
+            <form action="?page=profil&tab=password" method="POST">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-6">
@@ -274,18 +331,18 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                         </h3>
 
                         <?php if (isset($_SESSION['password_error'])): ?>
-                        <div class="mb-4 bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md" role="alert">
+                        <div class="alert-message error mb-4 border-l-4 p-4 rounded-md" role="alert">
                             <p><?= htmlspecialchars($_SESSION['password_error']) ?></p>
                         </div>
                         <?php unset($_SESSION['password_error']); endif; ?>
 
                         <?php if (isset($_SESSION['password_success'])): ?>
-                        <div class="mb-4 bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md"
-                            role="alert">
+                        <div class="alert-message success mb-4 border-l-4 p-4 rounded-md" role="alert">
                             <p><?= htmlspecialchars($_SESSION['password_success']) ?></p>
                         </div>
                         <?php unset($_SESSION['password_success']); endif; ?>
 
+                        <input type="hidden" name="id_utilisateur" value="<?php echo $_SESSION['id_utilisateur']; ?>">
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="currentPassword">Mot de
@@ -296,6 +353,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                         <i class="fas fa-lock"></i>
                                     </div>
                                     <input id="currentPassword" type="password" name="currentPassword" required
+                                        style="outline: none;"
                                         class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                 </div>
                             </div>
@@ -311,6 +369,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                             <i class="fas fa-lock"></i>
                                         </div>
                                         <input id="newPassword" type="password" name="newPassword" required
+                                            style="outline: none;"
                                             class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                     </div>
                                 </div>
@@ -323,6 +382,7 @@ $date_embauche = $_SESSION['date_embauche'] ?? '';
                                             <i class="fas fa-lock"></i>
                                         </div>
                                         <input id="confirmPassword" type="password" name="confirmPassword" required
+                                            style="outline: none;"
                                             class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                                     </div>
                                 </div>

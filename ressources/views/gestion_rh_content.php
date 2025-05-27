@@ -105,7 +105,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
             <div>
                 <!-- Onglet Personnel administratif -->
                 <?php if ($activeTab === 'pers_admin'): ?>
-                <div id="tab-pers-admin" class="flex flex-col">
+                <div id="tab_pers_admin" class="flex flex-col">
                     <?php if (!empty($messageSuccess)): ?>
                     <div id="success-message"
                         class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm mb-6"
@@ -234,7 +234,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <a href="?page=gestion_rh&tab=pers_admin&action=edit&id_pers_admin=<?= $admin->id_pers_admin ?>"
+                                                <a href="#"
+                                                    onclick="showModifyModal('pers_admin', <?= $admin->id_pers_admin ?>); return false;"
                                                     class="text-indigo-600 hover:text-indigo-900">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -329,6 +330,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                     </div>
                                 </div>
 
+
                                 <div class="flex justify-between space-x-4 pt-6 border-t border-gray-200">
                                     <a href="?page=gestion_rh&tab=pers_admin"
                                         class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors duration-200">
@@ -349,7 +351,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
 
                 <!-- Onglet Enseignants -->
                 <?php if ($activeTab === 'enseignant'): ?>
-                <div id="tab-enseignant" class="flex flex-col">
+                <div id="tab_enseignant" class="flex flex-col">
                     <?php if (!empty($messageSuccess)): ?>
                     <div id="success-message"
                         class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm mb-6"
@@ -392,8 +394,7 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                 class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50">
                                 <i class="fas fa-file-export mr-2"></i>Exporter
                             </button>
-                            <button type="button" onclick="showDeleteModal('enseignant', 'multiple')"
-                                id="deleteButtonEnseignant"
+                            <button type="button" onclick="showDeleteModal('enseignant')" id="deleteButtonEnseignant"
                                 class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled>
                                 <i class="fas fa-trash-alt mr-2"></i>Supprimer
@@ -485,7 +486,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <a href="?page=gestion_rh&tab=enseignant&action=edit&id_enseignant=<?= $enseignant->id_enseignant ?>"
+                                                <a href="#"
+                                                    onclick="showModifyModal('enseignant', <?= $enseignant->id_enseignant ?>); return false;"
                                                     class="text-indigo-600 hover:text-indigo-900">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -617,6 +619,23 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
                                             required>
                                     </div>
                                 </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label for="type_enseignant" class="block text-sm font-medium text-gray-700">
+                                            Type d'enseignant
+                                        </label>
+                                        <select name="type_enseignant" id="type_enseignant" required
+                                            class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                            <option value="Simple"
+                                                <?php echo ($enseignant_a_modifier && $enseignant_a_modifier->type_enseignant) ? 'selected' : ''; ?>>
+                                                Simple</option>
+                                            <option value="Administratif"
+                                                <?php echo ($enseignant_a_modifier && !$enseignant_a_modifier->type_enseignant) ? 'selected' : ''; ?>>
+                                                Administratif</option>
+                                        </select>
+                                    </div>
+
+                                </div>
 
                                 <div class="flex justify-between space-x-4 pt-6 border-t border-gray-200">
                                     <a href="?page=gestion_rh&tab=enseignant"
@@ -666,6 +685,11 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
         </div>
     </div>
 
+    <!-- Formulaire caché pour la suppression -->
+    <form id="delete-form" method="POST" style="display: none;">
+        <input type="hidden" name="selected_ids[]" id="delete_id">
+    </form>
+
     <!-- Modale de confirmation de modification -->
     <div id="modifyModal"
         class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
@@ -696,8 +720,8 @@ $enseignant_edit = $enseignant_a_modifier ?? null;
 </body>
 <script>
 // Variables globales pour les formulaires et les boutons
-const formListePersAdmin = document.querySelector('#tab-pers-admin form');
-const formListeEnseignant = document.querySelector('#tab-enseignant form');
+const formListePersAdmin = document.querySelector('#tab_pers_admin form');
+const formListeEnseignant = document.querySelector('#tab_enseignant form');
 
 // Variables pour le personnel administratif
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
@@ -729,7 +753,7 @@ function initializeCheckboxes(selectAllCheckbox, deleteButton, form) {
         form.addEventListener('change', function(e) {
             if (e.target.name === 'selected_ids[]') {
                 updateDeleteButtonState(deleteButton, form);
-                const allCheckboxes = form.querySelectorAll('input[name="selected_ids[]"]');
+                const allCheckboxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
                 const checkedBoxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
                 selectAllCheckbox.checked = checkedBoxes.length === allCheckboxes.length && allCheckboxes
                     .length > 0;
@@ -751,65 +775,31 @@ initializeCheckboxes(selectAllCheckbox, deleteButtonPersAdmin, formListePersAdmi
 initializeCheckboxes(selectAllCheckboxEnseignant, deleteButtonEnseignant, formListeEnseignant);
 
 // Gestion de la modale de suppression
-function showDeleteModal(type, id) {
+function showDeleteModal(type) {
     if (!deleteModal) return;
 
-    const form = document.getElementById('delete-form');
-    const deleteId = document.getElementById('delete_id');
+    const form = type === 'pers_admin' ? formListePersAdmin : formListeEnseignant;
+    const checkboxes = form.querySelectorAll('input[name="selected_ids[]"]:checked');
 
-    if (id === 'multiple') {
-        // Suppression multiple
-        const checkboxes = document.querySelectorAll(`#tab-${type} input[name="selected_ids[]"]:checked`);
-
-        if (checkboxes.length === 0) {
-            alert('Veuillez sélectionner au moins un élément à supprimer');
-            return;
-        }
-
-        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-        deleteId.value = selectedIds.join(',');
-    } else {
-        // Suppression simple
-        deleteId.value = id;
+    if (checkboxes.length === 0) {
+        alert('Veuillez sélectionner au moins un élément à supprimer');
+        return;
     }
 
-    form.action = `?page=gestion_rh&tab=${type}`;
     deleteModal.classList.remove('hidden');
 }
 
 // Gestion de la suppression
 if (confirmDelete) {
     confirmDelete.addEventListener('click', function() {
-        const form = document.getElementById('delete-form');
+        const activeTab = document.querySelector('.tab-button.border-green-500').getAttribute('href').split(
+            'tab=')[1];
+        const form = activeTab === 'pers_admin' ? formListePersAdmin : formListeEnseignant;
+
         if (form) {
-            const formData = new FormData(form);
-            const type = form.action.split('tab=')[1];
-            const ids = formData.get('selected_ids[]').split(',');
-
-            // Créer un formulaire temporaire pour la soumission
-            const tempForm = document.createElement('form');
-            tempForm.method = 'POST';
-            tempForm.action = `?page=gestion_rh&tab=${type}`;
-
-            // Ajouter les IDs sélectionnés
-            ids.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'selected_ids[]';
-                input.value = id;
-                tempForm.appendChild(input);
-            });
-
-            // Ajouter le bouton de soumission
-            const submitInput = document.createElement('input');
-            submitInput.type = 'hidden';
-            submitInput.name = 'submit_delete_multiple';
-            submitInput.value = '1';
-            tempForm.appendChild(submitInput);
-
-            // Ajouter le formulaire au document et le soumettre
-            document.body.appendChild(tempForm);
-            tempForm.submit();
+            const submitHidden = activeTab === 'pers_admin' ? submitDeletePersHidden : submitDeleteHidden;
+            submitHidden.value = '1';
+            form.submit();
         }
         deleteModal.classList.add('hidden');
     });
@@ -824,23 +814,9 @@ if (cancelDelete) {
 // Gestion de la modale de modification
 function showModifyModal(type, id) {
     if (!modifyModal) return;
-    modifyModal.classList.remove('hidden');
-}
 
-if (confirmModify) {
-    confirmModify.addEventListener('click', function() {
-        const form = document.querySelector(`#tab-${type} form`);
-        if (form) {
-            form.submit();
-        }
-        modifyModal.classList.add('hidden');
-    });
-}
-
-if (cancelModify) {
-    cancelModify.addEventListener('click', function() {
-        modifyModal.classList.add('hidden');
-    });
+    // Rediriger vers la page d'édition
+    window.location.href = `?page=gestion_rh&tab=${type}&action=edit&id_${type}=${id}`;
 }
 
 // Fermer les modales si on clique en dehors
@@ -855,7 +831,7 @@ window.addEventListener('click', function(e) {
 
 // Fonction pour exporter vers Excel
 function exportToExcel(type) {
-    const table = document.querySelector('table');
+    const table = document.querySelector(`#tab_${type} table`);
     const rows = Array.from(table.querySelectorAll('tr'));
 
     // Créer le contenu CSV
@@ -888,7 +864,7 @@ function exportToExcel(type) {
 // Fonction pour imprimer
 function printTable(type) {
     const printWindow = window.open('', '_blank');
-    const table = document.querySelector('table');
+    const table = document.querySelector(`#tab_${type} table`);
 
     // Création du contenu HTML pour l'impression
     const content = `
@@ -939,46 +915,6 @@ function printTable(type) {
     };
 }
 
-// Fonction de recherche
-function searchTable(inputId, tableId) {
-    const input = document.getElementById(inputId);
-    const table = document.getElementById(tableId);
-    const filter = input.value.toUpperCase();
-    const rows = table.querySelectorAll('tbody tr');
-
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let found = false;
-
-        cells.forEach(cell => {
-            const text = cell.textContent || cell.innerText;
-            if (text.toUpperCase().indexOf(filter) > -1) {
-                found = true;
-            }
-        });
-
-        row.style.display = found ? "" : "none";
-    });
-}
-
-// Écouteurs d'événements pour la recherche
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchInputEnseignant = document.getElementById('searchInputEnseignant');
-
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            searchTable('searchInput', 'tab-pers-admin');
-        });
-    }
-
-    if (searchInputEnseignant) {
-        searchInputEnseignant.addEventListener('keyup', function() {
-            searchTable('searchInputEnseignant', 'tab-enseignant');
-        });
-    }
-});
-
 // Gestion des messages temporisés
 document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.getElementById('success-message');
@@ -1002,6 +938,65 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => hideMessage(errorMessage), 3000);
     }
 });
+
+// Fonction de recherche
+function searchTable(inputId, type) {
+    const input = document.getElementById(inputId);
+    const table = document.querySelector(`#tab_${type} table`);
+    const filter = input.value.toUpperCase();
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+
+        cells.forEach(cell => {
+            const text = cell.textContent || cell.innerText;
+            if (text.toUpperCase().indexOf(filter) > -1) {
+                found = true;
+            }
+        });
+
+        row.style.display = found ? "" : "none";
+    });
+
+    // Mettre à jour l'état des checkboxes après la recherche
+    const selectAllCheckbox = document.getElementById(type === 'pers_admin' ? 'selectAllCheckbox' :
+        'selectAllCheckboxEnseignant');
+    const deleteButton = document.getElementById(type === 'pers_admin' ? 'deleteButtonPersAdmin' :
+        'deleteButtonEnseignant');
+    const form = type === 'pers_admin' ? formListePersAdmin : formListeEnseignant;
+
+    if (selectAllCheckbox && deleteButton && form) {
+        const visibleCheckboxes = form.querySelectorAll(
+            'tbody tr:not([style*="display: none"]) input[name="selected_ids[]"]');
+        const checkedVisibleBoxes = form.querySelectorAll(
+            'tbody tr:not([style*="display: none"]) input[name="selected_ids[]"]:checked');
+
+        selectAllCheckbox.checked = checkedVisibleBoxes.length === visibleCheckboxes.length && visibleCheckboxes
+            .length > 0;
+        deleteButton.disabled = checkedVisibleBoxes.length === 0;
+    }
+}
+
+// Écouteurs d'événements pour la recherche
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchInputEnseignant = document.getElementById('searchInputEnseignant');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            searchTable('searchInput', 'pers_admin');
+        });
+    }
+
+    if (searchInputEnseignant) {
+        searchInputEnseignant.addEventListener('keyup', function() {
+            searchTable('searchInputEnseignant', 'enseignant');
+        });
+    }
+});
 </script>
+</body>
 
 </html>

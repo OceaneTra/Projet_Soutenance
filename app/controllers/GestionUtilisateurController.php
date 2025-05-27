@@ -68,6 +68,8 @@ class GestionUtilisateurController
                         $messageErreur = "Tous les champs sont obligatoires.";
                     } else {
                         $mdp = $this->generateRandomPassword();
+                        $mdp_hash = password_hash($mdp, PASSWORD_DEFAULT);
+
                         if ($this->utilisateur->ajouterUtilisateur(
                             $nom_utilisateur,
                             $id_type_utilisateur,
@@ -75,18 +77,17 @@ class GestionUtilisateurController
                             $id_niveau_acces,
                             $statut_utilisateur,
                             $login_utilisateur,
-                            $mdp
+                            $mdp_hash
                         )) {
-                            $emailSent = $this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp);
-                            $messageSuccess = $emailSent ? 
-                                "Utilisateur ajouté avec succès et email envoyé." : 
-                                "Utilisateur ajouté avec succès mais l'envoi de l'email a échoué.";
-                        } else {
+                            if($this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp)){
+                                $messageSuccess = "Utilisateur ajouté avec succès et email envoyé.";
+                            }
+                         else {
                             $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
                         }
                     }
+                     }
                 }
-
                 // Modification d'un utilisateur
                 if (isset($_POST['btn_modifier_utilisateur'])) {
                     $id_utilisateur = $_POST['id_utilisateur'] ?? '';
@@ -110,7 +111,6 @@ class GestionUtilisateurController
                             $id_niveau_acces,
                             $statut_utilisateur,
                             $login_utilisateur,
-                            $mdp_utilisateur,
                             $id_utilisateur
                         )) {
                             $messageSuccess = "Utilisateur modifié avec succès.";
@@ -148,7 +148,6 @@ class GestionUtilisateurController
                         "Erreur lors de la désactivation des utilisateurs.";
                 }
             }
-
         } catch (Exception $e) {
             $messageErreur = "Erreur : " . $e->getMessage();
         }
@@ -163,6 +162,7 @@ class GestionUtilisateurController
         $GLOBALS['utilisateur_a_modifier'] = $utilisateur_a_modifier;
         $GLOBALS['action'] = $action;
     }
+
 
     // Fonction pour générer un mot de passe aléatoire
     function generateRandomPassword($length = 12)
@@ -256,16 +256,16 @@ class GestionUtilisateurController
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'oceanetl27@gmail.com';
-            $mail->Password = 'uuzxaeevsqicdxol';
+            $mail->Username = 'managersoutenance@gmail.com';
+            $mail->Password = 'iweglnpanhpkoqfe';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
             $mail->CharSet = 'UTF-8';
 
             // Destinataires
-            $mail->setFrom('oceanetl27@gmail.com', 'Soutenance Manager'); // Utiliser une adresse email valide
+            $mail->setFrom('managersoutenance@gmail.com', 'Soutenance Manager'); // Utiliser une adresse email valide
             $mail->addAddress($email, $nom);
-            $mail->addReplyTo('oceanetl27@gmail.com', 'Support technique');
+            $mail->addReplyTo('managersoutenance@gmail.com', 'Support technique');
 
             // Contenu
             $mail->isHTML(true);
