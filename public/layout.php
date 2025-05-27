@@ -1,14 +1,146 @@
 <?php
-include '../app/config/database.php';
-include '../app/models/MenuConfig.php';
 session_start();
-//
+// Inclure les fichiers nécessaires
+include '../app/config/database.php';
+include '../app/controllers/AuthController.php';
+include '../app/controllers/MenuController.php';
+include 'menu.php';
 
-//if (!isset($_SESSION['user_role'])) {
-//    header('Location: page_connexion.php');
-//    exit;
-//}
-$cardData = [
+
+//inclusion des routes
+include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
+
+// Si l'utilisateur n'est pas connecté, rediriger vers la page de login
+if (!isset($_SESSION['id_utilisateur'])) {
+    header('Location : page_connexion.php');
+    exit;
+}
+else {
+
+// Récupérer les traitements autorisés pour le groupe d'utilisateur
+$menuController = new MenuController();
+$traitements = $menuController->genererMenu($_SESSION['id_GU']);
+
+// Déterminer la page actuelle
+$currentMenuSlug = ''; // Page par défaut
+$currentPageLabel=''; // Label par défaut
+
+if (isset($_GET['page'])) {
+    // Vérifier que la page demandée est bien dans les traitements autorisés
+    foreach ($traitements as $traitement) {
+        if ($traitement['lib_traitement'] === $_GET['page']) {
+            $currentMenuSlug = $traitement['lib_traitement'];
+            $currentPageLabel = $traitement['label_traitement'];
+            break;
+        }
+    }
+}else{
+  $currentMenuSlug = $traitements[0]['lib_traitement'];
+    $currentPageLabel = $traitements[0]['label_traitement'];
+}
+
+// Générer le HTML du menu
+$menuView = new MenuView();
+$menuHTML = $menuView->afficherMenu($traitements, $currentMenuSlug);
+
+// Initialiser les variables
+$currentAction = null;
+$contentFile = '';
+
+
+$partialsBasePath= '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR ;
+
+    
+
+// Utilisation d'une structure switch...case 
+switch ($currentMenuSlug) {
+    case 'parametres_generaux':
+        include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php'; // ajuste le chemin selon ta structure
+        if (isset($_GET['action'])) {
+            $allowedActions = [
+                'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
+                'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
+                'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages','gestion_attribution',
+            ];
+            if (in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePath . 'parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
+                // Pour le label, vous voudrez peut-être un mapping plus précis
+                // que de simplement formater le slug de l'action.
+                // Par exemple, récupérer le titre de la carte correspondante.
+                // Pour l'instant, on formate le slug de l'action :
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            }
+        } else {
+                // Action non valide, afficher la page des cartes par défaut ou une erreur
+                $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
+                $currentPageLabel = 'Paramètres Généraux';
+                // Optionnel: afficher un message d'erreur pour action non valide
+            }
+    break;
+
+    case 'gestion_reclamations':
+        include __DIR__ . '/../ressources/routes/gestionReclamationsRouteur.php'; // Ajustez le chemin si nécessaire
+        
+        $allowedActions = ['soumettre_reclamation', 'suivi_reclamation', 'historique_reclamation'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath. 'gestion_reclamations/' . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
+            $currentPageLabel = 'Gestion des réclamations';
+        }
+        
+    break;
+
+    case 'gestion_rapport':
+        // Ajustez le chemin si nécessaire
+        
+        $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePath . 'gestion_rapport_content.php';
+            $currentPageLabel = 'Gestion des rapports';
+        }
+        // Logique pour les autres pages du menu principal (dashboard, users, etc.)
+        $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
+        
+    break;
+    
+    default:
+       
+   $groupeUtilisateur = $_SESSION['lib_GU'];
+
+
+        if($groupeUtilisateur) {
+            
+                $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
+             
+        }
+ 
+    // Vérification du fichier de contenu
+    if (empty($contentFile) || !file_exists($contentFile)) {
+        $contentFile = ''; // Réinitialiser si le fichier n'existe pas
+    }
+break;
+}
+
+
+
+
+
+// Tableau de données pour vos cartes avec des titres et descriptions personnalisés.
+// Chaque élément du tableau représente une carte pour .
+$cardPGeneraux = [
     [
         'title' => 'Années Académiques',
         'description' => 'Gérer les années académiques, les dates de début et de fin.',
@@ -105,64 +237,53 @@ $cardData = [
         'link' => '?page=parametres_generaux&action=messages',
         'icon' => './images/enveloppe.png'
     ],
+    [
+        'title' => 'Gestion des Attributions',
+        'description' => 'Gérer les attributions de traitement pour chacun des groupes utilisateurs dans le système.',
+        'link' => '?page=parametres_generaux&action=gestion_attribution',
+        'icon' => './images/attribution.png'
+    ],
 ];
 
-// Configuration des menus par rôle
-$menuConfigs =  new MenuConfig();
+$cardRapport = [
+    [
+        'title' => 'Soumettre une Réclamation',
+        'description' => 'Déposez une nouvelle réclamation en remplissant le formulaire dédié.',
+        'link' => '?page=gestion_reclamations&action=soumettre_reclamation', // Adaptez le lien
+        'icon' => 'fa-solid fa-circle-exclamation ', // Optionnel: vous pouvez ajouter une icône
+        'title_link' => 'Soumettre',
+        'bg_color' =>'bg-blue-300 ',
+        'text_color' => 'text-blue-500'
+    ],
+    [
+        'title' => 'Suivre mes Réclamations',
+        'description' => 'Consultez l\'état actuel de vos réclamations en cours.',
+        'link' => '?page=gestion_reclamations&action=suivi_reclamation',
+        'icon' => 'fa-solid fa-eye ',
+        'title_link' => 'Suivre',
+        'bg_color' =>'bg-yellow-500 ',
+        'text_color' =>'text-yellow-600'
+    ],
+    [
+        'title' => 'Historique des Réclamations',
+        'description' => 'Accédez à l\'historique complet de vos réclamations passées.',
+        'link' => '?page=gestion_reclamations&action=historique_reclamation',
+        'icon' => 'fa-solid fa-clock-rotate-left ',
+        'title_link' => 'Consulter',
+        'bg_color' =>'bg-purple-300 ',
+        'text_color' =>'text-purple-600'
+    ]
+];
 
-// Récupérer le rôle de l'utilisateur depuis la session
-$userRole = $_SESSION['user_role'] ?? 'admin';
-$menuItems = $menuConfigs->getMenuByRole($userRole) ?? [];
 
-// Déterminer la page actuelle
-$currentMenuSlug = isset($_GET['page']) && in_array($_GET['page'], array_column($menuItems, 'slug'))
-    ? $_GET['page']
-    : ($menuItems[0]['slug'] ?? 'dashboard');
-
-// Initialiser les variables
-$currentAction = null;
-$contentFile = '';
-$currentPageLabel = '';
-
-// Définir le chemin des vues en fonction du rôle
-$partialsBasePath = '..' . DIRECTORY_SEPARATOR . 'ressources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . $userRole . DIRECTORY_SEPARATOR;
-
-// Logique spécifique pour la section "Paramètres Généraux" de l'admin
-if ($userRole === 'admin' && $currentMenuSlug === 'parametres_generaux') {
-    include __DIR__ . '/../ressources/routes/parametreGenerauxRouteur.php';
-    if (isset($_GET['action'])) {
-        $allowedActions = [
-            'annees_academiques', 'grades', 'fonctions', 'fonction_utilisateur', 'specialites', 'niveaux_etude',
-            'ue', 'ecue', 'statut_jury', 'niveaux_approbation', 'semestres',
-            'niveaux_acces', 'traitements', 'entreprises', 'actions', 'fonctions_enseignants', 'messages',
-        ];
-        if (in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'partials/parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-        } else {
-            $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-            $currentPageLabel = 'Paramètres Généraux';
-        }
-    } else {
-        $contentFile = $partialsBasePath . 'parametres_generaux_content.php';
-        $currentPageLabel = 'Paramètres Généraux';
-    }
-} else {
-    // Logique pour les autres pages du menu principal
-    $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
-    foreach ($menuItems as $item) {
-        if ($item['slug'] === $currentMenuSlug) {
-            $currentPageLabel = $item['label'];
-            break;
-        }
-    }
 }
 
-// Si aucun label n'a été trouvé
-if (empty($currentPageLabel)) {
-    $currentPageLabel = "Soutenance Manager";
-}
+
+
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -180,58 +301,44 @@ if (empty($currentPageLabel)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+
 </head>
 
-<body class="bg-gray-50 font-sans antialiased">
+<body class=" bg-gray-100 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <div class="hidden md:flex md:flex-shrink-0">
+        <div class="hidden md:flex md:flex-shrink-0 ">
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
                 <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
                     <div class="flex overflow-hidden items-center">
-                        <a href="?page=<?php echo $menuItems[0]['slug']; ?>" class="text-green-500 font-bold text-xl">
-                            Soutenance Manager
-                        </a>
+
+                        <span class="text-green-500 font-bold text-xl">Soutenance Manager</span>
                     </div>
                 </div>
-
-                <!-- Menu dynamique -->
                 <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
                     <div class="space-y-2 pb-3">
-                        <?php foreach ($menuItems as $item): ?>
                         <?php
-                        $isActive = ($currentMenuSlug === $item['slug']);
-                        $linkBaseClasses = "flex items-center px-2 py-3 text-sm font-medium rounded-md group";
-                        $activeClasses = "text-white bg-green-500";
-                        $inactiveClasses = "text-gray-700 hover:text-gray-900 hover:bg-gray-100";
-                        $iconBaseClasses = "mr-3";
-                        $iconActiveClasses = "text-white";
-                        $iconInactiveClasses = "text-gray-400 group-hover:text-gray-500";
+                        // Afficher le menu généré
+                        echo $menuHTML;
                         ?>
-                        <a href="?page=<?php echo htmlspecialchars($item['slug']); ?>"
-                            class="<?php echo $linkBaseClasses . ' ' . ($isActive ? $activeClasses : $inactiveClasses); ?>">
-                            <i
-                                class="fas <?php echo htmlspecialchars($item['icon']); ?> <?php echo $iconBaseClasses . ' ' . ($isActive ? $iconActiveClasses : $iconInactiveClasses); ?>"></i>
-                            <?php echo htmlspecialchars($item['label']); ?>
-                        </a>
-                        <?php endforeach; ?>
-                        <a href="page_connexion.php"
+                        <form action="logout.php" method="POST" id="logoutForm"
                             class="flex items-center px-2 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 group">
-                            <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Déconnexion
-                        </a>
+                            <button type="submit" form="logoutForm">
+                                <i class="fas fa-power-off mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Déconnexion
+
+                            </button>
+                        </form>
+
+
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Top navigation -->
@@ -240,30 +347,63 @@ if (empty($currentPageLabel)) {
                     <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <a href="">
+                        <img src="./images/FHB.png" alt="Logo" class="h-8 w-8 mr-2">
+                    </a>
                     <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
                     </h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <button class="flex items-center space-x-2 focus:outline-none">
-                            <span class="text-m font-medium text-green-500">Bienvenue,
-                                <?php echo htmlspecialchars(ucfirst($userRole)); ?></span>
+                <div class="flex items-center space-x-6">
+                    <!-- Notifications -->
+                    <div class="tooltip">
+                        <button
+                            class="w-8 h-8 bg-green-300 rounded-full flex items-center justify-center text-white relative">
+                            <i class="fas fa-bell text-xs"></i>
+                            <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
                         </button>
+
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative flex flex-col ">
+                            <span class="text-md font-medium text-green-500">Bienvenue,
+                                <?php echo htmlspecialchars($_SESSION['nom_utilisateur']) ?></span>
+                            <span class="text-xs text-green-500 justify-start">
+                                <?php echo htmlspecialchars($_SESSION['lib_GU']) ?></span>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
                 <?php
-            // Bouton Retour si on est dans une action spécifique des paramètres généraux
-            if ($userRole === 'admin' && $currentMenuSlug === 'parametres_generaux' && $currentAction):
-                ?>
+                    // Déterminer le lien de retour
+                     $backLink = null;
+                     $backText = 'Retour';
+
+switch (true) {
+    case ($currentMenuSlug === 'parametres_generaux' && $currentAction):
+        $backLink = '?page=parametres_generaux';
+        $backText = 'Retour aux Paramètres';
+        break;
+        
+    case ($currentMenuSlug === 'gestion_rapport' && $currentAction):
+        $backLink = '?page=gestion_rapport';
+        break;
+        
+    case ($currentMenuSlug === 'gestion_reclamations' && $currentAction):
+        $backLink = '?page=gestion_reclamations';
+        break;
+}
+
+// Afficher le bouton si un lien de retour a été défini
+if ($backLink): ?>
                 <div class="mb-6">
-                    <a href="?page=parametres_generaux"
+                    <a href="<?= htmlspecialchars($backLink) ?>"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-500 transition-colors">
-                        <i class="fas fa-arrow-left mr-2 "></i>
-                        Retour aux Paramètres
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?= htmlspecialchars($backText) ?>
                     </a>
                 </div>
                 <?php endif; ?>
@@ -289,18 +429,20 @@ if (empty($currentPageLabel)) {
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuButton = document.getElementById('mobileMenuButton');
-        const sidebar = document.querySelector('.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64');
+        const mobileMenuButton = document.getElementById('mobileMenuButton'); // Utilisation de l'ID
+        const sidebar = document.querySelector(
+            '.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64'); // Sélecteur plus précis
 
         if (mobileMenuButton && sidebar) {
             mobileMenuButton.addEventListener('click', function() {
-                sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('absolute');
-                sidebar.classList.toggle('z-20');
+                sidebar.classList.toggle('hidden'); // Bascule la classe hidden sur la sidebar elle-même
+                // Si vous voulez que la sidebar se superpose sur mobile au lieu de pousser le contenu :
+                // sidebar.classList.toggle('absolute');
+                // sidebar.classList.toggle('z-20'); // Pour s'assurer qu'elle est au-dessus
             });
         }
 
-        // Animation pour les cartes de documents
+        // Le reste de votre JS pour les cartes et la cloche de notification peut rester ici
         const documentCards = document.querySelectorAll('.document-card');
         documentCards.forEach(card => {
             card.addEventListener('mouseenter', function() {
@@ -308,7 +450,6 @@ if (empty($currentPageLabel)) {
             });
         });
 
-        // Animation pour la cloche de notification
         const notificationBell = document.querySelector('.fa-bell');
         if (notificationBell) {
             notificationBell.addEventListener('click', function() {
@@ -320,6 +461,8 @@ if (empty($currentPageLabel)) {
         }
     });
     </script>
+    <script src="./js/suivi_reclamation.js"></script>
+    <script src="./js/historique_reclamation.js"></script>
 </body>
 
 </html>

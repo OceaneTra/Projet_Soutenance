@@ -1,90 +1,71 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-/**
- * Classe Specialite qui gère les opérations liées aux spécialités
- *
- * Cette classe étend DbModel pour bénéficier des méthodes génériques d'accès à la base de données.
- */
-class Specialite extends DbModel
+
+class Specialite
 {
-    /**
-     * Récupérer toutes les spécialités
-     * @return array Liste des spécialités
-     */
-    public function getAllSpecialites(): array
+    private $db;
+    private $id_specialite;
+    private $lib_specialite;
+
+    public function __construct($db)
     {
-        return $this->selectAll(
-            "SELECT * FROM specialite ORDER BY lib_specialite",
-            [],
-            true
-        );
+        $this->db = $db;
     }
 
-    /**
-     * Ajouter une nouvelle spécialité
-     * @param string $lib_specialite Le libellé de la spécialité
-     * @return bool|int L'ID de la spécialité créée ou false si échec
-     */
-    public function ajouterSpecialite(string $lib_specialite): bool|int
+    // Getters
+    public function getIdSpecialite()
     {
-        return $this->insert(
-            "INSERT INTO specialite (lib_specialite) VALUES (?)",
-            [$lib_specialite]
-        );
+        return $this->id_specialite;
     }
 
-    /**
-     * Modifier une spécialité
-     * @param int $id_specialite L'ID de la spécialité
-     * @param string $lib_specialite Le nouveau libellé de la spécialité
-     * @return bool Succès de la modification
-     */
-    public function updateSpecialite(int $id_specialite, string $lib_specialite): bool
+    public function getLibSpecialite()
     {
-        return $this->update(
-                "UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?",
-                [$lib_specialite, $id_specialite]
-            ) > 0;
+        return $this->lib_specialite;
     }
 
-    /**
-     * Supprimer une spécialité
-     * @param int $id_specialite L'ID de la spécialité à supprimer
-     * @return bool Succès de la suppression
-     */
-    public function deleteSpecialite(int $id_specialite): bool
+    // Setters
+    public function setIdSpecialite($id)
     {
-        return $this->delete(
-                "DELETE FROM specialite WHERE id_specialite = ?",
-                [$id_specialite]
-            ) > 0;
+        $this->id_specialite = $id;
     }
 
-    /**
-     * Récupérer une spécialité par son ID
-     * @param int $id_specialite L'ID de la spécialité
-     * @return object|null La spécialité trouvée ou null
-     */
-    public function getSpecialiteById(int $id_specialite): ?object
+    public function setLibSpecialite($lib)
     {
-        return $this->selectOne(
-            "SELECT * FROM specialite WHERE id_specialite = ?",
-            [$id_specialite],
-            true
-        );
+        $this->lib_specialite = $lib;
     }
 
-    /**
-     * Vérifier si une spécialité est utilisée
-     * @param int $id_specialite L'ID de la spécialité
-     * @return bool True si la spécialité est utilisée
-     */
-    public function isSpecialiteUtilisee(int $id_specialite): bool
+    // Méthodes CRUD
+    public function getAllSpecialites()
     {
-        $result = $this->selectOne(
-            "SELECT COUNT(*) as count FROM enseignants WHERE id_specialite = ?",
-            [$id_specialite]
-        );
-        return $result['count'] > 0;
+        $query = "SELECT * FROM specialite ORDER BY lib_specialite";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getSpecialiteById($id)
+    {
+        $query = "SELECT * FROM specialite WHERE id_specialite = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function ajouterSpecialite($lib)
+    {
+        $stmt = $this->db->prepare("INSERT INTO specialite (lib_specialite) VALUES (?)");
+        return $stmt->execute([$lib]);
+    }
+
+    public function updateSpecialite($id, $lib)
+    {
+        $stmt = $this->db->prepare("UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?");
+        return $stmt->execute([$lib, $id]);
+    }
+
+    public function deleteSpecialite($id)
+    {
+        $stmt = $this->db->prepare("DELETE FROM specialite WHERE id_specialite = ?");
+        return $stmt->execute([$id]);
     }
 }
