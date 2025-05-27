@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : sam. 24 mai 2025 à 12:11
+-- Généré le : mar. 27 mai 2025 à 21:27
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -105,7 +105,9 @@ CREATE TABLE `avoir` (
 
 INSERT INTO `avoir` (`id_grade`, `id_enseignant`, `date_grade`) VALUES
 (10, 2, '2023-06-05'),
-(6, 5, '2015-05-04');
+(12, 5, '2015-05-04'),
+(7, 7, '2022-05-04'),
+(7, 9, '2020-06-27');
 
 -- --------------------------------------------------------
 
@@ -167,18 +169,19 @@ CREATE TABLE `enseignants` (
   `nom_enseignant` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `prenom_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `mail_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `login_enseignant` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
-  `mdp_enseignant` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
-  `id_specialite` int NOT NULL
+  `id_specialite` int NOT NULL,
+  `type_enseignant` enum('Simple','Administratif') COLLATE utf8mb3_general_mysql500_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
 --
 -- Déchargement des données de la table `enseignants`
 --
 
-INSERT INTO `enseignants` (`id_enseignant`, `nom_enseignant`, `prenom_enseignant`, `mail_enseignant`, `login_enseignant`, `mdp_enseignant`, `id_specialite`) VALUES
-(2, 'Brou', 'Patrice', 'broupatrice21@yahoo.fr', NULL, NULL, 2),
-(5, 'Kouakou', 'Mathias', 'koukoumathias@gmail.com', NULL, NULL, 5);
+INSERT INTO `enseignants` (`id_enseignant`, `nom_enseignant`, `prenom_enseignant`, `mail_enseignant`, `id_specialite`, `type_enseignant`) VALUES
+(2, 'Brou', 'Patrice', 'angeaxelgomez@gmail.com', 2, 'Simple'),
+(5, 'Kouakou', 'Mathias', 'axelangegomez@gmail.com', 5, 'Simple'),
+(7, 'Koua', 'Brou', 'oceanetl27@gmail.com', 2, 'Simple'),
+(9, 'N\'golo', 'Konaté', 'ngolokonate@yahoo.fr', 2, 'Simple');
 
 -- --------------------------------------------------------
 
@@ -429,7 +432,9 @@ CREATE TABLE `occuper` (
 
 INSERT INTO `occuper` (`id_fonction`, `id_enseignant`, `date_occupation`) VALUES
 (5, 2, '2011-02-02'),
-(3, 5, '1999-01-02');
+(3, 5, '1999-01-02'),
+(5, 7, '2016-05-02'),
+(5, 9, '2018-05-01');
 
 -- --------------------------------------------------------
 
@@ -438,17 +443,23 @@ INSERT INTO `occuper` (`id_fonction`, `id_enseignant`, `date_occupation`) VALUES
 --
 
 CREATE TABLE `personnel_admin` (
-  `id_pers_admin` int NOT NULL AUTO_INCREMENT,
+  `id_pers_admin` int NOT NULL,
   `nom_pers_admin` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `prenom_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `email_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `tel_pers_admin` varchar(20) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `poste` varchar(30) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `date_embauche` date NOT NULL,
-  `login_pers_admin` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
-  `mdp_pers_admin` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
-  PRIMARY KEY (`id_pers_admin`)
+  `date_embauche` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
+
+--
+-- Déchargement des données de la table `personnel_admin`
+--
+
+INSERT INTO `personnel_admin` (`id_pers_admin`, `nom_pers_admin`, `prenom_pers_admin`, `email_pers_admin`, `tel_pers_admin`, `poste`, `date_embauche`) VALUES
+(2, 'Yah', 'Christine', 'yahchristine@gmail.com', '0748703738', 'Secrétaire de la filière MIAGE', '2013-02-05'),
+(6, 'N\'goran', 'Durand', 'soroemeric@gmail.com', '0759395841', 'Responsable scolarité', '2012-05-15'),
+(7, 'Seri', 'Marie Christine', 'noemietra27@gmail.com', '0711489473', 'Chargé de communication', '2013-02-12');
 
 -- --------------------------------------------------------
 
@@ -520,7 +531,9 @@ INSERT INTO `rattacher` (`id_GU`, `id_traitement`) VALUES
 (5, 11),
 (5, 9),
 (5, 19),
-(5, 10);
+(5, 10),
+(7, 16),
+(7, 19);
 
 -- --------------------------------------------------------
 
@@ -631,8 +644,8 @@ INSERT INTO `traitement` (`id_traitement`, `lib_traitement`, `label_traitement`,
 (13, 'gestion_rapport', 'Gestion des rapports', 'fa-file', 2),
 (15, 'notes_resultats', 'Notes & résultats', 'fa-note-sticky', 4),
 (16, 'messagerie', 'Messagerie', 'fa-envelope', 5),
-(17, 'profil_etudiant', 'Profil', 'fa-user', 6),
-(19, 'profil_admin', 'Profil', 'fa-user', 6),
+(17, 'profil_etudiant', 'Profil étudiant', 'fa-user', 6),
+(19, 'profil', 'Profil', 'fa-user', 6),
 (20, 'gestion_reclamations', 'Gestion des réclamations', 'fa-exclamation', 3);
 
 -- --------------------------------------------------------
@@ -703,8 +716,11 @@ CREATE TABLE `utilisateur` (
 --
 
 INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `id_type_utilisateur`, `id_GU`, `id_niv_acces_donnee`, `statut_utilisateur`, `login_utilisateur`, `mdp_utilisateur`) VALUES
-(5, 'Koua Brou', 5, 5, 5, 'Actif', 'oceanetl27@gmail.com', 'mdpParDefaut'),
-(6, 'Emmanuel Malan', 7, 13, 4, 'Actif', 'angeaxelgomez@gmail.com', 'mdpParDefaut');
+(5, 'Koua Brou', 5, 5, 5, 'Actif', 'oceanetl27@gmail.com', '$2y$10$5xegW5cpfo9paDNWYZHnsup7Qngf8JpejSPRxwVpmxCaxAGP.w4im'),
+(21, 'Seri Marie Christine', 4, 7, 5, 'Actif', 'noemietra27@gmail.com', '$2y$10$7wJ0eu/RsZRSNGb1ZK8ow.Bj.9vTM0Z.Kj9bYK4A6y0U44cv1gCse'),
+(23, 'N\'goran Durand', 4, 8, 5, 'Actif', 'soroemeric@gmail.com', '$2y$10$aDsR3u4x3IJczyna3CL6E./UGrRVk.e2g.w.mlpdMYKpknz1qmQ4m'),
+(27, 'Kouakou Mathias', 6, 12, 5, 'Actif', 'axelangegomez@gmail.com', '$2y$10$QXdyHw8Tky94eHKJY.Bw/OoQ/t9h1cNn/itHTZa7wgRHJxtKb9URC'),
+(28, 'Emmanuel Malan', 7, 13, 5, 'Actif', 'emmanuelmalan@yahoo.fr', 'Bk94k(V$_@+8');
 
 -- --------------------------------------------------------
 
@@ -998,7 +1014,7 @@ ALTER TABLE `ecue`
 -- AUTO_INCREMENT pour la table `enseignants`
 --
 ALTER TABLE `enseignants`
-  MODIFY `id_enseignant` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_enseignant` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `entreprises`
@@ -1058,7 +1074,7 @@ ALTER TABLE `niveau_etude`
 -- AUTO_INCREMENT pour la table `personnel_admin`
 --
 ALTER TABLE `personnel_admin`
-  MODIFY `id_pers_admin` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pers_admin` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `rapport_etudiants`
@@ -1106,7 +1122,7 @@ ALTER TABLE `ue`
 -- AUTO_INCREMENT pour la table `utilisateur`
 --
 ALTER TABLE `utilisateur`
-  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- Contraintes pour les tables déchargées
@@ -1172,7 +1188,7 @@ ALTER TABLE `faire_stage`
 -- Contraintes pour la table `inscrire`
 --
 ALTER TABLE `inscrire`
-  ADD CONSTRAINT `fk_inscrire_anneeAc` FOREIGN KEY (`id_annee_acad`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_inscrire_annee_acad` FOREIGN KEY (`id_annee_acad`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_inscrire_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_inscrire_niv_etude` FOREIGN KEY (`id_niv_etude`) REFERENCES `niveau_etude` (`id_niv_etude`) ON DELETE CASCADE ON UPDATE CASCADE;
 
