@@ -7,6 +7,7 @@ include '../app/controllers/MenuController.php';
 include 'menu.php';
 
 
+
 //inclusion des routes
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
@@ -98,8 +99,9 @@ switch ($currentMenuSlug) {
         
     break;
 
-    case 'gestion_rapport':
+    case 'gestion_rapports':
         // Ajustez le chemin si nécessaire
+        include __DIR__ . '/../ressources/routes/gestionRapportsRoutes.php';
         
         $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
         
@@ -109,11 +111,9 @@ switch ($currentMenuSlug) {
             $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
         } else {
             // Si aucune action valide n'est spécifiée, affichez la page par défaut
-            $contentFile = $partialsBasePath . 'gestion_rapport_content.php';
+            $contentFile = $partialsBasePath . 'gestion_rapports_content.php';
             $currentPageLabel = 'Gestion des rapports';
         }
-        // Logique pour les autres pages du menu principal (dashboard, users, etc.)
-        $contentFile = $partialsBasePath . $currentMenuSlug . '_content.php';
         
     break;
     
@@ -134,7 +134,6 @@ switch ($currentMenuSlug) {
     }
 break;
 }
-
 
 
 
@@ -246,7 +245,7 @@ $cardPGeneraux = [
     ],
 ];
 
-$cardRapport = [
+$cardReclamation = [
     [
         'title' => 'Soumettre une Réclamation',
         'description' => 'Déposez une nouvelle réclamation en remplissant le formulaire dédié.',
@@ -275,6 +274,8 @@ $cardRapport = [
         'text_color' =>'text-purple-600'
     ]
 ];
+
+
 
 
 }
@@ -389,8 +390,8 @@ switch (true) {
         $backText = 'Retour aux Paramètres';
         break;
         
-    case ($currentMenuSlug === 'gestion_rapport' && $currentAction):
-        $backLink = '?page=gestion_rapport';
+    case ($currentMenuSlug === 'gestion_rapports' && $currentAction):
+        $backLink = '?page=gestion_rapports';
         break;
         
     case ($currentMenuSlug === 'gestion_reclamations' && $currentAction):

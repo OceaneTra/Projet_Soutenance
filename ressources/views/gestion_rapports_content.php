@@ -28,7 +28,7 @@
                 <div class="mt-auto">
                     <button
                         class="bg-white text-indigo-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        <a href="?page=gestion_rapport&action=creer_rapport">Commencer</a>
+                        <a href="?page=gestion_rapports&action=creer_rapport">Commencer</a>
                     </button>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                 <div class="mt-auto">
                     <button
                         class="bg-white text-green-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 floating">
-                        <a href="?page=gestion_rapport&action=suivi_rapport">Consulter</a>
+                        <a href="?page=gestion_rapports&action=suivi_rapport">Consulter</a>
                     </button>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                 <div class="mt-auto">
                     <button
                         class="bg-white text-yellow-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        <a href="?page=gestion_rapport&action=compte_rendu_rapport"> Voir les retours</a>
+                        <a href="?page=gestion_rapports&action=compte_rendu_rapport"> Voir les retours</a>
 
                     </button>
                 </div>
@@ -158,53 +158,53 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 
 
-            // Animation au survol des boutons
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(button => {
-                button.addEventListener('mouseenter', () => {
-                    gsap.to(button, {
-                        scale: 1.05,
-                        duration: 0.3
-                    });
-                });
-
-                button.addEventListener('mouseleave', () => {
-                    gsap.to(button, {
-                        scale: 1,
-                        duration: 0.3
-                    });
+        // Animation au survol des boutons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                gsap.to(button, {
+                    scale: 1.05,
+                    duration: 0.3
                 });
             });
 
-            // Simulation de clic sur les cartes
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const title = this.querySelector('h3').textContent;
-                    const button = this.querySelector('button');
-
-                    // Animation de clic
-                    gsap.to(this, {
-                        scale: 0.95,
-                        duration: 0.1,
-                        onComplete: () => {
-                            gsap.to(this, {
-                                scale: 1,
-                                duration: 0.3
-                            });
-
-                            // Simulation de navigation ou d'ouverture de modal
-                            alert(
-                                `Section "${title}" - Cette fonctionnalité sera bientôt disponible`
-                            );
-                        }
-                    });
+            button.addEventListener('mouseleave', () => {
+                gsap.to(button, {
+                    scale: 1,
+                    duration: 0.3
                 });
             });
         });
+
+        // Simulation de clic sur les cartes
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('h3').textContent;
+                const button = this.querySelector('button');
+
+                // Animation de clic
+                gsap.to(this, {
+                    scale: 0.95,
+                    duration: 0.1,
+                    onComplete: () => {
+                        gsap.to(this, {
+                            scale: 1,
+                            duration: 0.3
+                        });
+
+                        // Simulation de navigation ou d'ouverture de modal
+                        alert(
+                            `Section "${title}" - Cette fonctionnalité sera bientôt disponible`
+                        );
+                    }
+                });
+            });
+        });
+    });
     </script>
 </body>
 
