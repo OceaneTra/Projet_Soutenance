@@ -116,8 +116,45 @@ switch ($currentMenuSlug) {
         }
         
     break;
-    
-    default:
+        case 'candidature_soutenance':
+             // Ajustez le chemin si nécessaire
+        include __DIR__ . '/../ressources/routes/candidatureSoutenanceRoutes.php';
+        
+        $allowedActions = ['simulateur_eligibilite', 'compte_rendu_etudiant'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath . 'candidature_soutenance/' . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePath . 'candidature_soutenance_content.php';
+                $currentPageLabel = 'Candidater pour la soutenance';
+        }
+
+
+            break;
+        case 'gestion_etudiants':
+
+                 // Ajustez le chemin si nécessaire
+        include __DIR__ . '/../ressources/routes/gestionEtudiantRoutes.php';
+        
+        $allowedActions = ['ajouter_des_etudiants', 'inscrire_des_etudiants'];
+        
+        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+            $currentAction = $_GET['action'];
+            $contentFile = $partialsBasePath . 'gestion_etudiants/' . $currentAction . '.php';
+            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        } else {
+            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            $contentFile = $partialsBasePath . 'gestion_etudiants_content.php';
+                $currentPageLabel = 'Gestion des étudiants';
+        }
+
+
+
+            break; 
+        default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];
 
@@ -396,6 +433,12 @@ switch (true) {
         
     case ($currentMenuSlug === 'gestion_reclamations' && $currentAction):
         $backLink = '?page=gestion_reclamations';
+        break;
+    case ($currentMenuSlug === 'candidature_soutenance' && $currentAction):
+        $backLink = '?page=candidature_soutenance';
+         break;
+    case ($currentMenuSlug === 'gestion_etudiants' && $currentAction):
+            $backLink = '?page=gestion_etudiants';
         break;
 }
 

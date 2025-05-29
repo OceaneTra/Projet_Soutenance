@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mar. 27 mai 2025 à 21:27
+-- Généré le : jeu. 29 mai 2025 à 00:21
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -517,7 +517,6 @@ CREATE TABLE `rattacher` (
 --
 
 INSERT INTO `rattacher` (`id_GU`, `id_traitement`) VALUES
-(8, 6),
 (13, 12),
 (13, 13),
 (13, 20),
@@ -533,7 +532,20 @@ INSERT INTO `rattacher` (`id_GU`, `id_traitement`) VALUES
 (5, 19),
 (5, 10),
 (7, 16),
-(7, 19);
+(7, 19),
+(11, 16),
+(11, 19),
+(12, 16),
+(12, 19),
+(9, 16),
+(9, 19),
+(10, 16),
+(10, 19),
+(8, 6),
+(8, 16),
+(8, 19),
+(6, 16),
+(6, 19);
 
 -- --------------------------------------------------------
 
@@ -634,19 +646,37 @@ CREATE TABLE `traitement` (
 
 INSERT INTO `traitement` (`id_traitement`, `lib_traitement`, `label_traitement`, `icone_traitement`, `ordre_traitement`) VALUES
 (5, 'dashboard', 'Tableau de bord', 'fa-home', 1),
-(6, 'gestion_etudiants', 'Gestion des étudiants', 'fa-book', 1),
+(6, 'gestion_etudiants', 'Gestion des étudiants', 'fa-book', 2),
 (7, 'gestion_utilisateurs', 'Gestion des utilisateurs', 'fa-user', 3),
 (8, 'gestion_rh', 'Gestion des ressources humaines', 'fa-users', 2),
 (9, 'piste_audit', 'Gestion de la piste', 'fa-history', 4),
 (10, 'sauvegarde_restauration', 'Sauvegarde et restauration des données', 'fa-save', 5),
 (11, 'parametres_generaux', 'Paramètres généraux', 'fa-gears', 6),
 (12, 'candidature_soutenance', 'Candidater à la soutenance', 'fa-graduation-cap', 1),
-(13, 'gestion_rapport', 'Gestion des rapports', 'fa-file', 2),
+(13, 'gestion_rapports', 'Gestion des rapports', 'fa-file', 2),
 (15, 'notes_resultats', 'Notes & résultats', 'fa-note-sticky', 4),
 (16, 'messagerie', 'Messagerie', 'fa-envelope', 5),
 (17, 'profil_etudiant', 'Profil étudiant', 'fa-user', 6),
 (19, 'profil', 'Profil', 'fa-user', 6),
-(20, 'gestion_reclamations', 'Gestion des réclamations', 'fa-exclamation', 3);
+(20, 'gestion_reclamations', 'Gestion des réclamations', 'fa-exclamation', 3),
+(23, 'dashboard_scolarite', 'Tableau de bord scolarité', 'fa-home', 1),
+(24, 'gestion_scolarite', 'Gestion de la scolarité', 'fa-money-bill', 3),
+(25, 'gestion_candidatures_soutenance', 'Gestion des candidatures de soutenance', 'fa-folder', 4),
+(26, 'gestion_notes_evaluations', 'Gestions des notes et évaluations', 'fa-note-sticky', 5),
+(27, 'dashboard_enseignant', 'Tableau de bord enseignant', 'fa-home', 1),
+(28, 'liste_etudiants_ens_simple', 'Liste des étudiants évalués', 'fa-users', 2),
+(29, 'liste_etudiants_resp_filiere', 'Liste des étudiants MIAGE', 'fa-users', 2),
+(30, 'liste_etudiants_resp_niveau', 'Liste des étudiants de mon niveau', 'fa-users', 2),
+(31, 'verification_candidatures_soutenance', 'Vérification des candidatures de soutenance', 'fa-certificate', 1),
+(32, 'gestion_dossiers_candidatures', 'Gestion des dossiers de candidature', 'fa-folder', 2),
+(33, 'dashboard_secretaire', 'Tableau de bord secrétariat', 'fa-home', 1),
+(34, 'dossiers_academiques', 'Dossiers académiques', 'fa-folder-open', 3),
+(35, 'dashboard_commission', 'Tableau de bord de la commission', 'fa-home', 1),
+(36, 'evaluations_dossiers_soutenance', 'Évaluation des dossiers de soutenance', 'fa-file-contract', 2),
+(37, 'analyse_rapports_etudiants', 'Analyse des rapports étudiants', 'fa-chart-line', 3),
+(38, 'processus_validation', 'Processus de validation des dossiers', 'fa-list-check', 3),
+(39, 'archives_dossiers_soutenance', 'Archives des dossiers de soutenance', 'fa-inbox', 5),
+(40, 'planification_reunion', 'Planification des réunions', 'fa-calendar-days', 6);
 
 -- --------------------------------------------------------
 
@@ -720,7 +750,7 @@ INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `id_type_utilisa
 (21, 'Seri Marie Christine', 4, 7, 5, 'Actif', 'noemietra27@gmail.com', '$2y$10$7wJ0eu/RsZRSNGb1ZK8ow.Bj.9vTM0Z.Kj9bYK4A6y0U44cv1gCse'),
 (23, 'N\'goran Durand', 4, 8, 5, 'Actif', 'soroemeric@gmail.com', '$2y$10$aDsR3u4x3IJczyna3CL6E./UGrRVk.e2g.w.mlpdMYKpknz1qmQ4m'),
 (27, 'Kouakou Mathias', 6, 12, 5, 'Actif', 'axelangegomez@gmail.com', '$2y$10$QXdyHw8Tky94eHKJY.Bw/OoQ/t9h1cNn/itHTZa7wgRHJxtKb9URC'),
-(28, 'Emmanuel Malan', 7, 13, 5, 'Actif', 'emmanuelmalan@yahoo.fr', 'Bk94k(V$_@+8');
+(31, 'Emmanuel Malan', 7, 13, 5, 'Actif', 'emmanuelmalan@yahoo.fr', '$2y$10$ItlAFtwUypLkJRYErsZxgONyJ2Aep96YT/Lg6zrdAs5PIiUgodG6m');
 
 -- --------------------------------------------------------
 
@@ -971,6 +1001,7 @@ ALTER TABLE `ue`
 --
 ALTER TABLE `utilisateur`
   ADD PRIMARY KEY (`id_utilisateur`),
+  ADD UNIQUE KEY `login_utilisateur` (`login_utilisateur`),
   ADD KEY `id_groupe_utilisateur` (`id_GU`),
   ADD KEY `id_niv_acces_donnee` (`id_niv_acces_donnee`),
   ADD KEY `id_type_utilisateur` (`id_type_utilisateur`);
@@ -1104,7 +1135,7 @@ ALTER TABLE `statut_jury`
 -- AUTO_INCREMENT pour la table `traitement`
 --
 ALTER TABLE `traitement`
-  MODIFY `id_traitement` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id_traitement` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT pour la table `type_utilisateur`
@@ -1122,7 +1153,7 @@ ALTER TABLE `ue`
 -- AUTO_INCREMENT pour la table `utilisateur`
 --
 ALTER TABLE `utilisateur`
-  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- Contraintes pour les tables déchargées

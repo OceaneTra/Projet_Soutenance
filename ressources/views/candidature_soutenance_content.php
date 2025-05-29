@@ -35,7 +35,8 @@
                     <p class="text-text-light mb-8 flex-grow text-lg leading-relaxed">Vérifiez si vous remplissez les
                         conditions requises pour candidater à la soutenance et obtenez un
                         aperçu instantané de votre statut.</p>
-                    <a href="#" class="card-btn">
+                    <a href="?page=candidature_soutenance&action=simulateur_eligibilite
+                    " class="card-btn">
                         <span>
                             Vérifier mon éligibilité
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -63,7 +64,7 @@
                     <p class="text-text-light mb-8 flex-grow text-lg leading-relaxed">Consultez le compte rendu détaillé
                         des évaluations et des recommandations formulées par les
                         membres de la commission suite à votre demande.</p>
-                    <a href="#" class="card-btn">
+                    <a href="?page=candidature_soutenance&action=compte_rendu_etudiant" class="card-btn">
                         <span>
                             Consulter mon compte rendu
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
