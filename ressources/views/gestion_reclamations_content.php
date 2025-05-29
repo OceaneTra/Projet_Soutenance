@@ -12,7 +12,7 @@
     <div class="container mx-auto py-10">
         <h1 class="text-3xl font-bold text-center text-green-800 mb-10">Gestion des Réclamations</h1>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <?php foreach ($cardRapport as $card): ?>
+            <?php foreach ($cardReclamation as $card): ?>
             <div
                 class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-75 transform hover:-translate-y-2 card">
                 <div
