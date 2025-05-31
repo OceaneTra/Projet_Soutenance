@@ -89,6 +89,22 @@ class Enseignant{
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
+    public function getEnseignantByLogin($login) {
+        $query = "SELECT e.*, f.lib_fonction,f.id_fonction, g.lib_grade, g.id_grade, s.lib_specialite,
+                        a.date_grade, o.date_occupation
+                 FROM enseignants e 
+                 LEFT JOIN avoir a ON e.id_enseignant = a.id_enseignant
+                 LEFT JOIN grade g ON a.id_grade = g.id_grade
+                 LEFT JOIN occuper o ON e.id_enseignant = o.id_enseignant
+                 LEFT JOIN fonction f ON o.id_fonction = f.id_fonction
+                 LEFT JOIN specialite s ON e.id_specialite = s.id_specialite 
+                 WHERE e.mail_enseignant = :login";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':login', $login);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
     public function ajouterEnseignant($nom, $prenom, $email, $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant) {
         try {
             $this->db->beginTransaction();

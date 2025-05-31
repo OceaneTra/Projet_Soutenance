@@ -54,7 +54,7 @@ class AuthController {
             if($type_utilisateur !== 'Etudiant'){
                 if($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif'){
                     // Récupérer les informations de l'enseignant
-                    $enseignant = $this->enseignantModel->getEnseignantById($infoUtilisateur['id_utilisateur']);
+                    $enseignant = $this->enseignantModel->getEnseignantByLogin($infoUtilisateur['login_utilisateur']);
                     if($enseignant) {
                         $_SESSION['specialite'] = $enseignant->lib_specialite;
                         $_SESSION['grade'] = $enseignant->lib_grade;
@@ -65,7 +65,7 @@ class AuthController {
                 }
                 else if($type_utilisateur === 'Personnel administratif'){
                     // Récupérer les informations du personnel administratif
-                    $persAdmin = $this->persAdminModel->getPersAdminById($infoUtilisateur['id_utilisateur']);
+                    $persAdmin = $this->persAdminModel->getPersAdminByLogin($infoUtilisateur['login_utilisateur']);
                     if($persAdmin) {
                         $_SESSION['telephone'] = $persAdmin->tel_pers_admin;
                         $_SESSION['poste'] = $persAdmin->poste;
