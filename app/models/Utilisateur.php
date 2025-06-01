@@ -481,9 +481,9 @@ class Utilisateur
 
     // Récupérer les étudiants non enregistrés comme utilisateurs
     public function getEtudiantsNonUtilisateurs() {
-        $query = "SELECT e.num_etu, e.nom_etu, e.prenom_etu, e.login_etu
+        $query = "SELECT e.num_etu, e.nom_etu, e.prenom_etu,e.email_etu
                  FROM etudiants e 
-                 LEFT JOIN utilisateur u ON e.login_etu = u.login_utilisateur 
+                 LEFT JOIN utilisateur u ON e.email_etu = u.login_utilisateur 
                  WHERE u.id_utilisateur IS NULL 
                  ORDER BY e.nom_etu, e.prenom_etu";
         $stmt = $this->db->prepare($query);

@@ -111,6 +111,7 @@ class GestionUtilisateurController
 
                 // Traitement de l'ajout en masse
                 if (isset($_POST['btn_add_multiple']) && !empty($_POST['selected_persons'])) {
+                
                     $utilisateurs = [];
                     $utilisateurModel = new Utilisateur(Database::getConnection());
                     
@@ -136,8 +137,8 @@ class GestionUtilisateurController
                                 break;
                             case 'etu':
                                 $etudiant = $utilisateurModel->getEtudiantById($id);
-                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->login_etu)) {
-                                    $login = $etudiant->login_etu;
+                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->email_etu)) {
+                                    $login = $etudiant->email_etu;
                                     $nom = $etudiant->nom_etu . ' ' . $etudiant->prenom_etu;
                                 }
                                 break;
@@ -167,17 +168,19 @@ class GestionUtilisateurController
                                     $utilisateur['login'],
                                     $utilisateur['mdp']
                                 )) {
-                                    $GLOBALS['messageSuccess'] = count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
+                                    $messageSuccess= count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
                                 } else {
-                                    $GLOBALS['messageErreur'] = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
+                                    $messageErreur = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
                                 }
                             }
                         } catch (Exception $e) {
-                            $GLOBALS['messageErreur'] = "Erreur lors de l'ajout en masse : " . $e->getMessage();
+                            $messageErreur = "Erreur lors de l'ajout en masse : " . $e->getMessage();
                         }
                     } else {
-                        $GLOBALS['messageErreur'] = "Aucun utilisateur valide à ajouter";
+                        $messageErreur= "Aucun utilisateur valide à ajouter";
                     }
+                
+
                 }
 
                 // Modification d'un utilisateur
@@ -211,6 +214,7 @@ class GestionUtilisateurController
                             $messageErreur = "Erreur lors de la modification de l'utilisateur.";
                         }
                     }
+                    
                 }
 
                 // Activation ou désactivation d'utilisateurs

@@ -9,24 +9,47 @@ $types_utilisateur =$GLOBALS['types_utilisateur'];
 $groupes_utilisateur =$GLOBALS['groupes_utilisateur'] ;
 
 
+// Calculer les statistiques sur l'ensemble des utilisateurs
+$allUtilisateurs = $GLOBALS['utilisateurs'] ?? [];
+$totalUtilisateurs = count($allUtilisateurs);
+$utilisateursActifs = count(array_filter($allUtilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
+$utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
+
 // Pagination
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+if (!empty($search)) {
+    $allUtilisateurs = array_filter($allUtilisateurs, function($utilisateur) use ($search) {
+        return stripos($utilisateur->nom_utilisateur, $search) !== false ||
+               stripos($utilisateur->prenom_utilisateur, $search) !== false ||
+               stripos($utilisateur->email_utilisateur, $search) !== false;
+    });
+}
 
 // Total pages calculation
-$total_items = count($utilisateurs);
+$total_items = count($allUtilisateurs);
 $total_pages = ceil($total_items / $limit);
 
+// Validation de la page courante
+if ($page < 1) {
+    $page = 1;
+} elseif ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
 // Slice the array for pagination
-$utilisateurs = array_slice($utilisateurs, $offset, $limit);
+$utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
 
 
-// Calculer les statistiques
-$totalUtilisateurs = count($utilisateurs);
-$utilisateursActifs = count(array_filter($utilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
-$utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
+
+
+
 
 ?>
 
@@ -81,28 +104,107 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             opacity: 0;
         }
     }
+
+    /* Animations pour la modale de chargement */
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Transition pour la modale */
+    .transform {
+        transition-property: transform, opacity;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+    }
+
+    .scale-95 {
+        transform: scale(0.95);
+    }
+
+    .scale-100 {
+        transform: scale(1);
+    }
+
+    .opacity-0 {
+        opacity: 0;
+    }
+
+    .opacity-100 {
+        opacity: 1;
+    }
+
+    @keyframes progress {
+        0% {
+            width: 0%;
+        }
+
+        50% {
+            width: 70%;
+        }
+
+        100% {
+            width: 100%;
+        }
+    }
+
+    .progress-bar {
+        animation: progress 2s ease-in-out infinite;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
     </style>
 
 </head>
 
 <body class="bg-gray-50">
 
-    <!-- Système de notification -->
-    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
-    <div id="successNotification" class="notification success animate__animated animate__fadeIn">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-2"></i>
-            <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
+    <!-- Container pour les notifications -->
+    <?php if (!empty($GLOBALS['messageSuccess']) || !empty($GLOBALS['messageErreur'])): ?>
+    <div class="fixed top-4 right-4 z-50 space-y-4">
+        <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+        <div class="notification success animate__animated animate__fadeIn">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
+            </div>
         </div>
-    </div>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if (!empty($GLOBALS['messageErreur'])): ?>
-    <div id="errorNotification" class="notification error animate__animated animate__fadeIn">
-        <div class="flex items-center">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+        <?php if (!empty($GLOBALS['messageErreur'])): ?>
+        <div class="notification error animate__animated animate__fadeIn">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+            </div>
         </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
     <div class="relative container mx-auto px-4 py-8">
@@ -158,7 +260,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                                     <?php foreach($etudiantsNonUtilisateurs as $etudiant): ?>
                                     <option
                                         value="<?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>"
-                                        data-login="<?php echo htmlspecialchars($etudiant->login_etu); ?>">
+                                        data-login="<?php echo htmlspecialchars($etudiant->email_etu); ?>">
                                         <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -282,7 +384,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </div>
                     <h3 class="text-2xl font-semibold text-gray-700">Ajout en masse d'utilisateurs</h3>
                 </div>
-                <form method="POST" action="?page=gestion_utilisateurs" class="space-y-4">
+                <form method="POST" action="?page=gestion_utilisateurs" class="space-y-4" id="userMasse">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-medium text-gray-700">
@@ -318,7 +420,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                             <p class="text-sm text-gray-500 mt-1">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs personnes
+                                Maintenez Shift ou Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs personnes
                             </p>
                         </div>
                         <div class="space-y-4">
@@ -377,7 +479,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </div>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-4">
+                    <div class="flex justify-between gap-4">
                         <button type="button" onclick="closeMasseModal()"
                             class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
                             <i class="fas fa-times mr-2"></i>Annuler
@@ -385,6 +487,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         <button type="submit" name="btn_add_multiple"
                             class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-users mr-2"></i>Ajouter en masse
+
                         </button>
                     </div>
                 </form>
@@ -441,7 +544,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
                     </a>
                     <a href="?page=gestion_utilisateurs&action=addMasse"
-                        class="bg-blue-500  text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+                        class="bg-blue-500  text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                         <i class="fas fa-plus mr-2"></i>Ajouter en masse
                     </a>
                 </div>
@@ -589,7 +692,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </div>
                     <div class="flex flex-wrap justify-center gap-2">
                         <?php if ($page > 1): ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             <i class="fas fa-chevron-left mr-1"></i>Précédent
                         </a>
@@ -600,24 +703,32 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         $end = min($total_pages, $page + 2);
                         
                         if ($start > 1) {
-                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            echo '<a href="?page=gestion_utilisateurs&p=1' . (!empty($search) ? '&search=' . urlencode($search) : '') . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>';
+                            if ($start > 2) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
                         }
                         
                         for ($i = $start; $i <= $end; $i++):
+                            $searchParam = !empty($search) ? '&search=' . urlencode($search) : '';
                         ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                            class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
+                        <a href="?page=gestion_utilisateurs&p=<?= $i ?><?= $searchParam ?>"
+                            class="btn-hover px-3 py-2 <?= $i === $page ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
                             <?= $i ?>
                         </a>
                         <?php endfor;
 
                         if ($end < $total_pages) {
-                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            if ($end < $total_pages - 1) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
+                            $searchParam = !empty($search) ? '&search=' . urlencode($search) : '';
+                            echo '<a href="?page=gestion_utilisateurs&p=' . $total_pages . $searchParam . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">' . $total_pages . '</a>';
                         }
                         ?>
 
                         <?php if ($page < $total_pages): ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             Suivant<i class="fas fa-chevron-right ml-1"></i>
                         </a>
@@ -766,19 +877,115 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     // Search functionality
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
-        const tableRows = document.querySelectorAll('#usersTableBody tr');
+        const tableBody = document.getElementById('usersTableBody');
+        let hasVisibleResults = false;
 
-        tableRows.forEach(row => {
-            const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-            const email = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+        // Récupérer tous les utilisateurs depuis PHP
+        const allUsers = <?php echo json_encode(array_map(function($user) {
+            return [
+                'id' => $user->id_utilisateur,
+                'username' => $user->nom_utilisateur,
+                'groupe' => $user->lib_GU,
+                'statut' => $user->statut_utilisateur,
+                'login' => $user->login_utilisateur
+            ];
+        }, $allUtilisateurs)); ?>;
 
-            if (username.includes(searchTerm) || email.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
+        // Si le champ de recherche est vide, recharger la page pour réinitialiser la pagination
+        if (searchTerm === '') {
+            window.location.href = '?page=gestion_utilisateurs';
+            return;
+        }
+
+        // Filtrer les utilisateurs
+        const filteredUsers = allUsers.filter(user =>
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.groupe.toLowerCase().includes(searchTerm) ||
+            user.statut.toLowerCase().includes(searchTerm) ||
+            user.login.toLowerCase().includes(searchTerm)
+        );
+
+        // Vider le tableau
+        tableBody.innerHTML = '';
+
+        if (filteredUsers.length > 0) {
+            hasVisibleResults = true;
+            // Ajouter les utilisateurs filtrés au tableau
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'table-row-hover';
+                row.innerHTML = `
+                    <td class="px-4 py-4 text-center">
+                        <input type="checkbox" name="selected_ids[]" value="${user.id}"
+                            class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <span>${user.username}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <span>${user.groupe}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <span>${user.statut}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                            ${user.login}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex justify-center space-x-3">
+                            <a href="?page=gestion_utilisateurs&action=edit&id_utilisateur=${user.id}"
+                                class="text-blue-500 hover:text-blue-700 transition-colors btn-icon"
+                                title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Gérer l'affichage du message "Aucun résultat"
+        if (!hasVisibleResults) {
+            const noResultsRow = document.createElement('tr');
+            noResultsRow.className = 'no-results';
+            noResultsRow.innerHTML = `
+                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-search text-gray-300 text-4xl mb-4"></i>
+                        <p>Aucun résultat trouvé pour "${searchTerm}"</p>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(noResultsRow);
+        }
+
+        // Mettre à jour la pagination
+        updatePagination();
     });
+
+    // Fonction pour mettre à jour la pagination
+    function updatePagination() {
+        const visibleRows = document.querySelectorAll('#usersTableBody tr:not(.no-results)');
+        const paginationContainer = document.querySelector('.pagination');
+
+        if (paginationContainer) {
+            if (visibleRows.length === 0) {
+                paginationContainer.style.display = 'none';
+            } else {
+                paginationContainer.style.display = 'flex';
+            }
+        }
+    }
 
     updatedisableButtonState();
     updateenableButtonState();
@@ -846,24 +1053,35 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
 
     // Fonction pour exporter en Excel
     function exportToExcel() {
-        const table = document.querySelector('table');
-        const rows = Array.from(table.querySelectorAll('tr'));
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        // Récupérer tous les utilisateurs depuis PHP
+        const allUsers = <?php echo json_encode(array_map(function($user) {
+            return [
+                'username' => $user->nom_utilisateur,
+                'groupe' => $user->lib_GU,
+                'statut' => $user->statut_utilisateur,
+                'login' => $user->login_utilisateur
+            ];
+        }, $allUtilisateurs)); ?>;
+
+        // Filtrer les utilisateurs si une recherche est active
+        const filteredUsers = searchTerm ? allUsers.filter(user =>
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.groupe.toLowerCase().includes(searchTerm) ||
+            user.statut.toLowerCase().includes(searchTerm) ||
+            user.login.toLowerCase().includes(searchTerm)
+        ) : allUsers;
 
         // Créer le contenu CSV
         let csvContent = "data:text/csv;charset=utf-8,";
 
         // Ajouter les en-têtes
-        const headers = Array.from(rows[0].querySelectorAll('th'))
-            .map(header => header.textContent.trim())
-            .filter(header => header !== ''); // Exclure la colonne des checkboxes
-        csvContent += headers.join(',') + '\n';
+        csvContent += "Nom d'utilisateur,Groupe utilisateur,Statut,Login\n";
 
         // Ajouter les données
-        rows.slice(1).forEach(row => {
-            const cells = Array.from(row.querySelectorAll('td'))
-                .slice(1, -1) // Exclure la colonne des checkboxes et des actions
-                .map(cell => `"${cell.textContent.trim()}"`);
-            csvContent += cells.join(',') + '\n';
+        filteredUsers.forEach(user => {
+            csvContent += `"${user.username}","${user.groupe}","${user.statut}","${user.login}"\n`;
         });
 
         // Créer le lien de téléchargement
@@ -879,26 +1097,30 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
 
     // Fonction pour imprimer
     function printTable() {
-        const table = document.querySelector('table');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        // Récupérer tous les utilisateurs depuis PHP
+        const allUsers = <?php echo json_encode(array_map(function($user) {
+            return [
+                'username' => $user->nom_utilisateur,
+                'groupe' => $user->lib_GU,
+                'statut' => $user->statut_utilisateur,
+                'login' => $user->login_utilisateur
+            ];
+        }, $allUtilisateurs)); ?>;
+
+        // Filtrer les utilisateurs si une recherche est active
+        const filteredUsers = searchTerm ? allUsers.filter(user =>
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.groupe.toLowerCase().includes(searchTerm) ||
+            user.statut.toLowerCase().includes(searchTerm) ||
+            user.login.toLowerCase().includes(searchTerm)
+        ) : allUsers;
+
         const printWindow = window.open('', '_blank');
 
-        // Créer une copie de la table pour la modification
-        const tableClone = table.cloneNode(true);
-
-        // Supprimer les colonnes ID, Actions et Checkboxes
-        const rows = tableClone.querySelectorAll('tr');
-        rows.forEach(row => {
-            // Supprimer la colonne des checkboxes (première colonne)
-            const checkboxCell = row.querySelector('th:first-child, td:first-child');
-            if (checkboxCell) checkboxCell.remove();
-
-
-            // Supprimer la colonne Actions (dernière colonne)
-            const actionCell = row.querySelector('th:last-child, td:last-child');
-            if (actionCell) actionCell.remove();
-        });
-
-        printWindow.document.write(`
+        // Créer le HTML pour l'impression
+        const tableHTML = `
             <html>
                 <head>
                     <title>Liste des utilisateurs</title>
@@ -913,11 +1135,31 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                 </head>
                 <body>
                     <h2>Liste des utilisateurs</h2>
-                    ${tableClone.outerHTML}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom d'utilisateur</th>
+                                <th>Groupe utilisateur</th>
+                                <th>Statut</th>
+                                <th>Login</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredUsers.map(user => `
+                                <tr>
+                                    <td>${user.username}</td>
+                                    <td>${user.groupe}</td>
+                                    <td>${user.statut}</td>
+                                    <td>${user.login}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </body>
             </html>
-        `);
+        `;
 
+        printWindow.document.write(tableHTML);
         printWindow.document.close();
         printWindow.focus();
         printWindow.print();
@@ -929,7 +1171,14 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     document.addEventListener('DOMContentLoaded', function() {
         const successNotification = document.getElementById('successNotification');
         const errorNotification = document.getElementById('errorNotification');
+        const loader = document.getElementById('loaderOverlay');
 
+        // Masquer le loader si présent
+        if (loader) {
+            loader.classList.add('hidden');
+        }
+
+        // Afficher les notifications existantes
         if (successNotification) {
             setTimeout(() => {
                 successNotification.classList.remove('animate__fadeIn');
@@ -1154,10 +1403,106 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             });
         }
     });
+
+    // Gestion du formulaire d'ajout en masse
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded');
+
+        const form = document.getElementById('userMasse');
+        console.log('Form found:', form);
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+
+                const addMultipleButton = this.querySelector('button[name="btn_add_multiple"]');
+                console.log('Add multiple button:', addMultipleButton);
+
+                if (addMultipleButton) {
+                    console.log('Creating loader');
+                    // Créer et afficher le loader
+                    const loader = document.createElement('div');
+                    loader.id = 'loader';
+                    loader.innerHTML = `
+                        <div class="fixed inset-0 shadow-2xl bg-opacity-50 flex items-center justify-center z-50">
+                            <div class="bg-white rounded-lg p-6 max-w-xs w-full mx-4 shadow-2xl">
+                                <div class="text-center">
+                                    <div class="inline-block relative">
+                                        <div class="w-12 h-12 border-3 border-green-200 rounded-full"></div>
+                                        <div class="w-12 h-12 border-3 border-green-500 rounded-full absolute top-0 left-0 animate-spin border-t-transparent"></div>
+                                    </div>
+                                    <h3 class="mt-3 text-base font-medium text-gray-900">Traitement en cours</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Ajout des utilisateurs...</p>
+                                    <div class="mt-3">
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-green-500 h-1.5 rounded-full progress-bar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(loader);
+                    console.log('Loader added to DOM');
+
+                    // Masquer le loader quand la modale d'ajout en masse se ferme
+                    const masseModal = document.getElementById('userMasseModal');
+                    console.log('Masse modal:', masseModal);
+
+                    if (masseModal) {
+                        const observer = new MutationObserver(function(mutations) {
+                            mutations.forEach(function(mutation) {
+                                if (mutation.target.classList.contains('hidden')) {
+                                    console.log('Modal hidden, removing loader');
+                                    const loader = document.getElementById('loader');
+                                    if (loader) {
+                                        loader.remove();
+                                    }
+                                }
+                            });
+                        });
+
+                        observer.observe(masseModal, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+                    }
+
+                    // Vérifier les messages toutes les 100ms
+                    const checkForMessages = setInterval(() => {
+                        console.log('Checking for messages...');
+                        const successMessage =
+                            <?= json_encode($GLOBALS['messageSuccess'] ?? '') ?>;
+                        const errorMessage =
+                            <?= json_encode($GLOBALS['messageErreur'] ?? '') ?>;
+
+                        if (successMessage || errorMessage) {
+                            console.log('Message found:', successMessage || errorMessage);
+                            const loader = document.getElementById('loader');
+                            if (loader) {
+                                loader.remove();
+                            }
+                            clearInterval(checkForMessages);
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        // Masquer les notifications après 5 secondes
+        const notifications = document.querySelectorAll('.notification');
+        notifications.forEach(notification => {
+            setTimeout(() => {
+                notification.classList.remove('animate__fadeIn');
+                notification.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
     </script>
-    <?php
-    unset($_SESSION['messageSucces'], $_SESSION['messageErreur']);
-    ?>
+
 </body>
 
 </html>
