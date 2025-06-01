@@ -104,13 +104,13 @@ class Scolarite {
     }
 
     // Modifier une inscription
-    public function modifierInscription($id_inscription, $id_niveau, $montant_premier_versement) {
+    public function modifierInscription($id_inscription, $id_niveau, $id_annee_acad,$montant_premier_versement,$nombre_tranches) {
         $this->db->beginTransaction();
         try {
             // Mettre à jour l'inscription
-            $query = "UPDATE inscriptions SET id_niveau = ?, date_modification = NOW() WHERE id_inscription = ?";
+            $query = "UPDATE inscriptions SET id_niveau = ?, id_annee_acad = ?, nombre_tranche = ?  WHERE id_inscription = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$id_niveau, $id_inscription]);
+            $stmt->execute([$id_niveau,$id_annee_acad,$nombre_tranches, $id_inscription]);
 
             // Mettre à jour le premier versement
             $query = "UPDATE versements SET montant = ? WHERE id_inscription = ? AND type_versement = 'Premier versement'";
@@ -152,5 +152,19 @@ class Scolarite {
             $this->db->rollBack();
             throw $e;
         }
+    }
+
+    // Récupérer une inscription par son ID
+    public function getInscriptionById($id_inscription) {
+        $query = "SELECT i.*, n.lib_niv_etude as nom_niveau, n.montant_scolarite as montant_total, 
+                        a.date_deb, a.date_fin, v.montant as montant_premier_versement 
+                 FROM inscriptions i 
+                 JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
+                 JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad 
+                 LEFT JOIN versements v ON i.id_inscription = v.id_inscription AND v.type_versement = 'Premier versement'
+                 WHERE i.id_inscription = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id_inscription]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 } 

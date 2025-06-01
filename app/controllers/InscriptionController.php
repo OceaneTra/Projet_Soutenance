@@ -33,6 +33,14 @@ class InscriptionController {
             $GLOBALS['etudiantInfo'] = $this->scolarite->getInfoEtudiant($_GET['num_etu']);
         }
 
+        // Si on est en mode modification, récupérer les informations de l'inscription
+        if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'modifier' && isset($_GET['id'])) {
+            $GLOBALS['inscriptionAModifier'] = $this->scolarite->getInscriptionById($_GET['id']);
+            if ($GLOBALS['inscriptionAModifier']) {
+                $GLOBALS['etudiantInfo'] = $this->scolarite->getInfoEtudiant($GLOBALS['inscriptionAModifier']['id_etudiant']);
+            }
+        }
+
         // Traiter la soumission du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['action'])) {
@@ -116,12 +124,13 @@ class InscriptionController {
             }
 
             $id_inscription = $_POST['id_inscription'];
+            $id_annee_acad = $_POST['annee_academique'];
             $id_niveau = $_POST['niveau'];
             $montant_premier_versement = floatval($_POST['premier_versement']);
             $nombre_tranches = isset($_POST['nombre_tranches']) ? intval($_POST['nombre_tranches']) : 1;
 
             // Mettre à jour l'inscription
-            if ($this->scolarite->modifierInscription($id_inscription, $id_niveau, $montant_premier_versement)) {
+            if ($this->scolarite->modifierInscription($id_inscription, $id_niveau,$id_annee_acad,$montant_premier_versement,$nombre_tranches)) {
                 // Supprimer les anciennes échéances
                 $this->scolarite->supprimerEcheances($id_inscription);
 
@@ -151,6 +160,10 @@ class InscriptionController {
         try {
             if (empty($_POST['id_inscription'])) {
                 $_SESSION['error'] = "ID d'inscription manquant.";
+                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                    echo json_encode(['success' => false, 'message' => "ID d'inscription manquant."]);
+                    exit;
+                }
                 return;
             }
 
@@ -162,11 +175,23 @@ class InscriptionController {
             // Puis supprimer l'inscription
             if ($this->scolarite->supprimerInscription($id_inscription)) {
                 $_SESSION['success'] = "Inscription supprimée avec succès.";
+                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                    echo json_encode(['success' => true]);
+                    exit;
+                }
             } else {
                 $_SESSION['error'] = "Erreur lors de la suppression de l'inscription.";
+                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                    echo json_encode(['success' => false, 'message' => "Erreur lors de la suppression de l'inscription."]);
+                    exit;
+                }
             }
         } catch (Exception $e) {
             $_SESSION['error'] = "Une erreur est survenue : " . $e->getMessage();
+            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                exit;
+            }
         }
     }
 

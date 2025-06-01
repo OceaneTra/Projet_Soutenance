@@ -199,7 +199,12 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             </div>
             <div class="p-6">
                 <form id="inscriptionForm" method="POST" action="?page=gestion_etudiants&action=inscrire_des_etudiants">
-                    <input type="hidden" name="action" value="inscrire">
+                    <input type="hidden" name="action"
+                        value="<?php echo isset($GLOBALS['inscriptionAModifier']) ? 'modifier' : 'inscrire'; ?>">
+                    <?php if (isset($GLOBALS['inscriptionAModifier'])): ?>
+                    <input type="hidden" name="id_inscription"
+                        value="<?php echo $GLOBALS['inscriptionAModifier']['id_inscription']; ?>">
+                    <?php endif; ?>
                     <!-- Section Année académique -->
                     <div
                         class="mb-8 border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
@@ -218,7 +223,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     id="annee_academique" name="annee_academique" required>
                                     <option value="">Choisir une année académique...</option>
                                     <?php foreach ($GLOBALS['listeAnnees'] as $annee): ?>
-                                    <option value="<?php echo $annee->id_annee_acad; ?>">
+                                    <option value="<?php echo $annee->id_annee_acad; ?>"
+                                        <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['id_annee_acad'] == $annee->id_annee_acad) ? 'selected' : ''; ?>>
                                         <?php echo date('Y', strtotime($annee->date_deb)) . ' - ' . date('Y', strtotime($annee->date_fin)); ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -240,11 +246,12 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     un étudiant</label>
                                 <select
                                     class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
-                                    id="etudiant" name="etudiant" required>
+                                    id="etudiant" name="etudiant"
+                                    <?php isset($GLOBALS['inscriptionAModifier']) &&isset($_GET['id']) ? '' : 'required' ;?>>
                                     <option value="">Choisir un étudiant...</option>
                                     <?php foreach ($etudiantsNonInscrits as $etudiant): ?>
                                     <option value="<?php echo $etudiant['num_etu']; ?>"
-                                        <?php echo (isset($_GET['num_etu']) && $_GET['num_etu'] == $etudiant['num_etu']) ? 'selected' : ''; ?>>
+                                        <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['id_etudiant'] == $etudiant['num_etu']) ? 'selected' : ''; ?>>
                                         <?php echo $etudiant['num_etu'] . ' - ' . $etudiant['nom_etu'] . ' ' . $etudiant['prenom_etu']; ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -260,7 +267,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     <?php foreach ($niveaux as $niveau): ?>
                                     <option value="<?php echo $niveau['id_niv_etude']; ?>"
                                         data-montant-total="<?php echo $niveau['montant_scolarite']; ?>"
-                                        data-montant-inscription="<?php echo $niveau['montant_inscription']; ?>">
+                                        data-montant-inscription="<?php echo $niveau['montant_inscription']; ?>"
+                                        <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['id_niveau'] == $niveau['id_niv_etude']) ? 'selected' : ''; ?>>
                                         <?php echo $niveau['lib_niv_etude']; ?> -
                                         <?php echo number_format($niveau['montant_scolarite'], 2); ?> FCFA
                                     </option>
@@ -324,11 +332,12 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                         id="montant_total" readonly>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1">Premier versement
-                                    </label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Premier
+                                        versement</label>
                                     <input type="number"
                                         class="w-full pl-3 h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
-                                        id="premier_versement" name="premier_versement" required>
+                                        id="premier_versement" name="premier_versement" required
+                                        value="<?php echo isset($GLOBALS['inscriptionAModifier']) ? $GLOBALS['inscriptionAModifier']['montant_premier_versement'] : ''; ?>">
                                 </div>
                             </div>
                             <div
@@ -345,22 +354,48 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     <select
                                         class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
                                         id="nombre_tranches" name="nombre_tranches">
-                                        <option value="1">1 tranche</option>
-                                        <option value="2">2 tranches</option>
-                                        <option value="3">3 tranches</option>
-                                        <option value="4">4 tranches</option>
+                                        <option value="1"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['nombre_tranche'] == 1) ? 'selected' : ''; ?>>
+                                            1 tranche</option>
+                                        <option value="2"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['nombre_tranche'] == 2) ? 'selected' : ''; ?>>
+                                            2 tranches</option>
+                                        <option value="3"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['nombre_tranche'] == 3) ? 'selected' : ''; ?>>
+                                            3 tranches</option>
+                                        <option value="4"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['nombre_tranche'] == 4) ? 'selected' : ''; ?>>
+                                            4 tranches</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <?php if(isset($GLOBALS['inscriptionAModifier'])) : ?>
+                    <div class="flex justify-between">
+                        <button type="button" name="btn_annuler_insciption" id="btnAnnuler"
+                            onclick="window.location.href='?page=gestion_etudiants&action=inscrire_des_etudiants'"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>Annuler
+                        </button>
 
-                    <div class="flex justify-end">
-                        <button type="submit" name="btn_add_insciption" id="inscription"
+                        <button type="submit" name="btn_modifier_insciption" id="edit_inscription"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i>Modifier l'inscription
+                        </button>
+                    </div>
+
+                    <?php else : ?>
+                    <div class="flex justify-between">
+                        <div>
+                        </div>
+                        <button type="submit" name="btn_add_insciption" id="add_inscription"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-save mr-2"></i>Enregistrer l'inscription
                         </button>
                     </div>
+                    <?php endif ?>
+
                 </form>
             </div>
         </div>
@@ -382,7 +417,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <input type="text" id="searchInput" style="outline-color:none;"
+                        <input type="text" id="searchInput"
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent sm:text-sm"
                             placeholder="Rechercher un étudiant...">
                     </div>
@@ -495,14 +530,19 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                     </p>
                 </div>
                 <div class="items-center px-4 py-3">
-                    <button id="confirmerBtn"
-                        class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                        Confirmer
-                    </button>
-                    <button onclick="fermerModal()"
-                        class="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                        Annuler
-                    </button>
+                    <form id="formSuppression" method="POST"
+                        action="?page=gestion_etudiants&action=inscrire_des_etudiants">
+                        <input type="hidden" name="action" value="supprimer">
+                        <input type="hidden" name="id_inscription" id="idInscriptionASupprimer">
+                        <button type="submit" id="confirmerBtn"
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            Confirmer
+                        </button>
+                        <button type="button" onclick="fermerModal()"
+                            class="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            Annuler
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -771,6 +811,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         window.confirmerSuppression = function(idInscription, nomEtudiant) {
             inscriptionASupprimer = idInscription;
             document.getElementById('nomEtudiant').textContent = nomEtudiant;
+            document.getElementById('idInscriptionASupprimer').value = idInscription;
             document.getElementById('modalSuppression').classList.remove('hidden');
         };
 
@@ -781,10 +822,37 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         };
 
         // Gestionnaire de confirmation de suppression
-        document.getElementById('confirmerBtn').addEventListener('click', function() {
+        document.getElementById('confirmerBtn').addEventListener('click', function(e) {
+            e.preventDefault();
             if (inscriptionASupprimer) {
-                window.location.href =
-                    `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=supprimer&id=${inscriptionASupprimer}`;
+                const form = document.getElementById('formSuppression');
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Supprimer la ligne de la table
+                            removeInscriptionRow(inscriptionASupprimer);
+                            // Fermer le modal
+                            fermerModal();
+                            // Afficher le message de succès
+                            showMessage(document.getElementById('successMessage'));
+                        } else {
+                            // Afficher le message d'erreur
+                            showMessage(document.getElementById('errorMessage'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        showMessage(document.getElementById('errorMessage'));
+                    });
             }
         });
 
