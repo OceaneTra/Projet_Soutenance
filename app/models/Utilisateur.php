@@ -514,11 +514,12 @@ class Utilisateur
     public function ajouterUtilisateursEnMasse($utilisateurs) {
         $this->db->beginTransaction();
         try {
+            $utilisateursAjoutes = [];
             foreach ($utilisateurs as $utilisateur) {
                 $mdp = $this->generateRandomPassword();
                 $mdp_hash = password_hash($mdp, PASSWORD_DEFAULT);
                 
-                if (!$this->ajouterUtilisateur(
+                if ($this->ajouterUtilisateur(
                     $utilisateur['nom'],
                     $utilisateur['id_type'],
                     $utilisateur['id_groupe'],
@@ -527,15 +528,45 @@ class Utilisateur
                     $utilisateur['login'],
                     $mdp_hash
                 )) {
+                    $utilisateursAjoutes[] = [
+                        'nom' => $utilisateur['nom'],
+                        'login' => $utilisateur['login'],
+                        'mdp' => $mdp
+                    ];
+                } else {
                     throw new Exception("Erreur lors de l'ajout de l'utilisateur " . $utilisateur['nom']);
                 }
             }
             $this->db->commit();
-            return true;
+            return $utilisateursAjoutes;
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;
         }
+    }
+
+    // Récupérer un enseignant par son ID
+    public function getEnseignantById($id) {
+        $sql = "SELECT * FROM enseignants WHERE id_enseignant = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer un membre du personnel par son ID
+    public function getPersonnelById($id) {
+        $sql = "SELECT * FROM personnel_admin WHERE id_pers_admin = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer un étudiant par son ID
+    public function getEtudiantById($id) {
+        $sql = "SELECT * FROM etudiants WHERE num_etu = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
 }

@@ -109,71 +109,74 @@ class GestionUtilisateurController
                     }
                 }
 
-                // Ajout en masse d'utilisateurs
-                if (isset($_POST['btn_add_multiple'])) {
-                    $selected_ids = $_POST['selected_persons'] ?? [];
-                    $id_type_utilisateur = $_POST['id_type_utilisateur'] ?? '';
-                    $id_GU = $_POST['id_GU'] ?? '';
-                    $id_niveau_acces = $_POST['id_niveau_acces'] ?? '';
-                    $statut_utilisateur = $_POST['statut_utilisateur'] ?? '';
-
-                    if (empty($selected_ids) || empty($id_type_utilisateur) || empty($id_GU) || 
-                        empty($id_niveau_acces) || empty($statut_utilisateur)) {
-                        $messageErreur = "Tous les champs sont obligatoires.";
+                // Traitement de l'ajout en masse
+                if (isset($_POST['btn_add_multiple']) && !empty($_POST['selected_persons'])) {
+                    $utilisateurs = [];
+                    $utilisateurModel = new Utilisateur(Database::getConnection());
+                    
+                    foreach ($_POST['selected_persons'] as $person) {
+                        list($type, $id) = explode('_', $person);
+                        $login = '';
+                        $nom = '';
+                        
+                        switch ($type) {
+                            case 'ens':
+                                $enseignant = $utilisateurModel->getEnseignantById($id);
+                                if ($enseignant && !$utilisateurModel->isLoginUsed($enseignant->mail_enseignant)) {
+                                    $login = $enseignant->mail_enseignant;
+                                    $nom = $enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant;
+                                }
+                                break;
+                            case 'pers':
+                                $personnel = $utilisateurModel->getPersonnelById($id);
+                                if ($personnel && !$utilisateurModel->isLoginUsed($personnel->email_pers_admin)) {
+                                    $login = $personnel->email_pers_admin;
+                                    $nom = $personnel->nom_pers_admin . ' ' . $personnel->prenom_pers_admin;
+                                }
+                                break;
+                            case 'etu':
+                                $etudiant = $utilisateurModel->getEtudiantById($id);
+                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->login_etu)) {
+                                    $login = $etudiant->login_etu;
+                                    $nom = $etudiant->nom_etu . ' ' . $etudiant->prenom_etu;
+                                }
+                                break;
+                        }
+                        
+                        if ($login && $nom) {
+                            $utilisateurs[] = [
+                                'nom' => $nom,
+                                'login' => $login,
+                                'id_type' => $_POST['id_type_utilisateur'],
+                                'id_groupe' => $_POST['id_GU'],
+                                'id_niveau' => $_POST['id_niveau_acces'],
+                                'statut' => $_POST['statut_utilisateur']
+                            ];
+                        }
+                    }
+                    
+                    if (!empty($utilisateurs)) {
+                        try {
+                            $utilisateursAjoutes = $utilisateurModel->ajouterUtilisateursEnMasse($utilisateurs);
+                            
+                            // Envoyer les emails aux utilisateurs ajoutés
+                            foreach ($utilisateursAjoutes as $utilisateur) {
+                                if($this->envoyerEmailInscriptionPHPMailer(
+                                    $utilisateur['login'],
+                                    $utilisateur['nom'],
+                                    $utilisateur['login'],
+                                    $utilisateur['mdp']
+                                )) {
+                                    $GLOBALS['messageSuccess'] = count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
+                                } else {
+                                    $GLOBALS['messageErreur'] = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
+                                }
+                            }
+                        } catch (Exception $e) {
+                            $GLOBALS['messageErreur'] = "Erreur lors de l'ajout en masse : " . $e->getMessage();
+                        }
                     } else {
-                        $utilisateurs = [];
-                        foreach ($selected_ids as $id) {
-                            // Récupérer les informations de la personne selon son type
-                            $personne = null;
-                            if (strpos($id, 'ens_') === 0) {
-                                $id_enseignant = substr($id, 4);
-                                foreach ($enseignantsNonUtilisateurs as $ens) {
-                                    if ($ens->id_enseignant == $id_enseignant) {
-                                        $personne = $ens;
-                                        break;
-                                    }
-                                }
-                            } elseif (strpos($id, 'pers_') === 0) {
-                                $id_pers = substr($id, 5);
-                                foreach ($personnelNonUtilisateurs as $pers) {
-                                    if ($pers->id_pers_admin == $id_pers) {
-                                        $personne = $pers;
-                                        break;
-                                    }
-                                }
-                            } elseif (strpos($id, 'etu_') === 0) {
-                                $id_etudiant = substr($id, 4);
-                                foreach ($etudiantsNonUtilisateurs as $etu) {
-                                    if ($etu->num_etu == $id_etudiant) {
-                                        $personne = $etu;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if ($personne && !$this->utilisateur->isLoginUsed($personne->mail_enseignant ?? $personne->email_pers_admin ?? $personne->login_etu)) {
-                                $utilisateurs[] = [
-                                    'nom' => $personne->nom_enseignant ?? $personne->nom_pers_admin ?? $personne->nom_etu,
-                                    'id_type' => $id_type_utilisateur,
-                                    'id_groupe' => $id_GU,
-                                    'id_niveau' => $id_niveau_acces,
-                                    'statut' => $statut_utilisateur,
-                                    'login' => $personne->mail_enseignant ?? $personne->email_pers_admin ?? $personne->login_etu
-                                ];
-                            }
-                        }
-
-                        if (!empty($utilisateurs)) {
-                            try {
-                                if ($this->utilisateur->ajouterUtilisateursEnMasse($utilisateurs)) {
-                                    $messageSuccess = count($utilisateurs) . " utilisateurs ajoutés avec succès.";
-                                }
-                            } catch (Exception $e) {
-                                $messageErreur = "Erreur lors de l'ajout en masse : " . $e->getMessage();
-                            }
-                        } else {
-                            $messageErreur = "Aucun utilisateur n'a pu être ajouté.";
-                        }
+                        $GLOBALS['messageErreur'] = "Aucun utilisateur valide à ajouter";
                     }
                 }
 
