@@ -380,15 +380,16 @@ class ParametreController
         if (isset($_POST['btn_add_niveau']) || isset($_POST['btn_modifier_niveau'])) {
             $lib_niveau = $_POST['lib_niv_etude'];
             $montant_scolarite = $_POST['montant_scolarite'];
+            $montant_inscription = $_POST['montant_inscription'];
 
             if (!empty($_POST['id_niv_etude'])) {
-                if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau,$montant_scolarite)) {
+                if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau,$montant_scolarite,$montant_inscription)) {
                     $messageSuccess = "Niveau d'étude modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'étude.";
                 }
             } else {
-                if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau, $montant_scolarite)) {
+                if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau, $montant_scolarite, $montant_inscription)) {
                     $messageSuccess = "Niveau d'étude ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'étude.";

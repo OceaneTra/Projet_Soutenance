@@ -77,20 +77,114 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
     .section-container:hover .form-label {
         color: #d9d9d9;
     }
+
+    /* Animations pour les messages */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .animate-fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+    }
+
+    /* Styles pour la pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .pagination button {
+        margin: 0 0.25rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        background-color: white;
+        color: #4a5568;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pagination button:hover {
+        background-color: #f7fafc;
+        border-color: #cbd5e0;
+    }
+
+    .pagination button.active {
+        background-color: #4299e1;
+        color: white;
+        border-color: #4299e1;
+    }
+
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Styles pour l'impression */
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        body {
+            background: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: none;
+            padding: 0;
+            margin: 0;
+        }
+    }
     </style>
 </head>
 
 <body class="bg-gray-50">
     <div class="container mx-auto px-4 py-8">
+        <div id="messageContainer"></div>
+
         <?php if (isset($_SESSION['success'])): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div id="successMessage"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 hidden"
+            role="alert">
             <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
             <?php unset($_SESSION['success']); ?>
         </div>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['error'])): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div id="errorMessage"
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
             <span class="block sm:inline"><?php echo $_SESSION['error']; ?></span>
             <?php unset($_SESSION['error']); ?>
         </div>
@@ -105,6 +199,33 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             </div>
             <div class="p-6">
                 <form id="inscriptionForm" method="POST" action="?page=gestion_etudiants&action=inscrire_des_etudiants">
+                    <input type="hidden" name="action" value="inscrire">
+                    <!-- Section Année académique -->
+                    <div
+                        class="mb-8 border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
+                        <h6 class="text-sm font-semibold text-green-600 mb-4 flex items-center">
+                            <i
+                                class="fas fa-calendar-alt mr-2 transition-all duration-300 ease-in-out hover:scale-110 hover:text-green-500"></i>Année
+                            académique
+                        </h6>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="col-span-2">
+                                <label for="annee_academique"
+                                    class="block text-sm font-medium text-gray-600 mb-1">Sélectionner l'année
+                                    académique</label>
+                                <select
+                                    class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                    id="annee_academique" name="annee_academique" required>
+                                    <option value="">Choisir une année académique...</option>
+                                    <?php foreach ($GLOBALS['listeAnnees'] as $annee): ?>
+                                    <option value="<?php echo $annee->id_annee_acad; ?>">
+                                        <?php echo date('Y', strtotime($annee->date_deb)) . ' - ' . date('Y', strtotime($annee->date_fin)); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Section Informations étudiant -->
                     <div
                         class="mb-8 border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
@@ -122,7 +243,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     id="etudiant" name="etudiant" required>
                                     <option value="">Choisir un étudiant...</option>
                                     <?php foreach ($etudiantsNonInscrits as $etudiant): ?>
-                                    <option value="<?php echo $etudiant['num_etu']; ?>">
+                                    <option value="<?php echo $etudiant['num_etu']; ?>"
+                                        <?php echo (isset($_GET['num_etu']) && $_GET['num_etu'] == $etudiant['num_etu']) ? 'selected' : ''; ?>>
                                         <?php echo $etudiant['num_etu'] . ' - ' . $etudiant['nom_etu'] . ' ' . $etudiant['prenom_etu']; ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -136,9 +258,10 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     id="niveau" name="niveau" required>
                                     <option value="">Choisir un niveau...</option>
                                     <?php foreach ($niveaux as $niveau): ?>
-                                    <option value="<?php echo $niveau['id_niveau']; ?>"
-                                        data-montant="<?php echo $niveau['montant_scolarite']; ?>">
-                                        <?php echo $niveau['nom_niveau']; ?> -
+                                    <option value="<?php echo $niveau['id_niv_etude']; ?>"
+                                        data-montant-total="<?php echo $niveau['montant_scolarite']; ?>"
+                                        data-montant-inscription="<?php echo $niveau['montant_inscription']; ?>">
+                                        <?php echo $niveau['lib_niv_etude']; ?> -
                                         <?php echo number_format($niveau['montant_scolarite'], 2); ?> FCFA
                                     </option>
                                     <?php endforeach; ?>
@@ -158,21 +281,27 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Numéro étudiant</label>
-                                <input type="text"
-                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
-                                    id="num_etu" readonly>
+                                <input type="text" required
+                                    class="w-full h-10 border pl-3 border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="num_etu" name="num_etu"
+                                    value="<?php echo isset($GLOBALS['etudiantInfo']['num_etu']) ? htmlspecialchars($GLOBALS['etudiantInfo']['num_etu']) : ''; ?>"
+                                    readonly>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Nom</label>
                                 <input type="text"
-                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
-                                    id="nom" readonly>
+                                    class="w-full pl-3 h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="nom_etu" name="nom_etu" required
+                                    value="<?php echo isset($GLOBALS['etudiantInfo']['nom_etu']) ? htmlspecialchars($GLOBALS['etudiantInfo']['nom_etu']) : ''; ?>"
+                                    readonly>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Prénom</label>
                                 <input type="text"
-                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
-                                    id="prenom" readonly>
+                                    class="w-full pl-3 h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="prenom_etu" name="prenom_etu" required
+                                    value="<?php echo isset($GLOBALS['etudiantInfo']['prenom_etu']) ? htmlspecialchars($GLOBALS['etudiantInfo']['prenom_etu']) : ''; ?>"
+                                    readonly>
                             </div>
                         </div>
                     </div>
@@ -191,14 +320,14 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     <label class="block text-sm font-medium text-gray-600 mb-1">Montant total de la
                                         scolarité</label>
                                     <input type="text"
-                                        class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                        class="w-full pl-3 h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
                                         id="montant_total" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 mb-1">Premier versement
-                                        (minimum 30%)</label>
+                                    </label>
                                     <input type="number"
-                                        class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                        class="w-full pl-3 h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
                                         id="premier_versement" name="premier_versement" required>
                                 </div>
                             </div>
@@ -207,8 +336,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-600 mb-1">Reste à payer</label>
                                     <input type="text"
-                                        class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
-                                        id="reste_payer" readonly>
+                                        class="w-full pl-3 h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                        id="reste_payer" name="reste_payer" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 mb-1">Nombre de
@@ -219,6 +348,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                         <option value="1">1 tranche</option>
                                         <option value="2">2 tranches</option>
                                         <option value="3">3 tranches</option>
+                                        <option value="4">4 tranches</option>
                                     </select>
                                 </div>
                             </div>
@@ -226,7 +356,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit"
+                        <button type="submit" name="btn_add_insciption" id="inscription"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-save mr-2"></i>Enregistrer l'inscription
                         </button>
@@ -246,13 +376,13 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             </div>
             <div class="p-6">
                 <!-- Barre d'outils -->
-                <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between no-print">
                     <!-- Barre de recherche -->
                     <div class="relative w-full sm:w-96">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <input type="text" id="searchInput"
+                        <input type="text" id="searchInput" style="outline-color:none;"
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent sm:text-sm"
                             placeholder="Rechercher un étudiant...">
                     </div>
@@ -267,7 +397,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-200">
                             <i class="fas fa-file-pdf mr-2"></i>PDF
                         </button>
-                        <button onclick="window.print()"
+                        <button onclick="printTable()"
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
                             <i class="fas fa-print mr-2"></i>Imprimer
                         </button>
@@ -276,7 +406,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
 
                 <!-- Table -->
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table id="inscriptionsTable" class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-green-500 to-green-600">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -285,6 +415,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     Nom</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     Niveau</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Année académique</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     Date d'inscription</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -298,11 +430,14 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                             <?php foreach ($etudiantsInscrits as $inscrit): ?>
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?php echo $inscrit['num_etu']; ?></td>
+                                    <?php echo $inscrit['id_etudiant']; ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <?php echo $inscrit['nom_niveau']; ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo date('Y', strtotime($inscrit['date_deb'])) . ' - ' . date('Y', strtotime($inscrit['date_fin'])); ?>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <?php echo date('d/m/Y', strtotime($inscrit['date_inscription'])); ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -314,12 +449,12 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <button onclick="modifierInscription(<?php echo $inscrit['id_inscription']; ?>)"
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                             <i class="fas fa-edit mr-1"></i>Modifier
                                         </button>
                                         <button
                                             onclick="confirmerSuppression(<?php echo $inscrit['id_inscription']; ?>, '<?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?>')"
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-500 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
                                             <i class="fas fa-trash-alt mr-1"></i>Supprimer
                                         </button>
                                     </div>
@@ -329,13 +464,25 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <div class="pagination mt-4 no-print">
+                    <button id="prevPage" class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="pageNumbers" class="flex space-x-2"></div>
+                    <button id="nextPage" class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal de confirmation de suppression -->
-    <div id="modalSuppression" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div id="modalSuppression"
+        class="fixed inset-0 bg-opacity-50 hidden overflow-y-auto h-full w-full flex items-center justify-center">
+        <div class="relative mx-auto p-5 w-96 shadow-2xl rounded-md bg-white">
             <div class="mt-3 text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                     <i class="fas fa-exclamation-triangle text-red-600"></i>
@@ -362,58 +509,166 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
     </div>
 
     <script>
+    // Variables globales pour la pagination
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    let filteredData = [];
+    let allData = [];
+
+    // Fonction d'export Excel
+    window.exportToExcel = function() {
+        const table = document.getElementById('inscriptionsTable');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const visibleRows = rows.filter(row => row.style.display !== 'none');
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // En-têtes
+        const headers = Array.from(table.querySelectorAll('thead th'))
+            .map(th => th.textContent.trim());
+        csvContent += headers.join(",") + "\r\n";
+
+        // Données
+        visibleRows.forEach(row => {
+            const rowData = Array.from(row.cells)
+                .map(cell => `"${cell.textContent.trim()}"`)
+                .join(",");
+            csvContent += rowData + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "inscriptions.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Fonction d'export PDF
+    window.exportToPDF = function() {
+        const table = document.getElementById('inscriptionsTable');
+        const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
+            .filter(row => row.style.display !== 'none');
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liste des inscriptions</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .no-print { display: none; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des inscriptions</h2>
+                    ${table.outerHTML}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+    // Fonction d'impression
+    window.printTable = function() {
+        const printWindow = window.open('', '_blank');
+        const table = document.getElementById('inscriptionsTable');
+        const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
+            .filter(row => row.style.display !== 'none');
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Liste des inscriptions</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .no-print { display: none; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des inscriptions</h2>
+                    ${table.outerHTML}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         const etudiantSelect = document.getElementById('etudiant');
         const niveauSelect = document.getElementById('niveau');
         const premierVersementInput = document.getElementById('premier_versement');
         const nombreTranchesSelect = document.getElementById('nombre_tranches');
+        const montantTotalInput = document.getElementById('montant_total');
+        const restePayerInput = document.getElementById('reste_payer');
 
         // Gestion de la sélection d'un étudiant
         etudiantSelect.addEventListener('change', function() {
             const numEtu = this.value;
             if (numEtu) {
-                fetch(`index.php?page=inscrire_des_etudiants&action=get_etudiant&num_etu=${numEtu}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('num_etu').value = data.num_etu;
-                        document.getElementById('nom').value = data.nom;
-                        document.getElementById('prenom').value = data.prenom;
-                    });
+                // Récupérer les informations de l'étudiant sélectionné directement depuis l'option
+                const selectedOption = this.options[this.selectedIndex];
+                const etudiantInfo = selectedOption.textContent.split(' - ');
+
+                // Extraire le numéro, nom et prénom
+                const numEtu = etudiantInfo[0];
+                const nomPrenom = etudiantInfo[1].split(' ');
+                const nom = nomPrenom[0];
+                const prenom = nomPrenom[1];
+
+                // Remplir les champs
+                document.getElementById('num_etu').value = numEtu;
+                document.getElementById('nom_etu').value = nom;
+                document.getElementById('prenom_etu').value = prenom;
+            } else {
+                // Réinitialiser les champs si aucun étudiant n'est sélectionné
+                document.getElementById('num_etu').value = '';
+                document.getElementById('nom_etu').value = '';
+                document.getElementById('prenom_etu').value = '';
             }
         });
 
-        // Gestion du montant de la scolarité
-        niveauSelect.addEventListener('change', function() {
-            const montant = this.options[this.selectedIndex].dataset.montant;
-            document.getElementById('montant_total').value = new Intl.NumberFormat('fr-FR').format(
-                montant) + ' FCFA';
-            updateRestePayer();
-        });
+        // Fonction pour formater les montants
+        function formaterMontant(montant) {
+            return new Intl.NumberFormat('fr-FR').format(montant);
+        }
 
-        // Gestion du premier versement
-        premierVersementInput.addEventListener('input', function() {
-            const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset
-                .montant);
-            const montantMinimum = montantTotal * 0.3;
-
-            if (parseFloat(this.value) < montantMinimum) {
-                alert(
-                    `Le premier versement doit être au minimum de ${new Intl.NumberFormat('fr-FR').format(montantMinimum)} FCFA (30% du montant total)`
-                );
-                this.value = montantMinimum;
-            }
-
-            updateRestePayer();
-        });
-
-        // Mise à jour du reste à payer
-        function updateRestePayer() {
-            const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset.montant);
+        // Fonction pour calculer le reste à payer
+        function calculerResteAPayer() {
+            const montantTotal = parseFloat(montantTotalInput.value.replace(/\s/g, '')) || 0;
             const premierVersement = parseFloat(premierVersementInput.value) || 0;
             const reste = montantTotal - premierVersement;
+            restePayerInput.value = formaterMontant(reste);
+        }
 
-            document.getElementById('reste_payer').value = new Intl.NumberFormat('fr-FR').format(reste) +
-                ' FCFA';
+        // Événement lors du changement de niveau
+        niveauSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const montantTotal = selectedOption.getAttribute('data-montant-total');
+            const montantInscription = selectedOption.getAttribute('data-montant-inscription');
+
+            montantTotalInput.value = formaterMontant(montantTotal);
+            premierVersementInput.value = montantInscription;
+            calculerResteAPayer();
+        });
+
+        // Événements pour le calcul automatique
+        premierVersementInput.addEventListener('input', calculerResteAPayer);
+        nombreTranchesSelect.addEventListener('change', calculerResteAPayer);
+
+        // Initialisation des calculs si un niveau est déjà sélectionné
+        if (niveauSelect.value) {
+            const event = new Event('change');
+            niveauSelect.dispatchEvent(event);
         }
 
         // Validation du formulaire
@@ -421,28 +676,86 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             e.preventDefault();
 
             const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset
-                .montant);
+                .montantTotal);
             const premierVersement = parseFloat(premierVersementInput.value);
 
-            if (premierVersement < montantTotal * 0.3) {
-                alert('Le premier versement doit être au minimum de 30% du montant total');
-                return;
-            }
 
             this.submit();
         });
 
+        // Fonction pour initialiser les données
+        function initializeData() {
+            const table = document.getElementById('inscriptionsTable');
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            allData = rows.map(row => ({
+                element: row,
+                data: Array.from(row.cells).map(cell => cell.textContent.trim())
+            }));
+            filteredData = [...allData];
+            updateTable();
+        }
+
+        // Fonction pour mettre à jour la table
+        function updateTable() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedData = filteredData.slice(start, end);
+
+            // Cacher toutes les lignes
+            allData.forEach(item => item.element.style.display = 'none');
+
+            // Afficher les lignes de la page courante
+            paginatedData.forEach(item => item.element.style.display = '');
+
+            updatePagination();
+        }
+
+        // Fonction pour mettre à jour la pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className =
+                    `px-3 py-1 rounded-md ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`;
+                button.onclick = () => {
+                    currentPage = i;
+                    updateTable();
+                };
+                pageNumbers.appendChild(button);
+            }
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Gestionnaires d'événements pour la pagination
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateTable();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateTable();
+            }
+        });
+
         // Fonction de recherche
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-
-        searchInput.addEventListener('input', function() {
+        document.getElementById('searchInput').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+            filteredData = allData.filter(item =>
+                item.data.some(cell => cell.toLowerCase().includes(searchTerm))
+            );
+            currentPage = 1;
+            updateTable();
         });
 
         // Variables pour la suppression
@@ -451,7 +764,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         // Fonction pour modifier une inscription
         window.modifierInscription = function(idInscription) {
             window.location.href =
-                `index.php?page=inscrire_des_etudiants&action=modifier&id=${idInscription}`;
+                `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=modifier&id=${idInscription}`;
         };
 
         // Fonction pour confirmer la suppression
@@ -471,7 +784,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         document.getElementById('confirmerBtn').addEventListener('click', function() {
             if (inscriptionASupprimer) {
                 window.location.href =
-                    `index.php?page=inscrire_des_etudiants&action=supprimer&id=${inscriptionASupprimer}`;
+                    `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=supprimer&id=${inscriptionASupprimer}`;
             }
         });
 
@@ -481,18 +794,34 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                 fermerModal();
             }
         });
+
+        // Gestion des messages
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        function showMessage(element) {
+            if (element) {
+                element.classList.remove('hidden');
+                element.classList.add('animate-fade-in');
+                setTimeout(() => {
+                    element.classList.add('animate-fade-out');
+                    setTimeout(() => {
+                        element.classList.add('hidden');
+                        element.classList.remove('animate-fade-in', 'animate-fade-out');
+                    }, 500);
+                }, 3000);
+            }
+        }
+
+        // Afficher les messages avec un délai
+        setTimeout(() => {
+            showMessage(successMessage);
+            showMessage(errorMessage);
+        }, 500);
+
+        // Initialiser les données
+        initializeData();
     });
-
-    // Fonctions d'exportation
-    function exportToExcel() {
-        // Implémentation de l'export Excel
-        alert('Fonctionnalité d\'export Excel à implémenter');
-    }
-
-    function exportToPDF() {
-        // Implémentation de l'export PDF
-        alert('Fonctionnalité d\'export PDF à implémenter');
-    }
     </script>
 </body>
 

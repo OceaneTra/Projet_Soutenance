@@ -57,7 +57,7 @@ class AnneeAcademique {
 }
 
     public function isAnneeAcademiqueInUse($id) {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM inscrire WHERE id_annee_acad = ?");
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM inscriptions WHERE id_annee_acad = ?");
         $stmt->execute([$id]);
         return $stmt->fetchColumn() > 0;
     }

@@ -225,6 +225,14 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 placeholder="Entrer le montant de la scolarité"
                                 class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
                         </div>
+                        <!-- Montant inscription -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Montant de l'inscription</label>
+                            <input type="number" id="montant_inscription" name="montant_inscription" required
+                                value="<?= $niveau_a_modifier ? htmlspecialchars($niveau_a_modifier->montant_inscription) : '' ?>"
+                                placeholder="Entrer le montant de l'inscription"
+                                class="form-input w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                        </div>
 
                     </div>
 
@@ -307,6 +315,9 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant de
                                     la scolarité</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant de
+                                    l'inscription
+                                </th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
                                 </th>
                             </tr>
@@ -328,6 +339,9 @@ $listeNiveaux = array_slice($listeNiveaux, $offset, $limit);
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-700">
                                     <?= htmlspecialchars($niveau->montant_scolarite) ?>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-700">
+                                    <?= htmlspecialchars($niveau->montant_inscription) ?>
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex justify-center space-x-2">
