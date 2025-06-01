@@ -111,6 +111,7 @@ class GestionUtilisateurController
 
                 // Traitement de l'ajout en masse
                 if (isset($_POST['btn_add_multiple']) && !empty($_POST['selected_persons'])) {
+                
                     $utilisateurs = [];
                     $utilisateurModel = new Utilisateur(Database::getConnection());
                     
@@ -167,17 +168,18 @@ class GestionUtilisateurController
                                     $utilisateur['login'],
                                     $utilisateur['mdp']
                                 )) {
-                                    $GLOBALS['messageSuccess'] = count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
+                                    $messageSuccess= count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
                                 } else {
-                                    $GLOBALS['messageErreur'] = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
+                                    $messageErreur = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
                                 }
                             }
                         } catch (Exception $e) {
-                            $GLOBALS['messageErreur'] = "Erreur lors de l'ajout en masse : " . $e->getMessage();
+                            $messageErreur = "Erreur lors de l'ajout en masse : " . $e->getMessage();
                         }
                     } else {
-                        $GLOBALS['messageErreur'] = "Aucun utilisateur valide à ajouter";
+                        $messageErreur= "Aucun utilisateur valide à ajouter";
                     }
+                
 
                 }
 
@@ -212,7 +214,7 @@ class GestionUtilisateurController
                             $messageErreur = "Erreur lors de la modification de l'utilisateur.";
                         }
                     }
-                    $GLOBALS['en_cours'] = false;
+                    
                 }
 
                 // Activation ou désactivation d'utilisateurs
