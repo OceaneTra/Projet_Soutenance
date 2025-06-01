@@ -9,24 +9,24 @@ class GestionEtudiantController
 
     public function __construct()
     {
-        echo "DEBUG CONTROLLER: Constructor called<br>";
+      
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
 
         $this->baseViewPath = __DIR__ . '/../../ressources/views/';
-        echo "DEBUG CONTROLLER: Base view path: " . $this->baseViewPath . "<br>";
+       
 
         try {
             $db = Database::getConnection();
             if (!$db) {
                 die("ERROR: Database connection failed");
             }
-            echo "DEBUG CONTROLLER: Database connected<br>";
+          
 
             $this->etudiant = new Etudiants($db);
-            echo "DEBUG CONTROLLER: Etudiants model created<br>";
+          
         } catch (Exception $e) {
             die("ERROR: " . $e->getMessage());
         }
@@ -35,10 +35,8 @@ class GestionEtudiantController
     // Afficher la liste des étudiants
     public function index()
     {
-        echo "DEBUG INDEX: Method called!<br>";
-
-        // Debug pour voir si on arrive ici
-        error_log("DEBUG INDEX: Method called!");
+        
+        
 
         // Test simple avec données en dur
         $listeEtudiants = [];
@@ -46,7 +44,7 @@ class GestionEtudiantController
         try {
             echo "DEBUG INDEX: About to get students<br>";
             $listeEtudiants = $this->etudiant->getAllEtudiant();
-            echo "DEBUG INDEX: Got " . count($listeEtudiants) . " students<br>";
+           
         } catch (Exception $e) {
             echo "ERROR INDEX: " . $e->getMessage() . "<br>";
         }
@@ -76,43 +74,47 @@ class GestionEtudiantController
     }
 
     // Ajouter un nouvel étudiant
-    private function ajouterEtudiant()
+    public function ajouterEtudiant()
     {
         try {
-            // Récupérer les données du formulaire
-            $num_etu = trim($_POST['num_etu']);
-            $login_etu = trim($_POST['login_etu']);
-            $nom_etu = trim($_POST['nom_etu']);
-            $prenom_etu = trim($_POST['prenom_etu']);
-            $date_naiss_etu = $_POST['date_naiss_etu'];
-            $genre_etu = $_POST['genre_etu'];
 
-            // Validation des données
-            if (empty($num_etu) || empty($login_etu) || empty($nom_etu) || empty($prenom_etu)) {
-                $_SESSION['error'] = "Tous les champs sont obligatoires.";
-                return;
-            }
+            if (isset($_POST['btn_ajouter_etudiant'])) {
+                // Récupérer les données du formulaire
+                $num_etu = trim($_POST['num_etu']);
+                $login_etu = trim($_POST['login_etu']);
+                $nom_etu = trim($_POST['nom_etu']);
+                $prenom_etu = trim($_POST['prenom_etu']);
+                $date_naiss_etu = $_POST['date_naiss_etu'];
+                $genre_etu = $_POST['genre_etu'];
 
-            // Vérifier si le numéro étudiant existe déjà
-            if ($this->etudiant->getEtudiantById($num_etu)) {
-                $_SESSION['error'] = "Ce numéro d'étudiant existe déjà.";
-                return;
-            }
+                // Validation des données
+                if (empty($num_etu) || empty($login_etu) || empty($nom_etu) || empty($prenom_etu)) {
+                    $_SESSION['error'] = "Tous les champs sont obligatoires.";
+                    return;
+                }
 
-            // Ajouter l'étudiant dans la base de données (avec mdp par défaut)
-            $result = $this->etudiant->ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $login_etu);
+                // Vérifier si le numéro étudiant existe déjà
+                if ($this->etudiant->getEtudiantById($num_etu)) {
+                    $_SESSION['error'] = "Ce numéro d'étudiant existe déjà.";
+                    return;
+                }
 
-            if ($result) {
-                $_SESSION['success'] = "Étudiant ajouté avec succès.";
-                header("Location: ?page=gestion_etudiants");
-                exit();
-            } else {
-                $_SESSION['error'] = "Erreur lors de l'ajout de l'étudiant.";
+                // Ajouter l'étudiant dans la base de données (avec mdp par défaut)
+                $result = $this->etudiant->ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $login_etu);
+
+                if ($result) {
+                    $_SESSION['success'] = "Étudiant ajouté avec succès.";
+                    header("Location: ?page=gestion_etudiants");
+                    exit();
+                } else {
+                    $_SESSION['error'] = "Erreur lors de l'ajout de l'étudiant.";
+                }
             }
         } catch (Exception $e) {
             $_SESSION['error'] = "Erreur : " . $e->getMessage();
         }
     }
+
 
     // Modifier un étudiant existant
     private function modifierEtudiant()
@@ -256,5 +258,9 @@ class GestionEtudiantController
             $_SESSION['error'] = "Erreur lors de la recherche : " . $e->getMessage();
             return [];
         }
+    }
+
+    public function inscrireEtudiant(){
+        
     }
 }

@@ -7,7 +7,7 @@ require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../models/Grade.php';
 require_once __DIR__ . '/../models/Fonction.php';
 require_once __DIR__ . '/../models/Specialite.php';
- // Si nécessaire pour d'autres opérations
+// Si nécessaire pour d'autres opérations
 
 class AuthController {
     private $db;
@@ -16,8 +16,8 @@ class AuthController {
     private $gradeModel;
     private $fonctionModel;
     private $specialiteModel;
-  
-    
+
+
     public function __construct($db) {
         $this->db = $db;
         $this->enseignantModel = new Enseignant($db);
@@ -26,18 +26,18 @@ class AuthController {
         $this->fonctionModel = new Fonction($db);
         $this->specialiteModel = new Specialite($db);
     }
-    
+
 
     public function login($login, $password) {
         $utilisateur = new Utilisateur($this->db);
         $infoUtilisateur = $utilisateur->verifierConnexion($login, $password);
-        
+
         if ($infoUtilisateur) {
             // Démarrer la session si pas déjà fait
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
-            
+
             // Stocker les infos de session
             $_SESSION['id_utilisateur'] = $infoUtilisateur['id_utilisateur'];
             $_SESSION['nom_utilisateur'] = $infoUtilisateur['nom_utilisateur'];
@@ -54,7 +54,7 @@ class AuthController {
             if($type_utilisateur !== 'Etudiant'){
                 if($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif'){
                     // Récupérer les informations de l'enseignant
-                    $enseignant = $this->enseignantModel->getEnseignantById($infoUtilisateur['id_utilisateur']);
+                    $enseignant = $this->enseignantModel->getEnseignantByLogin($infoUtilisateur['login_utilisateur']);
                     if($enseignant) {
                         $_SESSION['specialite'] = $enseignant->lib_specialite;
                         $_SESSION['grade'] = $enseignant->lib_grade;
@@ -65,7 +65,7 @@ class AuthController {
                 }
                 else if($type_utilisateur === 'Personnel administratif'){
                     // Récupérer les informations du personnel administratif
-                    $persAdmin = $this->persAdminModel->getPersAdminById($infoUtilisateur['id_utilisateur']);
+                    $persAdmin = $this->persAdminModel->getPersAdminByLogin($infoUtilisateur['login_utilisateur']);
                     if($persAdmin) {
                         $_SESSION['telephone'] = $persAdmin->tel_pers_admin;
                         $_SESSION['poste'] = $persAdmin->poste;
@@ -73,10 +73,10 @@ class AuthController {
                     }
                 }
             }
-            
+
             // NE PAS stocker le mot de passe en session
             // $_SESSION['mdp_utilisateur'] = $infoUtilisateur['mdp_utilisateur'];
-            
+
             return true;
         }
         return false;
@@ -85,7 +85,7 @@ class AuthController {
     {
         // Détruire toutes les données de session
         $_SESSION = array();
-    
+
         // Si vous voulez détruire complètement la session, effacez aussi le cookie
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -94,7 +94,7 @@ class AuthController {
                 $params["secure"], $params["httponly"]
             );
         }
-    
+
         // Finalement, détruire la session
         return session_destroy();
     }
@@ -110,7 +110,7 @@ class AuthController {
             $messageErreur = 'Le mot de passe actuel est incorrect.';
             $GLOBALS['messageErreur'] = $messageErreur;
             return false;
-        }   
+        }
 
         // Vérifier si les nouveaux mots de passe correspondent
         if ($newPassword !== $confirmPassword) {
@@ -156,14 +156,14 @@ class AuthController {
 
         // Hasher le nouveau mot de passe
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        
+
         // Mettre à jour le mot de passe
         if ($utilisateur->updatePassword($hashedPassword, $_SESSION['id_utilisateur'])) {
             $messageSuccess = 'Mot de passe mis à jour avec succès.';
             $GLOBALS['messageSuccess'] = $messageSuccess;
             return true;
         }
-        
+
         $messageErreur = 'Erreur lors de la mise à jour du mot de passe.';
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;

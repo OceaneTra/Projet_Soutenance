@@ -8,7 +8,7 @@ class GestionRapportController {
 
     public function __construct()
     {
-        $this->baseViewPath = __DIR__ . '/../../ressources/views/admin/partials/gestion_rapports/';
+        $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_rapports/';
        
     }
 
