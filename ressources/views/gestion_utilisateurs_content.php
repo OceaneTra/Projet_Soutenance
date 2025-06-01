@@ -1,6 +1,7 @@
 <?php
 
 $utilisateur_a_modifier = $GLOBALS['utilisateur_a_modifier'];
+$showModal = isset($_GET['action']) && ($_GET['action'] === 'edit' || $_GET['action'] === 'add');
 
 $utilisateurs = $GLOBALS['utilisateurs'] ?? [];
 $niveau_acces = $GLOBALS['niveau_acces'];
@@ -107,10 +108,10 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     <div class="relative container mx-auto px-4 py-8">
         <!-- Add/Edit User Modal -->
         <div id="userModal"
-            class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex hidden items-center justify-center modal-transition">
+            class="fixed inset-0 bg-opacity-50 border border-gray-200 overflow-y-auto h-full w-full z-50 flex <?php echo $showModal ? '' : 'hidden'; ?> items-center justify-center modal-transition">
             <div class="relative p-8  w-full max-w-2xl shadow-2xl rounded-xl bg-white fade-in transform">
                 <div class="absolute top-0 right-0 m-3">
-                    <button onclick="closeUserModal(null)"
+                    <button onclick="closeUserModal()"
                         class="text-gray-400 hover:text-gray-600 focus:outline-none btn-icon">
                         <i class="fas fa-times fa-lg"></i>
                     </button>
@@ -119,7 +120,9 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     <div class="bg-green-100 p-2 rounded-full mr-3">
                         <i class="fas fa-user-plus text-green-500"></i>
                     </div>
-                    <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">Ajouter un Utilisateur</h3>
+                    <h3 id="userModalTitle" class="text-2xl font-semibold text-gray-700">
+                        <?php echo isset($utilisateur_a_modifier) && $_GET['action']=='edit' ? 'Modifier un utilisateur' : 'Ajouter un Utilisateur' ?>
+                    </h3>
                 </div>
                 <form id="userForm" class="space-y-4" method="POST" action="?page=gestion_utilisateurs">
                     <input type="hidden" id="userId" name="id_utilisateur"
@@ -129,9 +132,43 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <label for="nom_utilisateur" class="block text-sm font-medium text-gray-700">
                                 <i class="fas fa-user text-green-500 mr-2"></i>Nom d'utilisateur
                             </label>
+                            <?php if ($_GET['action'] === 'add'): ?>
+                            <select name="nom_utilisateur" id="nom_utilisateur" required
+                                class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
+                                <option value="">Sélectionner une personne</option>
+                                <optgroup label="Enseignants">
+                                    <?php foreach($enseignantsNonUtilisateurs as $enseignant): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>"
+                                        data-login="<?php echo htmlspecialchars($enseignant->mail_enseignant); ?>">
+                                        <?php echo htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <optgroup label="Personnel Administratif">
+                                    <?php foreach($personnelNonUtilisateurs as $personnel): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($personnel->nom_pers_admin . ' ' . $personnel->prenom_pers_admin); ?>"
+                                        data-login="<?php echo htmlspecialchars($personnel->email_pers_admin); ?>">
+                                        <?php echo htmlspecialchars($personnel->nom_pers_admin . ' ' . $personnel->prenom_pers_admin); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <optgroup label="Étudiants">
+                                    <?php foreach($etudiantsNonUtilisateurs as $etudiant): ?>
+                                    <option
+                                        value="<?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>"
+                                        data-login="<?php echo htmlspecialchars($etudiant->login_etu); ?>">
+                                        <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                            </select>
+                            <?php else: ?>
                             <input type="text" name="nom_utilisateur" id="nom_utilisateur" required
                                 value="<?php echo $utilisateur_a_modifier ? htmlspecialchars($utilisateur_a_modifier->nom_utilisateur) : ''; ?>"
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
+                            <?php endif; ?>
                         </div>
                         <div class="space-y-2">
                             <label for="login_utilisateur" class="block text-sm font-medium text-gray-700">
@@ -164,11 +201,12 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </label>
                             <select name="statut_utilisateur" id="statut_utilisateur" required
                                 class="focus:outline-none w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
-                                <option value="1"
-                                    <?php echo ($utilisateur_a_modifier && $utilisateur_a_modifier->statut_utilisateur) ? 'selected' : ''; ?>>
+                                <option value="">Sélectionner un statut</option>
+                                <option value="Actif"
+                                    <?php echo ($utilisateur_a_modifier && $utilisateur_a_modifier->statut_utilisateur === 'Actif') ? 'selected' : ''; ?>>
                                     Actif</option>
-                                <option value="0"
-                                    <?php echo ($utilisateur_a_modifier && !$utilisateur_a_modifier->statut_utilisateur) ? 'selected' : ''; ?>>
+                                <option value="Inactif"
+                                    <?php echo ($utilisateur_a_modifier && $utilisateur_a_modifier->statut_utilisateur === 'Inactif') ? 'selected' : ''; ?>>
                                     Inactif</option>
                             </select>
                         </div>
@@ -198,7 +236,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                                 <option value="">Sélectionner un niveau</option>
                                 <?php foreach($niveau_acces as $niveau): ?>
                                 <option value="<?php echo htmlspecialchars($niveau->id_niveau_acces_donnees); ?>"
-                                    <?php echo ($utilisateur_a_modifier && $niveau->id_niveau_acces_donnees == $utilisateur_a_modifier->id_niveau_acces) ? 'selected' : ''; ?>>
+                                    <?php echo ($utilisateur_a_modifier && $niveau->id_niveau_acces_donnees == $utilisateur_a_modifier->id_niv_acces_donnee) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($niveau->lib_niveau_acces_donnees); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -206,17 +244,23 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         </div>
                     </div>
 
+
                     <div class="flex justify-between">
                         <button type="button" onclick="closeUserModal()"
                             class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
                             <i class="fas fa-times mr-2"></i>Annuler
                         </button>
-                        <button type="submit"
-                            name="<?php echo $utilisateur_a_modifier ? 'btn_modifier_utilisateur' : 'btn_add_utilisateur'; ?>"
+                        <?php if ($utilisateur_a_modifier): ?>
+                        <button type="button" onclick="submitModifyForm()"
                             class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
-                            <i class="fas fa-save mr-2"></i><span
-                                id="userModalSubmitButton"><?php echo $utilisateur_a_modifier ? 'Modifier' : 'Enregistrer'; ?></span>
+                            <i class="fas fa-save mr-2"></i>Modifier
                         </button>
+                        <?php else: ?>
+                        <button type="submit" name="btn_add_utilisateur"
+                            class="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gradient hover:shadow-lg transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i>Enregistrer
+                        </button>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
@@ -266,10 +310,17 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             <!-- Dashboard Header -->
             <div class=" bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
-                <button onclick="openUserModal(null)"
-                    class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
-                </button>
+                <div class="flex gap-4">
+                    <a href="?page=gestion_utilisateurs&action=add"
+                        class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                    </a>
+                    <a href="?page=gestion_utilisateurs&action=add"
+                        class="bg-blue-500  text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+                        <i class="fas fa-plus mr-2"></i>Ajouter en masse
+                    </a>
+                </div>
+
             </div>
 
             <!-- Action Bar for Table -->
@@ -294,13 +345,17 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
                         <i class="fa-solid fa-eye-slash mr-2"></i>Désactiver
                     </button>
+                    <button id="activerButton" type="button"
+                        class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                        <i class="fa-solid fa-eye-slash mr-2"></i>Activer
+                    </button>
                 </div>
             </div>
 
             <!-- Users Table -->
-
             <form class="overflow-x-auto" method="POST" action="?page=gestion_utilisateurs" id="formListeUtilisateurs">
                 <input type="hidden" name="submit_disable_multiple" id="submitDisableHidden" value="0">
+                <input type="hidden" name="submit_enable_multiple" id="submitEnableHidden" value="0">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -311,12 +366,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
                                     <span>Nom d'utilisateur</span>
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center">
-                                    <span>Type utilisateur</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
                             </th>
@@ -360,7 +409,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         <tr class="table-row-hover">
 
                             <td class="px-4 py-4 text-center">
-                                <input type="checkbox" name="userCheckbox"
+                                <input type="checkbox" name="selected_ids[]"
                                     value="<?php echo htmlspecialchars($user->id_utilisateur); ?>"
                                     class="user-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
                             </td>
@@ -368,12 +417,6 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                                 <div class="flex items-center">
 
                                     <span><?php echo htmlspecialchars($user->nom_utilisateur); ?></span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <div class="flex items-center">
-
-                                    <span><?php echo htmlspecialchars($user->role_utilisateur); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -397,12 +440,11 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
 
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center space-x-3">
-                                    <button onclick='openUserModal(<?php echo json_encode($user); ?>)'
+                                    <a href="?page=gestion_utilisateurs&action=edit&id_utilisateur=<?php echo $user->id_utilisateur; ?>"
                                         class="text-blue-500 hover:text-blue-700 transition-colors btn-icon"
                                         title="Modifier">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -466,15 +508,15 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         </div>
     </div>
 
-    <!-- Modale de confirmation de suppression -->
-    <div id="deleteModal"
+    <!-- Modale de confirmation de désactivation -->
+    <div id="disableModal"
         class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn shadow-2xl">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                     <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de suppression</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de désactivation</h3>
                 <p class="text-sm text-gray-500 mb-6">
                     <i class="fas fa-info-circle mr-2"></i>
                     Êtes-vous sûr de vouloir désactiver les utilisateurs sélectionnées ?
@@ -493,10 +535,37 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         </div>
     </div>
 
+    <!-- Modale de confirmation de réactivation -->
+    <div id="enableModal"
+        class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn shadow-2xl">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmation de réactivation</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Êtes-vous sûr de vouloir réactiver les utilisateurs sélectionnées ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button type="button" id="confirmEnable"
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-check mr-2"></i>Confirmer
+                    </button>
+                    <button type="button" id="cancelEnable"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modale de confirmation de modification -->
     <div id="modifyModal"
         class="fixed inset-0 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate__animated animate__zoomIn shadow-2xl">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                     <i class="fas fa-edit text-blue-600 text-xl"></i>
@@ -526,45 +595,48 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     const userForm = document.getElementById('userForm');
     const userModalTitle = document.getElementById('userModalTitle');
     const userModalSubmitButton = document.getElementById('userModalSubmitButton');
+
     const searchInput = document.getElementById('searchInput');
+
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const deleteButton = document.getElementById('desactiverButton');
+
+    const disableButton = document.getElementById('desactiverButton');
+    const enableButton = document.getElementById('activerButton');
     const submitDisableHidden = document.getElementById('submitDisableHidden');
+
     const btnModifier = document.getElementById('btnModifier');
     const modifyModal = document.getElementById('modifyModal');
     const confirmModify = document.getElementById('confirmModify');
     const cancelModify = document.getElementById('cancelModify');
-    const deleteModal = document.getElementById('deleteModal');
+
+    const disableModal = document.getElementById('disableModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-    const formListeUser = document.getElementById('formListeUser');
-    const submitDeleteHidden = document.getElementById('submitDeleteHidden');
+
+    const cancelEnableModal = document.getElementById('enableModal');
+    const confirmEnable = document.getElementById('confirmEnable');
+    const cancelEnable = document.getElementById('cancelEnable');
+
+    const submitEnableHidden = document.getElementById('submitEnableHidden');
     const submitModifierHidden = document.getElementById('btn_modifier_utilisateur_hidden');
 
-    function openUserModal(userData) {
-        if (userData) {
-            userModalTitle.textContent = 'Modifier l\'Utilisateur';
-            userModalSubmitButton.textContent = 'Mettre à jour';
-            userIdField.value = userData.id_utilisateur;
-            usernameField.value = userData.nom_utilisateur;
-            emailField.value = userData.login_utilisateur;
-            utilisateurField.value = userData.role_utilisateur;
-            statusField.value = userData.statut_utilisateur;
-            typeField.value = userData.id_type_utilisateur || '';
-            guField.value = userData.id_GU || 'Administrateur';
-            niveau_acces.value = userData.id_niveau_acces || 'Administrateur';
-        } else {
-            userModalTitle.textContent = 'Ajouter un Utilisateur';
-            userModalSubmitButton.textContent = 'Enregistrer';
-            userForm.reset();
-        }
+    const formListeUser = document.getElementById('formListeUtilisateurs');
+
+    function openUserModal() {
         userModal.classList.remove('hidden');
     }
 
-    // Utilisateur pour fermer le modal
+    // Fermer la modal utilisateur
     function closeUserModal() {
-        userModal.classList.add('hidden');
+        window.location.href = '?page=gestion_utilisateurs';
     }
+
+    // Fermer la modal si on clique en dehors
+    userModal.addEventListener('click', function(e) {
+        if (e.target === userModal) {
+            closeUserModal();
+        }
+    });
 
     // Search functionality
     searchInput.addEventListener('input', function() {
@@ -583,7 +655,8 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         });
     });
 
-    updateDeleteButtonState();
+    updatedisableButtonState();
+    updateenableButtonState();
 
 
     // Select all checkboxes
@@ -592,21 +665,51 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         checkboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
         });
-        updateDeleteButtonState();
+        updatedisableButtonState();
+        updateenableButtonState();
     });
 
-    // Update delete button state
-    function updateDeleteButtonState() {
+    // Update disable button state
+    function updatedisableButtonState() {
         const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-        deleteButton.disabled = checkedBoxes.length === 0;
-        deleteButton.classList.toggle('opacity-50', checkedBoxes.length === 0);
-        deleteButton.classList.toggle('cursor-not-allowed', checkedBoxes.length === 0);
+        let hasActiveUsers = false;
+
+        checkedBoxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const statusCell = row.querySelector('td:nth-child(4) span');
+            if (statusCell && statusCell.textContent.trim() === 'Actif') {
+                hasActiveUsers = true;
+            }
+        });
+
+        disableButton.disabled = !hasActiveUsers;
+        disableButton.classList.toggle('opacity-50', !hasActiveUsers);
+        disableButton.classList.toggle('cursor-not-allowed', !hasActiveUsers);
+    }
+
+    // Update enable button state
+    function updateenableButtonState() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        let hasInactiveUsers = false;
+
+        checkedBoxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const statusCell = row.querySelector('td:nth-child(4) span');
+            if (statusCell && statusCell.textContent.trim() === 'Inactif') {
+                hasInactiveUsers = true;
+            }
+        });
+
+        enableButton.disabled = !hasInactiveUsers;
+        enableButton.classList.toggle('opacity-50', !hasInactiveUsers);
+        enableButton.classList.toggle('cursor-not-allowed', !hasInactiveUsers);
     }
 
     // Event listener for checkbox changes
     document.addEventListener('change', function(e) {
         if (e.target.classList.contains('user-checkbox')) {
-            updateDeleteButtonState();
+            updatedisableButtonState();
+            updateenableButtonState();
             // Also update the "select all" checkbox
             const allCheckboxes = document.querySelectorAll('.user-checkbox');
             const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
@@ -614,6 +717,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                 0;
         }
     });
+
 
     // Fonction pour exporter en Excel
     function exportToExcel() {
@@ -719,6 +823,150 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     errorNotification.remove();
                 }, 500);
             }, 5000);
+        }
+    });
+
+    // Gestion de la modale de désactivation
+    disableButton.addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            disableModal.classList.remove('hidden');
+        }
+    });
+
+    enableButton.addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            enableModal.classList.remove('hidden');
+        }
+    });
+
+    // Confirmation de désactivation
+    confirmDelete.addEventListener('click', function() {
+        // Réinitialiser d'abord les deux inputs
+        document.getElementById('submitDisableHidden').value = '0';
+        document.getElementById('submitEnableHidden').value = '0';
+        // Puis définir la valeur pour la désactivation
+        document.getElementById('submitDisableHidden').value = '2';
+        formListeUser.submit();
+    });
+
+    // Confirmation de l'activation
+    confirmEnable.addEventListener('click', function() {
+        // Réinitialiser d'abord les deux inputs
+        document.getElementById('submitDisableHidden').value = '0';
+        document.getElementById('submitEnableHidden').value = '0';
+        // Puis définir la valeur pour l'activation
+        document.getElementById('submitEnableHidden').value = '3';
+        formListeUser.submit();
+    });
+
+    // Annulation de la désactivation
+    cancelDelete.addEventListener('click', function() {
+        // Réinitialiser les inputs cachés
+        document.getElementById('submitDisableHidden').value = '0';
+        document.getElementById('submitEnableHidden').value = '0';
+        // Décocher toutes les cases à cocher
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        // Décocher aussi la case "Tout sélectionner"
+        selectAllCheckbox.checked = false;
+        // Mettre à jour l'état du bouton désactiver
+        updatedisableButtonState();
+        // Fermer la modale
+        disableModal.classList.add('hidden');
+    });
+
+    // Annulation de l'activation
+    cancelEnable.addEventListener('click', function() {
+        // Réinitialiser les inputs cachés
+        document.getElementById('submitDisableHidden').value = '0';
+        document.getElementById('submitEnableHidden').value = '0';
+        // Décocher toutes les cases à cocher
+        const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        // Décocher aussi la case "Tout sélectionner"
+        selectAllCheckbox.checked = false;
+        // Mettre à jour l'état du bouton activer
+        updateenableButtonState();
+        // Fermer la modale
+        enableModal.classList.add('hidden');
+    });
+
+    // Fermer la modale si on clique en dehors
+    disableModal.addEventListener('click', function(e) {
+        if (e.target === disableModal) {
+            // Décocher toutes les cases à cocher
+            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Décocher aussi la case "Tout sélectionner"
+            selectAllCheckbox.checked = false;
+            // Mettre à jour l'état du bouton désactiver
+            updatedisableButtonState();
+            // Fermer la modale
+            disableModal.classList.add('hidden');
+        }
+    });
+
+    // Fermer la modale si on clique en dehors
+    enableModal.addEventListener('click', function(e) {
+        if (e.target === enableModal) {
+            // Décocher toutes les cases à cocher
+            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Décocher aussi la case "Tout sélectionner"
+            selectAllCheckbox.checked = false;
+            // Mettre à jour l'état du bouton activer
+            updateenableButtonState();
+            // Fermer la modale
+            enableModal.classList.add('hidden');
+        }
+    });
+
+
+
+    function submitModifyForm() {
+        document.getElementById('modifyModal').classList.remove('hidden');
+    }
+
+    // Gestion de la modale de modification
+    confirmModify.addEventListener('click', function() {
+        // Ajouter un champ caché pour indiquer que c'est une modification
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'btn_modifier_utilisateur';
+        hiddenInput.value = '1';
+        userForm.appendChild(hiddenInput);
+
+        // Soumettre le formulaire
+        userForm.submit();
+    });
+
+    cancelModify.addEventListener('click', function() {
+        modifyModal.classList.add('hidden');
+    });
+
+    // Fermer la modale si on clique en dehors
+    modifyModal.addEventListener('click', function(e) {
+        if (e.target === modifyModal) {
+            modifyModal.classList.add('hidden');
+        }
+    });
+
+    // Mettre à jour automatiquement le champ login lors de la sélection d'une personne
+    document.getElementById('nom_utilisateur')?.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const loginInput = document.getElementById('login_utilisateur');
+        if (selectedOption && selectedOption.dataset.login) {
+            loginInput.value = selectedOption.dataset.login;
         }
     });
     </script>
