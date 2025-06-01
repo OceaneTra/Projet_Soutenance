@@ -1,502 +1,498 @@
+<?php
+// Utilisation des variables globales au lieu d'appeler directement la base de données
+$etudiantsNonInscrits = isset($GLOBALS['etudiantsNonInscrits']) ? $GLOBALS['etudiantsNonInscrits'] : [];
+$niveaux = isset($GLOBALS['niveaux']) ? $GLOBALS['niveaux'] : [];
+$etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsInscrits'] : [];
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enregistrement Étudiant | Gestion Scolarité</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Inscription des étudiants</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#2c3e50',
+                    secondary: '#34495e',
+                    accent: '#3498db',
+                    success: '#27ae60',
+                    danger: '#e74c3c',
+                    warning: '#f1c40f',
+                }
+            }
+        }
+    }
+    </script>
     <style>
-    .gradient-bg {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+    /* Style pour les sections */
+    .section-container {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease-in-out;
     }
 
-    .fade-in {
-        animation: fadeIn 0.3s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .search-container {
-        position: relative;
-    }
-
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        z-index: 10;
-        max-height: 300px;
-        overflow-y: auto;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.375rem;
+    .section-container:hover {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    .search-item {
-        padding: 0.75rem 1rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
+    /* Style pour les champs en lecture seule */
+    .form-control[readonly] {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1 !important;
     }
 
-    .search-item:hover {
-        background-color: #f3f4f6;
+    /* Style pour les selects */
+    select.form-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2310b981' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
     }
 
-    .status-badge {
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
+    /* Animation pour les icônes */
+    .icon-animate {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .section-container:hover .icon-animate {
+        transform: scale(1.1);
+        color: #10b981;
+    }
+
+    /* Style pour les labels */
+    .form-label {
+        color: #d9d9d9;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .section-container:hover .form-label {
+        color: #d9d9d9;
     }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
-    <div class="flex h-screen overflow-hidden">
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <?php if (isset($_SESSION['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
+            <?php unset($_SESSION['success']); ?>
+        </div>
+        <?php endif; ?>
 
-        <!-- Main content -->
-        <div class="flex flex-col flex-1 overflow-hidden">
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline"><?php echo $_SESSION['error']; ?></span>
+            <?php unset($_SESSION['error']); ?>
+        </div>
+        <?php endif; ?>
 
-
-            <!-- Main content area -->
-            <div class="flex-1 p-4 md:p-6 overflow-y-auto ">
-                <!-- Header with search -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800">inscription étudiant</h1>
-                        <p class="text-gray-600">Ajouter un nouvel étudiant au système</p>
+        <!-- Formulaire d'inscription -->
+        <div class="bg-white rounded-lg shadow-sm mb-8 print:hidden">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h5 class="text-lg font-semibold text-green-600 flex items-center">
+                    <i class="fas fa-user-plus mr-2"></i>Nouvelle inscription
+                </h5>
+            </div>
+            <div class="p-6">
+                <form id="inscriptionForm" method="POST" action="?page=gestion_etudiants&action=inscrire_des_etudiants">
+                    <!-- Section Informations étudiant -->
+                    <div
+                        class="mb-8 border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
+                        <h6 class="text-sm font-semibold text-green-600 mb-4 flex items-center">
+                            <i
+                                class="fas fa-user-graduate mr-2 transition-all duration-300 ease-in-out hover:scale-110 hover:text-green-500"></i>Informations
+                            étudiant
+                        </h6>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="col-span-2">
+                                <label for="etudiant" class="block text-sm font-medium text-gray-600 mb-1">Sélectionner
+                                    un étudiant</label>
+                                <select
+                                    class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                    id="etudiant" name="etudiant" required>
+                                    <option value="">Choisir un étudiant...</option>
+                                    <?php foreach ($etudiantsNonInscrits as $etudiant): ?>
+                                    <option value="<?php echo $etudiant['num_etu']; ?>">
+                                        <?php echo $etudiant['num_etu'] . ' - ' . $etudiant['nom_etu'] . ' ' . $etudiant['prenom_etu']; ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="niveau" class="block text-sm font-medium text-gray-600 mb-1">Niveau
+                                    d'études</label>
+                                <select
+                                    class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                    id="niveau" name="niveau" required>
+                                    <option value="">Choisir un niveau...</option>
+                                    <?php foreach ($niveaux as $niveau): ?>
+                                    <option value="<?php echo $niveau['id_niveau']; ?>"
+                                        data-montant="<?php echo $niveau['montant_scolarite']; ?>">
+                                        <?php echo $niveau['nom_niveau']; ?> -
+                                        <?php echo number_format($niveau['montant_scolarite'], 2); ?> FCFA
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="w-full md:w-96">
-                        <div class="search-container relative">
-                            <div class="relative">
-                                <input type="text" id="studentSearch"
-                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Rechercher un étudiant existant...">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-search text-gray-400"></i>
+
+                    <!-- Section Détails étudiant -->
+                    <div
+                        class="mb-8 border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
+                        <h6 class="text-sm font-semibold text-green-600 mb-4 flex items-center">
+                            <i
+                                class="fas fa-id-card mr-2 transition-all duration-300 ease-in-out hover:scale-110 hover:text-green-500"></i>Détails
+                            étudiant
+                        </h6>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Numéro étudiant</label>
+                                <input type="text"
+                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="num_etu" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Nom</label>
+                                <input type="text"
+                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="nom" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Prénom</label>
+                                <input type="text"
+                                    class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                    id="prenom" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Paiement -->
+                    <div class="mb-8">
+                        <h6 class="text-sm font-semibold text-green-600 mb-4 flex items-center">
+                            <i
+                                class="fas fa-money-bill-wave mr-2 transition-all duration-300 ease-in-out hover:scale-110 hover:text-green-500"></i>Détails
+                            du paiement
+                        </h6>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div
+                                class="border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Montant total de la
+                                        scolarité</label>
+                                    <input type="text"
+                                        class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                        id="montant_total" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Premier versement
+                                        (minimum 30%)</label>
+                                    <input type="number"
+                                        class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                        id="premier_versement" name="premier_versement" required>
                                 </div>
                             </div>
-                            <div id="searchResults" class="search-results hidden"></div>
+                            <div
+                                class="border border-gray-200 rounded-lg bg-gray-50 p-6 transition-all duration-300 ease-in-out hover:shadow-md">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Reste à payer</label>
+                                    <input type="text"
+                                        class="w-full h-10 border border-gray-300 rounded-md bg-gray-100 transition-all duration-300 ease-in-out outline-none"
+                                        id="reste_payer" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre de
+                                        tranches</label>
+                                    <select
+                                        class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                        id="nombre_tranches" name="nombre_tranches">
+                                        <option value="1">1 tranche</option>
+                                        <option value="2">2 tranches</option>
+                                        <option value="3">3 tranches</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i>Enregistrer l'inscription
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Liste des étudiants inscrits -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-lg font-semibold text-green-600 flex items-center">
+                        <i class="fas fa-users mr-2"></i>Étudiants inscrits
+                    </h5>
+                </div>
+            </div>
+            <div class="p-6">
+                <!-- Barre d'outils -->
+                <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <!-- Barre de recherche -->
+                    <div class="relative w-full sm:w-96">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="searchInput"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent sm:text-sm"
+                            placeholder="Rechercher un étudiant...">
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToExcel()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200">
+                            <i class="fas fa-file-excel mr-2"></i>Excel
+                        </button>
+                        <button onclick="exportToPDF()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-200">
+                            <i class="fas fa-file-pdf mr-2"></i>PDF
+                        </button>
+                        <button onclick="window.print()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                            <i class="fas fa-print mr-2"></i>Imprimer
+                        </button>
                     </div>
                 </div>
 
-                <!-- Registration form -->
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800">Formulaire d'enregistrement</h2>
-                        <p class="text-sm text-gray-600">Remplissez toutes les informations requises</p>
-                    </div>
-                    <div class="px-6 py-4">
-                        <form id="registrationForm">
-                            <!-- Personal Information -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-id-card mr-2 text-blue-500"></i>
-                                    Informations personnelles
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Nom
-                                            <span class="text-red-500">*</span></label>
-                                        <input type="text" id="lastName" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <!-- Table -->
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-green-500 to-green-600">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Numéro</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Nom</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Niveau</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Date d'inscription</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                    Statut</th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($etudiantsInscrits as $inscrit): ?>
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo $inscrit['num_etu']; ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo $inscrit['nom_niveau']; ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo date('d/m/Y', strtotime($inscrit['date_inscription'])); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo $inscrit['statut_inscription'] === 'Validée' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'; ?>">
+                                        <?php echo $inscrit['statut_inscription']; ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <button onclick="modifierInscription(<?php echo $inscrit['id_inscription']; ?>)"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                            <i class="fas fa-edit mr-1"></i>Modifier
+                                        </button>
+                                        <button
+                                            onclick="confirmerSuppression(<?php echo $inscrit['id_inscription']; ?>, '<?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?>')"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                                            <i class="fas fa-trash-alt mr-1"></i>Supprimer
+                                        </button>
                                     </div>
-                                    <div>
-                                        <label for="firstName"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Prénom <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="firstName" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">Date
-                                            de naissance <span class="text-red-500">*</span></label>
-                                        <input type="date" id="birthDate" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Genre
-                                            <span class="text-red-500">*</span></label>
-                                        <select id="gender" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Sélectionner...</option>
-                                            <option value="male">Masculin</option>
-                                            <option value="female">Féminin</option>
-                                            <option value="other">Autre</option>
-                                            <option value="prefer_not">Préfère ne pas répondre</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="nationality"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Nationalité</label>
-                                        <input type="text" id="nationality"
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="birthPlace"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Lieu de
-                                            naissance</label>
-                                        <input type="text" id="birthPlace"
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                </div>
-                            </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                            <!-- Academic Information -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>
-                                    Informations académiques
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="program"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Formation <span
-                                                class="text-red-500">*</span></label>
-                                        <select id="program" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Sélectionner une formation...</option>
-                                            <option value="master_info">Master Informatique</option>
-                                            <option value="master_management">Master Management</option>
-                                            <option value="master_marketing">Master Marketing</option>
-                                            <option value="master_finance">Master Finance</option>
-                                            <option value="licence_info">Licence Informatique</option>
-                                            <option value="licence_eco">Licence Économie</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="promotion"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Promotion <span
-                                                class="text-red-500">*</span></label>
-                                        <select id="promotion" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Sélectionner une promotion...</option>
-                                            <option value="2023">2023</option>
-                                            <option value="2024">2024</option>
-                                            <option value="2025">2025</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
-                                            universitaire <span class="text-red-500">*</span></label>
-                                        <div class="mt-1 flex rounded-md shadow-sm">
-                                            <input type="text" id="emailPrefix"
-                                                class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm"
-                                                disabled>
-                                            <span
-                                                class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">@univ-example.fr</span>
-                                            <input type="hidden" id="email" name="email">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label for="studentId"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Numéro étudiant</label>
-                                        <input type="text" id="studentId"
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Généré automatiquement" disabled>
-                                    </div>
-                                    <div>
-                                        <label for="registrationDate"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Date d'inscription
-                                            <span class="text-red-500">*</span></label>
-                                        <input type="date" id="registrationDate" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut
-                                            <span class="text-red-500">*</span></label>
-                                        <select id="status" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="active" selected>Actif</option>
-                                            <option value="exchange">Échange</option>
-                                            <option value="distance">Formation à distance</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Contact Information -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-address-book mr-2 text-blue-500"></i>
-                                    Informations de contact
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="address"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Adresse <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="address" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="city" class="block text-sm font-medium text-gray-700 mb-1">Ville
-                                            <span class="text-red-500">*</span></label>
-                                        <input type="text" id="city" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="postalCode"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Code postal <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="postalCode" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Pays
-                                            <span class="text-red-500">*</span></label>
-                                        <input type="text" id="country" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="phone"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Téléphone <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="tel" id="phone" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="personalEmail"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Email personnel</label>
-                                        <input type="email" id="personalEmail"
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Emergency Contact -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-exclamation-triangle mr-2 text-blue-500"></i>
-                                    Contact d'urgence
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="emergencyContact"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Nom complet <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="emergencyContact" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="emergencyRelation"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Relation <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="emergencyRelation" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Parent, conjoint, etc.">
-                                    </div>
-                                    <div>
-                                        <label for="emergencyPhone"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Téléphone <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="tel" id="emergencyPhone" required
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label for="emergencyEmail"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                        <input type="email" id="emergencyEmail"
-                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Documents -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-file-alt mr-2 text-blue-500"></i>
-                                    Documents requis
-                                </h3>
-                                <div class="space-y-4">
-                                    <div class="flex items-center">
-                                        <input id="docId" name="documents" type="checkbox"
-                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="docId" class="ml-2 block text-sm text-gray-700">
-                                            Pièce d'identité (CNI/Passeport)
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="docPhoto" name="documents" type="checkbox"
-                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="docPhoto" class="ml-2 block text-sm text-gray-700">
-                                            Photo d'identité
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="docDiploma" name="documents" type="checkbox"
-                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="docDiploma" class="ml-2 block text-sm text-gray-700">
-                                            Diplôme ou attestation de réussite
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="docResume" name="documents" type="checkbox"
-                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="docResume" class="ml-2 block text-sm text-gray-700">
-                                            Curriculum Vitae
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="docMotivation" name="documents" type="checkbox"
-                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="docMotivation" class="ml-2 block text-sm text-gray-700">
-                                            Lettre de motivation
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Form actions -->
-                            <div class="pt-5 border-t border-gray-200">
-                                <div class="flex justify-end space-x-3">
-                                    <button type="reset"
-                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
-                                        <i class="fas fa-times mr-2"></i>Annuler
-                                    </button>
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition flex items-center justify-center">
-                                        <i class="fas fa-user-plus mr-2"></i>Enregistrer l'étudiant
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+    <!-- Modal de confirmation de suppression -->
+    <div id="modalSuppression" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Confirmer la suppression</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Êtes-vous sûr de vouloir supprimer l'inscription de <span id="nomEtudiant"
+                            class="font-medium"></span> ?
+                    </p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="confirmerBtn"
+                        class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Confirmer
+                    </button>
+                    <button onclick="fermerModal()"
+                        class="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Annuler
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    // Generate student email based on first and last name
-    document.getElementById('firstName').addEventListener('input', updateEmail);
-    document.getElementById('lastName').addEventListener('input', updateEmail);
+    document.addEventListener('DOMContentLoaded', function() {
+        const etudiantSelect = document.getElementById('etudiant');
+        const niveauSelect = document.getElementById('niveau');
+        const premierVersementInput = document.getElementById('premier_versement');
+        const nombreTranchesSelect = document.getElementById('nombre_tranches');
 
-    function updateEmail() {
-        const firstName = document.getElementById('firstName').value.toLowerCase();
-        const lastName = document.getElementById('lastName').value.toLowerCase();
+        // Gestion de la sélection d'un étudiant
+        etudiantSelect.addEventListener('change', function() {
+            const numEtu = this.value;
+            if (numEtu) {
+                fetch(`index.php?page=inscrire_des_etudiants&action=get_etudiant&num_etu=${numEtu}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('num_etu').value = data.num_etu;
+                        document.getElementById('nom').value = data.nom;
+                        document.getElementById('prenom').value = data.prenom;
+                    });
+            }
+        });
 
-        if (firstName && lastName) {
-            const emailPrefix = `${firstName.charAt(0)}.${lastName}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            document.getElementById('emailPrefix').value = emailPrefix;
-            document.getElementById('email').value = `${emailPrefix}@univ-example.fr`;
+        // Gestion du montant de la scolarité
+        niveauSelect.addEventListener('change', function() {
+            const montant = this.options[this.selectedIndex].dataset.montant;
+            document.getElementById('montant_total').value = new Intl.NumberFormat('fr-FR').format(
+                montant) + ' FCFA';
+            updateRestePayer();
+        });
 
-            // Generate student ID (example format)
-            const currentYear = new Date().getFullYear().toString().slice(-2);
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('studentId').value = `ST${currentYear}${randomNum}`;
-        }
-    }
+        // Gestion du premier versement
+        premierVersementInput.addEventListener('input', function() {
+            const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset
+                .montant);
+            const montantMinimum = montantTotal * 0.3;
 
-    // Set registration date to today by default
-    document.getElementById('registrationDate').valueAsDate = new Date();
-
-    // Student search functionality
-    const studentSearch = document.getElementById('studentSearch');
-    const searchResults = document.getElementById('searchResults');
-
-    studentSearch.addEventListener('input', function() {
-        if (this.value.length > 2) {
-            // Simulate API call with timeout
-            setTimeout(() => {
-                const mockResults = [{
-                        id: 1,
-                        name: "Sophie Martin",
-                        program: "Master Informatique",
-                        promo: "2023",
-                        email: "s.martin@univ-example.fr"
-                    },
-                    {
-                        id: 2,
-                        name: "Pierre Dupont",
-                        program: "Licence Économie",
-                        promo: "2024",
-                        email: "p.dupont@univ-example.fr"
-                    },
-                    {
-                        id: 3,
-                        name: "Jean Bernard",
-                        program: "Master Finance",
-                        promo: "2023",
-                        email: "j.bernard@univ-example.fr"
-                    },
-                    {
-                        id: 4,
-                        name: "Marie Leroy",
-                        program: "Master Marketing",
-                        promo: "2025",
-                        email: "m.leroy@univ-example.fr"
-                    }
-                ].filter(student =>
-                    student.name.toLowerCase().includes(this.value.toLowerCase()) ||
-                    student.email.toLowerCase().includes(this.value.toLowerCase())
+            if (parseFloat(this.value) < montantMinimum) {
+                alert(
+                    `Le premier versement doit être au minimum de ${new Intl.NumberFormat('fr-FR').format(montantMinimum)} FCFA (30% du montant total)`
                 );
+                this.value = montantMinimum;
+            }
 
-                displaySearchResults(mockResults);
-            }, 300);
-        } else {
-            searchResults.classList.add('hidden');
+            updateRestePayer();
+        });
+
+        // Mise à jour du reste à payer
+        function updateRestePayer() {
+            const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset.montant);
+            const premierVersement = parseFloat(premierVersementInput.value) || 0;
+            const reste = montantTotal - premierVersement;
+
+            document.getElementById('reste_payer').value = new Intl.NumberFormat('fr-FR').format(reste) +
+                ' FCFA';
         }
+
+        // Validation du formulaire
+        document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset
+                .montant);
+            const premierVersement = parseFloat(premierVersementInput.value);
+
+            if (premierVersement < montantTotal * 0.3) {
+                alert('Le premier versement doit être au minimum de 30% du montant total');
+                return;
+            }
+
+            this.submit();
+        });
+
+        // Fonction de recherche
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Variables pour la suppression
+        let inscriptionASupprimer = null;
+
+        // Fonction pour modifier une inscription
+        window.modifierInscription = function(idInscription) {
+            window.location.href =
+                `index.php?page=inscrire_des_etudiants&action=modifier&id=${idInscription}`;
+        };
+
+        // Fonction pour confirmer la suppression
+        window.confirmerSuppression = function(idInscription, nomEtudiant) {
+            inscriptionASupprimer = idInscription;
+            document.getElementById('nomEtudiant').textContent = nomEtudiant;
+            document.getElementById('modalSuppression').classList.remove('hidden');
+        };
+
+        // Fonction pour fermer le modal
+        window.fermerModal = function() {
+            document.getElementById('modalSuppression').classList.add('hidden');
+            inscriptionASupprimer = null;
+        };
+
+        // Gestionnaire de confirmation de suppression
+        document.getElementById('confirmerBtn').addEventListener('click', function() {
+            if (inscriptionASupprimer) {
+                window.location.href =
+                    `index.php?page=inscrire_des_etudiants&action=supprimer&id=${inscriptionASupprimer}`;
+            }
+        });
+
+        // Fermer le modal si on clique en dehors
+        document.getElementById('modalSuppression').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fermerModal();
+            }
+        });
     });
 
-    function displaySearchResults(results) {
-        searchResults.innerHTML = '';
-
-        if (results.length > 0) {
-            results.forEach(student => {
-                const item = document.createElement('div');
-                item.className = 'search-item';
-                item.innerHTML = `
-                        <div class="font-medium">${student.name}</div>
-                        <div class="text-sm text-gray-500">${student.program} - Promo ${student.promo}</div>
-                        <div class="text-xs text-gray-400">${student.email}</div>
-                    `;
-                item.addEventListener('click', () => {
-                    // Fill form with selected student data (simulated)
-                    alert(`Chargement des données de ${student.name}...`);
-                    studentSearch.value = student.name;
-                    searchResults.classList.add('hidden');
-                });
-                searchResults.appendChild(item);
-            });
-            searchResults.classList.remove('hidden');
-        } else {
-            const noResults = document.createElement('div');
-            noResults.className = 'search-item text-gray-500';
-            noResults.textContent = 'Aucun étudiant trouvé';
-            searchResults.appendChild(noResults);
-            searchResults.classList.remove('hidden');
-        }
+    // Fonctions d'exportation
+    function exportToExcel() {
+        // Implémentation de l'export Excel
+        alert('Fonctionnalité d\'export Excel à implémenter');
     }
 
-    // Hide search results when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!studentSearch.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.add('hidden');
-        }
-    });
-
-    // Form submission
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('Étudiant enregistré avec succès!');
-        // Here you would typically send the form data to your backend
-    });
+    function exportToPDF() {
+        // Implémentation de l'export PDF
+        alert('Fonctionnalité d\'export PDF à implémenter');
+    }
     </script>
 </body>
 

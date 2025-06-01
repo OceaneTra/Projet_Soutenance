@@ -281,12 +281,6 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
-                                    <span>Date de naissance</span>
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center">
                                     <span>Genre</span>
                                     <i class="fas fa-sort ml-1 text-gray-400"></i>
                                 </div>
@@ -337,9 +331,6 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <?php echo htmlspecialchars($etudiant->prenom_etu); ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <?php echo htmlspecialchars($etudiant->date_naiss_etu); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <?php echo htmlspecialchars($etudiant->genre_etu); ?>
