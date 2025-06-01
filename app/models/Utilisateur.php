@@ -134,7 +134,10 @@ class Utilisateur
 
     public function getUtilisateurById($id)
     {
-        $sql = "SELECT * FROM utilisateur WHERE id_utilisateur = :id";
+        $sql = "SELECT u.*, nad.id_niveau_acces_donnees as id_niv_acces_donnee 
+                FROM utilisateur u
+                LEFT JOIN niveau_acces_donnees nad ON u.id_niv_acces_donnee = nad.id_niveau_acces_donnees
+                WHERE u.id_utilisateur = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -173,7 +176,7 @@ class Utilisateur
 
     public function updateUtilisateur($nom, $id_type_utilisateur, $id_GU, $id_niv_acces_donnees, $statut_utilisateur, $login,  $id)
     {
-        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnees = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
+        $query = "UPDATE utilisateur SET nom_utilisateur = :nom, login_utilisateur = :login, id_GU = :id_GU, id_type_utilisateur = :id_type_utilisateur, id_niv_acces_donnee = :id_niv_acces_donnees,statut_utilisateur = :statut  WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':nom', $nom);
         $stmt->bindParam(':login', $login);
@@ -209,7 +212,8 @@ class Utilisateur
     {
         $sql = "UPDATE utilisateur SET statut_utilisateur = 'Actif' WHERE id_utilisateur = :id";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute(['id' => $id]);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
     public function updatePassword($id, $newPassword)
@@ -449,6 +453,120 @@ class Utilisateur
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer les enseignants non enregistrés comme utilisateurs
+    public function getEnseignantsNonUtilisateurs() {
+        $query = "SELECT e.id_enseignant, e.nom_enseignant, e.prenom_enseignant, e.mail_enseignant 
+                 FROM enseignants e 
+                 LEFT JOIN utilisateur u ON e.mail_enseignant = u.login_utilisateur 
+                 WHERE u.id_utilisateur IS NULL 
+                 ORDER BY e.nom_enseignant, e.prenom_enseignant";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer le personnel administratif non enregistré comme utilisateur
+    public function getPersonnelNonUtilisateurs() {
+        $query = "SELECT pa.id_pers_admin, pa.nom_pers_admin, pa.prenom_pers_admin, pa.email_pers_admin 
+                 FROM personnel_admin pa 
+                 LEFT JOIN utilisateur u ON pa.email_pers_admin = u.login_utilisateur 
+                 WHERE u.id_utilisateur IS NULL 
+                 ORDER BY pa.nom_pers_admin, pa.prenom_pers_admin";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer les étudiants non enregistrés comme utilisateurs
+    public function getEtudiantsNonUtilisateurs() {
+        $query = "SELECT e.num_etu, e.nom_etu, e.prenom_etu, e.login_etu
+                 FROM etudiants e 
+                 LEFT JOIN utilisateur u ON e.login_etu = u.login_utilisateur 
+                 WHERE u.id_utilisateur IS NULL 
+                 ORDER BY e.nom_etu, e.prenom_etu";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    // Vérifier si un login (email) est déjà utilisé
+    public function isLoginUsed($login) {
+        $query = "SELECT COUNT(*) as count FROM utilisateur WHERE login_utilisateur = :login";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':login', $login);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'] > 0;
+    }
+ // Fonction pour générer un mot de passe aléatoire
+    function generateRandomPassword($length = 12)
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[rand(0, strlen($chars) - 1)];
+        }
+        return $password;
+    }
+    // Ajouter plusieurs utilisateurs en masse
+    public function ajouterUtilisateursEnMasse($utilisateurs) {
+        $this->db->beginTransaction();
+        try {
+            $utilisateursAjoutes = [];
+            foreach ($utilisateurs as $utilisateur) {
+                $mdp = $this->generateRandomPassword();
+                $mdp_hash = password_hash($mdp, PASSWORD_DEFAULT);
+                
+                if ($this->ajouterUtilisateur(
+                    $utilisateur['nom'],
+                    $utilisateur['id_type'],
+                    $utilisateur['id_groupe'],
+                    $utilisateur['id_niveau'],
+                    $utilisateur['statut'],
+                    $utilisateur['login'],
+                    $mdp_hash
+                )) {
+                    $utilisateursAjoutes[] = [
+                        'nom' => $utilisateur['nom'],
+                        'login' => $utilisateur['login'],
+                        'mdp' => $mdp
+                    ];
+                } else {
+                    throw new Exception("Erreur lors de l'ajout de l'utilisateur " . $utilisateur['nom']);
+                }
+            }
+            $this->db->commit();
+            return $utilisateursAjoutes;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    // Récupérer un enseignant par son ID
+    public function getEnseignantById($id) {
+        $sql = "SELECT * FROM enseignants WHERE id_enseignant = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer un membre du personnel par son ID
+    public function getPersonnelById($id) {
+        $sql = "SELECT * FROM personnel_admin WHERE id_pers_admin = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    // Récupérer un étudiant par son ID
+    public function getEtudiantById($id) {
+        $sql = "SELECT * FROM etudiants WHERE num_etu = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
 }

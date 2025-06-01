@@ -960,3 +960,173 @@ input:checked+.slider:before {
     background-color: #F44336;
     color: white;
 }
+
+/* Styles pour les modales */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s;
+}
+
+.modal-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 24rem;
+    width: 100%;
+    margin: 0 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: translateY(0);
+    transition: all 0.3s;
+}
+
+.modal-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.modal-enter-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-exit {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+/* Styles pour les boutons de la modale */
+.modal-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.modal-button:focus {
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+}
+
+.modal-button-primary {
+    background-color: #2563eb;
+    color: white;
+}
+
+.modal-button-primary:hover {
+    background-color: #1d4ed8;
+}
+
+.modal-button-danger {
+    background-color: #dc2626;
+    color: white;
+}
+
+.modal-button-danger:hover {
+    background-color: #b91c1c;
+}
+
+.modal-button-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.modal-button-secondary:hover {
+    background-color: #e5e7eb;
+}
+
+/* Styles pour l'icône de la modale */
+.modal-icon {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    width: 3rem;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+}
+
+.modal-icon-success {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.modal-icon-warning {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.modal-icon-info {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+/* Styles pour le titre et le texte de la modale */
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.modal-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Styles pour le conteneur des boutons */
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Animation pour l'apparition de la modale */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+.modal-animate-in {
+    animation: modalFadeIn 0.3s ease-out forwards;
+}
+
+.modal-animate-out {
+    animation: modalFadeOut 0.3s ease-in forwards;
+}

@@ -44,12 +44,28 @@ class GestionUtilisateurController
         $action = $_GET['action'] ?? '';
 
         try {
+            // Récupérer les personnes non enregistrées comme utilisateurs
+            $enseignantsNonUtilisateurs = $this->utilisateur->getEnseignantsNonUtilisateurs();
+            $personnelNonUtilisateurs = $this->utilisateur->getPersonnelNonUtilisateurs();
+            $etudiantsNonUtilisateurs = $this->utilisateur->getEtudiantsNonUtilisateurs();
+
             // Gestion des actions GET pour les modales
             if ($action === 'edit' && isset($_GET['id_utilisateur'])) {
                 $utilisateur_a_modifier = $this->utilisateur->getUtilisateurById($_GET['id_utilisateur']);
                 if (!$utilisateur_a_modifier) {
                     $messageErreur = "Utilisateur non trouvé.";
                 }
+            } elseif ($action === 'add') {
+                // Pour l'ajout, on initialise un objet vide
+                $utilisateur_a_modifier = (object)[
+                    'id_utilisateur' => '',
+                    'nom_utilisateur' => '',
+                    'login_utilisateur' => '',
+                    'id_type_utilisateur' => '',
+                    'statut_utilisateur' => '1',
+                    'id_GU' => '',
+                    'id_niv_acces_donnee' => ''
+                ];
             }
 
             // Gestion des actions POST
@@ -67,27 +83,103 @@ class GestionUtilisateurController
                         empty($login_utilisateur) || empty($statut_utilisateur) || empty($id_niveau_acces)) {
                         $messageErreur = "Tous les champs sont obligatoires.";
                     } else {
-                        $mdp = $this->generateRandomPassword();
-                        $mdp_hash = password_hash($mdp, PASSWORD_DEFAULT);
+                        // Vérifier si le login est déjà utilisé
+                        if ($this->utilisateur->isLoginUsed($login_utilisateur)) {
+                            $messageErreur = "Ce login (email) est déjà utilisé par un autre utilisateur.";
+                        } else {
+                            $mdp = $this->generateRandomPassword();
+                            $mdp_hash = password_hash($mdp, PASSWORD_DEFAULT);
 
-                        if ($this->utilisateur->ajouterUtilisateur(
-                            $nom_utilisateur,
-                            $id_type_utilisateur,
-                            $id_GU,
-                            $id_niveau_acces,
-                            $statut_utilisateur,
-                            $login_utilisateur,
-                            $mdp_hash
-                        )) {
-                            if($this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp)){
-                                $messageSuccess = "Utilisateur ajouté avec succès et email envoyé.";
+                            if ($this->utilisateur->ajouterUtilisateur(
+                                $nom_utilisateur,
+                                $id_type_utilisateur,
+                                $id_GU,
+                                $id_niveau_acces,
+                                $statut_utilisateur,
+                                $login_utilisateur,
+                                $mdp_hash
+                            )) {
+                                if($this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp)){
+                                    $messageSuccess = "Utilisateur ajouté avec succès et email envoyé.";
+                                }
+                            } else {
+                                $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
                             }
-                         else {
-                            $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
                         }
                     }
-                     }
                 }
+
+                // Traitement de l'ajout en masse
+                if (isset($_POST['btn_add_multiple']) && !empty($_POST['selected_persons'])) {
+                    $utilisateurs = [];
+                    $utilisateurModel = new Utilisateur(Database::getConnection());
+                    
+                    foreach ($_POST['selected_persons'] as $person) {
+                        list($type, $id) = explode('_', $person);
+                        $login = '';
+                        $nom = '';
+                        
+                        switch ($type) {
+                            case 'ens':
+                                $enseignant = $utilisateurModel->getEnseignantById($id);
+                                if ($enseignant && !$utilisateurModel->isLoginUsed($enseignant->mail_enseignant)) {
+                                    $login = $enseignant->mail_enseignant;
+                                    $nom = $enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant;
+                                }
+                                break;
+                            case 'pers':
+                                $personnel = $utilisateurModel->getPersonnelById($id);
+                                if ($personnel && !$utilisateurModel->isLoginUsed($personnel->email_pers_admin)) {
+                                    $login = $personnel->email_pers_admin;
+                                    $nom = $personnel->nom_pers_admin . ' ' . $personnel->prenom_pers_admin;
+                                }
+                                break;
+                            case 'etu':
+                                $etudiant = $utilisateurModel->getEtudiantById($id);
+                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->login_etu)) {
+                                    $login = $etudiant->login_etu;
+                                    $nom = $etudiant->nom_etu . ' ' . $etudiant->prenom_etu;
+                                }
+                                break;
+                        }
+                        
+                        if ($login && $nom) {
+                            $utilisateurs[] = [
+                                'nom' => $nom,
+                                'login' => $login,
+                                'id_type' => $_POST['id_type_utilisateur'],
+                                'id_groupe' => $_POST['id_GU'],
+                                'id_niveau' => $_POST['id_niveau_acces'],
+                                'statut' => $_POST['statut_utilisateur']
+                            ];
+                        }
+                    }
+                    
+                    if (!empty($utilisateurs)) {
+                        try {
+                            $utilisateursAjoutes = $utilisateurModel->ajouterUtilisateursEnMasse($utilisateurs);
+                            
+                            // Envoyer les emails aux utilisateurs ajoutés
+                            foreach ($utilisateursAjoutes as $utilisateur) {
+                                if($this->envoyerEmailInscriptionPHPMailer(
+                                    $utilisateur['login'],
+                                    $utilisateur['nom'],
+                                    $utilisateur['login'],
+                                    $utilisateur['mdp']
+                                )) {
+                                    $GLOBALS['messageSuccess'] = count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
+                                } else {
+                                    $GLOBALS['messageErreur'] = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
+                                }
+                            }
+                        } catch (Exception $e) {
+                            $GLOBALS['messageErreur'] = "Erreur lors de l'ajout en masse : " . $e->getMessage();
+                        }
+                    } else {
+                        $GLOBALS['messageErreur'] = "Aucun utilisateur valide à ajouter";
+                    }
+                }
+
                 // Modification d'un utilisateur
                 if (isset($_POST['btn_modifier_utilisateur'])) {
                     $id_utilisateur = $_POST['id_utilisateur'] ?? '';
@@ -97,7 +189,7 @@ class GestionUtilisateurController
                     $login_utilisateur = $_POST['login_utilisateur'] ?? '';
                     $statut_utilisateur = $_POST['statut_utilisateur'] ?? '';
                     $id_niveau_acces = $_POST['id_niveau_acces'] ?? '';
-                    $mdp_utilisateur = $_POST['mdp_utilisateur'] ?? '';
+                   
 
                     if (empty($id_utilisateur) || empty($nom_utilisateur) || empty($id_type_utilisateur) || 
                         empty($id_GU) || empty($login_utilisateur) || empty($statut_utilisateur) || 
@@ -114,38 +206,42 @@ class GestionUtilisateurController
                             $id_utilisateur
                         )) {
                             $messageSuccess = "Utilisateur modifié avec succès.";
+                           
                         } else {
                             $messageErreur = "Erreur lors de la modification de l'utilisateur.";
                         }
                     }
                 }
 
-                // Désactivation d'un utilisateur
-                if (isset($_POST['btn_desactiver_utilisateur'])) {
-                    $id_utilisateur = $_POST['id_utilisateur'] ?? '';
-                    if (empty($id_utilisateur)) {
-                        $messageErreur = "ID utilisateur manquant.";
-                    } else {
-                        if ($this->utilisateur->desactiverUtilisateur($id_utilisateur)) {
-                            $messageSuccess = "Utilisateur désactivé avec succès.";
+                // Activation ou désactivation d'utilisateurs
+                if (isset($_POST['selected_ids'])) {
+                    if (isset($_POST['submit_enable_multiple']) && $_POST['submit_enable_multiple']==3) {
+                        $success = true;
+                        foreach ($_POST['selected_ids'] as $id) {
+                            if (!$this->utilisateur->reactiverUtilisateur($id)) {
+                                $success = false;
+                                break;
+                            }
+                        }
+                        if ($success) {
+                            $messageSuccess = "Utilisateurs activés avec succès.";
                         } else {
-                            $messageErreur = "Erreur lors de la désactivation de l'utilisateur.";
+                            $messageErreur = "Erreur lors de l'activation des utilisateurs.";
+                        }
+                    } elseif (isset($_POST['submit_disable_multiple']) && $_POST['submit_disable_multiple']==2 ) {
+                        $success = true;
+                        foreach ($_POST['selected_ids'] as $id) {
+                            if (!$this->utilisateur->desactiverUtilisateur($id)) {
+                                $success = false;
+                                break;
+                            }
+                        }
+                        if ($success) {
+                            $messageSuccess = "Utilisateurs désactivés avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de la désactivation des utilisateurs.";
                         }
                     }
-                }
-
-                // Désactivation multiple d'utilisateurs
-                if (isset($_POST['btn_desactiver_multiple']) && isset($_POST['userCheckbox'])) {
-                    $success = true;
-                    foreach ($_POST['userCheckbox'] as $id) {
-                        if (!$this->utilisateur->desactiverUtilisateur($id)) {
-                            $success = false;
-                            break;
-                        }
-                    }
-                    $messageSuccess = $success ? 
-                        "Utilisateurs désactivés avec succès." : 
-                        "Erreur lors de la désactivation des utilisateurs.";
                 }
             }
         } catch (Exception $e) {
@@ -161,6 +257,9 @@ class GestionUtilisateurController
         $GLOBALS['niveau_acces'] = $this->niveauAcces->getAllNiveauxAccesDonnees();
         $GLOBALS['utilisateur_a_modifier'] = $utilisateur_a_modifier;
         $GLOBALS['action'] = $action;
+        $GLOBALS['enseignantsNonUtilisateurs'] = $enseignantsNonUtilisateurs;
+        $GLOBALS['personnelNonUtilisateurs'] = $personnelNonUtilisateurs;
+        $GLOBALS['etudiantsNonUtilisateurs'] = $etudiantsNonUtilisateurs;
     }
 
 
