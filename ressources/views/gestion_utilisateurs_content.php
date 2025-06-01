@@ -9,24 +9,42 @@ $types_utilisateur =$GLOBALS['types_utilisateur'];
 $groupes_utilisateur =$GLOBALS['groupes_utilisateur'] ;
 
 
+// Calculer les statistiques sur l'ensemble des utilisateurs
+$allUtilisateurs = $GLOBALS['utilisateurs'] ?? [];
+$totalUtilisateurs = count($allUtilisateurs);
+$utilisateursActifs = count(array_filter($allUtilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
+$utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
+
 // Pagination
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
+// Search functionality
+$search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+
+// Filter the list based on search
+if (!empty($search)) {
+    $allUtilisateurs = array_filter($allUtilisateurs, function($utilisateur) use ($search) {
+        return stripos($utilisateur->nom_utilisateur, $search) !== false ||
+               stripos($utilisateur->prenom_utilisateur, $search) !== false ||
+               stripos($utilisateur->email_utilisateur, $search) !== false;
+    });
+}
 
 // Total pages calculation
-$total_items = count($utilisateurs);
+$total_items = count($allUtilisateurs);
 $total_pages = ceil($total_items / $limit);
 
+// Validation de la page courante
+if ($page < 1) {
+    $page = 1;
+} elseif ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
 // Slice the array for pagination
-$utilisateurs = array_slice($utilisateurs, $offset, $limit);
-
-
-// Calculer les statistiques
-$totalUtilisateurs = count($utilisateurs);
-$utilisateursActifs = count(array_filter($utilisateurs, function($u) { return $u->statut_utilisateur === 'Actif'; }));
-$utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
+$utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
 
 ?>
 
@@ -80,6 +98,81 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
         to {
             opacity: 0;
         }
+    }
+
+    /* Animations pour la modale de chargement */
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Transition pour la modale */
+    .transform {
+        transition-property: transform, opacity;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+    }
+
+    .scale-95 {
+        transform: scale(0.95);
+    }
+
+    .scale-100 {
+        transform: scale(1);
+    }
+
+    .opacity-0 {
+        opacity: 0;
+    }
+
+    .opacity-100 {
+        opacity: 1;
+    }
+
+    @keyframes progress {
+        0% {
+            width: 0%;
+        }
+
+        50% {
+            width: 70%;
+        }
+
+        100% {
+            width: 100%;
+        }
+    }
+
+    .progress-bar {
+        animation: progress 2s ease-in-out infinite;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
     }
     </style>
 
@@ -158,7 +251,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                                     <?php foreach($etudiantsNonUtilisateurs as $etudiant): ?>
                                     <option
                                         value="<?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>"
-                                        data-login="<?php echo htmlspecialchars($etudiant->login_etu); ?>">
+                                        data-login="<?php echo htmlspecialchars($etudiant->email_etu); ?>">
                                         <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -318,7 +411,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </select>
                             <p class="text-sm text-gray-500 mt-1">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs personnes
+                                Maintenez Shift ou Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs personnes
                             </p>
                         </div>
                         <div class="space-y-4">
@@ -377,7 +470,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                             </div>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-4">
+                    <div class="flex justify-between gap-4">
                         <button type="button" onclick="closeMasseModal()"
                             class="px-6 py-2.5 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
                             <i class="fas fa-times mr-2"></i>Annuler
@@ -589,7 +682,7 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                     </div>
                     <div class="flex flex-wrap justify-center gap-2">
                         <?php if ($page > 1): ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             <i class="fas fa-chevron-left mr-1"></i>Précédent
                         </a>
@@ -600,24 +693,32 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
                         $end = min($total_pages, $page + 2);
                         
                         if ($start > 1) {
-                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            echo '<a href="?page=gestion_utilisateurs&p=1' . (!empty($search) ? '&search=' . urlencode($search) : '') . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>';
+                            if ($start > 2) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
                         }
                         
                         for ($i = $start; $i <= $end; $i++):
+                            $searchParam = !empty($search) ? '&search=' . urlencode($search) : '';
                         ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $i ?>&search=<?= urlencode($search) ?>"
-                            class="btn-hover px-3 py-2 <?= $i === $page ? 'btn-gradient-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
+                        <a href="?page=gestion_utilisateurs&p=<?= $i ?><?= $searchParam ?>"
+                            class="btn-hover px-3 py-2 <?= $i === $page ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 rounded-lg text-sm font-medium">
                             <?= $i ?>
                         </a>
                         <?php endfor;
 
                         if ($end < $total_pages) {
-                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            if ($end < $total_pages - 1) {
+                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            }
+                            $searchParam = !empty($search) ? '&search=' . urlencode($search) : '';
+                            echo '<a href="?page=gestion_utilisateurs&p=' . $total_pages . $searchParam . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">' . $total_pages . '</a>';
                         }
                         ?>
 
                         <?php if ($page < $total_pages): ?>
-                        <a href="?page=gestion_utilisateurs&p=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                        <a href="?page=gestion_utilisateurs&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"
                             class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
                             Suivant<i class="fas fa-chevron-right ml-1"></i>
                         </a>
@@ -713,6 +814,29 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
             </div>
         </div>
     </div>
+
+    <!-- Modale de chargement -->
+    <?php if (isset($_POST['btn_add_multiple'])): ?>
+    <div id="loadingModal" class="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-xs w-full mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="inline-block relative">
+                    <div class="w-12 h-12 border-3 border-green-200 rounded-full"></div>
+                    <div
+                        class="w-12 h-12 border-3 border-green-500 rounded-full absolute top-0 left-0 animate-spin border-t-transparent">
+                    </div>
+                </div>
+                <h3 class="mt-3 text-base font-medium text-gray-900">Traitement en cours</h3>
+                <p class="mt-1 text-sm text-gray-500">Ajout des utilisateurs...</p>
+                <div class="mt-3">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-green-500 h-1.5 rounded-full progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <script>
     // Variables pour le modal utilisateur
@@ -929,7 +1053,14 @@ $utilisateursInactifs = $totalUtilisateurs - $utilisateursActifs;
     document.addEventListener('DOMContentLoaded', function() {
         const successNotification = document.getElementById('successNotification');
         const errorNotification = document.getElementById('errorNotification');
+        const loader = document.getElementById('loaderOverlay');
 
+        // Masquer le loader si présent
+        if (loader) {
+            loader.classList.add('hidden');
+        }
+
+        // Afficher les notifications existantes
         if (successNotification) {
             setTimeout(() => {
                 successNotification.classList.remove('animate__fadeIn');

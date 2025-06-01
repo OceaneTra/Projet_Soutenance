@@ -136,8 +136,8 @@ class GestionUtilisateurController
                                 break;
                             case 'etu':
                                 $etudiant = $utilisateurModel->getEtudiantById($id);
-                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->login_etu)) {
-                                    $login = $etudiant->login_etu;
+                                if ($etudiant && !$utilisateurModel->isLoginUsed($etudiant->email_etu)) {
+                                    $login = $etudiant->email_etu;
                                     $nom = $etudiant->nom_etu . ' ' . $etudiant->prenom_etu;
                                 }
                                 break;
@@ -178,6 +178,7 @@ class GestionUtilisateurController
                     } else {
                         $GLOBALS['messageErreur'] = "Aucun utilisateur valide à ajouter";
                     }
+
                 }
 
                 // Modification d'un utilisateur
@@ -211,6 +212,7 @@ class GestionUtilisateurController
                             $messageErreur = "Erreur lors de la modification de l'utilisateur.";
                         }
                     }
+                    $GLOBALS['en_cours'] = false;
                 }
 
                 // Activation ou désactivation d'utilisateurs
