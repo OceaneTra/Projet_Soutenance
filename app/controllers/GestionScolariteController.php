@@ -25,6 +25,7 @@ class GestionScolariteController {
     public function enregistrerVersement() {
         // Valider les données du formulaire POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
             $id_etudiant = $_POST['id_etudiant'] ?? null;
             $montant = $_POST['montant'] ?? null;
             $date_versement = $_POST['date_versement'] ?? null;
@@ -67,26 +68,14 @@ class GestionScolariteController {
              $etudiantsInscrits = $this->scolariteModel->getEtudiantsInscrits(); // Nécessaire pour le select dans le formulaire
 
              if ($versementAModifier) {
-                 // Pré-remplir le formulaire dans la vue avec les données du versement
-                 // On peut passer les données via GLOBALS ou adapter la vue pour qu'elle lise l'ID de l'URL et charge les données si nécessaire
-                 // Pour simplifier ici, on va passer les données via GLOBALS pour le formulaire.
                  $GLOBALS['versementAModifier'] = $versementAModifier;
                  $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits; // Passer aussi les étudiants pour le select
-
-                 // Afficher la vue (le formulaire sera pré-rempli)
-                 require_once __DIR__ . '/../ressources/views/gestion_scolarite_content.php';
-
-             } else {
-                 $GLOBALS['messageErreur'] = "Versement introuvable.";
-                 // Rediriger vers la page de liste si le versement n'est pas trouvé
-                 header('Location: ?page=gestion_scolarite');
-                 exit();
-             }
+            } else {
+                $GLOBALS['messageErreur'] = "Versement introuvable.";
+            }
          } else {
              $GLOBALS['messageErreur'] = "ID de versement manquant.";
-             // Rediriger vers la page de liste si l'ID est manquant
-             header('Location: ?page=gestion_scolarite');
-             exit();
+            
          }
      }
 
@@ -116,9 +105,6 @@ class GestionScolariteController {
                 $GLOBALS['messageErreur'] = "Veuillez remplir tous les champs requis.";
             }
         }
-         // Rediriger vers la page de liste après modification
-         header('Location: ?page=gestion_scolarite');
-         exit();
      }
 
     public function supprimerVersement() {

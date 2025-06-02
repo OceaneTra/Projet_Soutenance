@@ -71,10 +71,6 @@ switch ($currentMenuSlug) {
             if (in_array($_GET['action'], $allowedActions)) {
                 $currentAction = $_GET['action'];
                 $contentFile = $partialsBasePath . 'parametres_generaux' . DIRECTORY_SEPARATOR . $currentAction . '.php';
-                // Pour le label, vous voudrez peut-être un mapping plus précis
-                // que de simplement formater le slug de l'action.
-                // Par exemple, récupérer le titre de la carte correspondante.
-                // Pour l'instant, on formate le slug de l'action :
                 $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
             }
         } else {
@@ -141,6 +137,116 @@ switch ($currentMenuSlug) {
             // Ajustez le chemin si nécessaire
             include __DIR__ . '/../ressources/routes/gestionEtudiantRoutes.php';
         
+            // Gérer l'action d'impression de reçu PDF
+            if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'imprimer_recu' && isset($_GET['id_inscription'])) {
+                // Inclure l'autoloader de Composer pour Dompdf
+                require_once __DIR__ . '/../vendor/autoload.php'; // Assurez-vous que ce chemin est correct
+
+                $id_inscription = $_GET['id_inscription'];
+
+                // TODO: Récupérer les informations de l'inscription et de l'étudiant depuis la base de données
+                // Exemple (à adapter selon votre modèle/base de données) :
+                // $inscription = getInscriptionDetails($id_inscription);
+                // $etudiant = getEtudiantDetails($inscription['id_etudiant']);
+
+                // TODO: Construire le contenu HTML du reçu en utilisant les données récupérées
+                
+                $html = '
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                    .receipt-box { border: 1px solid #000; padding: 20px; width: 600px; margin: 0 auto; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .header h2 { margin: 0; }
+                    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    .info-table td { padding: 5px 0; border-bottom: 1px dashed #ccc; }
+                    .info-table td:first-child { font-weight: bold; width: 150px; }
+                    .amount-text { font-style: italic; margin-top: 10px; }
+                    .footer-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+                    .footer-table td { padding: 5px 0; }
+                    .footer-table td:last-child { text-align: right; }
+                    .signature { margin-top: 40px; text-align: center; }
+                    .signature p { margin: 0; border-top: 1px solid #000; display: inline-block; padding-top: 5px; }
+                     .section-title { font-weight: bold; margin-top: 15px; margin-bottom: 5px; border-bottom: 1px solid #000; }
+                </style>
+                <div class="receipt-box">
+                    <div class="header">
+                        <h2>UNIVERSITE DE COCODY</h2>
+                        <p>22 B.P. 582 Abidjan 22</p>
+                        <p>Tél. (Fax): 27 22 41 05 74 / 27 22 48 01 80</p>
+                        <p>Cel: 07 07 89 94 26 / 07 07 69 15 04</p>
+                        <h3>REÇU <span style="float: right;">Nº [Numéro du reçu]</span></h3>
+                    </div>
+
+                    <table class="info-table">
+                        <tr>
+                            <td>Reçu de M/Mme :</td>
+                            <td>[Nom Prénom de l\'étudiant]</td>
+                        </tr>
+                        <tr>
+                            <td>La somme de :</td>
+                            <td>[Montant payé] FCFA</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="amount-text">(en toutes lettres : [Montant en toutes lettres])</td>
+                        </tr>
+                         <tr>
+                            <td>En règlement de :</td>
+                            <td>Scolarité Année Académique [Année Académique] - [Niveau]</td>
+                        </tr>
+                        <tr>
+                            <td>Année d\'Études :</td>
+                            <td>[Année d\'études (ex: L3)]</td>
+                        </tr>
+                    </table>
+
+                    <table class="footer-table">
+                        <tr>
+                            <td>Espèces: [X ou Vide] Chèque n°: [Numéro Chèque]</td>
+                            <td>Date: [Date du jour]</td>
+                        </tr>
+                        <tr>
+                            <td>Reste à payer :</td>
+                            <td>[Reste à payer] FCFA</td>
+                        </tr>
+                         <tr>
+                            <td>Montant prochain versement :</td>
+                            <td>[Montant prochain versement]</td>
+                        </tr>
+                        <tr>
+                            <td>Date prochain versement :</td>
+                            <td>[Date prochain versement]</td>
+                        </tr>
+                    </table>
+
+                    <div class="signature">
+                        <p>Signature et cachet</p>
+                    </div>
+
+                    <p style="text-align: center; font-size: 0.8em; margin-top: 20px;">N.B.: Aucun remboursement n'est possible après versement</p>
+
+                </div>
+                ';
+
+                // Instancier Dompdf
+                $dompdf = new Dompdf\Dompdf();
+
+                // Charger le HTML
+                
+                $dompdf->loadHtml($html);
+
+                // (Optionnel) Définir la taille et l\'orientation du papier
+                $dompdf->setPaper('A4', 'portrait');
+
+                // Rendre le PDF
+                $dompdf->render();
+
+                // Envoyer le PDF au navigateur
+                // Le paramètre Attachment => false permet d\'afficher le PDF directement
+                $dompdf->stream("recu_paiement_" . $id_inscription . ".pdf", array("Attachment" => false));
+
+                exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
+            }
+
             $allowedActions = ['ajouter_des_etudiants', 'inscrire_des_etudiants'];
     
             

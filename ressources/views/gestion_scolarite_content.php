@@ -210,7 +210,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                             </div>
                             <div class="mt-6 flex justify-between">
                                 <div></div>
-                                <button type="submit"
+                                <button type="submit" name="enregistrer_versement"
                                     class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
                                     Enregistrer le versement
                                 </button>

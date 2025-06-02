@@ -510,7 +510,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                             class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200">
                                             <i class="fas fa-trash-alt mr-1"></i>
                                         </button>
-                                        <button
+                                        <button onclick="imprimerRecu(<?php echo $inscrit['id_inscription']; ?>)"
                                             class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2  transition-all duration-200">
                                             <i class="fas fa-print mr-1"></i>
                                         </button>
@@ -898,6 +898,14 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         // Initialiser les données
         initializeData();
     });
+
+    // Fonction pour imprimer un reçu individuel
+    window.imprimerRecu = function(idInscription) {
+        // Rediriger vers un script PHP qui générera le PDF
+        window.open(
+            `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=imprimer_recu&id_inscription=${idInscription}`,
+            '_blank');
+    };
     </script>
 </body>
 
