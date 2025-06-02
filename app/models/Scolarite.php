@@ -204,14 +204,11 @@ class Scolarite {
 
     // Ajouter un nouveau versement
     public function addVersement($data) {
-        // Assurez-vous que $data contient les clés nécessaires: id_inscription, montant, date_versement, methode_paiement, type
-        // Le type pourrait être 'Versement partiel', 'Solde', etc. ou juste 'Versement' si on ne détaille pas les types initiaux.
-        // Pour ce cas, on va juste l'ajouter comme un type générique 'Versement' pour commencer.
-        $query = "INSERT INTO versements (id_inscription, montant, date_versement, methode_paiement, type) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO versements (id_inscription, montant, date_versement,type_versement, methode_paiement ) VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
         // Utiliser un type générique 'Versement' ou le passer dans les données si plus spécifique est nécessaire
-        $type = 'Versement'; // Exemple de type par défaut
-        return $stmt->execute([$data['id_inscription'], $data['montant'], $data['date_versement'], $data['methode_paiement'], $type]);
+        
+        return $stmt->execute([$data['id_inscription'], $data['montant'], $data['date_versement'],$data['type'], $data['methode_paiement'] ]);
     }
 
     // Modifier un versement existant
@@ -222,7 +219,7 @@ class Scolarite {
          // Le type doit être inclus dans $data si vous voulez le modifier, sinon utilisez le type existant ou un type par défaut.
         // Pour simplifier, on suppose que le type n'est pas modifiable via ce formulaire ou utilise un type générique.
         // Si le type doit être mis à jour, assurez-vous que $data['type'] existe.
-        $type = isset($data['type']) ? $data['type'] : 'Versement'; // Utiliser le type des données ou un défaut
+        $type = isset($data['type']) ? $data['type'] : 'Tranche'; // Utiliser le type des données ou un défaut
         return $stmt->execute([$data['montant'], $data['date_versement'], $data['methode_paiement'], $type, $id_versement]);
     }
 

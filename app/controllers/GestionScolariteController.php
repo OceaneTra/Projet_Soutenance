@@ -39,8 +39,8 @@ class GestionScolariteController {
                     'id_inscription' => $inscription['id_inscription'],
                     'montant' => $montant,
                     'date_versement' => $date_versement,
+                    'type' => 'Tranche',
                     'methode_paiement' => $methode_paiement
-                    // Le type de versement peut être ajouté ici si nécessaire
                 ];
 
                 if ($this->scolariteModel->addVersement($data)) {

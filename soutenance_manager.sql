@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : dim. 01 juin 2025 à 15:03
+-- Généré le : lun. 02 juin 2025 à 16:46
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -72,7 +72,8 @@ CREATE TABLE `annee_academique` (
 INSERT INTO `annee_academique` (`id_annee_acad`, `date_deb`, `date_fin`) VALUES
 (22221, '2021-09-08', '2022-07-20'),
 (22322, '2022-09-10', '2023-07-31'),
-(22423, '2023-09-11', '2024-07-17');
+(22423, '2023-09-11', '2024-07-17'),
+(22524, '2024-09-10', '2025-07-30');
 
 -- --------------------------------------------------------
 
@@ -134,6 +135,31 @@ CREATE TABLE `deposer` (
   `id_rapport` int NOT NULL,
   `date_depot` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `echeances`
+--
+
+CREATE TABLE `echeances` (
+  `id_echeance` int NOT NULL,
+  `id_inscription` int DEFAULT NULL,
+  `montant` decimal(10,2) DEFAULT NULL,
+  `date_echeance` date DEFAULT NULL,
+  `statut_echeance` enum('En attente','Payée','En retard') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `echeances`
+--
+
+INSERT INTO `echeances` (`id_echeance`, `id_inscription`, `montant`, `date_echeance`, `statut_echeance`) VALUES
+(1, 1, 565000.00, '2025-09-01', 'En attente'),
+(2, 2, 565000.00, '2025-09-01', 'En attente'),
+(6, 4, 188333.33, '2025-09-01', 'En attente'),
+(7, 4, 188333.33, '2025-12-01', 'En attente'),
+(8, 4, 188333.33, '2026-03-01', 'En attente');
 
 -- --------------------------------------------------------
 
@@ -552,15 +578,29 @@ INSERT INTO `groupe_utilisateur` (`id_GU`, `lib_GU`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `inscrire`
+-- Structure de la table `inscriptions`
 --
 
-CREATE TABLE `inscrire` (
-  `num_etu` int NOT NULL,
+CREATE TABLE `inscriptions` (
+  `id_inscription` int NOT NULL,
+  `id_etudiant` int DEFAULT NULL,
+  `id_niveau` int DEFAULT NULL,
   `id_annee_acad` int NOT NULL,
-  `id_niv_etude` int NOT NULL,
-  `date_inscr` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
+  `date_inscription` datetime DEFAULT NULL,
+  `statut_inscription` enum('En cours','Validée','Annulée') DEFAULT NULL,
+  `nombre_tranche` int NOT NULL,
+  `reste_a_payer` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `inscriptions`
+--
+
+INSERT INTO `inscriptions` (`id_inscription`, `id_etudiant`, `id_niveau`, `id_annee_acad`, `date_inscription`, `statut_inscription`, `nombre_tranche`, `reste_a_payer`) VALUES
+(1, 2003001, 9, 22423, '2025-06-01 21:07:42', 'En cours', 2, 565000.00),
+(2, 2003002, 9, 22524, '2025-06-01 21:22:01', 'En cours', 2, 565000.00),
+(4, 2003003, 9, 22221, '2025-06-01 23:10:25', 'En cours', 4, 565000.00),
+(13, 2003004, 9, 22221, '2025-06-02 04:24:22', 'En cours', 1, 565000.00);
 
 -- --------------------------------------------------------
 
@@ -630,19 +670,21 @@ INSERT INTO `niveau_approbation` (`id_approb`, `lib_approb`) VALUES
 
 CREATE TABLE `niveau_etude` (
   `id_niv_etude` int NOT NULL,
-  `lib_niv_etude` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
+  `lib_niv_etude` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `montant_scolarite` decimal(10,2) DEFAULT NULL,
+  `montant_inscription` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
 --
 -- Déchargement des données de la table `niveau_etude`
 --
 
-INSERT INTO `niveau_etude` (`id_niv_etude`, `lib_niv_etude`) VALUES
-(6, 'Licence 1'),
-(7, 'Licence 2'),
-(8, 'Licence 3'),
-(9, 'Master 2'),
-(10, 'Master 1');
+INSERT INTO `niveau_etude` (`id_niv_etude`, `lib_niv_etude`, `montant_scolarite`, `montant_inscription`) VALUES
+(6, 'Licence 1', 870000.00, 450000.00),
+(7, 'Licence 2', 890000.00, 450000.00),
+(8, 'Licence 3', 910000.00, 500000.00),
+(9, 'Master 2', 1235000.00, 670000.00),
+(10, 'Master 1', 980000.00, 560000.00);
 
 -- --------------------------------------------------------
 
@@ -1009,7 +1051,7 @@ INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `id_type_utilisa
 (36, 'Brou Patrice', 5, 11, 5, 'Actif', 'angeaxelgomez@gmail.com', '$2y$10$QtMW8goQLrH.om8q1mlgo.tJwA1AGFc./uZpOLhoo4g2z7p46OCrm'),
 (39, 'N\'golo Konaté', 6, 12, 5, 'Inactif', 'ngolokonate@yahoo.fr', '$2y$10$o7fxEokbRfMLFoGPOS1TpOFuxjFQ3TFzMMV4mukNEWLs9aNxGjr/u'),
 (40, 'Nindjin Malan', 6, 12, 5, 'Inactif', 'nindjinmalan@gmail.com', '$2y$10$f0Nq70iGpanY5FrbCZI2G.fJ.aj8oDu05Y2Gi5y1LjsrcDc5M3TXa'),
-(41, 'Abroh Alokré Samuel Eliézer', 7, 13, 5, 'Inactif', 'samuel.abroh@miage.edu', '$2y$10$F1OOtQYIjbu1CeEzkAZA3OPuZEjABsXAxAzFs/WMlWXbRvnAGK9ZO'),
+(41, 'Abroh Alokré Samuel Eliézer', 7, 13, 4, 'Inactif', 'samuel.abroh@miage.edu', '$2y$10$F1OOtQYIjbu1CeEzkAZA3OPuZEjABsXAxAzFs/WMlWXbRvnAGK9ZO'),
 (42, 'Abudrahman Bako Rouhiya', 7, 13, 5, 'Inactif', 'rouhiya.abudrahman@miage.edu', '$2y$10$h0YCvxudG9rt1FnLVbP7rewIZSNYYtaAvLDYonGiEY1jqJ.0BXOc6'),
 (43, 'Aby Nanpé Olivier', 7, 13, 5, 'Inactif', 'olivier.aby@miage.edu', '$2y$10$MvjnGeToYLbiKi22QReaXufAQEl/3nYKeMbAFMAF3uHaldPphVRTS'),
 (44, 'Acho Dessi Stéphane Ivan', 7, 13, 5, 'Actif', 'stephane.acho@miage.edu', '$2y$10$9TPspFtSlEL1gffNH0MXzunJ8sNtqEipGJ0MOyaJTxxNLWY5Znhp6'),
@@ -1035,7 +1077,18 @@ INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `id_type_utilisa
 (64, 'Amoikon Kangah Christophe', 7, 13, 5, 'Inactif', 'christophe.amoikon@miage.edu', '$2y$10$yBZHbhQfbS4zXBIe7z.zDO/9Py9sIQDksYbVd2QJmmUrePVz0euJ2'),
 (65, 'Ané Antoine Ahoua', 7, 13, 5, 'Actif', 'antoine.ane@miage.edu', '$2y$10$RTOOP8ZEHsYXid3nVvDHfOUmKZMKztJhCnlm/OoKRHuyssxdy66iu'),
 (66, 'Ango Charles Erwan Brou', 7, 13, 4, 'Actif', 'charles.ango@miage.edu', '$2y$10$ygTM2WIFHdCyyhWtJeo6HOf7.dNg.qX6NByW.mMY1nhwuVQ3SRuPq'),
-(67, 'Anon Noelly', 7, 13, 5, 'Actif', 'noelly.anon@miage.edu', '$2y$10$qFPc3.oAugeDpHXuL/QUxuNj./GzOSmuRYAtqClYkK9p4yvVKE9tC');
+(67, 'Anon Noelly', 7, 13, 5, 'Actif', 'noelly.anon@miage.edu', '$2y$10$qFPc3.oAugeDpHXuL/QUxuNj./GzOSmuRYAtqClYkK9p4yvVKE9tC'),
+(68, 'Arra Jean Jonathan', 7, 13, 5, 'Actif', 'jean.arra@miage.edu', '$2y$10$332Yfywd06TBzkP0WRg8aOO8pKFA7hx/65.XvvC0GD.yB5.b2wNVa'),
+(69, 'Assy Yves Landry', 7, 13, 5, 'Inactif', 'yves.assy@miage.edu', '$2y$10$Cd/wgWv795uT5XMpLnKHaOGPqMkFhROimw5ve3fXboOd/epY8h9sS'),
+(70, 'Attiembone Christelle', 7, 13, 5, 'Actif', 'christelle.attiembone@miage.edu', '$2y$10$qBa9JkUqUp/b9Bdzut4KDuLEVu.e1Bs.xYcl3QBAnEPuTI7t31ZFC'),
+(71, 'Attisou Jean-François', 7, 13, 5, 'Actif', 'jean-francois.attisou@miage.edu', '$2y$10$9ABjSrf34KdurB/GSGJEFuAQmg/wRAsty0RJnb5yATv2m2e48LZsC'),
+(72, 'Attro Elvis Donald', 7, 13, 5, 'Actif', 'elvis.attro@miage.edu', '$2y$10$xfneiO5GQR9tHbnYYXYq/eRSH9aMGCAHtY5i2kUcnnkAcblnhM0HK'),
+(73, 'Berthé Issa', 7, 13, 5, 'Actif', 'issa.berthe@miage.edu', '$2y$10$jiPYvoRCffth5xPmAUu7Sevr83epUHkKTahvPpQtqFtCRZjONdfiK'),
+(74, 'Beugré Wahon Marie-claude Esther', 7, 13, 4, 'Actif', 'marie-claude.beugre@miage.edu', '$2y$10$tWiciNPGAZy6iIRQsMsrTuEf.cF5wW0mKfFRhCiPm7J3zJPhhyvCO'),
+(75, 'Blé Aka Jean-Jacques Ferdinand', 7, 13, 4, 'Actif', 'jean-jacques.ble@miage.edu', '$2y$10$v4.FwYzTBLS59sYe7n/UzurVjQcOghjpF29H1xob1oyiKsDQRIbAC'),
+(76, 'Bodjé Hippolyte', 7, 13, 5, 'Inactif', 'hippolyte.bodje@miage.edu', '$2y$10$Valo3K9ZKG7D7TxiDiWC1e7jjGYAxFv2BiPrKk52Xm71dsVJNRbgO'),
+(77, 'Bodjé N\'kauh Nathan Regis', 7, 13, 5, 'Inactif', 'nathan.bodje@miage.edu', '$2y$10$byj8vnOGfyD7ob8dEvOWbOCeiDQP9wlyTDkIPb4hDoPA0s9c4pyAG'),
+(78, 'Boni Jean-Philipe', 7, 13, 5, 'Actif', 'jean-philipe.boni@miage.edu', '$2y$10$bXu41vPpj6gfVu/jWnG3oOs1wbUFonOXngVTOyUHLM9j6XQhTu4Ja');
 
 -- --------------------------------------------------------
 
@@ -1049,6 +1102,31 @@ CREATE TABLE `valider` (
   `date_validation` datetime NOT NULL,
   `commentaire_validation` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `versements`
+--
+
+CREATE TABLE `versements` (
+  `id_versement` int NOT NULL,
+  `id_inscription` int DEFAULT NULL,
+  `montant` decimal(10,2) DEFAULT NULL,
+  `date_versement` datetime DEFAULT NULL,
+  `type_versement` enum('Premier versement','Tranche') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `methode_paiement` enum('Espèce','Carte bancaire','Virement','Chèque') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `versements`
+--
+
+INSERT INTO `versements` (`id_versement`, `id_inscription`, `montant`, `date_versement`, `type_versement`, `methode_paiement`) VALUES
+(1, 1, 670000.00, '2025-06-01 21:07:42', 'Premier versement', 'Espèce'),
+(2, 2, 670000.00, '2025-06-01 21:22:01', 'Premier versement', 'Espèce'),
+(4, 4, 670000.00, '2025-06-01 23:10:25', 'Premier versement', 'Espèce'),
+(6, 13, 670000.00, '2025-06-02 04:24:22', 'Premier versement', 'Chèque');
 
 --
 -- Index pour les tables déchargées
@@ -1100,6 +1178,13 @@ ALTER TABLE `compte_rendu`
 ALTER TABLE `deposer`
   ADD KEY `Key_deposer_etudiant` (`num_etu`),
   ADD KEY `Key_deposer_rapport_etud` (`id_rapport`);
+
+--
+-- Index pour la table `echeances`
+--
+ALTER TABLE `echeances`
+  ADD PRIMARY KEY (`id_echeance`),
+  ADD KEY `id_inscription` (`id_inscription`);
 
 --
 -- Index pour la table `ecue`
@@ -1162,12 +1247,13 @@ ALTER TABLE `groupe_utilisateur`
   ADD PRIMARY KEY (`id_GU`);
 
 --
--- Index pour la table `inscrire`
+-- Index pour la table `inscriptions`
 --
-ALTER TABLE `inscrire`
-  ADD KEY `Key_inscrip_anneeAc` (`id_annee_acad`),
-  ADD KEY `Key_inscrip_niv_etude` (`id_niv_etude`),
-  ADD KEY `Key_inscrip_etudiant` (`num_etu`);
+ALTER TABLE `inscriptions`
+  ADD PRIMARY KEY (`id_inscription`),
+  ADD KEY `id_etudiant` (`id_etudiant`),
+  ADD KEY `id_niveau` (`id_niveau`),
+  ADD KEY `id_annee_acad` (`id_annee_acad`);
 
 --
 -- Index pour la table `messages`
@@ -1299,6 +1385,13 @@ ALTER TABLE `valider`
   ADD KEY `Key_valider_rapport` (`id_rapport`);
 
 --
+-- Index pour la table `versements`
+--
+ALTER TABLE `versements`
+  ADD PRIMARY KEY (`id_versement`),
+  ADD KEY `id_inscription` (`id_inscription`);
+
+--
 -- AUTO_INCREMENT pour les tables déchargées
 --
 
@@ -1319,6 +1412,12 @@ ALTER TABLE `annee_academique`
 --
 ALTER TABLE `compte_rendu`
   MODIFY `id_CR` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `echeances`
+--
+ALTER TABLE `echeances`
+  MODIFY `id_echeance` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `ecue`
@@ -1361,6 +1460,12 @@ ALTER TABLE `grade`
 --
 ALTER TABLE `groupe_utilisateur`
   MODIFY `id_GU` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT pour la table `inscriptions`
+--
+ALTER TABLE `inscriptions`
+  MODIFY `id_inscription` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT pour la table `messages`
@@ -1438,7 +1543,13 @@ ALTER TABLE `ue`
 -- AUTO_INCREMENT pour la table `utilisateur`
 --
 ALTER TABLE `utilisateur`
-  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+
+--
+-- AUTO_INCREMENT pour la table `versements`
+--
+ALTER TABLE `versements`
+  MODIFY `id_versement` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Contraintes pour les tables déchargées
@@ -1474,6 +1585,12 @@ ALTER TABLE `deposer`
   ADD CONSTRAINT `fk_deposer_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Contraintes pour la table `echeances`
+--
+ALTER TABLE `echeances`
+  ADD CONSTRAINT `echeances_ibfk_1` FOREIGN KEY (`id_inscription`) REFERENCES `inscriptions` (`id_inscription`);
+
+--
 -- Contraintes pour la table `ecue`
 --
 ALTER TABLE `ecue`
@@ -1501,12 +1618,12 @@ ALTER TABLE `faire_stage`
   ADD CONSTRAINT `fk_faire_stage_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Contraintes pour la table `inscrire`
+-- Contraintes pour la table `inscriptions`
 --
-ALTER TABLE `inscrire`
-  ADD CONSTRAINT `fk_inscrire_annee_acad` FOREIGN KEY (`id_annee_acad`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_inscrire_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_inscrire_niv_etude` FOREIGN KEY (`id_niv_etude`) REFERENCES `niveau_etude` (`id_niv_etude`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `inscriptions`
+  ADD CONSTRAINT `inscriptions_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`num_etu`),
+  ADD CONSTRAINT `inscriptions_ibfk_2` FOREIGN KEY (`id_niveau`) REFERENCES `niveau_etude` (`id_niv_etude`),
+  ADD CONSTRAINT `inscriptions_ibfk_3` FOREIGN KEY (`id_annee_acad`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Contraintes pour la table `occuper`
@@ -1577,6 +1694,12 @@ ALTER TABLE `utilisateur`
 ALTER TABLE `valider`
   ADD CONSTRAINT `fk_valider_enseignant` FOREIGN KEY (`id_enseignant`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_valider_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `versements`
+--
+ALTER TABLE `versements`
+  ADD CONSTRAINT `versements_ibfk_1` FOREIGN KEY (`id_inscription`) REFERENCES `inscriptions` (`id_inscription`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

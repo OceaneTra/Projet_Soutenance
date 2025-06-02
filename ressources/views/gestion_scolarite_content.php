@@ -192,11 +192,19 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                             class="text-red-500">*</span></label>
                                     <select id="paymentMethod" name="methode_paiement" required
                                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">Sélectionner...</option>
-                                        <option value="especes">Espèces</option>
-                                        <option value="cheque">Chèque</option>
-                                        <option value="virement">Virement</option>
-                                        <option value="carte">Carte bancaire</option>
+                                        <option value="">Sélectionner une méthode de paiement</option>
+                                        <option value="Espèce"
+                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Espèce') ? 'selected' : ''; ?>>
+                                            Espèce</option>
+                                        <option value="Carte bancaire"
+                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
+                                            Carte bancaire</option>
+                                        <option value="Virement"
+                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Virement') ? 'selected' : ''; ?>>
+                                            Virement</option>
+                                        <option value="Chèque"
+                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Chèque') ? 'selected' : ''; ?>>
+                                            Chèque</option>
                                     </select>
                                 </div>
                             </div>
