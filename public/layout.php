@@ -12,6 +12,8 @@ include 'menu.php';
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDashboardRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionScolariteRoutes.php';
+
 
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login

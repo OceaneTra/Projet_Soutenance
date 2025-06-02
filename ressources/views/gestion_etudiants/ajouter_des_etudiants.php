@@ -327,10 +327,10 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
                                 <?php echo htmlspecialchars($etudiant->num_etu); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <?php echo htmlspecialchars($etudiant->nom_etu); ?>
+                                    <?php echo htmlspecialchars($etudiant->nom_etu); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <?php echo htmlspecialchars($etudiant->prenom_etu); ?>
+                                    <?php echo htmlspecialchars($etudiant->prenom_etu); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <?php echo htmlspecialchars($etudiant->genre_etu); ?>
@@ -344,8 +344,8 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <button onclick="openUserModal('<?php echo htmlspecialchars($etudiant->num_etu); ?>')"
                                     class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -552,7 +552,7 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
             if (paginationContainer) {
                 paginationContainer.style.display = 'none';
             }
-        } else {
+                } else {
             // Afficher les étudiants de la page courante
             const currentPageItems = filteredEtudiants.slice(startIndex, endIndex);
             let html = '';
@@ -662,8 +662,8 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
     function openDeleteModal() {
         const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
         if (selectedCheckboxes.length === 0) {
-            alert('Veuillez sélectionner au moins un étudiant à supprimer.');
-            return;
+                alert('Veuillez sélectionner au moins un étudiant à supprimer.');
+                return;
         }
         const modal = document.getElementById('deleteModal');
         modal.classList.remove('hidden');
@@ -677,8 +677,8 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
     }
 
     function confirmDelete() {
-        const form = document.createElement('form');
-        form.method = 'POST';
+                const form = document.createElement('form');
+                form.method = 'POST';
         form.action = '?page=gestion_etudiants&action=ajouter_des_etudiants';
 
         const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
@@ -688,11 +688,11 @@ error_log("View - All Etudiants Count: " . count($allEtudiants));
             input.name = 'selected_ids[]';
             input.value = checkbox.value;
             form.appendChild(input);
-        });
+                });
 
-        document.body.appendChild(form);
-        form.submit();
-    }
+                document.body.appendChild(form);
+                form.submit();
+            }
 
     // Fonction pour exporter en Excel
     function exporterListe() {

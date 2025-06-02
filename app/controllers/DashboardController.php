@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . "/../models/Utilisateur.php";
-require_once __DIR__ . "/../models/Etudiants.php";
+require_once __DIR__ . "/../models/Etudiant.php";
 require_once __DIR__ . "/../models/Enseignant.php";
 require_once __DIR__ . "/../models/PersAdmin.php";
 
@@ -22,7 +22,7 @@ class DashboardController
     /** @var Utilisateur */
     private $utilisateur;
 
-    /** @var Etudiants */
+    /** @var Etudiant */
     private $etudiant;
 
     /** @var Enseignant */
@@ -42,7 +42,7 @@ class DashboardController
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/';
         $this->utilisateur = new Utilisateur(Database::getConnection());
-        $this->etudiant = new Etudiants(Database::getConnection());
+        $this->etudiant = new Etudiant(Database::getConnection());
         $this->enseignant = new Enseignant(Database::getConnection());
         $this->personnel = new PersAdmin(Database::getConnection());
     }
@@ -74,7 +74,7 @@ class DashboardController
     private function getGlobalStats()
     {
         // Statistiques des étudiants
-        $GLOBALS['total_etudiants'] = count($this->etudiant->getAllEtudiant() ) ?? 0;
+        $GLOBALS['total_etudiants'] = count($this->etudiant->getAllEtudiants() ) ?? 0;
         $GLOBALS['etudiants_actifs'] = count($this->utilisateur->getEtudiantActif() ) ?? 0;
         $GLOBALS['etudiants_inactifs'] = count($this->utilisateur->getEtudiantInactif() ) ?? 0;
 

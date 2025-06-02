@@ -188,21 +188,21 @@ $utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
     <!-- Container pour les notifications -->
     <?php if (!empty($GLOBALS['messageSuccess']) || !empty($GLOBALS['messageErreur'])): ?>
     <div class="fixed top-4 right-4 z-50 space-y-4">
-        <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
         <div class="notification success animate__animated animate__fadeIn">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle mr-2"></i>
-                <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
-            </div>
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
         </div>
-        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
-        <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <?php if (!empty($GLOBALS['messageErreur'])): ?>
         <div class="notification error animate__animated animate__fadeIn">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-circle mr-2"></i>
-                <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
-            </div>
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <p><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+        </div>
         </div>
         <?php endif; ?>
     </div>
@@ -540,8 +540,8 @@ $utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
                 <h2 class="text-xl font-bold text-white">Gestion des Utilisateurs</h2>
                 <div class="flex gap-4">
                     <a href="?page=gestion_utilisateurs&action=add"
-                        class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                        <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
+                    class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un Utilisateur
                     </a>
                     <a href="?page=gestion_utilisateurs&action=addMasse"
                         class="bg-blue-500  text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
@@ -705,7 +705,7 @@ $utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
                         if ($start > 1) {
                             echo '<a href="?page=gestion_utilisateurs&p=1' . (!empty($search) ? '&search=' . urlencode($search) : '') . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>';
                             if ($start > 2) {
-                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
                             }
                         }
                         
@@ -720,7 +720,7 @@ $utilisateurs = array_slice($allUtilisateurs, $offset, $limit);
 
                         if ($end < $total_pages) {
                             if ($end < $total_pages - 1) {
-                                echo '<span class="px-3 py-2 text-gray-500">...</span>';
+                            echo '<span class="px-3 py-2 text-gray-500">...</span>';
                             }
                             $searchParam = !empty($search) ? '&search=' . urlencode($search) : '';
                             echo '<a href="?page=gestion_utilisateurs&p=' . $total_pages . $searchParam . '" class="btn-hover px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">' . $total_pages . '</a>';

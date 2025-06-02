@@ -368,6 +368,27 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                             4 tranches</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Méthode de
+                                        paiement</label>
+                                    <select
+                                        class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
+                                        id="methode_paiement" name="methode_paiement">
+                                        <option value="">Slectionner une méthode de paiement</option>
+                                        <option value="Espèce"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Espèce') ? 'selected' : ''; ?>>
+                                            Espèce</option>
+                                        <option value="Carte bancaire"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
+                                            Carte bancaire</option>
+                                        <option value="Virement"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Virement') ? 'selected' : ''; ?>>
+                                            Virement</option>
+                                        <option value="Chèque"
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Chèque') ? 'selected' : ''; ?>>
+                                            Chèque</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -428,10 +449,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200">
                             <i class="fas fa-file-excel mr-2"></i>Excel
                         </button>
-                        <button onclick="exportToPDF()"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-200">
-                            <i class="fas fa-file-pdf mr-2"></i>PDF
-                        </button>
+
                         <button onclick="printTable()"
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
                             <i class="fas fa-print mr-2"></i>Imprimer
@@ -563,14 +581,16 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
 
         let csvContent = "data:text/csv;charset=utf-8,";
 
-        // En-têtes
+        // En-têtes (exclure la dernière colonne Actions)
         const headers = Array.from(table.querySelectorAll('thead th'))
+            .slice(0, -1) // Exclure la dernière colonne
             .map(th => th.textContent.trim());
         csvContent += headers.join(",") + "\r\n";
 
-        // Données
+        // Données (exclure la dernière colonne Actions)
         visibleRows.forEach(row => {
             const rowData = Array.from(row.cells)
+                .slice(0, -1) // Exclure la dernière colonne
                 .map(cell => `"${cell.textContent.trim()}"`)
                 .join(",");
             csvContent += rowData + "\r\n";
@@ -585,35 +605,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         document.body.removeChild(link);
     };
 
-    // Fonction d'export PDF
-    window.exportToPDF = function() {
-        const table = document.getElementById('inscriptionsTable');
-        const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
-            .filter(row => row.style.display !== 'none');
-
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Liste des inscriptions</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        .no-print { display: none; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Liste des inscriptions</h2>
-                    ${table.outerHTML}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-    };
-
     // Fonction d'impression
     window.printTable = function() {
         const printWindow = window.open('', '_blank');
@@ -621,6 +612,19 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
             .filter(row => row.style.display !== 'none');
 
+        // Créer une copie de la table sans la colonne Actions
+        const tableClone = table.cloneNode(true);
+        const headers = tableClone.querySelectorAll('thead th');
+        const lastHeader = headers[headers.length - 1];
+        lastHeader.parentNode.removeChild(lastHeader);
+
+        const rows = tableClone.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const lastCell = cells[cells.length - 1];
+            lastCell.parentNode.removeChild(lastCell);
+        });
+
         printWindow.document.write(`
             <html>
                 <head>
@@ -635,7 +639,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                 </head>
                 <body>
                     <h2>Liste des inscriptions</h2>
-                    ${table.outerHTML}
+                    ${tableClone.outerHTML}
                 </body>
             </html>
         `);

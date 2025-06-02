@@ -17,7 +17,7 @@ class Scolarite {
     }
 
     // Créer une inscription avec le premier versement
-    public function creerInscription($id_etudiant, $id_niveau, $id_annee_acad, $montant_premier_versement,$nombre_tranches,$reste_a_payer) {
+    public function creerInscription($id_etudiant, $id_niveau, $id_annee_acad, $montant_premier_versement,$nombre_tranches,$reste_a_payer,$methode_paiement) {
         $this->db->beginTransaction();
         try {
             // Créer l'inscription
@@ -28,10 +28,10 @@ class Scolarite {
             $id_inscription = $this->db->lastInsertId();
 
             // Enregistrer le premier versement
-            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement, statut_versement) 
-                     VALUES (?, ?, NOW(), 'Premier versement', 'Validé')";
+            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement, statut_versement,methode_paiement) 
+                     VALUES (?, ?, NOW(), 'Premier versement', 'Validé',?)";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$id_inscription, $montant_premier_versement]);
+            $stmt->execute([$id_inscription, $montant_premier_versement,$methode_paiement]);
 
             $this->db->commit();
             return $id_inscription;
@@ -74,7 +74,7 @@ class Scolarite {
 
     public function getEtudiantsInscrits() {
         $query = "SELECT i.*, e.nom_etu as nom, e.prenom_etu as prenom, n.lib_niv_etude as nom_niveau, 
-                        a.date_deb, a.date_fin
+                        a.date_deb, a.date_fin,n.montant_scolarite,n.montant_inscription
                  FROM inscriptions i 
                  JOIN etudiants e ON i.id_etudiant = e.num_etu 
                  JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
@@ -104,7 +104,7 @@ class Scolarite {
     }
 
     // Modifier une inscription
-    public function modifierInscription($id_inscription, $id_niveau, $id_annee_acad,$montant_premier_versement,$nombre_tranches) {
+    public function modifierInscription($id_inscription, $id_niveau, $id_annee_acad,$montant_premier_versement,$nombre_tranches,$methode_versement) {
         $this->db->beginTransaction();
         try {
             // Mettre à jour l'inscription
@@ -113,9 +113,9 @@ class Scolarite {
             $stmt->execute([$id_niveau,$id_annee_acad,$nombre_tranches, $id_inscription]);
 
             // Mettre à jour le premier versement
-            $query = "UPDATE versements SET montant = ? WHERE id_inscription = ? AND type_versement = 'Premier versement'";
+            $query = "UPDATE versements SET montant = ? WHERE id_inscription = ? AND type_versement = 'Premier versement' AND methode_paiement= ?";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$montant_premier_versement, $id_inscription]);
+            $stmt->execute([$montant_premier_versement, $id_inscription,$methode_versement]);
 
             $this->db->commit();
             return true;
@@ -166,5 +166,68 @@ class Scolarite {
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id_inscription]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Récupérer tous les versements avec les informations associées
+    public function getAllVersements() {
+        $query = "SELECT v.*, e.nom_etu as nom_etudiant, e.prenom_etu as prenom_etudiant, i.id_inscription 
+                  FROM versements v
+                  JOIN inscriptions i ON v.id_inscription = i.id_inscription
+                  JOIN etudiants e ON i.id_etudiant = e.num_etu
+                  ORDER BY v.date_versement DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Récupérer un versement par son ID
+    public function getVersementById($id_versement) {
+        $query = "SELECT v.*, e.nom_etu as nom_etudiant, e.prenom_etu as prenom_etudiant, i.id_inscription 
+                  FROM versements v
+                  JOIN inscriptions i ON v.id_inscription = i.id_inscription
+                  JOIN etudiants e ON i.id_etudiant = e.num_etu
+                  WHERE v.id_versement = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id_versement]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Ajouter un nouveau versement
+    public function addVersement($data) {
+        // Assurez-vous que $data contient les clés nécessaires: id_inscription, montant, date_versement, methode_paiement, type
+        // Le type pourrait être 'Versement partiel', 'Solde', etc. ou juste 'Versement' si on ne détaille pas les types initiaux.
+        // Pour ce cas, on va juste l'ajouter comme un type générique 'Versement' pour commencer.
+        $query = "INSERT INTO versements (id_inscription, montant, date_versement, methode_paiement, type) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($query);
+        // Utiliser un type générique 'Versement' ou le passer dans les données si plus spécifique est nécessaire
+        $type = 'Versement'; // Exemple de type par défaut
+        return $stmt->execute([$data['id_inscription'], $data['montant'], $data['date_versement'], $data['methode_paiement'], $type]);
+    }
+
+    // Modifier un versement existant
+    public function updateVersement($id_versement, $data) {
+        // Assurez-vous que $data contient les clés nécessaires à la mise à jour (montant, date_versement, methode_paiement, type)
+        $query = "UPDATE versements SET montant = ?, date_versement = ?, methode_paiement = ?, type = ? WHERE id_versement = ?";
+        $stmt = $this->db->prepare($query);
+         // Le type doit être inclus dans $data si vous voulez le modifier, sinon utilisez le type existant ou un type par défaut.
+        // Pour simplifier, on suppose que le type n'est pas modifiable via ce formulaire ou utilise un type générique.
+        // Si le type doit être mis à jour, assurez-vous que $data['type'] existe.
+        $type = isset($data['type']) ? $data['type'] : 'Versement'; // Utiliser le type des données ou un défaut
+        return $stmt->execute([$data['montant'], $data['date_versement'], $data['methode_paiement'], $type, $id_versement]);
+    }
+
+    // Supprimer un versement
+    public function deleteVersement($id_versement) {
+        $query = "DELETE FROM versements WHERE id_versement = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$id_versement]);
+    }
+
+    // Récupérer l'ID de l'inscription par ID de l'étudiant
+    public function getInscriptionByEtudiantId($id_etudiant) {
+        $query = "SELECT id_inscription FROM inscriptions WHERE id_etudiant = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id_etudiant]);
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Retourne la première inscription trouvée
     }
 } 

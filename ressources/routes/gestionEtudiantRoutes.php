@@ -22,4 +22,6 @@ if ($_GET['page'] === 'gestion_etudiants') {
         // Si aucune action n'est spécifiée, afficher la page par défaut
         $controller->index();
     }
-}
+} 
+
+   
