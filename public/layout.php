@@ -6,6 +6,61 @@ include '../app/controllers/AuthController.php';
 include '../app/controllers/MenuController.php';
 include 'menu.php';
 
+// --- TODO: REMPLACER CES FONCTIONS PLACEHOLDERS PAR VOTRE LOGIQUE D'ACCÈS À LA BASE DE DONNÉES ---
+
+function getInscriptionDetails($id_inscription) {
+    // Cette fonction doit récupérer les détails de l'inscription depuis la BD
+    // En attendant, retourne des données statiques
+    return [
+        'id_inscription' => $id_inscription,
+        'numero_recu' => '2306610', // Exemple de numéro de reçu
+        'id_etudiant' => 123, // Exemple ID étudiant
+        'id_niveau' => 456, // Exemple ID niveau
+        'id_annee_acad' => 789, // Exemple ID année académique
+        'montant_premier_versement' => 450000, // Exemple montant payé
+        'reste_payer' => 100000, // Exemple reste à payer
+        'date_inscription' => '2024-09-10', // Exemple date d'inscription
+        'methode_paiement' => 'Espèce', // Exemple méthode de paiement
+        'numero_cheque' => null, // Exemple numéro de chèque (null si paiement en espèces)
+        // Ajoutez d'autres champs pertinents de votre table inscriptions
+    ];
+}
+
+function getEtudiantDetails($id_etudiant) {
+    // Cette fonction doit récupérer les détails de l'étudiant depuis la BD
+    // En attendant, retourne des données statiques
+    return [
+        'num_etu' => 'UGBM12345', // Exemple numéro étudiant
+        'nom_etu' => 'TRA LOU', // Exemple nom étudiant
+        'prenom_etu' => 'OCEANE', // Exemple prénom étudiant
+        // Ajoutez d'autres champs pertinents de votre table étudiants
+    ];
+}
+
+function getNiveauDetails($id_niveau) {
+    // Cette fonction doit récupérer les détails du niveau d'étude depuis la BD
+    // En attendant, retourne des données statiques
+    return [
+        'id_niv_etude' => $id_niveau,
+        'lib_niv_etude' => 'L3', // Exemple libellé niveau
+        'montant_scolarite' => 550000, // Exemple montant total scolarité
+        'montant_inscription' => 450000, // Exemple montant inscription
+        // Ajoutez d'autres champs pertinents de votre table niveaux_etude
+    ];
+}
+
+function getAnneeAcademiqueDetails($id_annee_acad) {
+    // Cette fonction doit récupérer les détails de l'année académique depuis la BD
+    // En attendant, retourne des données statiques
+    return [
+        'id_annee_acad' => $id_annee_acad,
+        'date_deb' => '2024-09-01', // Exemple date début année académique
+        'date_fin' => '2025-06-30', // Exemple date fin année académique
+        // Ajoutez d'autres champs pertinents de votre table annees_academiques
+    ];
+}
+
+// --- FIN DES FONCTIONS PLACEHOLDERS ---
 
 
 //inclusion des routes
@@ -143,92 +198,24 @@ switch ($currentMenuSlug) {
                 require_once __DIR__ . '/../vendor/autoload.php'; // Assurez-vous que ce chemin est correct
 
                 $id_inscription = $_GET['id_inscription'];
-
-                // TODO: Récupérer les informations de l'inscription et de l'étudiant depuis la base de données
-                // Exemple (à adapter selon votre modèle/base de données) :
-                // $inscription = getInscriptionDetails($id_inscription);
-                // $etudiant = getEtudiantDetails($inscription['id_etudiant']);
-
-                // TODO: Construire le contenu HTML du reçu en utilisant les données récupérées
                 
-                $html = '
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-                    .receipt-box { border: 1px solid #000; padding: 20px; width: 600px; margin: 0 auto; }
-                    .header { text-align: center; margin-bottom: 20px; }
-                    .header h2 { margin: 0; }
-                    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                    .info-table td { padding: 5px 0; border-bottom: 1px dashed #ccc; }
-                    .info-table td:first-child { font-weight: bold; width: 150px; }
-                    .amount-text { font-style: italic; margin-top: 10px; }
-                    .footer-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-                    .footer-table td { padding: 5px 0; }
-                    .footer-table td:last-child { text-align: right; }
-                    .signature { margin-top: 40px; text-align: center; }
-                    .signature p { margin: 0; border-top: 1px solid #000; display: inline-block; padding-top: 5px; }
-                     .section-title { font-weight: bold; margin-top: 15px; margin-bottom: 5px; border-bottom: 1px solid #000; }
-                </style>
-                <div class="receipt-box">
-                    <div class="header">
-                        <h2>UNIVERSITE DE COCODY</h2>
-                        <p>22 B.P. 582 Abidjan 22</p>
-                        <p>Tél. (Fax): 27 22 41 05 74 / 27 22 48 01 80</p>
-                        <p>Cel: 07 07 89 94 26 / 07 07 69 15 04</p>
-                        <h3>REÇU <span style="float: right;">Nº [Numéro du reçu]</span></h3>
-                    </div>
+                // TODO: Récupérer les informations de l'inscription et de l'étudiant (si ce n'est pas déjà fait)
+                // Assurez-vous que les variables nécessaires (comme $inscription, $etudiant) sont disponibles ici
 
-                    <table class="info-table">
-                        <tr>
-                            <td>Reçu de M/Mme :</td>
-                            <td>[Nom Prénom de l\'étudiant]</td>
-                        </tr>
-                        <tr>
-                            <td>La somme de :</td>
-                            <td>[Montant payé] FCFA</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="amount-text">(en toutes lettres : [Montant en toutes lettres])</td>
-                        </tr>
-                         <tr>
-                            <td>En règlement de :</td>
-                            <td>Scolarité Année Académique [Année Académique] - [Niveau]</td>
-                        </tr>
-                        <tr>
-                            <td>Année d\'Études :</td>
-                            <td>[Année d\'études (ex: L3)]</td>
-                        </tr>
-                    </table>
+                // Démarrer la mise en mémoire tampon de sortie
+                ob_start();
 
-                    <table class="footer-table">
-                        <tr>
-                            <td>Espèces: [X ou Vide] Chèque n°: [Numéro Chèque]</td>
-                            <td>Date: [Date du jour]</td>
-                        </tr>
-                        <tr>
-                            <td>Reste à payer :</td>
-                            <td>[Reste à payer] FCFA</td>
-                        </tr>
-                         <tr>
-                            <td>Montant prochain versement :</td>
-                            <td>[Montant prochain versement]</td>
-                        </tr>
-                        <tr>
-                            <td>Date prochain versement :</td>
-                            <td>[Date prochain versement]</td>
-                        </tr>
-                    </table>
+                // Inclure le fichier du modèle de reçu
+                include __DIR__ . '../../ressources/views/gestion_etudiants/recu_inscription.php';
 
-                    <div class="signature">
-                        <p>Signature et cachet</p>
-                    </div>
-
-                    <p style="text-align: center; font-size: 0.8em; margin-top: 20px;">N.B.: Aucun remboursement n'est possible après versement</p>
-
-                </div>
-                ';
+                // Capturer le contenu de la mémoire tampon et le stocker dans $html
+                $html = ob_get_clean();
 
                 // Instancier Dompdf
                 $dompdf = new Dompdf\Dompdf();
+
+                // Définir le répertoire de base pour les ressources (images, css)
+                $dompdf->setBasePath(__DIR__ . '../public/images/');
 
                 // Charger le HTML
                 

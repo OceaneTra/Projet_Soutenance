@@ -81,6 +81,38 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
+    <!-- Système de notification -->
+    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <div id="successNotification" class="fixed top-4 right-4 z-50 animate__animated animate__fadeIn">
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex items-center">
+            <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium"><?= htmlspecialchars($GLOBALS['messageSuccess']) ?></p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-auto pl-3">
+                <i class="fas fa-times text-green-500 hover:text-green-700"></i>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <div id="errorNotification" class="fixed top-4 right-4 z-50 animate__animated animate__fadeIn">
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg flex items-center">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium"><?= htmlspecialchars($GLOBALS['messageErreur']) ?></p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-auto pl-3">
+                <i class="fas fa-times text-red-500 hover:text-red-700"></i>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
     <div class="flex h-screen overflow-hidden">
         <!-- Main content area -->
         <div class="flex-1 p-4 md:p-6 overflow-y-auto">
@@ -219,7 +251,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                     </div>
                 </div>
 
-                <!-- Payment list -->
+                <!-- Liste des versements -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden mt-6">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <h2 class="text-lg font-semibold text-gray-800">Liste des versements</h2>
@@ -228,16 +260,16 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                         <!-- Table header -->
                         <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-sm font-medium text-gray-500">
                             <div class="col-span-3">Étudiant</div>
-                            <div class="col-span-2">Niveau</div>
-                            <div class="col-span-2">Montant total</div>
-                            <div class="col-span-2">Montant payé</div>
-                            <div class="col-span-2">Statut</div>
+                            <div class="col-span-2">Montant versé</div>
+                            <div class="col-span-2">Date versement</div>
+                            <div class="col-span-2">Méthode</div>
+                            <div class="col-span-2">Type versement</div>
                             <div class="col-span-1">Actions</div>
                         </div>
 
                         <!-- Payment rows -->
-                        <?php if (!empty($etudiantsInscrits)): ?>
-                        <?php foreach ($etudiantsInscrits as $etudiant): ?>
+                        <?php if (!empty($GLOBALS['versements'])): ?>
+                        <?php foreach ($GLOBALS['versements'] as $versement): ?>
                         <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
                             <div class="col-span-3 flex items-center">
                                 <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
@@ -245,50 +277,42 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-800">
-                                        <?php echo $etudiant['nom'] . ' ' . $etudiant['prenom']; ?></p>
-                                    <p class="text-xs text-gray-500"><?php echo $etudiant['id_etudiant']; ?></p>
+                                        <?php echo htmlspecialchars($versement['nom_etudiant'] . ' ' . $versement['prenom_etudiant']); ?>
+                                    </p>
+                                    <!-- Vous pouvez ajouter ici d'autres infos étudiant si nécessaires, ex: numéro -->
+                                    <!-- <p class="text-xs text-gray-500"><?php // echo htmlspecialchars($versement['num_etu']); ?></p> -->
                                 </div>
                             </div>
-                            <div class="col-span-2 text-sm text-gray-800"><?php echo $etudiant['nom_niveau']; ?></div>
                             <div class="col-span-2 text-sm text-gray-800">
-                                <?php 
-                                $montant_total = isset($etudiant['montant_scolarite']) ? $etudiant['montant_scolarite'] : 0;
-                                echo number_format($montant_total, 0, ',', ' ') . ' FCFA'; 
-                                ?>
+                                <?php echo htmlspecialchars(number_format($versement['montant'] ?? 0, 0, ',', ' ')); ?>
+                                FCFA
                             </div>
                             <div class="col-span-2 text-sm text-gray-800">
-                                <?php 
-                                $montant_paye = isset($etudiant['montant_inscription']) ? $etudiant['montant_inscription'] : 0;
-                                echo number_format($montant_paye, 0, ',', ' ') . ' FCFA'; 
-                                ?>
+                                <?php echo htmlspecialchars(date('d/m/Y', strtotime($versement['date_versement'] ?? 'now'))); ?>
                             </div>
-                            <div class="col-span-2">
-                                <?php
-                                $statusClass = '';
-                                $statusText = '';
-                                $montant_total = isset($etudiant['montant_scolarite']) ? $etudiant['montant_scolarite'] : 0;
-                                $montant_paye = isset($etudiant['montant_inscription']) ? $etudiant['montant_inscription'] : 0;
-                                
-                                if ($montant_paye >= $montant_total) {
-                                    $statusClass = 'bg-green-100 text-green-800';
-                                    $statusText = 'Complet';
-                                } elseif ($montant_paye > 0) {
-                                    $statusClass = 'bg-yellow-100 text-yellow-800';
-                                    $statusText = 'Partiel';
-                                } else {
-                                    $statusClass = 'bg-red-100 text-red-800';
-                                    $statusText = 'En attente';
-                                }
-                                ?>
-                                <span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
+                            <div class="col-span-2 text-sm text-gray-800">
+                                <?php echo htmlspecialchars($versement['methode_paiement'] ?? 'N/A'); ?>
+                            </div>
+                            <div class="col-span-2 text-sm text-gray-800">
+                                <?php echo htmlspecialchars($versement['type_versement'] ?? 'N/A'); ?>
                             </div>
                             <div class="col-span-1 flex justify-end space-x-2">
-                                <button onclick="voirHistorique(<?php echo $etudiant['id_inscription']; ?>)"
-                                    class="p-1 text-blue-500 hover:text-blue-700 focus:outline-none">
-                                    <i class="fas fa-history"></i>
+                                <!-- Les boutons d'action devront utiliser l'ID du versement ($versement['id_versement']) -->
+                                <!-- TODO: Adapter les appels JavaScript si vos fonctions prennent l'ID du versement -->
+                                <button
+                                    onclick="modifierVersement(<?php echo htmlspecialchars($versement['id_versement'] ?? 'null'); ?>)"
+                                    class="p-1 text-orange-500 hover:text-orange-600 focus:outline-none">
+                                    <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="imprimerRecu(<?php echo $etudiant['id_inscription']; ?>)"
-                                    class="p-1 text-green-500 hover:text-green-700 focus:outline-none">
+                                <button
+                                    onclick="supprimerVersement(<?php echo htmlspecialchars($versement['id_versement'] ?? 'null'); ?>)"
+                                    class="p-1 text-red-500 hover:text-red-700 focus:outline-none">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <!-- Le bouton Imprimer Recu devrait probablement prendre l'ID de l'inscription, pas du versement, pour imprimer le reçu complet de l'inscription -->
+                                <button
+                                    onclick="imprimerRecu(<?php echo htmlspecialchars($versement['id_inscription'] ?? 'null'); ?>)"
+                                    class="p-1 text-green-500 hover:text-green-600 focus:outline-none">
                                     <i class="fas fa-print"></i>
                                 </button>
                             </div>
@@ -296,7 +320,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                         <?php endforeach; ?>
                         <?php else: ?>
                         <div class="px-6 py-4 text-center text-gray-500">
-                            Aucun étudiant inscrit trouvé.
+                            Aucun versement trouvé.
                         </div>
                         <?php endif; ?>
                     </div>
@@ -361,6 +385,25 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
     // Fonction pour imprimer le reçu
     function imprimerRecu(idInscription) {
         window.open(`?page=gestion_scolarite&action=imprimer_recu&id=${idInscription}`, '_blank');
+    }
+
+    // Gérer les notifications
+    const successNotification = document.getElementById('successNotification');
+    const errorNotification = document.getElementById('errorNotification');
+
+    function removeNotification(notification) {
+        if (notification) {
+            notification.classList.add('animate__fadeOut');
+            setTimeout(() => notification.remove(), 500);
+        }
+    }
+
+    if (successNotification) {
+        setTimeout(() => removeNotification(successNotification), 5000);
+    }
+
+    if (errorNotification) {
+        setTimeout(() => removeNotification(errorNotification), 5000);
     }
     </script>
 </body>

@@ -34,18 +34,6 @@
         margin: 0 auto;
     }
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-    .header h1 {
-        margin: 0;
-        color: var(--text-color-dark);
-    }
-
     .main-content {
         background: var(--white-bg);
         border-radius: 12px;
@@ -499,9 +487,6 @@
 
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Gestion des Candidatures de Soutenance</h1>
-        </div>
 
         <div class="main-content">
             <div class="filters">

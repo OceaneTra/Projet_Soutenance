@@ -4,20 +4,51 @@ require_once __DIR__ . '/../models/Scolarite.php';
 
 class GestionScolariteController {
     private $scolariteModel;
+    
 
     public function __construct($db) {
         $this->scolariteModel = new Scolarite($db);
     }
 
     public function index() {
+        // Initialisation des variables de message
+        $messageErreur = '';
+        $messageSuccess = '';
+        
         // Récupérer la liste des versements
         $versements = $this->scolariteModel->getAllVersements();
         // Récupérer la liste des étudiants inscrits pour le formulaire d'ajout
-        $etudiantsInscrits = $this->scolariteModel->getEtudiantsInscrits(); // Assurez-vous que cette méthode existe et renvoie les bonnes données
+        $etudiantsInscrits = $this->scolariteModel->getEtudiantsInscrits();
+
+        switch (isset($_GET['action'])) {
+            case 'enregistrer_versement':
+
+                $this->enregistrerVersement();
+                break;
+
+            case 'modifier_versement':
+                $this->modifierVersement();
+                break;
+
+            case 'mettre_a_jour_versement':
+                $this->mettreAJourVersement();
+                break;
+
+            case 'supprimer_versement':
+                $this->supprimerVersement();
+                break;
+
+            case 'imprimer_recu':
+                $this->imprimerRecu();
+                break; 
+        }
+
+        
 
         // Passer les données à la vue via les variables globales (ou un autre mécanisme si votre framework le permet)
         $GLOBALS['versements'] = $versements;
         $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits;
+
 
         
     }
@@ -25,6 +56,9 @@ class GestionScolariteController {
     public function enregistrerVersement() {
         // Valider les données du formulaire POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $messageErreur = '';
+            $messageSuccess = '';
             
             $id_etudiant = $_POST['id_etudiant'] ?? null;
             $montant = $_POST['montant'] ?? null;
@@ -45,23 +79,27 @@ class GestionScolariteController {
                 ];
 
                 if ($this->scolariteModel->addVersement($data)) {
-                    $GLOBALS['messageSuccess'] = "Versement enregistré avec succès.";
+                    $messageSuccess = "Versement enregistré avec succès.";
                 } else {
-                    $GLOBALS['messageErreur'] = "Erreur lors de l'enregistrement du versement.";
+                    $messageErreur = "Erreur lors de l'enregistrement du versement.";
                 }
             } else {
-                $GLOBALS['messageErreur'] = "Veuillez remplir tous les champs requis.";
+                $messageErreur = "Veuillez remplir tous les champs requis.";
             }
         }
 
-        // Rediriger ou afficher la page avec les messages
-         header('Location: ?page=gestion_scolarite'); // Redirige vers la page de liste
-         exit();
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+        $GLOBALS['messageErreur'] = $messageErreur;
+
+        
     }
 
      public function modifierVersement() {
          // Récupérer l'ID du versement depuis l'URL (GET)
          $id_versement = $_GET['id'] ?? null;
+
+         $messageErreur = '';
+         $messageSuccess = '';
 
          if ($id_versement) {
              $versementAModifier = $this->scolariteModel->getVersementById($id_versement);
@@ -71,17 +109,25 @@ class GestionScolariteController {
                  $GLOBALS['versementAModifier'] = $versementAModifier;
                  $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits; // Passer aussi les étudiants pour le select
             } else {
-                $GLOBALS['messageErreur'] = "Versement introuvable.";
+                $messageErreur = "Versement introuvable.";
             }
          } else {
-             $GLOBALS['messageErreur'] = "ID de versement manquant.";
+             $messageErreur = "ID de versement manquant.";
             
          }
+
+         $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['messageSuccess'] = $messageSuccess;
      }
 
      public function mettreAJourVersement() {
+        // Initialize message variables
+        $messageErreur = '';
+        $messageSuccess = '';
+        
         // Gérer la soumission du formulaire de modification (POST)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             $id_versement = $_POST['id_versement'] ?? null; // Assurez-vous d'ajouter un champ caché pour l'id dans le formulaire de modif
             $montant = $_POST['montant'] ?? null;
             $date_versement = $_POST['date_versement'] ?? null;
@@ -97,19 +143,26 @@ class GestionScolariteController {
                  ];
 
                 if ($this->scolariteModel->updateVersement($id_versement, $data)) {
-                    $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
+                    $messageSuccess= "Versement mis à jour avec succès.";
                 } else {
-                    $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
+                    $messageErreur = "Erreur lors de la mise à jour du versement.";
                 }
             } else {
-                $GLOBALS['messageErreur'] = "Veuillez remplir tous les champs requis.";
+                $messageErreur = "Veuillez remplir tous les champs requis.";
             }
         }
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+        $GLOBALS['messageErreur'] = $messageErreur;
      }
 
     public function supprimerVersement() {
+        // Initialize message variables
+        $messageErreur = '';
+        $messageSuccess = '';
+        
         // Gérer la suppression via une requête POST (recommandé pour les suppressions)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             // Récupérer l'ID du versement depuis la requête (GET ou POST, selon comment le JS l'envoie)
              $id_versement = $_REQUEST['id'] ?? null; // Utiliser $_REQUEST pour gérer GET ou POST
 
@@ -124,7 +177,7 @@ class GestionScolariteController {
                              echo json_encode(['success' => true, 'message' => 'Versement supprimé avec succès.']);
                          } else {
                              $GLOBALS['messageSuccess'] = "Versement supprimé avec succès.";
-                             header('Location: ?page=gestion_scolarite');
+                            
                          }
                     } else {
                          if ($isAjax) {
@@ -132,7 +185,7 @@ class GestionScolariteController {
                              echo json_encode(['success' => false, 'message' => 'Échec de la suppression du versement.']);
                          } else {
                               $GLOBALS['messageErreur'] = "Échec de la suppression du versement.";
-                             header('Location: ?page=gestion_scolarite');
+                           
                          }
                     }
                 } catch (Exception $e) {
@@ -150,15 +203,14 @@ class GestionScolariteController {
                      echo json_encode(['success' => false, 'message' => 'ID de versement manquant.']);
                  } else {
                      $GLOBALS['messageErreur'] = "ID de versement manquant.";
-                     header('Location: ?page=gestion_scolarite');
+                     
                  }
             }
             exit(); // Assurez-vous de sortir après l'envoi de la réponse JSON ou la redirection
         } else {
             // Si ce n'est pas une requête POST, rediriger ou afficher un message d'erreur
             $GLOBALS['messageErreur'] = "Méthode non autorisée.";
-             header('Location: ?page=gestion_scolarite');
-             exit();
+             
         }
     }
 
