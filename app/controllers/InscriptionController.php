@@ -43,8 +43,8 @@ class InscriptionController {
 
         // Traiter la soumission du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['action'])) {
-                switch ($_POST['action']) {
+            if (isset($_POST['modalAction'])) {
+                switch ($_POST['modalAction']) {
                     case 'inscrire':
                         $this->traiterInscription();
                         break;
@@ -56,11 +56,37 @@ class InscriptionController {
                         break;
                 }
             }
-        }
+        } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+             if (isset($_GET['action'])) {
+                switch ($_GET['action']) {
+                    case 'get_etudiant_info':
+                         $this->getEtudiantInfo();
+                         break;
+                    // Add other GET actions here if needed
+                }
+            } 
+            // Logique pour afficher la vue par défaut (formulaire et liste)
+            $etudiantsNonInscrits = $this->scolarite->getEtudiantsNonInscrits();
+            $niveaux = $this->scolarite->getNiveauxEtudes();
+            $etudiantsInscrits = $this->scolarite->getEtudiantsInscrits();
+            $listeAnnees = $this->scolarite->getAnneesAcademiques();
 
-        // Gérer les requêtes AJAX
-        if (isset($_GET['action']) && $_GET['action'] === 'get_etudiant_info') {
-            $this->getEtudiantInfo();
+            // Si un ID est passé pour modification, récupérer les données de l'inscription
+            if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'modifier' && isset($_GET['id'])) {
+                $inscriptionAModifier = $this->scolarite->getInscriptionById($_GET['id']);
+                 // Peupler les informations de l'étudiant si l'inscription est trouvée
+                 if($inscriptionAModifier) {
+                     $GLOBALS['etudiantInfo'] = $this->scolarite->getInfoEtudiant($inscriptionAModifier['id_etudiant']);
+                 }
+                $GLOBALS['inscriptionAModifier'] = $inscriptionAModifier;
+            }
+
+            $GLOBALS['etudiantsNonInscrits'] = $etudiantsNonInscrits;
+            $GLOBALS['niveaux'] = $niveaux;
+            $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits;
+            $GLOBALS['listeAnnees'] = $listeAnnees;
+
+           
         }
     }
 
@@ -197,6 +223,7 @@ class InscriptionController {
         }
     }
 
+    
     private function getEtudiantInfo() {
         if (isset($_GET['num_etu'])) {
             $etudiant = $this->scolarite->getInfoEtudiant($_GET['num_etu']);

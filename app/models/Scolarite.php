@@ -113,9 +113,9 @@ class Scolarite {
             $stmt->execute([$id_niveau,$id_annee_acad,$nombre_tranches, $id_inscription]);
 
             // Mettre à jour le premier versement
-            $query = "UPDATE versements SET montant = ? WHERE id_inscription = ? AND type_versement = 'Premier versement' AND methode_paiement= ?";
+            $query = "UPDATE versements SET montant = ?, methode_paiement = ? WHERE id_inscription = ? AND type_versement = 'Premier versement'";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$montant_premier_versement, $id_inscription,$methode_versement]);
+            $stmt->execute([$montant_premier_versement, $methode_versement, $id_inscription]);
 
             $this->db->commit();
             return true;
@@ -123,6 +123,14 @@ class Scolarite {
             $this->db->rollBack();
             throw $e;
         }
+    }
+
+    // Récupérer la liste des années académiques
+    public function getAnneesAcademiques() {
+        $query = "SELECT id_annee_acad, date_deb, date_fin FROM annee_academique ORDER BY date_deb DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Supprimer les échéances d'une inscription
@@ -157,10 +165,12 @@ class Scolarite {
     // Récupérer une inscription par son ID
     public function getInscriptionById($id_inscription) {
         $query = "SELECT i.*, n.lib_niv_etude as nom_niveau, n.montant_scolarite as montant_total, 
-                        a.date_deb, a.date_fin, v.montant as montant_premier_versement 
+                        a.date_deb, a.date_fin, v.montant as montant_premier_versement ,v.methode_paiement as methode_paiement,
+                        e.nom_etu as nom_etudiant, e.prenom_etu as prenom_etudiant
                  FROM inscriptions i 
                  JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
                  JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad 
+                 JOIN etudiants e ON i.id_etudiant = e.num_etu
                  LEFT JOIN versements v ON i.id_inscription = v.id_inscription AND v.type_versement = 'Premier versement'
                  WHERE i.id_inscription = ?";
         $stmt = $this->db->prepare($query);

@@ -142,12 +142,14 @@ switch ($currentMenuSlug) {
             include __DIR__ . '/../ressources/routes/gestionEtudiantRoutes.php';
         
             $allowedActions = ['ajouter_des_etudiants', 'inscrire_des_etudiants'];
+    
             
             if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
                 $currentAction = $_GET['action'];
                 $contentFile = $partialsBasePath . 'gestion_etudiants/' . $currentAction . '.php';
                 $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-            } else {
+            } 
+            else {
                 // Si aucune action valide n'est spécifiée, affichez la page par défaut
                 $contentFile = $partialsBasePath . 'gestion_etudiants_content.php';
                 $currentPageLabel = 'Gestion des étudiants';

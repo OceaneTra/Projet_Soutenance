@@ -374,18 +374,18 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     <select
                                         class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
                                         id="methode_paiement" name="methode_paiement">
-                                        <option value="">Slectionner une méthode de paiement</option>
+                                        <option value="">Sélectionner une méthode de paiement</option>
                                         <option value="Espèce"
-                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Espèce') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($GLOBALS['inscriptionAModifier']['methode_paiement']) && $GLOBALS['inscriptionAModifier']['methode_paiement'] == 'Espèce') ? 'selected' : ''; ?>>
                                             Espèce</option>
                                         <option value="Carte bancaire"
-                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($GLOBALS['inscriptionAModifier']['methode_paiement']) && $GLOBALS['inscriptionAModifier']['methode_paiement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
                                             Carte bancaire</option>
                                         <option value="Virement"
-                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Virement') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($GLOBALS['inscriptionAModifier']['methode_paiement']) && $GLOBALS['inscriptionAModifier']['methode_paiement'] == 'Virement') ? 'selected' : ''; ?>>
                                             Virement</option>
                                         <option value="Chèque"
-                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['methode_versement'] == 'Chèque') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($GLOBALS['inscriptionAModifier']['methode_paiement']) && $GLOBALS['inscriptionAModifier']['methode_paiement'] == 'Chèque') ? 'selected' : ''; ?>>
                                             Chèque</option>
                                     </select>
                                 </div>
@@ -502,13 +502,17 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <button onclick="modifierInscription(<?php echo $inscrit['id_inscription']; ?>)"
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                                            <i class="fas fa-edit mr-1"></i>Modifier
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200">
+                                            <i class="fas fa-edit mr-1"></i>
                                         </button>
                                         <button
                                             onclick="confirmerSuppression(<?php echo $inscrit['id_inscription']; ?>, '<?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?>')"
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-500 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
-                                            <i class="fas fa-trash-alt mr-1"></i>Supprimer
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200">
+                                            <i class="fas fa-trash-alt mr-1"></i>
+                                        </button>
+                                        <button
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2  transition-all duration-200">
+                                            <i class="fas fa-print mr-1"></i>
                                         </button>
                                     </div>
                                 </td>
