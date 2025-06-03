@@ -2,41 +2,70 @@
 
 class Specialite
 {
-    private $pdo;
+    private $db;
+    private $id_specialite;
+    private $lib_specialite;
 
-    public function __construct($pdo)
+    public function __construct($db)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
     }
 
+    // Getters
+    public function getIdSpecialite()
+    {
+        return $this->id_specialite;
+    }
+
+    public function getLibSpecialite()
+    {
+        return $this->lib_specialite;
+    }
+
+    // Setters
+    public function setIdSpecialite($id)
+    {
+        $this->id_specialite = $id;
+    }
+
+    public function setLibSpecialite($lib)
+    {
+        $this->lib_specialite = $lib;
+    }
+
+    // Méthodes CRUD
     public function getAllSpecialites()
     {
-        $stmt = $this->pdo->query("SELECT * FROM specialite ORDER BY lib_specialite");
+        $query = "SELECT * FROM specialite ORDER BY lib_specialite";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getSpecialiteById($id)
+    {
+        $query = "SELECT * FROM specialite WHERE id_specialite = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
     public function ajouterSpecialite($lib)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO specialite (lib_specialite) VALUES (?)");
+        $stmt = $this->db->prepare("INSERT INTO specialite (lib_specialite) VALUES (?)");
         return $stmt->execute([$lib]);
     }
 
     public function updateSpecialite($id, $lib)
     {
-        $stmt = $this->pdo->prepare("UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?");
+        $stmt = $this->db->prepare("UPDATE specialite SET lib_specialite = ? WHERE id_specialite = ?");
         return $stmt->execute([$lib, $id]);
     }
 
     public function deleteSpecialite($id)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM specialite WHERE id_specialite = ?");
+        $stmt = $this->db->prepare("DELETE FROM specialite WHERE id_specialite = ?");
         return $stmt->execute([$id]);
-    }
-
-    public function getSpecialiteById($id)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM specialite WHERE id_specialite = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 }

@@ -3,7 +3,9 @@
     "description": "Systeme de gestion de la commission de validation des soutenances",
     "type": "project",
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "phpmailer/phpmailer": "^6.10",
+        "dompdf/dompdf": "^3.1"
     },
     "require-dev": {
         "symfony/var-dumper": "^7.0"

@@ -53,10 +53,12 @@ if ($_GET['page'] === 'parametres_generaux') {
             case 'messages':
                 $controller->gestionMessagerie();
                 break;
+            case 'gestion_attribution':
+                $controller->gestionAttribution();
+                break;
             default:
                 '';
         }
     }
 
 }
-

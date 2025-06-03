@@ -11,16 +11,17 @@ class Message
         $this->db = $db;
     }
 
-    public function ajouterMessage($contenu_message)
+    public function ajouterMessage($contenu_message, $lib_message, $type_message)
     {
-        $stmt = $this->db->prepare("INSERT INTO messages (contenu_message) VALUES (?)");
-        return $stmt->execute([$contenu_message]);
+        $stmt = $this->db->prepare("INSERT INTO messages (contenu_message, lib_message, type_message) VALUES (?, ?, ?)");
+        return $stmt->execute([$contenu_message, $lib_message, $type_message]);
     }
+    
 
-    public function updateMessage($id_message, $contenu_message)
+    public function updateMessage($id_message, $contenu_message, $lib_message, $type_message)
     {
-        $stmt = $this->db->prepare("UPDATE messages SET contenu_message = ? WHERE id_message = ?");
-        return $stmt->execute([$contenu_message, $id_message]);
+        $stmt = $this->db->prepare("UPDATE messages SET contenu_message = ?, lib_message = ?, type_message= ? WHERE id_message = ?");
+        return $stmt->execute([$contenu_message,$lib_message,$type_message, $id_message]);
     }
 
     public function deleteMessage($id_message)
