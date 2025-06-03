@@ -247,7 +247,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                 <select
                                     class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
                                     id="etudiant" name="etudiant"
-                                    <?php isset($GLOBALS['inscriptionAModifier']) &&isset($_GET['id']) ? '' : 'required' ;?>>
+                                    <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($_GET['id'])) ? '' : 'required'; ?>>
                                     <option value="">Choisir un étudiant...</option>
                                     <?php foreach ($etudiantsNonInscrits as $etudiant): ?>
                                     <option value="<?php echo $etudiant['num_etu']; ?>"
@@ -898,6 +898,10 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         // Initialiser les données
         initializeData();
     });
+
+
+
+
 
     // Fonction pour imprimer un reçu individuel
     window.imprimerRecu = function(idInscription) {
