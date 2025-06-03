@@ -12,7 +12,7 @@ include 'menu.php';
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDashboardRoutes.php';
-include __DIR__ . '/../ressources/routes/inscriptionRoutes.php';
+
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -136,25 +136,21 @@ switch ($currentMenuSlug) {
 
             break;
         case 'gestion_etudiants':
-
-                 // Ajustez le chemin si nécessaire
-        include __DIR__ . '/../ressources/routes/gestionEtudiantRoutes.php';
+            // Ajustez le chemin si nécessaire
+            include __DIR__ . '/../ressources/routes/gestionEtudiantRoutes.php';
         
-        $allowedActions = ['ajouter_des_etudiants', 'inscrire_des_etudiants'];
-        
-        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'gestion_etudiants/' . $currentAction . '.php';
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
-        } else {
-            // Si aucune action valide n'est spécifiée, affichez la page par défaut
-            $contentFile = $partialsBasePath . 'gestion_etudiants_content.php';
+            $allowedActions = ['ajouter_des_etudiants', 'inscrire_des_etudiants'];
+            
+            if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePath . 'gestion_etudiants/' . $currentAction . '.php';
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            } else {
+                // Si aucune action valide n'est spécifiée, affichez la page par défaut
+                $contentFile = $partialsBasePath . 'gestion_etudiants_content.php';
                 $currentPageLabel = 'Gestion des étudiants';
-        }
-
-
-
-            break; 
+            }
+            break;
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];
