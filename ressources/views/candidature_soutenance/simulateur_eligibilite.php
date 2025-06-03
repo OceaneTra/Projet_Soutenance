@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulateur d'éligibilité | Soutenance Manager</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
     <style>
     .floating-shape {
@@ -47,12 +48,8 @@
 
 <body class="bg-gray-50 font-sans antialiased">
     <div class="flex h-screen overflow-hidden">
-
-
         <!-- Main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
-
-
             <!-- Main content area -->
             <div class="flex-1 p-4 md:p-6 overflow-y-auto">
                 <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
@@ -61,43 +58,37 @@
                         <h2 class="text-2xl font-bold text-gray-800 mb-2">Vérification d'éligibilité</h2>
                         <p class="text-gray-600 mb-4">Vérifiez si vous remplissez toutes les conditions pour candidater
                             à la soutenance.</p>
-
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium text-gray-700">Progression de vérification</span>
-                                <span class="text-sm font-medium text-green-600">60%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="progress-bar bg-green-500 h-2.5 rounded-full" style="width: 60%"></div>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Contenu principal -->
-                    <div class="p-6">
+                    <!-- Formulaire -->
+                    <form action="<?= base_url('eligibilite/verifier') ?>" method="POST" class="p-6">
                         <!-- Section 1: Informations générales -->
                         <div class="mb-8">
                             <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                                 <i class="fas fa-info-circle text-green-500 mr-2"></i>
                                 Informations générales
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
-                                    <p class="text-gray-900 font-medium">Jean Dupont</p>
+                                    <input type="text" name="nom_complet" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Numéro
                                         d'étudiant</label>
-                                    <p class="text-gray-900 font-medium">ETU123456</p>
+                                    <input type="text" name="numero_etudiant" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Formation</label>
-                                    <p class="text-gray-900 font-medium">Master Informatique</p>
+                                    <input type="text" name="formation" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Promotion</label>
-                                    <p class="text-gray-900 font-medium">2022-2023</p>
+                                    <input type="text" name="promotion" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                             </div>
                         </div>
@@ -110,131 +101,119 @@
                             </h3>
 
                             <div class="space-y-4">
-                                <!-- Item 1 -->
-                                <div class="requirement-item p-4 border rounded-lg flex items-start" id="req1">
-                                    <div class="mr-3 mt-1">
-                                        <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="font-medium text-gray-800">Rapport de stage déposé</h4>
-                                        <p class="text-sm text-gray-600 mt-1">Votre rapport de stage doit être validé
-                                            par votre tuteur pédagogique.</p>
-                                        <div class="mt-2 text-sm text-green-600 font-medium">
-                                            <i class="fas fa-check mr-1"></i> Condition remplie
+                                <!-- Rapport de stage -->
+                                <div class="requirement-item p-4 border rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">Rapport de stage déposé</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Votre rapport de stage doit être
+                                                validé par votre tuteur pédagogique.</p>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="rapport_stage" value="oui"
+                                                    class="form-radio text-green-500">
+                                                <span class="ml-2">Oui</span>
+                                            </label>
+                                            <label class="inline-flex items-center ml-4">
+                                                <input type="radio" name="rapport_stage" value="non"
+                                                    class="form-radio text-red-500">
+                                                <span class="ml-2">Non</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Item 2 -->
-                                <div class="requirement-item p-4 border rounded-lg flex items-start" id="req2">
-                                    <div class="mr-3 mt-1">
-                                        <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="font-medium text-gray-800">Fiche d'évaluation complétée</h4>
-                                        <p class="text-sm text-gray-600 mt-1">Votre tuteur en entreprise doit avoir
-                                            complété la fiche d'évaluation.</p>
-                                        <div class="mt-2 text-sm text-green-600 font-medium">
-                                            <i class="fas fa-check mr-1"></i> Condition remplie
+                                <!-- Fiche d'évaluation -->
+                                <div class="requirement-item p-4 border rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">Fiche d'évaluation complétée</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Votre tuteur en entreprise doit avoir
+                                                complété la fiche d'évaluation.</p>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="fiche_evaluation" value="oui"
+                                                    class="form-radio text-green-500">
+                                                <span class="ml-2">Oui</span>
+                                            </label>
+                                            <label class="inline-flex items-center ml-4">
+                                                <input type="radio" name="fiche_evaluation" value="non"
+                                                    class="form-radio text-red-500">
+                                                <span class="ml-2">Non</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Item 3 -->
-                                <div class="requirement-item p-4 border rounded-lg flex items-start bg-yellow-50"
-                                    id="req3">
-                                    <div class="mr-3 mt-1">
-                                        <i class="fas fa-exclamation-circle text-yellow-500 text-xl"></i>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="font-medium text-gray-800">Soutenance blanche réalisée</h4>
-                                        <p class="text-sm text-gray-600 mt-1">Vous devez avoir effectué votre soutenance
-                                            blanche avec validation.</p>
-                                        <div class="mt-2 text-sm text-yellow-600 font-medium">
-                                            <i class="fas fa-exclamation-triangle mr-1"></i> En attente de validation
+                                <!-- Soutenance blanche -->
+                                <div class="requirement-item p-4 border rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">Soutenance blanche réalisée</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Vous devez avoir effectué votre
+                                                soutenance blanche avec validation.</p>
                                         </div>
-                                        <div class="mt-2 text-xs text-gray-500">
-                                            Votre soutenance blanche est prévue pour le 15/06/2023.
+                                        <div class="flex items-center">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="soutenance_blanche" value="oui"
+                                                    class="form-radio text-green-500">
+                                                <span class="ml-2">Oui</span>
+                                            </label>
+                                            <label class="inline-flex items-center ml-4">
+                                                <input type="radio" name="soutenance_blanche" value="non"
+                                                    class="form-radio text-red-500">
+                                                <span class="ml-2">Non</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Item 4 -->
-                                <div class="requirement-item p-4 border rounded-lg flex items-start bg-red-50"
-                                    id="req4">
-                                    <div class="mr-3 mt-1">
-                                        <i class="fas fa-times-circle text-red-500 text-xl"></i>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="font-medium text-gray-800">Dépôt du mémoire</h4>
-                                        <p class="text-sm text-gray-600 mt-1">Votre mémoire doit être déposé et validé
-                                            par votre directeur de mémoire.</p>
-                                        <div class="mt-2 text-sm text-red-600 font-medium">
-                                            <i class="fas fa-times mr-1"></i> Condition non remplie
+                                <!-- Mémoire -->
+                                <div class="requirement-item p-4 border rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">Dépôt du mémoire</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Votre mémoire doit être déposé et
+                                                validé par votre directeur de mémoire.</p>
                                         </div>
-                                        <div class="mt-2">
-                                            <a href="#"
-                                                class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
-                                                <i class="fas fa-upload mr-1"></i> Déposer mon mémoire
-                                            </a>
+                                        <div class="flex items-center">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="memoire" value="oui"
+                                                    class="form-radio text-green-500">
+                                                <span class="ml-2">Oui</span>
+                                            </label>
+                                            <label class="inline-flex items-center ml-4">
+                                                <input type="radio" name="memoire" value="non"
+                                                    class="form-radio text-red-500">
+                                                <span class="ml-2">Non</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 3: Résumé d'éligibilité -->
-                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                        <!-- Commentaires -->
+                        <div class="mb-8">
                             <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
-                                Résumé de votre éligibilité
+                                <i class="fas fa-comment-alt text-green-500 mr-2"></i>
+                                Commentaires additionnels
                             </h3>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                                    <div class="text-3xl font-bold text-green-500 mb-1">2</div>
-                                    <div class="text-sm text-gray-600">Conditions remplies</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                                    <div class="text-3xl font-bold text-yellow-500 mb-1">1</div>
-                                    <div class="text-sm text-gray-600">En attente</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-lg shadow-sm text-center">
-                                    <div class="text-3xl font-bold text-red-500 mb-1">1</div>
-                                    <div class="text-sm text-gray-600">Non remplies</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-info-circle text-blue-500 text-xl"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm text-gray-600">
-                                            <span class="font-medium text-gray-800">Statut actuel :</span>
-                                            Vous ne pouvez pas encore candidater à la soutenance.
-                                            <span class="font-medium">1 condition manquante</span> et
-                                            <span class="font-medium">1 en attente de validation</span>.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                            <textarea name="commentaires" rows="4"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Ajoutez ici toute information supplémentaire que vous souhaitez communiquer à l'administration..."></textarea>
                         </div>
 
                         <!-- Boutons d'action -->
-                        <div class="mt-8 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
-                            <button
-                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                <i class="fas fa-download mr-2"></i> Exporter en PDF
-                            </button>
-                            <button
-                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                                disabled>
-                                <i class="fas fa-paper-plane mr-2"></i> Candidater à la soutenance
+                        <div class="flex justify-end space-x-3">
+                            <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <i class="fas fa-paper-plane mr-2"></i> Soumettre ma demande
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- FAQ Section -->
@@ -300,18 +279,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Gestion du menu mobile
-        const mobileMenuButton = document.getElementById('mobileMenuButton');
-        const sidebar = document.querySelector('.hidden.md\\:flex.md\\:flex-shrink-0 > .flex.flex-col.w-64');
-
-        if (mobileMenuButton && sidebar) {
-            mobileMenuButton.addEventListener('click', function() {
-                sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('absolute');
-                sidebar.classList.toggle('z-20');
-            });
-        }
-
         // Gestion des FAQ
         const faqQuestions = document.querySelectorAll('.faq-question');
         faqQuestions.forEach(question => {

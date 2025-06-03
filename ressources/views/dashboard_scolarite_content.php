@@ -1,47 +1,13 @@
 <!DOCTYPE html>
 <?php
-require_once 'config/database.php';
+require_once __DIR__ . '/../../app/config/database.php';
+require_once __DIR__ . '/../../app/controllers/DashboardScolariteController.php';
 
-// Récupération des statistiques
-$stats = [
-    'etudiants' => 0,
-    'nouvelles_inscriptions' => 0,
-    'notes_a_valider' => 0,
-    'paiements_en_attente' => 0
-];
+$dashboardController = new DashboardScolariteController();
+$dashboardData = $dashboardController->getDashboardData();
 
-try {
-    // Nombre total d'étudiants
-    $query = "SELECT COUNT(*) as total FROM etudiants";
-    $stmt = $conn->query($query);
-    $stats['etudiants'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-    // Nouvelles inscriptions (dernière semaine)
-    $query = "SELECT COUNT(*) as total FROM etudiants WHERE date_inscription >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
-    $stmt = $conn->query($query);
-    $stats['nouvelles_inscriptions'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-    // Notes à valider
-    $query = "SELECT COUNT(*) as total FROM notes WHERE statut = 'en_attente'";
-    $stmt = $conn->query($query);
-    $stats['notes_a_valider'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-    // Paiements en attente
-    $query = "SELECT COUNT(*) as total, SUM(montant) as montant_total FROM paiements WHERE statut = 'en_attente'";
-    $stmt = $conn->query($query);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $stats['paiements_en_attente'] = $result['total'];
-    $stats['montant_total_paiements'] = $result['montant_total'];
-
-    // Activités récentes
-    $query = "SELECT * FROM activites ORDER BY date_activite DESC LIMIT 3";
-    $stmt = $conn->query($query);
-    $activites = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch(PDOException $e) {
-    // Gestion des erreurs
-    error_log("Erreur de base de données : " . $e->getMessage());
-}
+$stats = $dashboardData['stats'];
+$activites = $dashboardData['activites'];
 ?>
 <html lang="fr">
 

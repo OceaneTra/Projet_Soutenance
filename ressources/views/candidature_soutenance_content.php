@@ -33,8 +33,8 @@
                     </div>
                     <h2 class="text-2xl font-bold text-text-dark mb-4">Simulateur d'éligibilité</h2>
                     <p class="text-text-light mb-8 flex-grow text-lg leading-relaxed">Vérifiez si vous remplissez les
-                        conditions requises pour candidater à la soutenance et obtenez un
-                        aperçu instantané de votre statut.</p>
+                        conditions requises pour candidater à la soutenance et obtenez une réponse de l'administration
+                        sur votre statut après vérificaiton.</p>
                     <a href="?page=candidature_soutenance&action=simulateur_eligibilite
                     " class="card-btn">
                         <span>
