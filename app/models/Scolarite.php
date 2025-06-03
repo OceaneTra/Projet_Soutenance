@@ -28,8 +28,8 @@ class Scolarite {
             $id_inscription = $this->db->lastInsertId();
 
             // Enregistrer le premier versement
-            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement, statut_versement,methode_paiement) 
-                     VALUES (?, ?, NOW(), 'Premier versement', 'Validé',?)";
+            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement,methode_paiement) 
+                     VALUES (?, ?, NOW(), 'Premier versement',?)";
             $stmt = $this->db->prepare($query);
             $stmt->execute([$id_inscription, $montant_premier_versement,$methode_paiement]);
 
@@ -145,12 +145,17 @@ class Scolarite {
     public function supprimerInscription($id_inscription) {
         $this->db->beginTransaction();
         try {
-            // Supprimer d'abord les versements
+            // Supprimer d'abord les échéances
+            $query = "DELETE FROM echeances WHERE id_inscription = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$id_inscription]);
+
+            // Supprimer ensuite les versements
             $query = "DELETE FROM versements WHERE id_inscription = ?";
             $stmt = $this->db->prepare($query);
             $stmt->execute([$id_inscription]);
 
-            // Puis supprimer l'inscription
+            // Enfin supprimer l'inscription
             $query = "DELETE FROM inscriptions WHERE id_inscription = ?";
             $stmt = $this->db->prepare($query);
             $stmt->execute([$id_inscription]);

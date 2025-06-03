@@ -82,7 +82,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
 
 <body class="font-sans antialiased bg-gray-50">
     <!-- Système de notification -->
-    <?php if (!empty($GLOBALS['messageSuccess'])): ?>
+    <?php if (isset($GLOBALS['messageSuccess']) && !empty($GLOBALS['messageSuccess'])): ?>
     <div id="successNotification" class="fixed top-4 right-4 z-50 animate__animated animate__fadeIn">
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex items-center">
             <div class="flex-shrink-0">
@@ -98,7 +98,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($GLOBALS['messageErreur'])): ?>
+    <?php if (isset($GLOBALS['messageErreur']) && !empty($GLOBALS['messageErreur'])): ?>
     <div id="errorNotification" class="fixed top-4 right-4 z-50 animate__animated animate__fadeIn">
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg flex items-center">
             <div class="flex-shrink-0">

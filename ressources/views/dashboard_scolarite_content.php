@@ -1,4 +1,48 @@
 <!DOCTYPE html>
+<?php
+require_once 'config/database.php';
+
+// Récupération des statistiques
+$stats = [
+    'etudiants' => 0,
+    'nouvelles_inscriptions' => 0,
+    'notes_a_valider' => 0,
+    'paiements_en_attente' => 0
+];
+
+try {
+    // Nombre total d'étudiants
+    $query = "SELECT COUNT(*) as total FROM etudiants";
+    $stmt = $conn->query($query);
+    $stats['etudiants'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Nouvelles inscriptions (dernière semaine)
+    $query = "SELECT COUNT(*) as total FROM etudiants WHERE date_inscription >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+    $stmt = $conn->query($query);
+    $stats['nouvelles_inscriptions'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Notes à valider
+    $query = "SELECT COUNT(*) as total FROM notes WHERE statut = 'en_attente'";
+    $stmt = $conn->query($query);
+    $stats['notes_a_valider'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Paiements en attente
+    $query = "SELECT COUNT(*) as total, SUM(montant) as montant_total FROM paiements WHERE statut = 'en_attente'";
+    $stmt = $conn->query($query);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stats['paiements_en_attente'] = $result['total'];
+    $stats['montant_total_paiements'] = $result['montant_total'];
+
+    // Activités récentes
+    $query = "SELECT * FROM activites ORDER BY date_activite DESC LIMIT 3";
+    $stmt = $conn->query($query);
+    $activites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch(PDOException $e) {
+    // Gestion des erreurs
+    error_log("Erreur de base de données : " . $e->getMessage());
+}
+?>
 <html lang="fr">
 
 <head>
@@ -56,7 +100,8 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Étudiants inscrits</p>
-                                <p class="text-2xl font-bold text-gray-800">1,245</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    <?php echo number_format($stats['etudiants']); ?></p>
                                 <p class="text-xs text-gray-500">+12% vs l'an dernier</p>
                             </div>
                             <div class="p-3 rounded-full bg-blue-100 text-blue-500">
@@ -69,7 +114,8 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Nouvelles inscriptions</p>
-                                <p class="text-2xl font-bold text-gray-800">87</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    <?php echo number_format($stats['nouvelles_inscriptions']); ?></p>
                                 <p class="text-xs text-gray-500">+5 cette semaine</p>
                             </div>
                             <div class="p-3 rounded-full bg-green-100 text-green-500">
@@ -82,7 +128,8 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Notes à valider</p>
-                                <p class="text-2xl font-bold text-gray-800">23</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    <?php echo number_format($stats['notes_a_valider']); ?></p>
                                 <p class="text-xs text-gray-500">3 en attente > 1 semaine</p>
                             </div>
                             <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
@@ -95,8 +142,10 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Paiements en attente</p>
-                                <p class="text-2xl font-bold text-gray-800">15</p>
-                                <p class="text-xs text-gray-500">Total: 12,450€</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    <?php echo number_format($stats['paiements_en_attente']); ?></p>
+                                <p class="text-xs text-gray-500">Total:
+                                    <?php echo number_format($stats['montant_total_paiements'], 2); ?>€</p>
                             </div>
                             <div class="p-3 rounded-full bg-red-100 text-red-500">
                                 <i class="fas fa-euro-sign text-xl"></i>
@@ -118,41 +167,21 @@
                     <div class="bg-white p-4 rounded-lg shadow-sm">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Activités récentes</h2>
                         <div class="space-y-4">
+                            <?php foreach($activites as $activite): ?>
                             <div class="flex items-start">
                                 <div
-                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-3">
-                                    <i class="fas fa-user-plus"></i>
+                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-<?php echo $activite['couleur']; ?>-100 flex items-center justify-center text-<?php echo $activite['couleur']; ?>-500 mr-3">
+                                    <i class="fas <?php echo $activite['icone']; ?>"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-800">Nouvel étudiant enregistré</p>
-                                    <p class="text-xs text-gray-500">Jean Dupont - Master Informatique</p>
-                                    <p class="text-xs text-gray-400">Il y a 2 heures</p>
+                                    <p class="text-sm font-medium text-gray-800">
+                                        <?php echo htmlspecialchars($activite['titre']); ?></p>
+                                    <p class="text-xs text-gray-500">
+                                        <?php echo htmlspecialchars($activite['description']); ?></p>
+                                    <p class="text-xs text-gray-400"><?php echo $activite['date_activite']; ?></p>
                                 </div>
                             </div>
-
-                            <div class="flex items-start">
-                                <div
-                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-3">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">Notes validées</p>
-                                    <p class="text-xs text-gray-500">UE Programmation Avancée - 25 étudiants</p>
-                                    <p class="text-xs text-gray-400">Il y a 5 heures</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start">
-                                <div
-                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500 mr-3">
-                                    <i class="fas fa-euro-sign"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">Paiement reçu</p>
-                                    <p class="text-xs text-gray-500">Marie Lambert - 850€</p>
-                                    <p class="text-xs text-gray-400">Il y a 1 jour</p>
-                                </div>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>

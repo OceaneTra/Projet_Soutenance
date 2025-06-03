@@ -1,56 +1,68 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Scolarite.php';
+require_once __DIR__ . '/../models/AnneeAcademique.php';
 
 class GestionScolariteController {
     private $scolariteModel;
+    private $anneeAcademique;
     
 
-    public function __construct($db) {
-        $this->scolariteModel = new Scolarite($db);
+    public function __construct() {
+        $this->scolariteModel = new Scolarite(Database::getConnection());
+        $this->anneeAcademique = new AnneeAcademique(Database::getConnection());
     }
 
     public function index() {
-        // Initialisation des variables de message
+        // Initialize message variables
         $messageErreur = '';
         $messageSuccess = '';
+
+        // Récupérer les étudiants non inscrits
+        $GLOBALS['etudiantsNonInscrits'] = $this->scolariteModel->getEtudiantsNonInscrits();
         
-        // Récupérer la liste des versements
-        $versements = $this->scolariteModel->getAllVersements();
-        // Récupérer la liste des étudiants inscrits pour le formulaire d'ajout
-        $etudiantsInscrits = $this->scolariteModel->getEtudiantsInscrits();
+        // Récupérer les niveaux d'études
+        $GLOBALS['niveaux'] = $this->scolariteModel->getNiveauxEtudes();
+        
+        // Récupérer les étudiants déjà inscrits
+        $GLOBALS['etudiantsInscrits'] = $this->scolariteModel->getEtudiantsInscrits();
+        
+        // Récupérer les années académiques
+        $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
 
-        switch (isset($_GET['action'])) {
-            case 'enregistrer_versement':
-
-                $this->enregistrerVersement();
-                break;
-
-            case 'modifier_versement':
-                $this->modifierVersement();
-                break;
-
-            case 'mettre_a_jour_versement':
-                $this->mettreAJourVersement();
-                break;
-
-            case 'supprimer_versement':
-                $this->supprimerVersement();
-                break;
-
-            case 'imprimer_recu':
-                $this->imprimerRecu();
-                break; 
+        // Si un numéro d'étudiant est fourni, récupérer ses informations
+        if (isset($_GET['num_etu'])) {
+            $GLOBALS['etudiantInfo'] = $this->scolariteModel->getInfoEtudiant($_GET['num_etu']);
         }
 
-        
+        // Si on est en mode modification, récupérer les informations de l'inscription
+        if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'modifier' && isset($_GET['id'])) {
+            $GLOBALS['inscriptionAModifier'] = $this->scolariteModel->getInscriptionById($_GET['id']);
+            if ($GLOBALS['inscriptionAModifier']) {
+                $GLOBALS['etudiantInfo'] = $this->scolariteModel->getInfoEtudiant($GLOBALS['inscriptionAModifier']['id_etudiant']);
+            }
+        }
 
-        // Passer les données à la vue via les variables globales (ou un autre mécanisme si votre framework le permet)
-        $GLOBALS['versements'] = $versements;
-        $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits;
+        // Traiter la soumission du formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['modalAction'])) {
+                switch ($_POST['modalAction']) {
+                    case 'inscrire':
+                        $this->enregistrerVersement();
+                        break;
+                    case 'modifier':
+                        $this->modifierVersement();
+                        break;
+                    case 'supprimer':
+                        $this->supprimerVersement();
+                        break;
+                }
+            }
+        }
 
-
-        
+        // Passer les messages à la vue
+        $GLOBALS['messageSuccess'] = $messageSuccess;
+        $GLOBALS['messageErreur'] = $messageErreur;
     }
 
     public function enregistrerVersement() {

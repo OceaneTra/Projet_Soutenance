@@ -3,6 +3,7 @@
 $etudiantsNonInscrits = isset($GLOBALS['etudiantsNonInscrits']) ? $GLOBALS['etudiantsNonInscrits'] : [];
 $niveaux = isset($GLOBALS['niveaux']) ? $GLOBALS['niveaux'] : [];
 $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsInscrits'] : [];
+$listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
 ?>
 
 <!DOCTYPE html>
@@ -173,21 +174,22 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
     <div class="container mx-auto px-4 py-8">
         <div id="messageContainer"></div>
 
-        <?php if (isset($_SESSION['success'])): ?>
+        <?php if (isset($GLOBALS['messageSuccess']) && !empty($GLOBALS['messageSuccess'])): ?>
         <div id="successMessage"
-            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 hidden"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 animate-fade-in"
             role="alert">
-            <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
-            <?php unset($_SESSION['success']); ?>
+            <span class="block sm:inline"><?php echo $GLOBALS['messageSuccess']; ?></span>
         </div>
+        <?php unset($GLOBALS['messageSuccess']); ?>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['error'])): ?>
+        <?php if (isset($GLOBALS['messageErreur']) && !empty($GLOBALS['messageErreur'])): ?>
         <div id="errorMessage"
-            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
-            <span class="block sm:inline"><?php echo $_SESSION['error']; ?></span>
-            <?php unset($_SESSION['error']); ?>
+            class="bg-green-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 animate-fade-in"
+            role="alert">
+            <span class="block sm:inline"><?php echo $GLOBALS['messageErreur']; ?></span>
         </div>
+        <?php unset($GLOBALS['messageErreur']); ?>
         <?php endif; ?>
 
         <!-- Formulaire d'inscription -->
@@ -199,7 +201,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             </div>
             <div class="p-6">
                 <form id="inscriptionForm" method="POST" action="?page=gestion_etudiants&action=inscrire_des_etudiants">
-                    <input type="hidden" name="action"
+                    <input type="hidden" name="modalAction"
                         value="<?php echo isset($GLOBALS['inscriptionAModifier']) ? 'modifier' : 'inscrire'; ?>">
                     <?php if (isset($GLOBALS['inscriptionAModifier'])): ?>
                     <input type="hidden" name="id_inscription"
@@ -222,7 +224,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                     class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
                                     id="annee_academique" name="annee_academique" required>
                                     <option value="">Choisir une année académique...</option>
-                                    <?php foreach ($GLOBALS['listeAnnees'] as $annee): ?>
+                                    <?php foreach ($listeAnnees as $annee): ?>
                                     <option value="<?php echo $annee->id_annee_acad; ?>"
                                         <?php echo (isset($GLOBALS['inscriptionAModifier']) && $GLOBALS['inscriptionAModifier']['id_annee_acad'] == $annee->id_annee_acad) ? 'selected' : ''; ?>>
                                         <?php echo date('Y', strtotime($annee->date_deb)) . ' - ' . date('Y', strtotime($annee->date_fin)); ?>
@@ -373,7 +375,7 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                         paiement</label>
                                     <select
                                         class="w-full h-10 border border-gray-300 rounded-md transition-all duration-300 ease-in-out outline-none focus:border-green-500 focus:shadow-sm hover:-translate-y-0.5"
-                                        id="methode_paiement" name="methode_paiement">
+                                        id="methode_paiement" name="methode_paiement" required>
                                         <option value="">Sélectionner une méthode de paiement</option>
                                         <option value="Espèce"
                                             <?php echo (isset($GLOBALS['inscriptionAModifier']) && isset($GLOBALS['inscriptionAModifier']['methode_paiement']) && $GLOBALS['inscriptionAModifier']['methode_paiement'] == 'Espèce') ? 'selected' : ''; ?>>
@@ -506,7 +508,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                                             <i class="fas fa-edit mr-1"></i>
                                         </button>
                                         <button
-                                            onclick="confirmerSuppression(<?php echo $inscrit['id_inscription']; ?>, '<?php echo $inscrit['nom'] . ' ' . $inscrit['prenom']; ?>')"
                                             class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200">
                                             <i class="fas fa-trash-alt mr-1"></i>
                                         </button>
@@ -536,39 +537,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         </div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
-    <div id="modalSuppression"
-        class="fixed inset-0 bg-opacity-50 hidden overflow-y-auto h-full w-full flex items-center justify-center">
-        <div class="relative mx-auto p-5 w-96 shadow-2xl rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                    <i class="fas fa-exclamation-triangle text-red-600"></i>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Confirmer la suppression</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500">
-                        Êtes-vous sûr de vouloir supprimer l'inscription de <span id="nomEtudiant"
-                            class="font-medium"></span> ?
-                    </p>
-                </div>
-                <div class="items-center px-4 py-3">
-                    <form id="formSuppression" method="POST"
-                        action="?page=gestion_etudiants&action=inscrire_des_etudiants">
-                        <input type="hidden" name="action" value="supprimer">
-                        <input type="hidden" name="id_inscription" id="idInscriptionASupprimer">
-                        <button type="submit" id="confirmerBtn"
-                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                            Confirmer
-                        </button>
-                        <button type="button" onclick="fermerModal()"
-                            class="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                            Annuler
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
     // Variables globales pour la pagination
@@ -721,14 +689,17 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
 
         // Validation du formulaire
         document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
             const montantTotal = parseFloat(niveauSelect.options[niveauSelect.selectedIndex].dataset
                 .montantTotal);
             const premierVersement = parseFloat(premierVersementInput.value);
 
+            if (premierVersement > montantTotal) {
+                e.preventDefault();
+                alert("Le premier versement ne peut pas être supérieur au montant total.");
+                return;
+            }
 
-            this.submit();
+            // Si la validation est passée, le formulaire sera soumis normalement
         });
 
         // Fonction pour initialiser les données
@@ -806,8 +777,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
             updateTable();
         });
 
-        // Variables pour la suppression
-        let inscriptionASupprimer = null;
 
         // Fonction pour modifier une inscription
         window.modifierInscription = function(idInscription) {
@@ -815,61 +784,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                 `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=modifier&id=${idInscription}`;
         };
 
-        // Fonction pour confirmer la suppression
-        window.confirmerSuppression = function(idInscription, nomEtudiant) {
-            inscriptionASupprimer = idInscription;
-            document.getElementById('nomEtudiant').textContent = nomEtudiant;
-            document.getElementById('idInscriptionASupprimer').value = idInscription;
-            document.getElementById('modalSuppression').classList.remove('hidden');
-        };
-
-        // Fonction pour fermer le modal
-        window.fermerModal = function() {
-            document.getElementById('modalSuppression').classList.add('hidden');
-            inscriptionASupprimer = null;
-        };
-
-        // Gestionnaire de confirmation de suppression
-        document.getElementById('confirmerBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (inscriptionASupprimer) {
-                const form = document.getElementById('formSuppression');
-                const formData = new FormData(form);
-
-                fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Supprimer la ligne de la table
-                            removeInscriptionRow(inscriptionASupprimer);
-                            // Fermer le modal
-                            fermerModal();
-                            // Afficher le message de succès
-                            showMessage(document.getElementById('successMessage'));
-                        } else {
-                            // Afficher le message d'erreur
-                            showMessage(document.getElementById('errorMessage'));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        showMessage(document.getElementById('errorMessage'));
-                    });
-            }
-        });
-
-        // Fermer le modal si on clique en dehors
-        document.getElementById('modalSuppression').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fermerModal();
-            }
-        });
 
         // Gestion des messages
         const successMessage = document.getElementById('successMessage');
@@ -883,7 +797,8 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
                     element.classList.add('animate-fade-out');
                     setTimeout(() => {
                         element.classList.add('hidden');
-                        element.classList.remove('animate-fade-in', 'animate-fade-out');
+                        element.classList.remove('animate-fade-in',
+                            'animate-fade-out');
                     }, 500);
                 }, 3000);
             }
@@ -898,10 +813,6 @@ $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsI
         // Initialiser les données
         initializeData();
     });
-
-
-
-
 
     // Fonction pour imprimer un reçu individuel
     window.imprimerRecu = function(idInscription) {
