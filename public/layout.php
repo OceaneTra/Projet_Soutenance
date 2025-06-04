@@ -446,8 +446,9 @@ $cardReclamation = [
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0 ">
             <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
-                <div class="flex items-center justify-center h-16 px-4 bg-green-100 shadow-sm">
-                    <div class="flex overflow-hidden items-center">
+                <div class="flex items-center justify-center h-20 px-4 bg-green-100 shadow-sm">
+                    <div class="flex overflow-hidden items-center ">
+
 
                         <span class="text-green-500 font-bold text-xl">Soutenance Manager</span>
                     </div>
@@ -475,27 +476,19 @@ $cardReclamation = [
         <!-- Main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Top navigation -->
-            <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-green-100 shadow-sm">
+            <div class="flex items-center justify-between h-20 px-4 border-b border-gray-200 bg-green-100 shadow-sm">
                 <div class="flex items-center">
                     <button id="mobileMenuButton" class="md:hidden text-gray-500 focus:outline-none mr-3">
                         <i class="fas fa-bars"></i>
                     </button>
                     <a href="">
-                        <img src="./images/FHB.png" alt="Logo" class="h-8 w-8 mr-2">
+                        <img src="./images/logo_mathInfo_fond_blanc.png" alt="Logo" class="h-16 w-16 mr-4">
                     </a>
                     <h1 class="text-lg font-medium text-green-500"><?php echo htmlspecialchars($currentPageLabel); ?>
                     </h1>
                 </div>
                 <div class="flex items-center space-x-6">
-                    <!-- Notifications -->
-                    <div class="tooltip">
-                        <button
-                            class="w-8 h-8 bg-green-300 rounded-full flex items-center justify-center text-white relative">
-                            <i class="fas fa-bell text-xs"></i>
-                            <span class="absolute top-1 right-1 bg-red-500 w-2 h-2 rounded-full"></span>
-                        </button>
 
-                    </div>
                     <div class="flex items-center space-x-4">
                         <div class="relative flex flex-col ">
                             <span class="text-md font-medium text-green-500">Bienvenue,
