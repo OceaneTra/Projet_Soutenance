@@ -41,6 +41,15 @@ class InscriptionController {
             }
         }
 
+        // Gestion de la suppression d'inscription
+        if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'supprimer' && isset($_GET['id'])) {
+            if ($this->scolarite->supprimerInscription($_GET['id'])) {
+                $GLOBALS['messageSuccess'] = "Inscription supprimée avec succès.";
+            } else {
+                $GLOBALS['messageErreur'] = "Erreur lors de la suppression de l'inscription.";
+            }
+        }
+
         // Traiter la soumission du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['modalAction'])) {
@@ -51,7 +60,6 @@ class InscriptionController {
                     case 'modifier':
                         $this->modifierInscription();
                         break;
-                   
                 }
             }
         } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -77,6 +85,9 @@ class InscriptionController {
 
            
         }
+
+        // Récupérer la liste mise à jour des étudiants inscrits après chaque action
+        $GLOBALS['etudiantsInscrits'] = $this->scolarite->getEtudiantsInscrits();
     }
 
     private function traiterInscription() {
@@ -124,7 +135,6 @@ class InscriptionController {
                 }
 
                 $GLOBALS['messageSuccess'] = "Inscription créée avec succès.";
-               
             } else {
                 $GLOBALS['messageErreur'] = "Erreur lors de la création de l'inscription.";
             }

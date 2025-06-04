@@ -441,7 +441,7 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
                         <input type="text" id="searchInput"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent sm:text-sm"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500  focus:outline-green-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm"
                             placeholder="Rechercher un étudiant...">
                     </div>
 
@@ -508,6 +508,7 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
                                             <i class="fas fa-edit mr-1"></i>
                                         </button>
                                         <button
+                                            onclick="supprimerInscription(<?php echo $inscrit['id_inscription']; ?>)"
                                             class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200">
                                             <i class="fas fa-trash-alt mr-1"></i>
                                         </button>
@@ -537,6 +538,32 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
         </div>
     </div>
 
+    <!-- Modal de confirmation de suppression -->
+    <div id="deleteModal" class="fixed inset-0 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 w-96 shadow-2xl rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Confirmer la suppression</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Êtes-vous sûr de vouloir supprimer cette inscription ? Cette action est irréversible.
+                    </p>
+                </div>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button id="cancelDelete"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Annuler
+                    </button>
+                    <button id="confirmDelete"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
     // Variables globales pour la pagination
@@ -545,11 +572,17 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
     let filteredData = [];
     let allData = [];
 
+    // Variables pour la modale de suppression
+    let inscriptionToDelete = null;
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+
     // Fonction d'export Excel
     window.exportToExcel = function() {
         const table = document.getElementById('inscriptionsTable');
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-        const visibleRows = rows.filter(row => row.style.display !== 'none');
+        const searchInput = document.getElementById('searchInput');
+        const dataToExport = searchInput.value.trim() === '' ? allData : filteredData;
 
         let csvContent = "data:text/csv;charset=utf-8,";
 
@@ -560,10 +593,10 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
         csvContent += headers.join(",") + "\r\n";
 
         // Données (exclure la dernière colonne Actions)
-        visibleRows.forEach(row => {
-            const rowData = Array.from(row.cells)
-                .slice(0, -1) // Exclure la dernière colonne
-                .map(cell => `"${cell.textContent.trim()}"`)
+        dataToExport.forEach(item => {
+            const rowData = item.data
+                .slice(0, -1) // Exclure la dernière colonne (Actions)
+                .map(cell => `"${cell}"`)
                 .join(",");
             csvContent += rowData + "\r\n";
         });
@@ -581,8 +614,8 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
     window.printTable = function() {
         const printWindow = window.open('', '_blank');
         const table = document.getElementById('inscriptionsTable');
-        const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
-            .filter(row => row.style.display !== 'none');
+        const searchInput = document.getElementById('searchInput');
+        const dataToPrint = searchInput.value.trim() === '' ? allData : filteredData;
 
         // Créer une copie de la table sans la colonne Actions
         const tableClone = table.cloneNode(true);
@@ -590,11 +623,19 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
         const lastHeader = headers[headers.length - 1];
         lastHeader.parentNode.removeChild(lastHeader);
 
-        const rows = tableClone.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            const lastCell = cells[cells.length - 1];
-            lastCell.parentNode.removeChild(lastCell);
+        // Supprimer toutes les lignes existantes
+        const tbody = tableClone.querySelector('tbody');
+        tbody.innerHTML = '';
+
+        // Ajouter les lignes de données
+        dataToPrint.forEach(item => {
+            const newRow = document.createElement('tr');
+            item.data.slice(0, -1).forEach(cellData => {
+                const cell = document.createElement('td');
+                cell.textContent = cellData;
+                newRow.appendChild(cell);
+            });
+            tbody.appendChild(newRow);
         });
 
         printWindow.document.write(`
@@ -617,6 +658,8 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
         `);
         printWindow.document.close();
         printWindow.print();
+        printWindow.focus();
+        printWindow.close();
     };
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -821,6 +864,34 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
             `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=imprimer_recu&id_inscription=${idInscription}`,
             '_blank');
     };
+
+    // Fonction pour supprimer une inscription
+    window.supprimerInscription = function(idInscription) {
+        inscriptionToDelete = idInscription;
+        deleteModal.classList.remove('hidden');
+    };
+
+    // Fermer la modale lors du clic sur Annuler
+    cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+        inscriptionToDelete = null;
+    });
+
+    // Confirmer la suppression
+    confirmDelete.addEventListener('click', function() {
+        if (inscriptionToDelete) {
+            window.location.href =
+                `?page=gestion_etudiants&action=inscrire_des_etudiants&modalAction=supprimer&id=${inscriptionToDelete}`;
+        }
+    });
+
+    // Fermer la modale en cliquant en dehors
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            deleteModal.classList.add('hidden');
+            inscriptionToDelete = null;
+        }
+    });
     </script>
 </body>
 
