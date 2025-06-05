@@ -3,7 +3,7 @@
         'name' => 'ocean/projet-soutenance',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '5cc92b3e0d018dfa124bab58c3cf15ca21cef349',
+        'reference' => 'a09753781ea337035dd133a5d1d3f012a32dea0d',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -49,7 +49,7 @@
         'ocean/projet-soutenance' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '5cc92b3e0d018dfa124bab58c3cf15ca21cef349',
+            'reference' => 'a09753781ea337035dd133a5d1d3f012a32dea0d',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
