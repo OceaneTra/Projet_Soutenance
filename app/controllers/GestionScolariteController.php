@@ -27,34 +27,35 @@ class GestionScolariteController {
         // Récupérer les étudiants déjà inscrits
         $GLOBALS['etudiantsInscrits'] = $this->scolariteModel->getEtudiantsInscrits();
         
+        // Récupérer la liste complète des étudiants
+        $GLOBALS['listeAllEtudiant'] = $this->scolariteModel->getAllEtudiants();
+        
         // Récupérer les années académiques
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+
+
 
         // Si un numéro d'étudiant est fourni, récupérer ses informations
         if (isset($_GET['num_etu'])) {
             $GLOBALS['etudiantInfo'] = $this->scolariteModel->getInfoEtudiant($_GET['num_etu']);
         }
 
-        // Si on est en mode modification, récupérer les informations de l'inscription
-        if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'modifier' && isset($_GET['id'])) {
-            $GLOBALS['inscriptionAModifier'] = $this->scolariteModel->getInscriptionById($_GET['id']);
-            if ($GLOBALS['inscriptionAModifier']) {
-                $GLOBALS['etudiantInfo'] = $this->scolariteModel->getInfoEtudiant($GLOBALS['inscriptionAModifier']['id_etudiant']);
-            }
-        }
 
         // Traiter la soumission du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['modalAction'])) {
-                switch ($_POST['modalAction']) {
+            if (isset($_POST['action'])) {
+                switch ($_POST['action']) {
                     case 'inscrire':
                         $this->enregistrerVersement();
                         break;
                     case 'modifier':
-                        $this->modifierVersement();
+                        $this->mettreAJourVersement();
                         break;
                     case 'supprimer':
                         $this->supprimerVersement();
+                        break;
+                    case 'imprimerRecu':
+                        $this->imprimerRecu();
                         break;
                 }
             }
@@ -63,6 +64,7 @@ class GestionScolariteController {
         // Passer les messages à la vue
         $GLOBALS['messageSuccess'] = $messageSuccess;
         $GLOBALS['messageErreur'] = $messageErreur;
+        $GLOBALS['listeVersement'] = $this->scolariteModel->getAllVersements();
     }
 
     public function enregistrerVersement() {
@@ -105,32 +107,6 @@ class GestionScolariteController {
 
         
     }
-
-     public function modifierVersement() {
-         // Récupérer l'ID du versement depuis l'URL (GET)
-         $id_versement = $_GET['id'] ?? null;
-
-         $messageErreur = '';
-         $messageSuccess = '';
-
-         if ($id_versement) {
-             $versementAModifier = $this->scolariteModel->getVersementById($id_versement);
-             $etudiantsInscrits = $this->scolariteModel->getEtudiantsInscrits(); // Nécessaire pour le select dans le formulaire
-
-             if ($versementAModifier) {
-                 $GLOBALS['versementAModifier'] = $versementAModifier;
-                 $GLOBALS['etudiantsInscrits'] = $etudiantsInscrits; // Passer aussi les étudiants pour le select
-            } else {
-                $messageErreur = "Versement introuvable.";
-            }
-         } else {
-             $messageErreur = "ID de versement manquant.";
-            
-         }
-
-         $GLOBALS['messageErreur'] = $messageErreur;
-        $GLOBALS['messageSuccess'] = $messageSuccess;
-     }
 
      public function mettreAJourVersement() {
         // Initialize message variables
@@ -248,11 +224,6 @@ class GestionScolariteController {
         }
     }
 
-    // Méthode à ajouter au modèle Scolarite pour obtenir l'id_inscription par id_etudiant
-    // public function getInscriptionByEtudiantId($id_etudiant) { ... }
-
-     // Méthode à ajouter au modèle Scolarite pour obtenir la liste des étudiants inscrits (si non déjà présente)
-     // public function getEtudiantsInscrits() { ... }
 }
 
 ?>

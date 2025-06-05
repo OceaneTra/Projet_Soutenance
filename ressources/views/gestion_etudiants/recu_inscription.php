@@ -1,3 +1,27 @@
+<?php
+require_once __DIR__ . '/../../../app/utils/ReceiptUtils.php';
+
+// Récupérer les données nécessaires
+$inscription = $GLOBALS['inscriptionAModifier'] ?? [];
+$etudiant = [
+    'nom_etu' => $inscription['nom_etudiant'] ?? '',
+    'prenom_etu' => $inscription['prenom_etudiant'] ?? ''
+];
+$niveau = [
+    'lib_niv_etude' => $inscription['nom_niveau'] ?? 'N/A'
+];
+$anneeAcademique = [
+    'date_deb' => $inscription['date_deb'] ?? date('Y-m-d'),
+    'date_fin' => $inscription['date_fin'] ?? date('Y-m-d', strtotime('+1 year'))
+];
+
+// Calculer les montants et dates
+$montantTotal = $inscription['montant_total'] ?? 0;
+$montantPaye = $inscription['montant_premier_versement'] ?? 0;
+$nombreTranches = $inscription['nombre_tranche'] ?? 1;
+$prochainVersement = ReceiptUtils::calculerProchainVersement($montantTotal, $montantPaye, $nombreTranches);
+$dateProchainVersement = ReceiptUtils::calculerDateProchainVersement($inscription['date_inscription'] ?? date('Y-m-d'), $nombreTranches);
+?>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -126,7 +150,7 @@ body {
 <div class="receipt-box">
     <div class="header">
         <div>
-            <img src="/images/logo.png" alt="Logo Université">
+            <img src="/images/FHB.png" alt="Logo Université">
         </div>
         <div class="university-info">
             <!-- Vous pouvez ajouter ici le nom complet de l'université -->
@@ -142,54 +166,53 @@ body {
     </div>
 
     <h3 style="text-align: center; margin-bottom: 20px;">REÇU <span class="receipt-number">Nº
-            <?php echo htmlspecialchars($inscription['numero_recu'] ?? 'N/A'); ?></span></h3>
+            <?php echo ReceiptUtils::genererNumeroRecu($inscription['id_inscription'] ?? 0); ?></span></h3>
 
     <table class="info-table">
         <tr>
             <td>Reçu de M/Mme :</td>
-            <td><?php echo htmlspecialchars(($etudiant['nom_etu'] ?? '') . ' ' . ($etudiant['prenom_etu'] ?? '')); ?>
-            </td>
+            <td><?php echo htmlspecialchars($etudiant['nom_etu'] . ' ' . $etudiant['prenom_etu']); ?></td>
         </tr>
         <tr>
             <td>La somme de :</td>
-            <td><?php echo htmlspecialchars(number_format($inscription['montant_premier_versement'] ?? 0, 0, ',', ' ')); ?>
-                FCFA</td>
+            <td><?php echo htmlspecialchars(number_format($montantPaye, 0, ',', ' ')); ?> FCFA</td>
         </tr>
         <tr>
-            <td colspan="2" class="amount-text">(en toutes lettres : [Montant en toutes lettres - TODO: Implement
-                function to convert number to French words])</td>
+            <td colspan="2" class="amount-text">(en toutes lettres :
+                <?php echo ReceiptUtils::numberToWords($montantPaye); ?> FCFA)</td>
         </tr>
         <tr>
             <td>En règlement de :</td>
             <td>Scolarité Année Académique
-                <?php echo htmlspecialchars(date('Y', strtotime($anneeAcademique['date_deb'] ?? 'now')) . ' - ' . date('Y', strtotime($anneeAcademique['date_fin'] ?? 'now'))); ?>
-                - <?php echo htmlspecialchars($niveau['lib_niv_etude'] ?? 'N/A'); ?></td>
+                <?php echo htmlspecialchars(date('Y', strtotime($anneeAcademique['date_deb'])) . ' - ' . date('Y', strtotime($anneeAcademique['date_fin']))); ?>
+                - <?php echo htmlspecialchars($niveau['lib_niv_etude']); ?></td>
         </tr>
         <tr>
-            <td>Année d\'Études :</td>
-            <td><?php echo htmlspecialchars($niveau['lib_niv_etude'] ?? 'N/A'); ?></td>
+            <td>Année d'Études :</td>
+            <td><?php echo htmlspecialchars($niveau['lib_niv_etude']); ?></td>
         </tr>
     </table>
 
     <table class="footer-table">
         <tr>
-            <td>Espèces: <?php echo (($inscription['methode_paiement'] ?? '') === 'Espèce' ? 'X' : ' '); ?> Chèque n°:
-                <?php echo htmlspecialchars($inscription['numero_cheque'] ?? ''); ?></td>
+            <td>Méthode de paiement: <?php echo htmlspecialchars($inscription['methode_paiement'] ?? 'N/A'); ?></td>
             <td>Date:
                 <?php echo htmlspecialchars(date('d/m/Y', strtotime($inscription['date_inscription'] ?? 'now'))); ?>
             </td>
         </tr>
         <tr>
             <td>Reste à payer :</td>
-            <td><?php echo htmlspecialchars(number_format($inscription['reste_payer'] ?? 0, 0, ',', ' ')); ?> FCFA</td>
+            <td><?php echo htmlspecialchars(number_format($montantTotal - $montantPaye, 0, ',', ' ')); ?> FCFA</td>
         </tr>
         <tr>
             <td>Montant prochain versement :</td>
-            <td>[Montant prochain versement - TODO: Calculate based on tranches]</td>
+            <td><?php echo $prochainVersement > 0 ? htmlspecialchars(number_format($prochainVersement, 0, ',', ' ')) . ' FCFA' : 'Aucun'; ?>
+            </td>
         </tr>
         <tr>
             <td>Date prochain versement :</td>
-            <td>[Date prochain versement - TODO: Calculate based on tranches]</td>
+            <td><?php echo $dateProchainVersement ? htmlspecialchars(date('d/m/Y', strtotime($dateProchainVersement))) : 'Aucune date'; ?>
+            </td>
         </tr>
     </table>
 

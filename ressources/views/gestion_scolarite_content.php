@@ -1,12 +1,25 @@
 <?php
 // Initialisation des variables avec des valeurs par défaut
 $etudiantsInscrits = isset($GLOBALS['etudiantsInscrits']) ? $GLOBALS['etudiantsInscrits'] : [];
+$listeAllEtudiant = $GLOBALS['listeAllEtudiant'];
+$allVersement = $GLOBALS['listeVersement'];
+
+// Configuration de la pagination
+$items_par_page = 10; // Nombre d'éléments par page
+$page_actuelle = isset($_GET['page_versements']) ? (int)$_GET['page_versements'] : 1;
+$total_items = count($allVersement);
+$total_pages = ceil($total_items / $items_par_page);
+$page_actuelle = max(1, min($page_actuelle, $total_pages)); // S'assurer que la page est valide
+
+// Calculer l'index de début et de fin pour la pagination
+$debut = ($page_actuelle - 1) * $items_par_page;
+$versements_pages = array_slice($allVersement, $debut, $items_par_page);
 
 // Calcul des statistiques
 $totalEtudiants = count($etudiantsInscrits);
 $complete = 0;
 $partial = 0;
-$pending = 0;
+
 
 foreach ($etudiantsInscrits as $etudiant) {
     $montant_total = isset($etudiant['montant_scolarite']) ? $etudiant['montant_scolarite'] : 0;
@@ -17,14 +30,12 @@ foreach ($etudiantsInscrits as $etudiant) {
         $complete++;
     } elseif ($montant_payer > 0) {
         $partial++;
-    } else {
-        $pending++;
-    }
+    } 
 }
 
 $pourcentageComplete = $totalEtudiants > 0 ? round(($complete / $totalEtudiants) * 100) : 0;
 $pourcentagePartial = $totalEtudiants > 0 ? round(($partial / $totalEtudiants) * 100) : 0;
-$pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) * 100) : 0;
+$pourcentagePending = count($listeAllEtudiant) > 0 ? round(($totalEtudiants / count($listeAllEtudiant)) * 100) : 0;
 ?>
 
 <!DOCTYPE html>
@@ -157,8 +168,8 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                     <div class="bg-white p-4 rounded-lg shadow-sm hover-scale">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">En attente</p>
-                                <p class="text-2xl font-bold text-gray-800"><?php echo $pending; ?></p>
+                                <p class="text-sm font-medium text-gray-500">Etudiants inscrits</p>
+                                <p class="text-2xl font-bold text-gray-800"><?php echo $totalEtudiants; ?></p>
                                 <p class="text-xs text-gray-500"><?php echo $pourcentagePending; ?>% des étudiants</p>
                             </div>
                             <div class="p-3 rounded-full bg-red-100 text-red-500">
@@ -175,7 +186,11 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                     </div>
                     <div class="px-6 py-4">
                         <form id="paymentForm" method="POST"
-                            action="?page=gestion_scolarite&action=enregistrer_versement">
+                            action="?page=gestion_scolarite&action=<?php echo isset($GLOBALS['versementAModifier']) ? 'mettre_a_jour_versement' : 'enregistrer_versement'; ?>">
+                            <?php if (isset($GLOBALS['versementAModifier'])): ?>
+                            <input type="hidden" name="id_versement"
+                                value="<?php echo $GLOBALS['versementAModifier']['id_versement']; ?>">
+                            <?php endif; ?>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label for="studentSelect"
@@ -189,7 +204,8 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                         <option value="<?php echo $etudiant['id_etudiant']; ?>"
                                             data-montant-total="<?php echo isset($etudiant['montant_scolarite']) ? $etudiant['montant_scolarite'] : 0; ?>"
                                             data-montant-paye="<?php echo isset($etudiant['montant_inscription']) ? $etudiant['montant_inscription'] : 0; ?>"
-                                            data-reste-a-payer="<?php echo isset($etudiant['montant_scolarite']) && isset($etudiant['montant_inscription']) ? ($etudiant['montant_scolarite'] - $etudiant['montant_inscription']) : 0; ?>">
+                                            data-reste-a-payer="<?php echo isset($etudiant['montant_scolarite']) && isset($etudiant['montant_inscription']) ? ($etudiant['montant_scolarite'] - $etudiant['montant_inscription']) : 0; ?>"
+                                            <?php echo (isset($GLOBALS['versementAModifier']) && $GLOBALS['versementAModifier']['id_inscription'] == $etudiant['id_inscription']) ? 'selected' : ''; ?>>
                                             <?php echo $etudiant['nom'] . ' ' . $etudiant['prenom']; ?> -
                                             <?php echo $etudiant['nom_niveau']; ?>
                                         </option>
@@ -208,7 +224,8 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                         </div>
                                         <input type="number" id="paymentAmount" name="montant" required
                                             class="block w-full pl-16 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="0">
+                                            placeholder="0"
+                                            value="<?php echo isset($GLOBALS['versementAModifier']) ? $GLOBALS['versementAModifier']['montant'] : ''; ?>">
                                     </div>
                                 </div>
                                 <div>
@@ -216,7 +233,7 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                         <span class="text-red-500">*</span></label>
                                     <input type="date" id="paymentDate" name="date_versement" required
                                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        value="<?php echo date('Y-m-d'); ?>">
+                                        value="<?php echo isset($GLOBALS['versementAModifier']) ? date('Y-m-d', strtotime($GLOBALS['versementAModifier']['date_versement'])) : date('Y-m-d'); ?>">
                                 </div>
                                 <div>
                                     <label for="paymentMethod"
@@ -226,25 +243,26 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Sélectionner une méthode de paiement</option>
                                         <option value="Espèce"
-                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Espèce') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['versementAModifier']) && $GLOBALS['versementAModifier']['methode_paiement'] == 'Espèce') ? 'selected' : ''; ?>>
                                             Espèce</option>
                                         <option value="Carte bancaire"
-                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['versementAModifier']) && $GLOBALS['versementAModifier']['methode_paiement'] == 'Carte bancaire') ? 'selected' : ''; ?>>
                                             Carte bancaire</option>
                                         <option value="Virement"
-                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Virement') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['versementAModifier']) && $GLOBALS['versementAModifier']['methode_paiement'] == 'Virement') ? 'selected' : ''; ?>>
                                             Virement</option>
                                         <option value="Chèque"
-                                            <?php echo (isset($GLOBALS['versementAmodifier']) && isset($GLOBALS['versementAmodifier']['methode_paiement']) && $GLOBALS['versementAmodifier']['methode_paiement'] == 'Chèque') ? 'selected' : ''; ?>>
+                                            <?php echo (isset($GLOBALS['versementAModifier']) && $GLOBALS['versementAModifier']['methode_paiement'] == 'Chèque') ? 'selected' : ''; ?>>
                                             Chèque</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="mt-6 flex justify-between">
                                 <div></div>
-                                <button type="submit" name="enregistrer_versement"
+                                <button type="submit"
+                                    name="<?php echo isset($GLOBALS['versementAModifier']) ? 'mettre_a_jour_versement' : 'enregistrer_versement'; ?>"
                                     class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
-                                    Enregistrer le versement
+                                    <?php echo isset($GLOBALS['versementAModifier']) ? 'Mettre à jour le versement' : 'Enregistrer le versement'; ?>
                                 </button>
                             </div>
                         </form>
@@ -254,75 +272,229 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                 <!-- Liste des versements -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden mt-6">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-800">Liste des versements</h2>
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-gray-800">Liste des versements</h2>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between space-x-4">
+                            <div class="flex-1 max-w-md">
+                                <input type="text" id="searchVersements" placeholder="Rechercher un versement..."
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="flex space-x-2">
+                                <button type="button" onclick="exporterVersements()"
+                                    class="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                                    <i class="fas fa-file-excel mr-1"></i> Exporter
+                                </button>
+                                <button type="button" onclick="imprimerListeVersements()"
+                                    class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                    <i class="fas fa-print mr-1"></i> Imprimer
+                                </button>
+                                <button type="button" id="deleteButton" onclick="ouvrirModalConfirmation()"
+                                    class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition opacity-50 cursor-not-allowed"
+                                    disabled>
+                                    <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="divide-y divide-gray-200">
-                        <!-- Table header -->
-                        <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-sm font-medium text-gray-500">
-                            <div class="col-span-3">Étudiant</div>
-                            <div class="col-span-2">Montant versé</div>
-                            <div class="col-span-2">Date versement</div>
-                            <div class="col-span-2">Méthode</div>
-                            <div class="col-span-2">Type versement</div>
-                            <div class="col-span-1">Actions</div>
+                    <form id="versementsForm" method="POST"
+                        action="?page=gestion_scolarite&action=supprimer_versements">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" id="selectAll"
+                                                class="form-checkbox h-4 w-4 text-blue-600">
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Étudiant</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Montant versé</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Date versement</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Méthode</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Type versement</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php if (!empty($versements_pages)): ?>
+                                    <?php foreach ($versements_pages as $versement): ?>
+                                    <tr class="versement-row">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <input type="checkbox" name="selected_ids[]"
+                                                value="<?php echo htmlspecialchars($versement['id_versement']); ?>"
+                                                class="versement-checkbox form-checkbox h-4 w-4 text-blue-600">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                                                    <i class="fas fa-user text-gray-500"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-800">
+                                                        <?php echo htmlspecialchars($versement['nom_etudiant'] . ' ' . $versement['prenom_etudiant']); ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            <?php echo htmlspecialchars(number_format($versement['montant'] ?? 0, 0, ',', ' ')); ?>
+                                            FCFA
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            <?php echo htmlspecialchars(date('d/m/Y', strtotime($versement['date_versement'] ?? 'now'))); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            <?php echo htmlspecialchars($versement['methode_paiement'] ?? 'N/A'); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            <?php echo htmlspecialchars($versement['type_versement'] ?? 'N/A'); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-between space-x-2">
+                                                <button type="button"
+                                                    onclick="modifierVersement(<?php echo htmlspecialchars($versement['id_versement'] ?? 'null'); ?>)"
+                                                    class="text-orange-500 hover:text-orange-600 focus:outline-none">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                    onclick="imprimerRecu(<?php echo htmlspecialchars($versement['id_inscription'] ?? 'null'); ?>)"
+                                                    class="text-green-500 hover:text-green-600 focus:outline-none">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                            Aucun versement trouvé.
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                         </div>
+                    </form>
 
-                        <!-- Payment rows -->
-                        <?php if (!empty($GLOBALS['versements'])): ?>
-                        <?php foreach ($GLOBALS['versements'] as $versement): ?>
-                        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
-                            <div class="col-span-3 flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                                    <i class="fas fa-user text-gray-500"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">
-                                        <?php echo htmlspecialchars($versement['nom_etudiant'] . ' ' . $versement['prenom_etudiant']); ?>
-                                    </p>
-                                    <!-- Vous pouvez ajouter ici d'autres infos étudiant si nécessaires, ex: numéro -->
-                                    <!-- <p class="text-xs text-gray-500"><?php // echo htmlspecialchars($versement['num_etu']); ?></p> -->
-                                </div>
+                    <!-- Pagination -->
+                    <?php if ($total_pages > 1): ?>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <?php if ($page_actuelle > 1): ?>
+                            <a href="?page=gestion_scolarite&page_versements=<?php echo $page_actuelle - 1; ?>"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Précédent
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($page_actuelle < $total_pages): ?>
+                            <a href="?page=gestion_scolarite&page_versements=<?php echo $page_actuelle + 1; ?>"
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Suivant
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Affichage de <span class="font-medium"><?php echo $debut + 1; ?></span> à
+                                    <span
+                                        class="font-medium"><?php echo min($debut + $items_par_page, $total_items); ?></span>
+                                    sur
+                                    <span class="font-medium"><?php echo $total_items; ?></span> versements
+                                </p>
                             </div>
-                            <div class="col-span-2 text-sm text-gray-800">
-                                <?php echo htmlspecialchars(number_format($versement['montant'] ?? 0, 0, ',', ' ')); ?>
-                                FCFA
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                    aria-label="Pagination">
+                                    <?php if ($page_actuelle > 1): ?>
+                                    <a href="?page=gestion_scolarite&page_versements=<?php echo $page_actuelle - 1; ?>"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Précédent</span>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                    <?php endif; ?>
+
+                                    <?php
+                                    $debut_pagination = max(1, $page_actuelle - 2);
+                                    $fin_pagination = min($total_pages, $page_actuelle + 2);
+
+                                    if ($debut_pagination > 1) {
+                                        echo '<a href="?page=gestion_scolarite&page_versements=1" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>';
+                                        if ($debut_pagination > 2) {
+                                            echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                        }
+                                    }
+
+                                    for ($i = $debut_pagination; $i <= $fin_pagination; $i++) {
+                                        $classes = $i === $page_actuelle 
+                                            ? 'relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600'
+                                            : 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50';
+                                        echo "<a href=\"?page=gestion_scolarite&page_versements={$i}\" class=\"{$classes}\">{$i}</a>";
+                                    }
+
+                                    if ($fin_pagination < $total_pages) {
+                                        if ($fin_pagination < $total_pages - 1) {
+                                            echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                        }
+                                        echo "<a href=\"?page=gestion_scolarite&page_versements={$total_pages}\" class=\"relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50\">{$total_pages}</a>";
+                                    }
+                                    ?>
+
+                                    <?php if ($page_actuelle < $total_pages): ?>
+                                    <a href="?page=gestion_scolarite&page_versements=<?php echo $page_actuelle + 1; ?>"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Suivant</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                </nav>
                             </div>
-                            <div class="col-span-2 text-sm text-gray-800">
-                                <?php echo htmlspecialchars(date('d/m/Y', strtotime($versement['date_versement'] ?? 'now'))); ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Modal de confirmation de suppression -->
+                <div id="modalConfirmation" class="fixed inset-0 hidden overflow-y-auto h-full w-full">
+                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div class="mt-3 text-center">
+                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                             </div>
-                            <div class="col-span-2 text-sm text-gray-800">
-                                <?php echo htmlspecialchars($versement['methode_paiement'] ?? 'N/A'); ?>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Confirmation de suppression
+                            </h3>
+                            <div class="mt-2 px-7 py-3">
+                                <p class="text-sm text-gray-500">
+                                    Êtes-vous sûr de vouloir supprimer les versements sélectionnés ? Cette action est
+                                    irréversible.
+                                </p>
                             </div>
-                            <div class="col-span-2 text-sm text-gray-800">
-                                <?php echo htmlspecialchars($versement['type_versement'] ?? 'N/A'); ?>
-                            </div>
-                            <div class="col-span-1 flex justify-end space-x-2">
-                                <!-- Les boutons d'action devront utiliser l'ID du versement ($versement['id_versement']) -->
-                                <!-- TODO: Adapter les appels JavaScript si vos fonctions prennent l'ID du versement -->
-                                <button
-                                    onclick="modifierVersement(<?php echo htmlspecialchars($versement['id_versement'] ?? 'null'); ?>)"
-                                    class="p-1 text-orange-500 hover:text-orange-600 focus:outline-none">
-                                    <i class="fas fa-edit"></i>
+                            <div class="items-center px-4 py-3">
+                                <button id="confirmerSuppression"
+                                    class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                                    Confirmer la suppression
                                 </button>
-                                <button
-                                    onclick="supprimerVersement(<?php echo htmlspecialchars($versement['id_versement'] ?? 'null'); ?>)"
-                                    class="p-1 text-red-500 hover:text-red-700 focus:outline-none">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                                <!-- Le bouton Imprimer Recu devrait probablement prendre l'ID de l'inscription, pas du versement, pour imprimer le reçu complet de l'inscription -->
-                                <button
-                                    onclick="imprimerRecu(<?php echo htmlspecialchars($versement['id_inscription'] ?? 'null'); ?>)"
-                                    class="p-1 text-green-500 hover:text-green-600 focus:outline-none">
-                                    <i class="fas fa-print"></i>
+                                <button onclick="fermerModalConfirmation()"
+                                    class="mt-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                    Annuler
                                 </button>
                             </div>
                         </div>
-                        <?php endforeach; ?>
-                        <?php else: ?>
-                        <div class="px-6 py-4 text-center text-gray-500">
-                            Aucun versement trouvé.
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -333,7 +505,44 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
     document.addEventListener('DOMContentLoaded', function() {
         const studentSelect = document.getElementById('studentSelect');
         const paymentAmount = document.getElementById('paymentAmount');
-        const searchInput = document.getElementById('paymentSearch');
+        const searchInput = document.getElementById('searchVersements');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const versementCheckboxes = document.querySelectorAll('.versement-checkbox');
+        const deleteButton = document.getElementById('deleteButton');
+
+        // Désactiver le bouton de suppression par défaut
+        deleteButton.disabled = true;
+        deleteButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+        // Fonction pour mettre à jour l'état du bouton de suppression
+        function updateDeleteButtonState() {
+            const checkedBoxes = document.querySelectorAll('.versement-checkbox:checked');
+            const hasChecked = checkedBoxes.length > 0;
+
+            deleteButton.disabled = !hasChecked;
+            deleteButton.classList.toggle('opacity-50', !hasChecked);
+            deleteButton.classList.toggle('cursor-not-allowed', !hasChecked);
+
+            // Mettre à jour l'état de la case "Tout sélectionner"
+            selectAllCheckbox.checked = checkedBoxes.length === versementCheckboxes.length &&
+                versementCheckboxes.length > 0;
+        }
+
+        // Écouter les changements sur toutes les checkboxes
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('versement-checkbox') || e.target === selectAllCheckbox) {
+                if (e.target === selectAllCheckbox) {
+                    // Si c'est la case "Tout sélectionner"
+                    versementCheckboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                }
+                updateDeleteButtonState();
+            }
+        });
+
+        // Initialiser l'état du bouton
+        updateDeleteButtonState();
 
         // Mettre à jour le montant maximum possible
         studentSelect.addEventListener('change', function() {
@@ -348,19 +557,11 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
         // Recherche d'étudiants
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.grid-cols-12');
+            const rows = document.querySelectorAll('.versement-row');
 
-            rows.forEach((row, index) => {
-                if (index === 0) return; // Skip header
-                const studentName = row.querySelector('.text-gray-800').textContent
-                    .toLowerCase();
-                const studentId = row.querySelector('.text-gray-500').textContent.toLowerCase();
-
-                if (studentName.includes(searchTerm) || studentId.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
 
@@ -375,35 +576,151 @@ $pourcentagePending = $totalEtudiants > 0 ? round(($pending / $totalEtudiants) *
                 alert('Le montant ne peut pas dépasser le reste à payer.');
             }
         });
+
+        // Fonction pour exporter les versements
+        function exporterVersements() {
+            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+            if (selectedVersements.length === 0) {
+                alert('Veuillez sélectionner au moins un versement à exporter.');
+                return;
+            }
+
+            // Créer le contenu CSV
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Étudiant,Montant,Date,Méthode,Type\n";
+
+            document.querySelectorAll('.versement-row').forEach(row => {
+                const checkbox = row.querySelector('.versement-checkbox');
+                if (checkbox.checked) {
+                    const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+                    const rowData = Array.from(cells).map(cell => `"${cell.textContent.trim()}"`).join(
+                        ',');
+                    csvContent += rowData + '\n';
+                }
+            });
+
+            // Télécharger le fichier
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'versements.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Fonction pour imprimer la liste des versements
+        function imprimerListeVersements() {
+            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+            if (selectedVersements.length === 0) {
+                alert('Veuillez sélectionner au moins un versement à imprimer.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Liste des versements</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        h2 { text-align: center; margin: 20px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Liste des versements</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Étudiant</th>
+                                <th>Montant</th>
+                                <th>Date</th>
+                                <th>Méthode</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `);
+
+            document.querySelectorAll('.versement-row').forEach(row => {
+                const checkbox = row.querySelector('.versement-checkbox');
+                if (checkbox.checked) {
+                    const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+                    printWindow.document.write('<tr>');
+                    cells.forEach(cell => {
+                        printWindow.document.write(`<td>${cell.textContent.trim()}</td>`);
+                    });
+                    printWindow.document.write('</tr>');
+                }
+            });
+
+            printWindow.document.write(`
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Fonction pour ouvrir la modale de confirmation
+        function ouvrirModalConfirmation() {
+            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+            if (selectedVersements.length === 0) {
+                alert('Veuillez sélectionner au moins un versement à supprimer.');
+                return;
+            }
+            document.getElementById('modalConfirmation').classList.remove('hidden');
+        }
+
+        // Fonction pour fermer la modale de confirmation
+        function fermerModalConfirmation() {
+            document.getElementById('modalConfirmation').classList.add('hidden');
+        }
+
+        // Gestionnaire d'événement pour le bouton de confirmation
+        document.getElementById('confirmerSuppression').addEventListener('click', function() {
+            document.getElementById('versementsForm').submit();
+        });
+
+        // Fermer la modale si on clique en dehors
+        document.getElementById('modalConfirmation').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fermerModalConfirmation();
+            }
+        });
+
+        // Gérer les notifications
+        const successNotification = document.getElementById('successNotification');
+        const errorNotification = document.getElementById('errorNotification');
+
+        function removeNotification(notification) {
+            if (notification) {
+                notification.classList.add('animate__fadeOut');
+                setTimeout(() => notification.remove(), 500);
+            }
+        }
+
+        if (successNotification) {
+            setTimeout(() => removeNotification(successNotification), 5000);
+        }
+
+        if (errorNotification) {
+            setTimeout(() => removeNotification(errorNotification), 5000);
+        }
     });
 
-    // Fonction pour voir l'historique des versements
-    function voirHistorique(idInscription) {
-        window.location.href = `?page=gestion_scolarite&action=historique_versements&id=${idInscription}`;
+    // Fonction pour modifier un versement
+    function modifierVersement(idVersement) {
+        window.location.href = `?page=gestion_scolarite&action=modifier&id=${idVersement}`;
     }
 
     // Fonction pour imprimer le reçu
     function imprimerRecu(idInscription) {
         window.open(`?page=gestion_scolarite&action=imprimer_recu&id=${idInscription}`, '_blank');
-    }
-
-    // Gérer les notifications
-    const successNotification = document.getElementById('successNotification');
-    const errorNotification = document.getElementById('errorNotification');
-
-    function removeNotification(notification) {
-        if (notification) {
-            notification.classList.add('animate__fadeOut');
-            setTimeout(() => notification.remove(), 500);
-        }
-    }
-
-    if (successNotification) {
-        setTimeout(() => removeNotification(successNotification), 5000);
-    }
-
-    if (errorNotification) {
-        setTimeout(() => removeNotification(errorNotification), 5000);
     }
     </script>
 </body>

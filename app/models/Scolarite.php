@@ -86,6 +86,14 @@ class Scolarite {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Récupérer tous les étudiants
+    public function getAllEtudiants() {
+        $query = "SELECT * FROM etudiants ORDER BY nom_etu, prenom_etu";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Vérifier si un étudiant est déjà inscrit
     public function estEtudiantInscrit($num_etu) {
         $query = "SELECT COUNT(*) as count FROM inscriptions WHERE id_etudiant = ?";

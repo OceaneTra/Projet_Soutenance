@@ -180,16 +180,6 @@ class GestionEtudiantController
             // Récupérer les étudiants pour la page courante
             $currentPageItems = array_slice($listeEtudiants, $startIndex, $itemsPerPage);
 
-            // Debug pour vérifier les valeurs
-            error_log("Current Page: " . $currentPage);
-            error_log("Total Pages: " . $totalPages);
-            error_log("Total Items: " . $totalItems);
-            error_log("Start Index: " . $startIndex);
-            error_log("End Index: " . $endIndex);
-            error_log("Items Per Page: " . $itemsPerPage);
-            error_log("Current Page Items Count: " . count($currentPageItems));
-            error_log("Liste Etudiants Count: " . count($listeEtudiants));
-
             // Préparation des données pour la vue
             $GLOBALS['listeEtudiants'] = $currentPageItems;
             $GLOBALS['allEtudiants'] = $listeEtudiants;

@@ -41,6 +41,49 @@ class InscriptionController {
             }
         }
 
+        // Si on est en mode impression de recu, récupérer les informations de l'inscription
+        if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'imprimer_recu' && isset($_GET['id_inscription'])) {
+            $inscription = $this->scolarite->getInscriptionById($_GET['id_inscription']);
+            if ($inscription) {
+                $GLOBALS['inscriptionAModifier'] = $inscription;
+                
+                // Inclure l'autoloader de Composer pour Dompdf
+                require_once __DIR__ . '/../../vendor/autoload.php';
+
+                // Démarrer la mise en mémoire tampon de sortie
+                ob_start();
+                
+                // Inclure le fichier du modèle de reçu
+                include __DIR__ . '/../../ressources/views/gestion_etudiants/recu_inscription.php';
+                
+                // Capturer le contenu de la mémoire tampon
+                $html = ob_get_clean();
+
+                // Instancier Dompdf
+                $dompdf = new Dompdf\Dompdf();
+                
+                
+                // Définir le répertoire de base pour les ressources
+                $dompdf->setBasePath(__DIR__ . '/../../public');
+                
+                // Charger le HTML
+                $dompdf->loadHtml($html);
+                
+                // Définir la taille et l'orientation du papier
+                $dompdf->setPaper('A4', 'portrait');
+                
+                // Rendre le PDF
+                $dompdf->render();
+                
+                // Envoyer le PDF au navigateur
+                $dompdf->stream("recu_paiement_" . $inscription['id_inscription'] . ".pdf", array("Attachment" => false));
+                
+                exit;
+            } else {
+                $GLOBALS['messageErreur'] = "Inscription non trouvée.";
+            }
+        }
+
         // Gestion de la suppression d'inscription
         if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'supprimer' && isset($_GET['id'])) {
             if ($this->scolarite->supprimerInscription($_GET['id'])) {

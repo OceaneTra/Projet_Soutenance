@@ -6,61 +6,6 @@ include '../app/controllers/AuthController.php';
 include '../app/controllers/MenuController.php';
 include 'menu.php';
 
-// --- TODO: REMPLACER CES FONCTIONS PLACEHOLDERS PAR VOTRE LOGIQUE D'ACCÈS À LA BASE DE DONNÉES ---
-
-function getInscriptionDetails($id_inscription) {
-    // Cette fonction doit récupérer les détails de l'inscription depuis la BD
-    // En attendant, retourne des données statiques
-    return [
-        'id_inscription' => $id_inscription,
-        'numero_recu' => '2306610', // Exemple de numéro de reçu
-        'id_etudiant' => 123, // Exemple ID étudiant
-        'id_niveau' => 456, // Exemple ID niveau
-        'id_annee_acad' => 789, // Exemple ID année académique
-        'montant_premier_versement' => 450000, // Exemple montant payé
-        'reste_payer' => 100000, // Exemple reste à payer
-        'date_inscription' => '2024-09-10', // Exemple date d'inscription
-        'methode_paiement' => 'Espèce', // Exemple méthode de paiement
-        'numero_cheque' => null, // Exemple numéro de chèque (null si paiement en espèces)
-        // Ajoutez d'autres champs pertinents de votre table inscriptions
-    ];
-}
-
-function getEtudiantDetails($id_etudiant) {
-    // Cette fonction doit récupérer les détails de l'étudiant depuis la BD
-    // En attendant, retourne des données statiques
-    return [
-        'num_etu' => 'UGBM12345', // Exemple numéro étudiant
-        'nom_etu' => 'TRA LOU', // Exemple nom étudiant
-        'prenom_etu' => 'OCEANE', // Exemple prénom étudiant
-        // Ajoutez d'autres champs pertinents de votre table étudiants
-    ];
-}
-
-function getNiveauDetails($id_niveau) {
-    // Cette fonction doit récupérer les détails du niveau d'étude depuis la BD
-    // En attendant, retourne des données statiques
-    return [
-        'id_niv_etude' => $id_niveau,
-        'lib_niv_etude' => 'L3', // Exemple libellé niveau
-        'montant_scolarite' => 550000, // Exemple montant total scolarité
-        'montant_inscription' => 450000, // Exemple montant inscription
-        // Ajoutez d'autres champs pertinents de votre table niveaux_etude
-    ];
-}
-
-function getAnneeAcademiqueDetails($id_annee_acad) {
-    // Cette fonction doit récupérer les détails de l'année académique depuis la BD
-    // En attendant, retourne des données statiques
-    return [
-        'id_annee_acad' => $id_annee_acad,
-        'date_deb' => '2024-09-01', // Exemple date début année académique
-        'date_fin' => '2025-06-30', // Exemple date fin année académique
-        // Ajoutez d'autres champs pertinents de votre table annees_academiques
-    ];
-}
-
-// --- FIN DES FONCTIONS PLACEHOLDERS ---
 
 
 //inclusion des routes
