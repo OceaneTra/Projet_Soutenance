@@ -471,7 +471,7 @@ $pourcentagePending = count($listeAllEtudiant) > 0 ? round(($totalEtudiants / co
 
                 <!-- Modal de confirmation de suppression -->
                 <div id="modalConfirmation" class="fixed inset-0 hidden overflow-y-auto h-full w-full">
-                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="relative top-20 mx-auto p-5  w-96 shadow-lg rounded-md bg-white">
                         <div class="mt-3 text-center">
                             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
@@ -484,13 +484,13 @@ $pourcentagePending = count($listeAllEtudiant) > 0 ? round(($totalEtudiants / co
                                     irréversible.
                                 </p>
                             </div>
-                            <div class="items-center px-4 py-3">
+                            <div class="items-center flex justify-between px-4 py-3 gap-4">
                                 <button id="confirmerSuppression"
-                                    class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
-                                    Confirmer la suppression
+                                    class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-red-500 focus:ring-2 focus:ring-red-300">
+                                    Confirmer
                                 </button>
                                 <button onclick="fermerModalConfirmation()"
-                                    class="mt-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                    class=" px-4 py-2 outline-gray-400  bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-gray-400 focus:ring-2 focus:ring-gray-300">
                                     Annuler
                                 </button>
                             </div>
@@ -576,151 +576,186 @@ $pourcentagePending = count($listeAllEtudiant) > 0 ? round(($totalEtudiants / co
                 alert('Le montant ne peut pas dépasser le reste à payer.');
             }
         });
-
-        // Fonction pour exporter les versements
-        function exporterVersements() {
-            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
-            if (selectedVersements.length === 0) {
-                alert('Veuillez sélectionner au moins un versement à exporter.');
-                return;
-            }
-
-            // Créer le contenu CSV
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Étudiant,Montant,Date,Méthode,Type\n";
-
-            document.querySelectorAll('.versement-row').forEach(row => {
-                const checkbox = row.querySelector('.versement-checkbox');
-                if (checkbox.checked) {
-                    const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
-                    const rowData = Array.from(cells).map(cell => `"${cell.textContent.trim()}"`).join(
-                        ',');
-                    csvContent += rowData + '\n';
-                }
-            });
-
-            // Télécharger le fichier
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'versements.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Fonction pour imprimer la liste des versements
-        function imprimerListeVersements() {
-            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
-            if (selectedVersements.length === 0) {
-                alert('Veuillez sélectionner au moins un versement à imprimer.');
-                return;
-            }
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Liste des versements</title>
-                    <style>
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        th { background-color: #f5f5f5; }
-                        h2 { text-align: center; margin: 20px 0; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Liste des versements</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Étudiant</th>
-                                <th>Montant</th>
-                                <th>Date</th>
-                                <th>Méthode</th>
-                                <th>Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `);
-
-            document.querySelectorAll('.versement-row').forEach(row => {
-                const checkbox = row.querySelector('.versement-checkbox');
-                if (checkbox.checked) {
-                    const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
-                    printWindow.document.write('<tr>');
-                    cells.forEach(cell => {
-                        printWindow.document.write(`<td>${cell.textContent.trim()}</td>`);
-                    });
-                    printWindow.document.write('</tr>');
-                }
-            });
-
-            printWindow.document.write(`
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-        }
-
-        // Fonction pour ouvrir la modale de confirmation
-        function ouvrirModalConfirmation() {
-            const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
-            if (selectedVersements.length === 0) {
-                alert('Veuillez sélectionner au moins un versement à supprimer.');
-                return;
-            }
-            document.getElementById('modalConfirmation').classList.remove('hidden');
-        }
-
-        // Fonction pour fermer la modale de confirmation
-        function fermerModalConfirmation() {
-            document.getElementById('modalConfirmation').classList.add('hidden');
-        }
-
-        // Gestionnaire d'événement pour le bouton de confirmation
-        document.getElementById('confirmerSuppression').addEventListener('click', function() {
-            document.getElementById('versementsForm').submit();
-        });
-
-        // Fermer la modale si on clique en dehors
-        document.getElementById('modalConfirmation').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fermerModalConfirmation();
-            }
-        });
-
-        // Gérer les notifications
-        const successNotification = document.getElementById('successNotification');
-        const errorNotification = document.getElementById('errorNotification');
-
-        function removeNotification(notification) {
-            if (notification) {
-                notification.classList.add('animate__fadeOut');
-                setTimeout(() => notification.remove(), 500);
-            }
-        }
-
-        if (successNotification) {
-            setTimeout(() => removeNotification(successNotification), 5000);
-        }
-
-        if (errorNotification) {
-            setTimeout(() => removeNotification(errorNotification), 5000);
-        }
     });
 
     // Fonction pour modifier un versement
     function modifierVersement(idVersement) {
-        window.location.href = `?page=gestion_scolarite&action=modifier&id=${idVersement}`;
+        if (!idVersement) {
+            alert('ID du versement manquant');
+            return;
+        }
+        window.location.href = `?page=gestion_scolarite&action=mettre_a_jour_versement&id=${idVersement}`;
     }
 
     // Fonction pour imprimer le reçu
     function imprimerRecu(idInscription) {
+        if (!idInscription) {
+            alert('ID de l\'inscription manquant');
+            return;
+        }
         window.open(`?page=gestion_scolarite&action=imprimer_recu&id=${idInscription}`, '_blank');
+    }
+
+    // Fonction pour exporter les versements
+    function exporterVersements() {
+        const searchTerm = document.getElementById('searchVersements').value.toLowerCase();
+        const rows = document.querySelectorAll('.versement-row');
+        const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+
+        // Si aucun versement n'est sélectionné et qu'il y a une recherche, exporter les versements filtrés
+        const versementsAExporter = selectedVersements.length > 0 ? selectedVersements :
+            Array.from(rows).filter(row => {
+                const text = row.textContent.toLowerCase();
+                return searchTerm === '' || text.includes(searchTerm);
+            });
+
+        if (versementsAExporter.length === 0) {
+            alert('Aucun versement à exporter.');
+            return;
+        }
+
+        // Créer le contenu CSV
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Étudiant,Montant,Date,Méthode,Type\n";
+
+        versementsAExporter.forEach(row => {
+            const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+            const rowData = Array.from(cells).map(cell => `"${cell.textContent.trim()}"`).join(',');
+            csvContent += rowData + '\n';
+        });
+
+        // Télécharger le fichier
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'versements.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Fonction pour imprimer la liste des versements
+    function imprimerListeVersements() {
+        const searchTerm = document.getElementById('searchVersements').value.toLowerCase();
+        const rows = document.querySelectorAll('.versement-row');
+        const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+
+        // Si aucun versement n'est sélectionné et qu'il y a une recherche, imprimer les versements filtrés
+        const versementsAImprimer = selectedVersements.length > 0 ? selectedVersements :
+            Array.from(rows).filter(row => {
+                const text = row.textContent.toLowerCase();
+                return searchTerm === '' || text.includes(searchTerm);
+            });
+
+        if (versementsAImprimer.length === 0) {
+            alert('Aucun versement à imprimer.');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Liste des versements</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f5f5f5; }
+                    h2 { text-align: center; margin: 20px 0; }
+                    .info { text-align: center; margin: 10px 0; color: #666; }
+                    @media print {
+                        body { margin: 0; padding: 20px; }
+                        table { page-break-inside: auto; }
+                        tr { page-break-inside: avoid; page-break-after: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Liste des versements</h2>
+                <div class="info">
+                    ${searchTerm ? `Filtre de recherche : "${searchTerm}"` : 'Liste complète des versements'}<br>
+                    Nombre de versements : ${versementsAImprimer.length}<br>
+                    Date d'impression : ${new Date().toLocaleDateString()}
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Méthode</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `);
+
+        versementsAImprimer.forEach(row => {
+            const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+            printWindow.document.write('<tr>');
+            cells.forEach(cell => {
+                printWindow.document.write(`<td>${cell.textContent.trim()}</td>`);
+            });
+            printWindow.document.write('</tr>');
+        });
+
+        printWindow.document.write(`
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.focus();
+        printWindow.close();
+    }
+
+    // Fonction pour ouvrir la modale de confirmation
+    function ouvrirModalConfirmation() {
+        const selectedVersements = document.querySelectorAll('.versement-checkbox:checked');
+        if (selectedVersements.length === 0) {
+            alert('Veuillez sélectionner au moins un versement à supprimer.');
+            return;
+        }
+        document.getElementById('modalConfirmation').classList.remove('hidden');
+    }
+
+    // Fonction pour fermer la modale de confirmation
+    function fermerModalConfirmation() {
+        document.getElementById('modalConfirmation').classList.add('hidden');
+    }
+
+    // Gestionnaire d'événement pour le bouton de confirmation
+    document.getElementById('confirmerSuppression').addEventListener('click', function() {
+        document.getElementById('versementsForm').submit();
+    });
+
+    // Fermer la modale si on clique en dehors
+    document.getElementById('modalConfirmation').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fermerModalConfirmation();
+        }
+    });
+
+    // Gérer les notifications
+    const successNotification = document.getElementById('successNotification');
+    const errorNotification = document.getElementById('errorNotification');
+
+    function removeNotification(notification) {
+        if (notification) {
+            notification.classList.add('animate__fadeOut');
+            setTimeout(() => notification.remove(), 500);
+        }
+    }
+
+    if (successNotification) {
+        setTimeout(() => removeNotification(successNotification), 5000);
+    }
+
+    if (errorNotification) {
+        setTimeout(() => removeNotification(errorNotification), 5000);
     }
     </script>
 </body>

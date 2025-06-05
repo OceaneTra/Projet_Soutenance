@@ -14,9 +14,7 @@ class GestionScolariteController {
     }
 
     public function index() {
-        // Initialize message variables
-        $messageErreur = '';
-        $messageSuccess = '';
+       
 
         // Récupérer les étudiants non inscrits
         $GLOBALS['etudiantsNonInscrits'] = $this->scolariteModel->getEtudiantsNonInscrits();
@@ -45,16 +43,16 @@ class GestionScolariteController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['action'])) {
                 switch ($_POST['action']) {
-                    case 'inscrire':
+                    case 'enregistrer_versement':
                         $this->enregistrerVersement();
                         break;
-                    case 'modifier':
+                    case 'mettre_a_jour_versement':
                         $this->mettreAJourVersement();
                         break;
-                    case 'supprimer':
+                    case 'supprimer_versements':
                         $this->supprimerVersement();
                         break;
-                    case 'imprimerRecu':
+                    case 'imprimer_recu':
                         $this->imprimerRecu();
                         break;
                 }
@@ -62,15 +60,12 @@ class GestionScolariteController {
         }
 
         // Passer les messages à la vue
-        $GLOBALS['messageSuccess'] = $messageSuccess;
-        $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['listeVersement'] = $this->scolariteModel->getAllVersements();
     }
 
     public function enregistrerVersement() {
         // Valider les données du formulaire POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $messageErreur = '';
             $messageSuccess = '';
             
@@ -79,69 +74,90 @@ class GestionScolariteController {
             $date_versement = $_POST['date_versement'] ?? null;
             $methode_paiement = $_POST['methode_paiement'] ?? null;
 
+            // Validation des données
+            if (!$id_etudiant || !$montant || !$date_versement || !$methode_paiement) {
+                $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
+                return;
+            }
+
             // Récupérer l'id_inscription à partir de l'id_etudiant
-            // Il faudrait une méthode dans le modèle pour obtenir l'id_inscription d'un étudiant inscrit
-            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($id_etudiant); // Cette méthode doit être créée
+            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($id_etudiant);
+            if (!$inscription) {
+                $GLOBALS['messageErreur'] = "Aucune inscription trouvée pour cet étudiant.";
+                return;
+            }
 
-            if ($id_etudiant && $montant && $date_versement && $methode_paiement && $inscription) {
-                $data = [
-                    'id_inscription' => $inscription['id_inscription'],
-                    'montant' => $montant,
-                    'date_versement' => $date_versement,
-                    'type' => 'Tranche',
-                    'methode_paiement' => $methode_paiement
-                ];
+            // Vérifier si le montant ne dépasse pas le reste à payer
+            $montant_total = $inscription['montant_scolarite'];
+            $montant_paye = $inscription['montant_inscription'];
+            $reste_a_payer = $montant_total - $montant_paye;
 
-                if ($this->scolariteModel->addVersement($data)) {
-                    $messageSuccess = "Versement enregistré avec succès.";
-                } else {
-                    $messageErreur = "Erreur lors de l'enregistrement du versement.";
-                }
+            if ($montant > $reste_a_payer) {
+                $GLOBALS['messageErreur'] = "Le montant du versement ne peut pas dépasser le reste à payer.";
+                return;
+            }
+
+            // Enregistrer le versement
+            if ($this->scolariteModel->enregistrerVersement($inscription['id_inscription'], $montant, $date_versement, $methode_paiement)) {
+                $messageSuccess = "Versement enregistré avec succès.";
             } else {
-                $messageErreur = "Veuillez remplir tous les champs requis.";
+                $messageErreur = "Erreur lors de l'enregistrement du versement.";
             }
         }
 
         $GLOBALS['messageSuccess'] = $messageSuccess;
         $GLOBALS['messageErreur'] = $messageErreur;
-
-        
     }
 
-     public function mettreAJourVersement() {
-        // Initialize message variables
-        $messageErreur = '';
-        $messageSuccess = '';
-        
-        // Gérer la soumission du formulaire de modification (POST)
+    public function mettreAJourVersement() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $id_versement = $_POST['id_versement'] ?? null; // Assurez-vous d'ajouter un champ caché pour l'id dans le formulaire de modif
+            $messageErreur = '';
+            $messageSuccess = '';
+            
+            $id_versement = $_POST['id_versement'] ?? null;
+            $id_etudiant = $_POST['id_etudiant'] ?? null;
             $montant = $_POST['montant'] ?? null;
             $date_versement = $_POST['date_versement'] ?? null;
             $methode_paiement = $_POST['methode_paiement'] ?? null;
-             // id_etudiant pourrait potentiellement aussi être modifié? Dépend des règles métier.
 
-            if ($id_versement && $montant && $date_versement && $methode_paiement) {
-                 $data = [
-                     'montant' => $montant,
-                     'date_versement' => $date_versement,
-                     'methode_paiement' => $methode_paiement
-                      // Type de versement si modifiable
-                 ];
+            // Validation des données
+            if (!$id_versement || !$id_etudiant || !$montant || !$date_versement || !$methode_paiement) {
+                $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
+                return;
+            }
 
-                if ($this->scolariteModel->updateVersement($id_versement, $data)) {
-                    $messageSuccess= "Versement mis à jour avec succès.";
-                } else {
-                    $messageErreur = "Erreur lors de la mise à jour du versement.";
-                }
+            // Récupérer l'id_inscription à partir de l'id_etudiant
+            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($id_etudiant);
+            if (!$inscription) {
+                $GLOBALS['messageErreur'] = "Aucune inscription trouvée pour cet étudiant.";
+                return;
+            }
+
+            // Récupérer le versement actuel
+            $versement_actuel = $this->scolariteModel->getVersementById($id_versement);
+            if (!$versement_actuel) {
+                $GLOBALS['messageErreur'] = "Versement non trouvé.";
+                return;
+            }
+
+            // Vérifier si le nouveau montant ne dépasse pas le reste à payer
+            $montant_total = $inscription['montant_scolarite'];
+            $montant_paye = $inscription['montant_inscription'] - $versement_actuel['montant'] + $montant;
+            $reste_a_payer = $montant_total - $montant_paye;
+
+            if ($montant > $reste_a_payer) {
+                $GLOBALS['messageErreur'] = "Le montant du versement ne peut pas dépasser le reste à payer.";
+                return;
+            }
+
+            // Mettre à jour le versement
+            if ($this->scolariteModel->mettreAJourVersement($id_versement, $montant, $date_versement, $methode_paiement)) {
+                $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
             } else {
-                $messageErreur = "Veuillez remplir tous les champs requis.";
+                $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
             }
         }
-        $GLOBALS['messageSuccess'] = $messageSuccess;
-        $GLOBALS['messageErreur'] = $messageErreur;
-     }
+    }
 
     public function supprimerVersement() {
         // Initialize message variables
