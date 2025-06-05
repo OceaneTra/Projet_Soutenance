@@ -32,6 +32,8 @@ class Etudiant {
         }
     }
 
+    
+
     public function isNumEtuExists($num_etu) {
         try {
             $query = "SELECT COUNT(*) FROM etudiants WHERE num_etu = :num_etu";
@@ -99,5 +101,20 @@ class Etudiant {
             error_log("Erreur lors de la suppression de l'étudiant : " . $e->getMessage());
             return false;
         }
+    }
+
+    public function getEtudiantsByNiveau($niveauId) {
+        $query = "SELECT e.*, n.lib_niv_etude as niveau_nom 
+                 FROM etudiants e 
+                 INNER JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                 INNER JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
+                 WHERE i.id_niveau = :niveau_id 
+                 ORDER BY e.nom_etu, e.prenom_etu";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':niveau_id', $niveauId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 } 

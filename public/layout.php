@@ -13,6 +13,8 @@ include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDashboardRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionScolariteRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionNotesRoutes.php';
+
 
 
 
@@ -119,7 +121,7 @@ switch ($currentMenuSlug) {
              // Ajustez le chemin si nécessaire
         include __DIR__ . '/../ressources/routes/candidatureSoutenanceRoutes.php';
         
-        $allowedActions = ['simulateur_eligibilite', 'compte_rendu_etudiant'];
+        $allowedActions = [ 'demande_candidature','compte_rendu_etudiant'];
         
         if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];

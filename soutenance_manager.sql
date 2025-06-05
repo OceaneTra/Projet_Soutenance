@@ -1700,6 +1700,47 @@ ALTER TABLE `valider`
 --
 ALTER TABLE `versements`
   ADD CONSTRAINT `versements_ibfk_1` FOREIGN KEY (`id_inscription`) REFERENCES `inscriptions` (`id_inscription`);
+
+--
+-- Structure de la table `candidature_soutenance`
+--
+
+CREATE TABLE `candidature_soutenance` (
+  `id_candidature` int NOT NULL AUTO_INCREMENT,
+  `num_etu` int NOT NULL,
+  `date_candidature` datetime NOT NULL,
+  `statut_candidature` enum('En attente','Approuvée','Rejetée') NOT NULL DEFAULT 'En attente',
+  `date_traitement` datetime DEFAULT NULL,
+  `commentaire_admin` text,
+  `id_pers_admin` int DEFAULT NULL,
+  PRIMARY KEY (`id_candidature`),
+  KEY `num_etu` (`num_etu`),
+  KEY `id_pers_admin` (`id_pers_admin`),
+  CONSTRAINT `candidature_soutenance_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
+  CONSTRAINT `candidature_soutenance_ibfk_2` FOREIGN KEY (`id_pers_admin`) REFERENCES `personnel_admin` (`id_pers_admin`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Structure de la table `informations_stage`
+--
+
+CREATE TABLE `informations_stage` (
+  `id_info_stage` int NOT NULL AUTO_INCREMENT,
+  `num_etu` int NOT NULL,
+  `id_entreprise` int NOT NULL,
+  `date_debut_stage` date NOT NULL,
+  `date_fin_stage` date NOT NULL,
+  `sujet_stage` text NOT NULL,
+  `description_stage` text NOT NULL,
+  `encadrant_entreprise` varchar(100) NOT NULL,
+  `email_encadrant` varchar(100) NOT NULL,
+  `telephone_encadrant` varchar(20) NOT NULL,
+  PRIMARY KEY (`id_info_stage`),
+  KEY `num_etu` (`num_etu`),
+  KEY `id_entreprise` (`id_entreprise`),
+  CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
+  CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
