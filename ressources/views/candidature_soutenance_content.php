@@ -303,7 +303,7 @@ if ($result['success']) {
                         class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200">
                         Annuler
                     </button>
-                    <button type="submit"
+                    <button type="submit" name="btn_enregistrer"
                         class="px-6 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium transition-colors duration-200 flex items-center">
                         <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Entreprise.php';
+require_once __DIR__ . '/../models/InfoStage.php';
 
 
 class CandidatureSoutenanceController {
@@ -24,15 +25,32 @@ class CandidatureSoutenanceController {
        
     }
 
+  public function index()
+  {
+
+    if(isset($_GET['action'])){
+      switch($_GET['action']){
+        case 'demande_candidature':
+          $this->demande_candidature();
+          break;
+        case 'compte_rendu':
+            $this->compteRenduRapport();
+            break;
+        case 'infoStage':
+             $this->infoStage();
+            break;
+              
+        
+      }
+    }
+    
+  }
+
+    
 
     //=============================Gestion de la demande de candidature=============================
     public function demande_candidature()
     {
-      
-
-
-
-
        
 } 
     
@@ -40,5 +58,10 @@ class CandidatureSoutenanceController {
     public function compteRenduRapport()
     {
     }
+
+      //=============================ENREGISTRER/ MODIFIER LES INFOS DE STAGE =============================
+      public function infoStage()
+      {
+      }
 
 }

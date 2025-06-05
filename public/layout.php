@@ -121,7 +121,7 @@ switch ($currentMenuSlug) {
              // Ajustez le chemin si nécessaire
         include __DIR__ . '/../ressources/routes/candidatureSoutenanceRoutes.php';
         
-        $allowedActions = [ 'demande_candidature','compte_rendu_etudiant'];
+        $allowedActions = [ 'compte_rendu_etudiant'];
         
         if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
             $currentAction = $_GET['action'];
