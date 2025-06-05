@@ -19,9 +19,17 @@ class GestionReclamationsController {
         }
 
         // Adapter les variables selon votre système d'authentification existant
-        $_SESSION['user_id'] = $_SESSION['id_utilisateur'];
+        $_SESSION['user_id'] = $this->determinerUserId();
         $_SESSION['user_type'] = $this->determinerTypeUtilisateur();
         $_SESSION['groupe_utilisateur'] = $_SESSION['id_GU'] ?? 13;
+    }
+
+    private function determinerUserId() {
+        // Pour les étudiants, utiliser num_etu, sinon id_utilisateur
+        if (isset($_SESSION['num_etu'])) {
+            return $_SESSION['num_etu'];
+        }
+        return $_SESSION['id_utilisateur'];
     }
 
     private function determinerTypeUtilisateur()
@@ -46,23 +54,15 @@ class GestionReclamationsController {
         return 'etudiant'; // Par défaut
     }
 
-
-
     // Afficher le dashboard des réclamations
     public function index()
     {
         try {
-            // Dans votre système, la page principale est gérée par gestion_reclamations_content.php
-            // On se contente de préparer les données si nécessaire
-
             // Récupérer les statistiques pour usage dans la vue
             global $statistiquesReclamations, $reclamationsRecentes;
 
             $statistiquesReclamations = $this->reclamationModel->getStatistiques();
             $reclamationsRecentes = $this->reclamationModel->getTous(5, 0);
-
-            // La variable $cardReclamation est déjà définie dans votre fichier principal
-            // Pas besoin d'inclure une vue ici
 
         } catch (Exception $e) {
             $this->afficherErreur("Erreur lors du chargement du dashboard : " . $e->getMessage());
@@ -88,8 +88,6 @@ class GestionReclamationsController {
 
             $erreurs = $_SESSION['erreurs_form'] ?? [];
             unset($_SESSION['erreurs_form']);
-
-            // La vue sera incluse automatiquement par le système principal
         }
     }
 
@@ -127,8 +125,14 @@ class GestionReclamationsController {
             if ($_SESSION['user_type'] === 'etudiant') {
                 // Pour les étudiants, utiliser num_etu
                 if (!isset($_SESSION['num_etu'])) {
-                    throw new Exception("Numéro d'étudiant non trouvé en session. Veuillez vous reconnecter.");
+                    // Tentative de récupération via l'email si pas trouvé
+                    $this->recupererNumEtu();
+
+                    if (!isset($_SESSION['num_etu'])) {
+                        throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
+                    }
                 }
+
                 $donnees = [
                     'num_etu' => $_SESSION['num_etu'],
                     'id_utilisateur' => null,
@@ -172,6 +176,30 @@ class GestionReclamationsController {
             $this->afficherMessage("Erreur lors de la soumission : " . $e->getMessage(), 'error');
             header('Location: ?page=gestion_reclamations&action=soumettre_reclamation');
             exit;
+        }
+    }
+
+    private function recupererNumEtu() {
+        try {
+            if (!isset($_SESSION['login_utilisateur'])) {
+                return false;
+            }
+
+            $db = Database::getConnection();
+            $query = "SELECT num_etu FROM etudiants WHERE email_etu = :email";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':email', $_SESSION['login_utilisateur']);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                $_SESSION['num_etu'] = $result['num_etu'];
+                return true;
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Erreur lors de la récupération du num_etu: " . $e->getMessage());
+            return false;
         }
     }
 
@@ -280,7 +308,7 @@ class GestionReclamationsController {
                 }
             }
 
-            // Récupérer les réclamations selon le type d'utilisateur de votre système
+            // Récupérer les réclamations selon le type d'utilisateur
             if ($_SESSION['user_type'] === 'etudiant') {
                 // Pour les étudiants, filtrer par num_etu
                 $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
@@ -376,7 +404,7 @@ class GestionReclamationsController {
                     'sans-suite' => 'Rejetée'
                 ];
 
-                if ($statusMap[$_GET['status']]) {
+                if (isset($statusMap[$_GET['status']])) {
                     if (is_array($statusMap[$_GET['status']])) {
                         // Pour 'en-cours', on cherche soit 'En attente' soit 'En cours'
                         $filtres['statut_multiple'] = $statusMap[$_GET['status']];
@@ -388,7 +416,7 @@ class GestionReclamationsController {
 
             // Récupérer les données selon le type d'utilisateur
             if ($_SESSION['user_type'] === 'etudiant') {
-                $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['user_id'], 'etudiant');
+                $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
                 $totalReclamations = count($reclamations);
 
                 // Appliquer les filtres manuellement
@@ -423,7 +451,6 @@ class GestionReclamationsController {
             // Données pour la vue
             $filtresActuels = $_GET;
 
-            // La vue sera incluse automatiquement par le système principal
         } catch (Exception $e) {
             $this->afficherErreur("Erreur lors du chargement de l'historique : " . $e->getMessage());
         }
@@ -432,7 +459,7 @@ class GestionReclamationsController {
     private function calculerStatistiquesHistorique()
     {
         if ($_SESSION['user_type'] === 'etudiant') {
-            $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['user_id'], 'etudiant');
+            $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
         } else {
             $reclamations = $this->reclamationModel->getTous(1000, 0);
         }
@@ -473,7 +500,7 @@ class GestionReclamationsController {
         }
 
         // Vérifier les droits d'accès
-        if ($_SESSION['user_type'] === 'etudiant' && $reclamation['num_etu'] != $_SESSION['user_id']) {
+        if ($_SESSION['user_type'] === 'etudiant' && $reclamation['num_etu'] != $_SESSION['num_etu']) {
             $this->afficherErreur("Accès non autorisé.");
             return;
         }
@@ -532,7 +559,7 @@ class GestionReclamationsController {
 
     private function prendreEnCharge($id, $commentaire)
     {
-        return $this->reclamationModel->mettreAJourStatut($id, 'En cours', $commentaire, $_SESSION['user_id']);
+        return $this->reclamationModel->mettreAJourStatut($id, 'En cours', $commentaire, $_SESSION['id_utilisateur']);
     }
 
     private function resoudreReclamation($id, $commentaire)
@@ -540,7 +567,7 @@ class GestionReclamationsController {
         if (empty($commentaire)) {
             throw new Exception("Un commentaire est requis pour résoudre une réclamation.");
         }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Résolue', $commentaire, $_SESSION['user_id']);
+        return $this->reclamationModel->mettreAJourStatut($id, 'Résolue', $commentaire, $_SESSION['id_utilisateur']);
     }
 
     private function rejeterReclamation($id, $commentaire)
@@ -548,7 +575,7 @@ class GestionReclamationsController {
         if (empty($commentaire)) {
             throw new Exception("Un commentaire est requis pour rejeter une réclamation.");
         }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Rejetée', $commentaire, $_SESSION['user_id']);
+        return $this->reclamationModel->mettreAJourStatut($id, 'Rejetée', $commentaire, $_SESSION['id_utilisateur']);
     }
 
     //=============================MÉTHODES UTILITAIRES=============================
