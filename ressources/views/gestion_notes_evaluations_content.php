@@ -362,10 +362,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
             </div>
-
-
         </div>
     </div>
     <script>
