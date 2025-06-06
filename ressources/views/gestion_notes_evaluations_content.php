@@ -196,43 +196,38 @@ $studentGrades = $GLOBALS['studentGrades'];
                                 <?php echo isset($selectedStudent['promotion_etu']) ? htmlspecialchars($selectedStudent['promotion_etu']) : ''; ?>
                             </p>
                         </div>
-                        <div class="flex space-x-2">
-                            <button onclick="saveAllGrades()"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition flex items-center justify-center">
-                                <i class="fas fa-save mr-2"></i>Enregistrer les notes
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Résumé du niveau d'étude -->
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Résumé du niveau d'étude</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Niveau</p>
-                            <p class="text-lg font-semibold text-gray-800">
-                                <?php 
+                        <!-- Résumé du niveau d'étude -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Résumé du niveau d'étude</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-500">Niveau</p>
+                                    <p class="text-lg font-semibold text-gray-800">
+                                        <?php 
                                 $niveau = array_filter($niveauxEtude, function($n) use ($selectedNiveau) {
                                     return $n->id_niv_etude == $selectedNiveau;
                                 });
                                 $niveau = reset($niveau);
                                 echo $niveau ? htmlspecialchars($niveau->lib_niv_etude) : '';
                                 ?>
-                            </p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Promotion</p>
-                            <p class="text-lg font-semibold text-gray-800">
-                                <?php echo isset($selectedStudent['promotion_etu']) ? htmlspecialchars($selectedStudent['promotion_etu']) : ''; ?>
-                            </p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Statut</p>
-                            <p class="text-lg font-semibold text-blue-600">En cours</p>
+                                    </p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-500">Promotion</p>
+                                    <p class="text-lg font-semibold text-gray-800">
+                                        <?php echo isset($selectedStudent['promotion_etu']) ? htmlspecialchars($selectedStudent['promotion_etu']) : ''; ?>
+                                    </p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-500">Statut</p>
+                                    <p class="text-lg font-semibold text-blue-600">En cours</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
 
                 <!-- Semestres et UE -->
                 <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -246,7 +241,6 @@ $studentGrades = $GLOBALS['studentGrades'];
                                 <h4 class="text-lg font-semibold text-gray-800">Semestre </h4>
                                 <div class="flex items-center space-x-4 text-sm text-gray-600">
                                     <span>Crédits: <span class="font-bold text-gray-800"></span></span>
-                                    <span>Moyenne: <span class="font-bold text-blue-600"></span></span>
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
@@ -258,10 +252,10 @@ $studentGrades = $GLOBALS['studentGrades'];
                                                 UE</th>
                                             <th scope="col"
                                                 class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                                                Coeff.</th>
+                                                Crédits</th>
                                             <th scope="col"
                                                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                                                Note</th>
+                                                Moyenne</th>
                                             <th scope="col"
                                                 class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                                                 Statut</th>

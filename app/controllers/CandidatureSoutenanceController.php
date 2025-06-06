@@ -13,6 +13,8 @@ class CandidatureSoutenanceController {
 
   private $entreprise;
 
+  private $stage;
+
   private $db;
 
 
@@ -22,46 +24,138 @@ class CandidatureSoutenanceController {
         $this->db = Database::getConnection();
         $this->etudiant = new Etudiant($this->db);
         $this->entreprise = new Entreprise($this->db);
+        $this->stage = new InfoStage($this->db);
        
     }
 
   public function index()
   {
-
-    if(isset($_GET['action'])){
-      switch($_GET['action']){
-        case 'demande_candidature':
-          $this->demande_candidature();
-          break;
-        case 'compte_rendu':
-            $this->compteRenduRapport();
-            break;
-        case 'infoStage':
-             $this->infoStage();
-            break;
-              
         
-      }
+        
+        if(isset($_GET['action'])){
+            switch($_GET['action']){
+                case 'demande_candidature':
+                    $this->demande_candidature();
+                    break;
+                case 'compte_rendu_etudiant':
+                    $this->compteRenduRapport();
+                    break;
+                case 'info_stage':
+                    $this->infoStage();
+                    break;
+            }
+        }
+        // Récupérer les informations du stage de l'étudiant connecté
+        $stage_info = $this->stage->getStageInfo($_SESSION['num_etu']);
+        $GLOBALS['stage_info'] = $stage_info;
+
+        //Vérifier si l'étudiant a un compte rendu
+        $compte_rendu = $this->etudiant->getCompteRendu($_SESSION['num_etu']);
+        $GLOBALS['compte_rendu'] = $compte_rendu;
+
+        // Vérifier si l'étudiant a déjà soumis une candidature
+        $candidature = $this->etudiant->getCandidature($_SESSION['num_etu']);
+        $GLOBALS['has_candidature'] = !empty($candidature);
+      
     }
-    
-  }
 
     
 
     //=============================Gestion de la demande de candidature=============================
     public function demande_candidature()
     {
-       
-} 
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $etudiant_id = $_SESSION['num_etu'];
+            
+            // Vérifier si l'étudiant a déjà soumis une candidature
+            $existing_candidature = $this->etudiant->getCandidature($etudiant_id);
+            
+            if ($existing_candidature) {
+                $_SESSION['error'] = "Vous avez déjà soumis une candidature.";
+                return;
+            }
+
+            // Vérifier si l'étudiant a rempli ses informations de stage
+            $stage_info = $this->stage->getStageInfo($etudiant_id);
+            if (!$stage_info) {
+                $_SESSION['error'] = "Veuillez d'abord remplir les informations de stage.";
+                return;
+            }
+
+            // Créer la candidature
+            $result = $this->etudiant->createCandidature($etudiant_id);
+            
+            if ($result) {
+                $_SESSION['success'] = "Votre candidature a été soumise avec succès. Vous recevrez une réponse après l'évaluation de votre dossier.";
+            } else {
+                $_SESSION['error'] = "Une erreur est survenue lors de la soumission de votre candidature.";
+            }
+            
+           
+        }
+    }
     
       //=============================COMPTE RENDU DE RAPPORTS =============================
     public function compteRenduRapport()
     {
+        $etudiant_id = $_SESSION['num_etu'];
+        $compte_rendu = $this->etudiant->getCompteRendu($etudiant_id);
+        
+        if (!$compte_rendu) {
+            $_SESSION['error'] = "Aucun compte rendu disponible pour le moment. Veuillez patienter jusqu'à ce que la commission d'évaluation ait examiné votre dossier.";
+            
+        }
+        
+       
     }
 
       //=============================ENREGISTRER/ MODIFIER LES INFOS DE STAGE =============================
       public function infoStage()
       {
-      }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $etudiant_id = $_SESSION['num_etu'];
+
+            $nom_entreprise = $_POST['entreprise'];
+
+            //Vérifier si cette entreprise est déjà enregistrer dans la base de donnée
+            $entreprise = $this->entreprise->getEntrepriseByLibelle($nom_entreprise);
+
+            if (!$entreprise) {
+                $this->entreprise->ajouterEntreprise($nom_entreprise);
+                $id_entreprise = $this->entreprise->getLastInsertedId();
+            } else {
+                $id_entreprise = $entreprise->id_entreprise;
+            }
+
+         
+            // Vérifier si les informations du stage existent déjà
+            $existing_info = $this->stage->getStageInfo($etudiant_id);
+
+            $stage_data = [
+                'nom_entreprise' => $id_entreprise,
+                'date_debut_stage' => $_POST['date_debut'],
+                'date_fin_stage' => $_POST['date_fin'],
+                'sujet_stage' => $_POST['sujet'],
+                'description_stage' => $_POST['description'],
+                'encadrant_entreprise' => $_POST['encadrant'],
+                'email_encadrant' => $_POST['email_encadrant'],
+                'telephone_encadrant' => $_POST['telephone_encadrant']
+            ];
+            
+            if ($existing_info) {
+                // Mettre à jour les informations existantes
+                $result = $this->stage->updateStageInfo($etudiant_id, $stage_data);
+            } else {
+                // Créer de nouvelles informations
+                $result = $this->stage->createStageInfo($etudiant_id, $stage_data);
+            }
+            
+            if ($result) {
+                $_SESSION['success'] = "Les informations du stage ont été enregistrées avec succès.";
+            } else {
+                $_SESSION['error'] = "Une erreur est survenue lors de l'enregistrement des informations.";
+            }
+        }
+    }
 
 }

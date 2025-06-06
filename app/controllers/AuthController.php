@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Utilisateur.php';
 require_once __DIR__ . '/../models/Traitement.php';
 require_once __DIR__ . '/../models/Enseignant.php';
+require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../models/Grade.php';
 require_once __DIR__ . '/../models/Fonction.php';
@@ -13,31 +14,27 @@ class AuthController {
     private $db;
     private $enseignantModel;
     private $persAdminModel;
-    private $gradeModel;
-    private $fonctionModel;
-    private $specialiteModel;
+
+    private $etudiantModel;
+   
 
 
     public function __construct($db) {
         $this->db = $db;
         $this->enseignantModel = new Enseignant($db);
         $this->persAdminModel = new PersAdmin($db);
-        $this->gradeModel = new Grade($db);
-        $this->fonctionModel = new Fonction($db);
-        $this->specialiteModel = new Specialite($db);
+        $this->etudiantModel = new Etudiant($db);
+       
     }
 
 
-    public function login($login, $password) {
+    public function login($login, $password)
+    {
         $utilisateur = new Utilisateur($this->db);
         $infoUtilisateur = $utilisateur->verifierConnexion($login, $password);
 
         if ($infoUtilisateur) {
-            // Démarrer la session si pas déjà fait
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-
+           
             // Stocker les infos de session
             $_SESSION['id_utilisateur'] = $infoUtilisateur['id_utilisateur'];
             $_SESSION['nom_utilisateur'] = $infoUtilisateur['nom_utilisateur'];
@@ -51,32 +48,35 @@ class AuthController {
 
             $type_utilisateur = $utilisateur->getLibelleTypeUtilisateur($infoUtilisateur['id_utilisateur']);
 
-            if($type_utilisateur !== 'Etudiant'){
-                if($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif'){
+            if ($type_utilisateur !== 'Etudiant') {
+                if ($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif') {
                     // Récupérer les informations de l'enseignant
                     $enseignant = $this->enseignantModel->getEnseignantByLogin($infoUtilisateur['login_utilisateur']);
-                    if($enseignant) {
+                    if ($enseignant) {
                         $_SESSION['specialite'] = $enseignant->lib_specialite;
                         $_SESSION['grade'] = $enseignant->lib_grade;
                         $_SESSION['fonction'] = $enseignant->lib_fonction;
                         $_SESSION['date_grade'] = $enseignant->date_grade;
                         $_SESSION['date_fonction'] = $enseignant->date_occupation;
                     }
-                }
-                else if($type_utilisateur === 'Personnel administratif'){
+                } else if ($type_utilisateur === 'Personnel administratif') {
                     // Récupérer les informations du personnel administratif
                     $persAdmin = $this->persAdminModel->getPersAdminByLogin($infoUtilisateur['login_utilisateur']);
-                    if($persAdmin) {
+                    if ($persAdmin) {
                         $_SESSION['telephone'] = $persAdmin->tel_pers_admin;
                         $_SESSION['poste'] = $persAdmin->poste;
                         $_SESSION['date_embauche'] = $persAdmin->date_embauche;
                     }
                 }
             }
+            if ($type_utilisateur == 'Etudiant') {
+                $etudiant = $this->etudiantModel->getEtudiantByLogin($infoUtilisateur['login_utilisateur']);
+                if ($etudiant) {
+                    $_SESSION['num_etu'] = $etudiant->num_etu;
 
-            // NE PAS stocker le mot de passe en session
-            // $_SESSION['mdp_utilisateur'] = $infoUtilisateur['mdp_utilisateur'];
-
+                }
+                
+            }
             return true;
         }
         return false;

@@ -1,3 +1,12 @@
+<?php
+
+$candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
+
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -464,381 +473,527 @@
     }
 
     .status-badge {
+        display: inline-block;
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 12px;
         font-weight: 500;
-        color: white;
     }
 
-    .status-badge.validated {
-        background-color: var(--success);
+    .status-badge.en_attente {
+        background-color: #FEF3C7;
+        color: #92400E;
     }
 
-    .status-badge.rejected {
-        background-color: var(--danger);
+    .status-badge.validee {
+        background-color: #D1FAE5;
+        color: #065F46;
     }
 
-    .status-badge.pending {
-        background-color: var(--gray);
+    .status-badge.rejetee {
+        background-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .table-container {
+        margin-top: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background-color: #f8fafc;
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .history-table th {
+        background-color: #f8fafc;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .history-table tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .action-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .action-validation {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .action-rejet {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .action-verification {
+        background-color: #fef3c7;
+        color: #92400e;
     }
     </style>
 </head>
 
 <body>
     <div class="container">
-
         <div class="main-content">
+            <h1 class="text-2xl font-bold mb-6">Gestion des Candidatures de Soutenance</h1>
+
+            <!-- Filtres -->
             <div class="filters">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Rechercher un étudiant...">
+                    <input type="text" id="searchInput" placeholder="Rechercher un étudiant...">
                 </div>
-                <select>
-                    <option value="pending">Candidatures en attente</option>
-                    <option value="all">Toutes les candidatures</option>
-                    <option value="validated">Validées</option>
-                    <option value="rejected">Rejetées</option>
+                <select id="statusFilter">
+                    <option value="all">Tous les statuts</option>
+                    <option value="en_attente">En attente</option>
+                    <option value="validee">Validée</option>
+                    <option value="rejetee">Rejetée</option>
                 </select>
             </div>
 
-            <div class="candidate-list" id="candidateList">
-                <!-- Les candidatures seront chargées ici par JavaScript ou PHP -->
-
-                <!-- Exemple de candidature en attente (à remplacer par des données dynamiques) -->
-                <div class="candidate-item" data-name="Jean Dupont" data-program="Master 2 Informatique"
-                    data-scolarite="true" data-annee="true" data-master2="true" data-stage="false">
-                    <div class="candidate-info">
-                        <h3>Jean Dupont</h3>
-                        <p>Master 2 Informatique - Promotion 2024</p>
-                    </div>
-                    <button class="btn-examine">Examiner la demande</button>
+            <!-- Liste des candidatures -->
+            <div class="candidate-list">
+                <?php if (empty($candidatures)): ?>
+                <div class="text-center text-gray-500 py-4">
+                    Aucune candidature à afficher
                 </div>
-
-                <!-- Autre exemple (à remplacer par des données dynamiques) -->
-                <div class="candidate-item" data-name="Marie Martin" data-program="Master 2 Informatique"
-                    data-scolarite="true" data-annee="false" data-master2="true" data-stage="false">
+                <?php else: ?>
+                <?php foreach ($candidatures as $candidature): ?>
+                <div class="candidate-item" data-status="<?php echo $candidature['statut_candidature']; ?>">
                     <div class="candidate-info">
-                        <h3>Marie Martin</h3>
-                        <p>Master 2 Informatique - Promotion 2024</p>
+                        <h3><?php echo htmlspecialchars($candidature['nom_etu'] . ' ' . $candidature['prenom_etu']); ?>
+                        </h3>
+                        <p>Numéro étudiant: <?php echo htmlspecialchars($candidature['num_etu']); ?></p>
+                        <p>Date de demande: <?php echo date('d/m/Y', strtotime($candidature['date_candidature'])); ?>
+                        </p>
+                        <p>Statut: <span class="status-badge <?php echo $candidature['statut_candidature']; ?>">
+                                <?php echo ucfirst($candidature['statut_candidature']); ?>
+                            </span></p>
                     </div>
-                    <button class="btn-examine">Examiner la demande</button>
+                    <button onclick="examinerCandidature('<?php echo $candidature['num_etu']; ?>')" class="btn-examine">
+                        Examiner
+                    </button>
                 </div>
+                <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
 
-                <!-- Ajoutez d'autres candidatures ici -->
-
+            <!-- Table d'historique -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h2 class="table-title">Historique des actions</h2>
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Action</th>
+                            <th>Commentaire</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historiqueTableBody">
+                        <!-- L'historique sera chargé ici -->
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- History Section -->
-        <div class="history-section">
-            <h2>Historique des Demandes</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Nom de l'Étudiant</th>
-                        <th>Programme</th>
-                        <th>Date de Soumission</th>
-                        <th>Statut Global</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Exemple de données historiques (à remplacer par des données dynamiques) -->
-                    <tr>
-                        <td>Pierre Dubois</td>
-                        <td>Master 2 Génie Logiciel</td>
-                        <td>2023-11-15</td>
-                        <td><span class="status-badge validated">Validée</span></td>
-                    </tr>
-                    <tr>
-                        <td>Sophie Lefevre</td>
-                        <td>Master 2 Cybersécurité</td>
-                        <td>2023-10-20</td>
-                        <td><span class="status-badge rejected">Rejetée</span></td>
-                    </tr>
-                    <tr>
-                        <td>Ahmed Khan</td>
-                        <td>Master 2 Data Science</td>
-                        <td>2023-12-01</td>
-                        <td><span class="status-badge validated">Validée</span></td>
-                    </tr>
-                    <!-- Ajoutez d'autres lignes historiques ici -->
-                </tbody>
-            </table>
-        </div>
-
     </div>
 
-    <!-- The Modal -->
+    <!-- Modal d'examen -->
     <div id="examinationModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <button type="button" class="close-button" onclick="closeModal()">&times;</button>
             <h2 class="modal-title">Examen de la Candidature</h2>
 
-            <div class="step-indicator" id="stepIndicator">
-                <div class="step" id="step-scolarite" data-step="0">
-                    <div class="step-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="step-indicator">
+                <div class="step" id="stepInscription">
+                    <div class="step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="step-label">Inscription</div>
+                </div>
+                <div class="step" id="stepScolarite">
+                    <div class="step-icon">
+                        <i class="fas fa-money-check"></i>
+                    </div>
                     <div class="step-label">Scolarité</div>
                 </div>
-                <div class="step" id="step-annee" data-step="1">
-                    <div class="step-icon"><i class="fas fa-check"></i></div>
-                    <div class="step-label">Validation Année</div>
-                </div>
-                <div class="step" id="step-master2" data-step="2">
-                    <div class="step-icon"><i class="fas fa-user-graduate"></i></div>
-                    <div class="step-label">Niveau M2</div>
-                </div>
-                <div class="step" id="step-stage" data-step="3">
-                    <div class="step-icon"><i class="fas fa-briefcase"></i></div>
-                    <div class="step-label">Stage 6 mois</div>
+                <div class="step" id="stepSemestre">
+                    <div class="step-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="step-label">Semestre</div>
                 </div>
             </div>
 
-            <div class="modal-body">
-
-                <!-- Student Info (always visible) -->
-                <div id="student-info" class="info-section">
-                    <h3>Informations Étudiant</h3>
-                    <div class="info-item"><strong>Nom Complet:</strong> <span id="student-name"></span></div>
-                    <div class="info-item"><strong>Programme:</strong> <span id="student-program"></span></div>
-                    <!-- Ajoutez d'autres informations étudiant ici si nécessaire -->
-                </div>
-
-                <!-- Step-specific Content -->
-                <div id="content-scolarite" class="step-content active">
-                    <div class="info-section">
-                        <h3>Vérification Scolarité</h3>
-                        <p>Statut de la scolarité: <span id="status-scolarite" class="verification-status"></span></p>
-                        <!-- Ajoutez ici des détails spécifiques ou des champs pour la vérification de la scolarité -->
-                        <!-- Exemple: Afficher un lien vers le dossier de scolarité ou un champ pour noter -->
-                        <div class="info-item"><strong>Dernier paiement:</strong> <span>Non disponible (à
-                                intégrer)</span></div>
-                        <div class="info-item"><strong>Statut administratif:</strong> <span>En règle (à intégrer)</span>
-                        </div>
-                        <!-- Ajoutez des boutons Valider/Rejeter pour cette étape spécifique si besoin -->
-                        <!-- <button class="btn-validate">Valider cette étape</button> <button class="btn-reject">Rejeter cette étape</button> -->
+            <div class="step-content" id="stepInscriptionContent">
+                <div class="info-section">
+                    <h3>Vérification de l'inscription</h3>
+                    <div class="info-item">
+                        <strong>Statut d'inscription:</strong>
+                        <span id="inscriptionStatus"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Date d'inscription:</strong>
+                        <span id="inscriptionDate"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Filière:</strong>
+                        <span id="inscriptionFiliere"></span>
                     </div>
                 </div>
+            </div>
 
-                <div id="content-annee" class="step-content">
-                    <div class="info-section">
-                        <h3>Vérification Validation Année</h3>
-                        <p>Validation de l'année: <span id="status-annee" class="verification-status"></span></p>
-                        <!-- Ajoutez ici des détails spécifiques ou des champs pour la vérification de l'année -->
-                        <!-- Exemple: Afficher les résultats académiques ou un lien vers le relevé de notes -->
-                        <div class="info-item"><strong>Moyenne annuelle:</strong> <span>Non disponible (à
-                                intégrer)</span></div>
-                        <div class="info-item"><strong>Crédits ECTS validés:</strong> <span>Non disponible (à
-                                intégrer)</span></div>
-                        <!-- Ajoutez des boutons Valider/Rejeter pour cette étape spécifique si besoin -->
+            <div class="step-content" id="stepScolariteContent">
+                <div class="info-section">
+                    <h3>Vérification de la scolarité</h3>
+                    <div class="info-item">
+                        <strong>Statut des paiements:</strong>
+                        <span id="scolariteStatus"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Montant total:</strong>
+                        <span id="scolariteMontant"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Dernier paiement:</strong>
+                        <span id="scolariteDernierPaiement"></span>
                     </div>
                 </div>
+            </div>
 
-                <div id="content-master2" class="step-content">
-                    <div class="info-section">
-                        <h3>Vérification Niveau Master 2</h3>
-                        <p>Niveau Master 2: <span id="status-master2" class="verification-status"></span></p>
-                        <!-- Ajoutez ici des détails spécifiques ou des champs pour la vérification du niveau -->
-                        <div class="info-item"><strong>Inscription en M2:</strong> <span>Confirmée (à intégrer)</span>
-                        </div>
-                        <!-- Ajoutez des boutons Valider/Rejeter pour cette étape spécifique si besoin -->
+            <div class="step-content" id="stepSemestreContent">
+                <div class="info-section">
+                    <h3>Vérification du semestre</h3>
+                    <div class="info-item">
+                        <strong>Semestre actuel:</strong>
+                        <span id="semestreActuel"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Moyenne générale:</strong>
+                        <span id="semestreMoyenne"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Unités validées:</strong>
+                        <span id="semestreUnites"></span>
                     </div>
                 </div>
+            </div>
 
-                <div id="content-stage" class="step-content">
-                    <div class="info-section">
-                        <h3>Vérification Stage 6 mois</h3>
-                        <p>Stage 6 mois effectué: <span id="status-stage" class="verification-status"></span></p>
-                        <!-- Ajoutez ici des détails spécifiques ou des champs pour la vérification du stage -->
-                        <div class="info-item"><strong>Convention de stage:</strong> <span>Reçue (à intégrer)</span>
-                        </div>
-                        <div class="info-item"><strong>Dates du stage:</strong> <span>Non disponible (à intégrer)</span>
-                        </div>
-                        <div class="info-item"><strong>Rapport de stage:</strong> <span>Reçu (à intégrer)</span></div>
-                        <!-- Ajoutez des boutons Valider/Rejeter pour cette étape spécifique si besoin -->
-                    </div>
+            <div class="step-content" id="stepResumeContent">
+                <div class="info-section">
+                    <h3>Résumé de l'examen</h3>
+                    <div id="resumeContent"></div>
                 </div>
-
-            </div> <!-- End modal-body -->
+            </div>
 
             <div class="modal-footer">
                 <div class="left-buttons">
-                    <button class="btn btn-primary" id="prevStepButton" disabled><i
-                            class="fas fa-arrow-left mr-2"></i>Précédent</button>
-                    <button class="btn btn-primary" id="nextStepButton">Suivant<i
-                            class="fas fa-arrow-right ml-2"></i></button>
+                    <button id="btnPrevious" class="btn btn-secondary" onclick="previousStep()" style="display: none;">
+                        Précédent
+                    </button>
+                    <button id="btnNext" class="btn btn-primary" onclick="nextStep()">
+                        Suivant
+                    </button>
                 </div>
-                <button class="btn-secondary" id="closeModalButton">Fermer</button>
-                <!-- Boutons Valider/Rejeter candidature globale ici si besoin -->
-                <!-- <button class="btn-validate"><i class="fas fa-check mr-2"></i>Valider Candidature Globale</button>
-                 <button class="btn-reject"><i class="fas fa-times mr-2"></i>Rejeter Candidature Globale</button> -->
+                <div class="right-buttons">
+                    <button id="btnReject" class="btn-reject" onclick="rejectStep()">
+                        Rejeter
+                    </button>
+                    <button id="btnValidate" class="btn-validate" onclick="validateStep()">
+                        Valider
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-    // Get the modal elements
-    var modal = document.getElementById("examinationModal");
-    var closeModalButton = document.getElementById("closeModalButton");
-    var closeSpan = document.getElementsByClassName("close-button")[0];
-    var prevStepButton = document.getElementById("prevStepButton");
-    var nextStepButton = document.getElementById("nextStepButton");
-    var steps = document.querySelectorAll('.step-indicator .step');
-    var stepContents = document.querySelectorAll('.modal-body .step-content');
+    let currentNumEtu = null;
+    let currentStep = 1;
+    let totalSteps = 3;
+    let stepResults = {
+        inscription: {
+            status: null,
+            comment: ''
+        },
+        scolarite: {
+            status: null,
+            comment: ''
+        },
+        semestre: {
+            status: null,
+            comment: ''
+        }
+    };
 
-    let currentStepIndex = 0;
-    const stepNames = ['scolarite', 'annee', 'master2', 'stage'];
-
-    // Function to update the modal based on the current step
-    function updateModalDisplay() {
-        // Update step indicator appearance
-        steps.forEach((step, index) => {
-            step.classList.remove('active');
-            if (index === currentStepIndex) {
-                step.classList.add('active');
-            }
-            // 'completed' or 'rejected' classes are handled by updateVerificationStatus
-        });
-
-        // Update step content visibility
-        stepContents.forEach((content, index) => {
-            content.classList.remove('active');
-            if (index === currentStepIndex) {
-                content.classList.add('active');
-            }
-        });
-
-        // Update button states
-        prevStepButton.disabled = currentStepIndex === 0;
-        nextStepButton.disabled = currentStepIndex === steps.length - 1;
-
-        // Update the step indicator color line based on completed steps
-        // This is handled by CSS based on the .completed class, no JS needed here
+    function examinerCandidature(numEtu) {
+        currentNumEtu = numEtu;
+        currentStep = 1;
+        document.getElementById('examinationModal').style.display = 'flex';
+        showStep(currentStep);
+        loadStepData(currentStep);
     }
 
+    function showStep(step) {
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.getElementById(`step${getStepName(step)}Content`).style.display = 'block';
 
+        document.getElementById('btnPrevious').style.display = step > 1 ? 'block' : 'none';
+        document.getElementById('btnNext').style.display = step < totalSteps ? 'block' : 'none';
 
-    // Function to open the modal
-    function openModal(candidateData) {
-        console.log("Opening modal for:", candidateData);
-        document.getElementById('student-name').textContent = candidateData.name;
-        document.getElementById('student-program').textContent = candidateData.program;
-
-        // Update verification statuses and step indicator based on initial data
-        // This should happen BEFORE setting the current step, so the classes are present
-        updateVerificationStatus('scolarite', candidateData.scolarite);
-        updateVerificationStatus('annee', candidateData.annee);
-        updateVerificationStatus('master2', candidateData.master2);
-        updateVerificationStatus('stage', candidateData.stage);
-
-        currentStepIndex = 0; // Start at the first step
-        updateModalDisplay(); // Now display the first step
-
-        modal.style.display = "flex"; // Use flex to center the modal
+        document.querySelectorAll('.step').forEach((s, index) => {
+            s.classList.remove('active');
+            if (index + 1 === step) {
+                s.classList.add('active');
+            }
+        });
     }
 
-    // Function to close the modal
+    function getStepName(step) {
+        const steps = ['Inscription', 'Scolarite', 'Semestre'];
+        return steps[step - 1];
+    }
+
+    function loadStepData(step) {
+        fetch(`?page=gestion_candidatures&action=verifier_etape&num_etu=${currentNumEtu}&etape=${step}`)
+            .then(response => response.json())
+            .then(data => {
+                updateStepContent(step, data);
+            });
+    }
+
+    function updateStepContent(step, data) {
+        const stepName = getStepName(step).toLowerCase();
+        switch (step) {
+            case 1:
+                document.getElementById('inscriptionStatus').textContent = data.status;
+                document.getElementById('inscriptionDate').textContent = data.date;
+                document.getElementById('inscriptionFiliere').textContent = data.filiere;
+                break;
+            case 2:
+                document.getElementById('scolariteStatus').textContent = data.status;
+                document.getElementById('scolariteMontant').textContent = data.montant;
+                document.getElementById('scolariteDernierPaiement').textContent = data.dernierPaiement;
+                break;
+            case 3:
+                document.getElementById('semestreActuel').textContent = data.semestre;
+                document.getElementById('semestreMoyenne').textContent = data.moyenne;
+                document.getElementById('semestreUnites').textContent = data.unites;
+                break;
+        }
+    }
+
+    function previousStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            showStep(currentStep);
+            loadStepData(currentStep);
+        }
+    }
+
+    function validateStep() {
+        const stepName = getStepName(currentStep).toLowerCase();
+        stepResults[stepName] = {
+            status: 'validé',
+            comment: 'Étape validée avec succès'
+        };
+
+        if (currentStep === totalSteps) {
+            showResume();
+        } else {
+            nextStep();
+        }
+    }
+
+    function rejectStep() {
+        const stepName = getStepName(currentStep).toLowerCase();
+        stepResults[stepName] = {
+            status: 'rejeté',
+            comment: 'Étape rejetée'
+        };
+        showResume();
+    }
+
+    function showResume() {
+        const resumeContent = document.getElementById('resumeContent');
+        let html = '<div class="resume-section">';
+
+        for (const [step, result] of Object.entries(stepResults)) {
+            html += `
+                <div class="resume-item">
+                    <h4>${step.charAt(0).toUpperCase() + step.slice(1)}</h4>
+                    <p>Statut: <span class="status-badge ${result.status}">${result.status}</span></p>
+                    <p>Commentaire: ${result.comment}</p>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        resumeContent.innerHTML = html;
+
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.getElementById('stepResumeContent').style.display = 'block';
+
+        document.getElementById('btnPrevious').style.display = 'none';
+        document.getElementById('btnNext').style.display = 'none';
+        document.getElementById('btnReject').style.display = 'none';
+        document.getElementById('btnValidate').style.display = 'none';
+
+        const footer = document.querySelector('.modal-footer');
+        footer.innerHTML = `
+            <button class="btn btn-primary" onclick="envoyerResultat()">
+                Envoyer le résultat
+            </button>
+        `;
+    }
+
+    function envoyerResultat() {
+        fetch(`?page=gestion_candidatures&action=envoyer_resultat&num_etu=${currentNumEtu}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(stepResults)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Le résultat a été envoyé avec succès à l\'étudiant.');
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    alert('Une erreur est survenue lors de l\'envoi du résultat.');
+                }
+            });
+    }
+
     function closeModal() {
-        modal.style.display = "none";
+        const modal = document.getElementById('examinationModal');
+        modal.style.display = 'none';
+        currentNumEtu = null;
+        currentStep = 1;
+        stepResults = {
+            inscription: {
+                status: null,
+                comment: ''
+            },
+            scolarite: {
+                status: null,
+                comment: ''
+            },
+            semestre: {
+                status: null,
+                comment: ''
+            }
+        };
     }
 
-    // Event listeners for closing the modal
-    closeModalButton.addEventListener('click', closeModal);
-    closeSpan.addEventListener('click', closeModal);
+    // Fermer la modale si on clique en dehors
+    window.onclick = function(event) {
+        const modal = document.getElementById('examinationModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
 
-    // When the user clicks anywhere outside of the modal, close it
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
+    // Ajouter un gestionnaire d'événements pour la touche Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
             closeModal();
         }
     });
 
-    // Event listeners for navigation buttons
-    prevStepButton.addEventListener('click', function() {
-        if (currentStepIndex > 0) {
-            currentStepIndex--;
-            updateModalDisplay();
-        }
+    // Fonction de recherche
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('.candidate-item');
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
     });
 
-    nextStepButton.addEventListener('click', function() {
-        if (currentStepIndex < steps.length - 1) {
-            currentStepIndex++;
-            updateModalDisplay();
-        }
+    // Fonction de filtrage par statut
+    document.getElementById('statusFilter').addEventListener('change', function(e) {
+        const status = e.target.value;
+        const items = document.querySelectorAll('.candidate-item');
+
+        items.forEach(item => {
+            if (status === 'all' || item.dataset.status === status) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
     });
 
-
-    function updateVerificationStatus(stepName, status) {
-        const statusElement = document.getElementById(`status-${stepName}`);
-        const stepElement = document.getElementById(`step-${stepName}`);
-
-        // Reset classes and content for status
-        stepElement.classList.remove('completed', 'rejected');
-        statusElement.innerHTML = '';
-
-        if (status === true) {
-            statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Vérifié';
-            stepElement.classList.add('completed');
-        } else if (status === false) {
-            statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Non vérifié';
-            stepElement.classList.add('rejected');
-        } else {
-            statusElement.innerHTML = '<i class="fas fa-clock"></i> En attente';
-            // Active class is handled by updateModalDisplay
-        }
-        // The active state of the step indicator is managed by updateModalDisplay
-        // based on the currentStepIndex.
+    // Fonction pour charger l'historique
+    function chargerHistorique() {
+        fetch('?page=gestion_candidatures&action=historique')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('historiqueTableBody');
+                tbody.innerHTML = data.map(item => `
+                    <tr>
+                        <td>${item.nom_etu} ${item.prenom_etu}</td>
+                        <td>
+                            <span class="action-badge action-${item.action}">
+                                ${item.action}
+                            </span>
+                        </td>
+                        <td>${item.commentaire || '-'}</td>
+                        <td>${new Date(item.date_action).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            });
     }
 
-    // Event listeners for 'Examiner la demande' buttons
-    document.addEventListener('DOMContentLoaded', function() {
-        const examineButtons = document.querySelectorAll('.btn-examine');
-        examineButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const item = this.closest('.candidate-item');
-                // Extract data attributes. Convert string 'true'/'false' to boolean
-                const candidateData = {
-                    name: item.getAttribute('data-name'),
-                    program: item.getAttribute('data-program'),
-                    scolarite: item.getAttribute('data-scolarite') === 'true',
-                    annee: item.getAttribute('data-annee') === 'true',
-                    master2: item.getAttribute('data-master2') === 'true',
-                    stage: item.getAttribute('data-stage') === 'true'
-                };
-                openModal(candidateData);
-            });
-        });
-
-        // Basic filtering (can be expanded)
-        const searchInput = document.querySelector('.filters input[type="text"]');
-        const statusSelect = document.querySelector('.filters select');
-        const candidateItems = document.querySelectorAll('.candidate-item'); // Get all items initially
-
-        function filterCandidates() {
-            const search = searchInput.value.toLowerCase();
-            const status = statusSelect.value;
-
-            candidateItems.forEach(item => {
-                const name = item.querySelector('.candidate-info h3').textContent.toLowerCase();
-                // Basic filtering by name for now
-                const matchesSearch = name.includes(search);
-
-                // TODO: Implement status filtering logic here based on how status is stored/indicated in list item
-                // const matchesStatus = (status === 'pending' && itemIsPending(item)) || ...
-                // For now, only filter by search.
-
-                if (matchesSearch /* && matchesStatus */ ) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        searchInput.addEventListener('input', filterCandidates);
-        // statusSelect.addEventListener('change', filterCandidates); // Uncomment and implement logic
-    });
+    // Charger l'historique au chargement de la page
+    document.addEventListener('DOMContentLoaded', chargerHistorique);
     </script>
 </body>
 

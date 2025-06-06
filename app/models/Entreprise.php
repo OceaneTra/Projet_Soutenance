@@ -29,10 +29,16 @@ class Entreprise
         return $stmt->execute([$id_entreprise]);
     }
 
-    public function getEntrepriseById($id_entreprise)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM entreprises WHERE id_entreprise = ?");
-        $stmt->execute([$id_entreprise]);
+    public function getEntrepriseById($id) {
+        $sql = "SELECT * FROM entreprises WHERE id_entreprise = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function getEntrepriseByLibelle($lib_entreprise){
+        $stmt = $this->db->prepare("SELECT id_entreprise FROM entreprises WHERE lib_entreprise = ?");
+        $stmt->execute([$lib_entreprise]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
@@ -43,4 +49,12 @@ class Entreprise
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+
+    public function getLastInsertedId() {
+        $sql = "SELECT id_entreprise FROM entreprises ORDER BY id_entreprise DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['id_entreprise'] : null;
+    }
 }

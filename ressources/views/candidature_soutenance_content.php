@@ -1,16 +1,14 @@
 <?php
-require_once 'controllers/StageController.php';
 
-$stageController = new StageController($conn);
-$result = $stageController->handleRequest();
+$stage_info = isset($GLOBALS['stage_info']) ? $GLOBALS['stage_info'] : [];
+$compte_rendu = isset($GLOBALS['compte_rendu']) ? $GLOBALS['compte_rendu'] : [];
+$has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidature'] : false;
 
-if ($result['success']) {
-    $stage_info = $result['data']['stage_info'] ?? null;
-    $entreprises = $result['data']['entreprises'] ?? [];
-} else {
-    echo '<div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">' . $result['message'] . '</div>';
-}
+
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -28,12 +26,36 @@ if ($result['success']) {
     <div class="floating-shape shape-2"></div>
 
     <div class="container max-w-6xl mx-auto px-4 py-8 md:px-4 md:py-6">
+        <!-- Messages de notification -->
+        <?php if (isset($_SESSION['success'])): ?>
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            <?php 
+                echo $_SESSION['success'];
+                unset($_SESSION['success']);
+                ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <?php 
+                echo $_SESSION['error'];
+                unset($_SESSION['error']);
+                ?>
+        </div>
+        <?php endif; ?>
+
+        <div id="warningMessage" class="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded hidden">
+            Veuillez d'abord remplir les informations de stage pour accéder aux autres fonctionnalités.
+        </div>
+
         <div class="header text-center mb-8">
             <h1 class="text-3xl font-bold text-text-dark mb-3 md:text-2xl text-green-500">Candidature à la soutenance
             </h1>
             <p class="text-base text-text-light max-w-2xl mx-auto md:text-sm">Faite votre demande de candidature à la
                 soutenance et accédez aux comptes rendus de la commission d'évaluation.</p>
         </div>
+
 
         <div class="cards-container grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Card 1 - Informations du stage -->
@@ -78,8 +100,9 @@ if ($result['success']) {
                     <p class="text-text-light mb-6 flex-grow text-base leading-relaxed">Faite votre demande de
                         candidature
                         au près de l'administration et obtenez une réponse sur votre statut après vérification.</p>
-                    <button onclick="openConfirmationModal()"
-                        class="card-btn bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300 text-sm">
+                    <button
+                        onclick="<?php echo empty($stage_info) ? 'showWarningMessage(); return false;' : ($has_candidature ? 'showCandidatureExistsMessage(); return false;' : 'openConfirmationModal()'); ?>"
+                        class="card-btn <?php echo empty($stage_info) || $has_candidature ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm">
                         <span class="flex items-center">
                             Demande de candidature
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -108,8 +131,10 @@ if ($result['success']) {
                         détaillé
                         des évaluations et des recommandations formulées par les membres de la commission suite à votre
                         demande.</p>
-                    <a href="?page=candidature_soutenance&action=compte_rendu_etudiant"
-                        class="card-btn bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-300 text-sm">
+
+                    <a href="<?php echo empty($stage_info) ? '#' : ($compte_rendu ? '?page=candidature_soutenance&action=compte_rendu_etudiant' : '#'); ?>"
+                        onclick="<?php echo empty($stage_info) ? 'event.preventDefault(); showWarningMessage();' : (empty($compte_rendu) ? 'event.preventDefault(); showNoCompteRenduMessage();' : ''); ?>"
+                        class="card-btn <?php echo empty($stage_info) || empty($compte_rendu) ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600'; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm">
                         <span class="flex items-center">
                             Consulter mon compte rendu
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -131,20 +156,23 @@ if ($result['success']) {
             <h3 class="text-2xl font-bold mb-4">Confirmer votre demande</h3>
             <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir soumettre votre demande de candidature à la
                 soutenance ?</p>
-            <div class="flex justify-end space-x-4">
-                <button onclick="closeConfirmationModal()"
-                    class="px-4 py-2 text-gray-600 hover:text-gray-800">Annuler</button>
-                <button onclick="submitCandidature()"
-                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Confirmer</button>
-            </div>
+            <form method="POST" action="?page=candidature_soutenance&action=demande_candidature">
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeConfirmationModal()"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800 shadow-2xs">Annuler</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 shadow-2xs">Confirmer</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal d'informations du stage -->
     <div id="stageInfoModal" class="fixed inset-0 hidden items-center z-50 justify-center">
-        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-6 text-gray-800">Informations du stage</h3>
-            <form id="stageInfoForm" class="space-y-6" method="POST" action="?page=candidature_soutenance">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 sticky top-0 bg-white pb-4">Informations du stage</h3>
+            <form id="stageInfoForm" class="space-y-6" method="POST"
+                action="?page=candidature_soutenance&action=info_stage">
                 <div class="grid grid-cols-2 gap-6">
                     <!-- Entreprise -->
                     <div class="col-span-2">
@@ -157,16 +185,10 @@ if ($result['success']) {
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
-                            <select name="entreprise" required
-                                class="pl-10 py-2 outline-green-500 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white">
-                                <option value="">Sélectionnez une entreprise</option>
-                                <?php foreach ($entreprises as $entreprise): ?>
-                                <option value="<?php echo $entreprise['id_entreprise']; ?>"
-                                    <?php echo ($stage_info && $stage_info['id_entreprise'] == $entreprise['id_entreprise']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($entreprise['nom_entreprise']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <input type="text" name="entreprise" required
+                                value="<?php echo isset($stage_info['nom_entreprise']) ? htmlspecialchars($stage_info['nom_entreprise']) : ''; ?>"
+                                class="pl-10 block w-full py-2 outline-green-500 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+
                         </div>
                     </div>
 
@@ -183,7 +205,7 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="date" name="date_debut" required
-                                value="<?php echo $stage_info['date_debut_stage'] ?? ''; ?>"
+                                value="<?php echo isset($stage_info['date_debut_stage']) ? htmlspecialchars($stage_info['date_debut_stage']) : ''; ?>"
                                 class="pl-10 block w-full py-2 outline-green-500 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                         </div>
                     </div>
@@ -199,7 +221,7 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="date" name="date_fin" required
-                                value="<?php echo $stage_info['date_fin_stage'] ?? ''; ?>"
+                                value="<?php echo isset($stage_info['date_fin_stage']) ? htmlspecialchars($stage_info['date_fin_stage']) : ''; ?>"
                                 class="pl-10 block w-full py-2 outline-green-500 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                         </div>
                     </div>
@@ -216,7 +238,7 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="text" name="sujet" required
-                                value="<?php echo htmlspecialchars($stage_info['sujet_stage'] ?? ''); ?>"
+                                value="<?php echo isset($stage_info['sujet_stage']) ? htmlspecialchars($stage_info['sujet_stage']) : ''; ?>"
                                 class="pl-10 py-2 outline-green-500 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                 placeholder="Ex: Développement d'une application web">
                         </div>
@@ -236,7 +258,7 @@ if ($result['success']) {
                             </div>
                             <textarea name="description" required rows="4"
                                 class="pl-10 py-2 outline-green-500 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                placeholder="Décrivez les principales missions et objectifs de votre stage..."><?php echo htmlspecialchars($stage_info['description_stage'] ?? ''); ?></textarea>
+                                placeholder="Décrivez les principales missions et objectifs de votre stage..."><?php echo isset($stage_info['description_stage']) ? htmlspecialchars($stage_info['description_stage']) : ''; ?></textarea>
                         </div>
                     </div>
 
@@ -253,7 +275,7 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="text" name="encadrant" required
-                                value="<?php echo htmlspecialchars($stage_info['encadrant_entreprise'] ?? ''); ?>"
+                                value="<?php echo isset($stage_info['encadrant_entreprise']) ? htmlspecialchars($stage_info['encadrant_entreprise']) : ''; ?>"
                                 class="pl-10 py-2 outline-green-500 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                 placeholder="Nom complet de l'encadrant">
                         </div>
@@ -272,7 +294,7 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="email" name="email_encadrant" required
-                                value="<?php echo htmlspecialchars($stage_info['email_encadrant'] ?? ''); ?>"
+                                value="<?php echo isset($stage_info['email_encadrant']) ? htmlspecialchars($stage_info['email_encadrant']) : ''; ?>"
                                 class="pl-10 py-2 outline-green-500 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                 placeholder="email@entreprise.com">
                         </div>
@@ -291,19 +313,19 @@ if ($result['success']) {
                                 </svg>
                             </div>
                             <input type="tel" name="telephone_encadrant" required
-                                value="<?php echo htmlspecialchars($stage_info['telephone_encadrant'] ?? ''); ?>"
+                                value="<?php echo isset($stage_info['telephone_encadrant']) ? htmlspecialchars($stage_info['telephone_encadrant']) : ''; ?>"
                                 class="pl-10 block py-2 outline-green-500 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                 placeholder="+225 07 07 07 07 07">
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end space-x-4 mt-8">
+                <div class="flex justify-end space-x-4 mt-8 sticky bottom-0 bg-white pt-4">
                     <button type="button" onclick="closeStageInfoModal()"
                         class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200">
                         Annuler
                     </button>
-                    <button type="submit" name="btn_enregistrer"
+                    <button type="submit" name="btn_enregistrer" value="1"
                         class="px-6 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium transition-colors duration-200 flex items-center">
                         <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -339,28 +361,63 @@ if ($result['success']) {
         document.getElementById('stageInfoModal').classList.add('hidden');
     }
 
-    // Fonction pour soumettre la candidature
-    function submitCandidature() {
-        $.ajax({
-            url: 'api/candidature_soutenance.php',
-            method: 'POST',
-            data: {
-                action: 'submit_candidature'
-            },
-            success: function(response) {
-                if (response.success) {
-                    alert('Votre candidature a été soumise avec succès !');
-                    location.reload();
-                } else {
-                    alert(response.message ||
-                        'Une erreur est survenue lors de la soumission de votre candidature.');
-                }
-            },
-            error: function() {
-                alert('Une erreur est survenue lors de la communication avec le serveur.');
-            }
+    // Fonction pour afficher le message d'avertissement
+    function showWarningMessage() {
+        const warningMessage = document.getElementById('warningMessage');
+        warningMessage.classList.remove('hidden');
+        // Faire défiler jusqu'au message
+        warningMessage.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
         });
+        // Faire disparaître le message après 5 secondes
+        setTimeout(() => {
+            warningMessage.classList.add('hidden');
+        }, 5000);
     }
+
+    // Fonction pour afficher le message d'absence de compte rendu
+    function showNoCompteRenduMessage() {
+        const warningMessage = document.getElementById('warningMessage');
+        warningMessage.textContent =
+            "Aucun compte rendu disponible pour le moment.";
+        warningMessage.classList.remove('hidden');
+        warningMessage.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+        setTimeout(() => {
+            warningMessage.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Fonction pour afficher le message de candidature existante
+    function showCandidatureExistsMessage() {
+        const warningMessage = document.getElementById('warningMessage');
+        warningMessage.textContent = "Vous avez déjà soumis une candidature.";
+        warningMessage.classList.remove('hidden');
+        warningMessage.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+        setTimeout(() => {
+            warningMessage.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Fonction pour faire disparaître les messages après 5 secondes
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('.mb-4:not(#warningMessage)');
+        messages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
     </script>
 </body>
 
