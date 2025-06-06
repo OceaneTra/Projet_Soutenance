@@ -79,36 +79,45 @@ class ParametreController
             $dateFin = $_POST['date_fin'];
             $annee1 = date("Y", strtotime($dateDebut));
             $annee2 = date("Y", strtotime($dateFin));
-            // Calculer le nouvel ID basé sur les nouvelles dates
-            $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
-            if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
-                $messageErreur = "Les dates de début et de fin ne sont pas valides.";
-            }
-            if ($this->anneeAcademique->isAnneeAcademiqueExist($nouvel_id, $dateDebut, $dateFin)) {
-                $messageErreur = "Cette année académique existe déjà.";
-            }
-            // Vérification de l'existence de l'année académique
-            if ($this->anneeAcademique->isAnneeAcademiqueInUse($nouvel_id)) {
-                $messageErreur = "Cette année académique est déjà utilisée.";
-            }
-            if (!empty($_POST['id_annee_acad'])) {
 
+            // Vérification que la durée ne dépasse pas 1 an
+            $dateDebutObj = new DateTime($dateDebut);
+            $dateFinObj = new DateTime($dateFin);
+            $interval = $dateDebutObj->diff($dateFinObj);
+            
+            if ($interval->y > 0 || ($interval->y == 0 && $interval->m > 0)) {
+                $messageErreur = "L'année académique ne peut pas dépasser 1 an.";
+            } else if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
+                $messageErreur = "Les dates de début et de fin ne sont pas valides.";
+            } else {
                 // Calculer le nouvel ID basé sur les nouvelles dates
                 $nouvel_id = substr($annee2, 0, 1) . substr($annee2, 2, 2) . substr($annee1, 2, 2);
-                // MODIFICATION
-                if ($this->anneeAcademique->updateAnneeAcademique($nouvel_id, $dateDebut, $dateFin)) {
-                    $messageSuccess = "Année académique modifiée avec succès.";
-                } else {
-                    $messageErreur = "Erreur lors de la mise à jour de l'année académique.";
+                
+                if ($this->anneeAcademique->isAnneeAcademiqueExist($nouvel_id, $dateDebut, $dateFin)) {
+                    $messageErreur = "Cette année académique existe déjà.";
                 }
-            } else {
-                // AJOUT
-                if ($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
-                    $messageSuccess = "Année académique ajoutée avec succès.";
-                } else {
-                    $messageErreur = "Erreur lors de l'ajout de l'année académique.";
+                // Vérification de l'existence de l'année académique
+                if ($this->anneeAcademique->isAnneeAcademiqueInUse($nouvel_id)) {
+                    $messageErreur = "Cette année académique est déjà utilisée.";
                 }
 
+                if (empty($messageErreur)) {
+                    if (!empty($_POST['id_annee_acad'])) {
+                        // MODIFICATION
+                        if ($this->anneeAcademique->updateAnneeAcademique($nouvel_id, $dateDebut, $dateFin)) {
+                            $messageSuccess = "Année académique modifiée avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de la mise à jour de l'année académique.";
+                        }
+                    } else {
+                        // AJOUT
+                        if ($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
+                            $messageSuccess = "Année académique ajoutée avec succès.";
+                        } else {
+                            $messageErreur = "Erreur lors de l'ajout de l'année académique.";
+                        }
+                    }
+                }
             }
         }
 

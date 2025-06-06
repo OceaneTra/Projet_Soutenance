@@ -45,4 +45,29 @@ class Ue
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
+
+    public function getUesByNiveau(int $niveauId, ?int $studentId = null): array
+    {
+        $sql = "SELECT DISTINCT u.*, s.lib_semestre 
+                FROM ue u 
+                JOIN semestre s ON u.id_semestre = s.id_semestre 
+                WHERE s.id_niv_etude = :niveau_id";
+        
+        $params = [':niveau_id' => $niveauId];
+        
+        if ($studentId) {
+            $sql .= " AND u.id_ue IN (
+                SELECT DISTINCT n.id_ue 
+                FROM notes n 
+                WHERE n.num_etu = :student_id
+            )";
+            $params[':student_id'] = $studentId;
+        }
+        
+        $sql .= " ORDER BY s.lib_semestre, u.lib_ue";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 }

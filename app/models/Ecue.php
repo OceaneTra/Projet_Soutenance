@@ -40,7 +40,7 @@ class Ecue
     // Modifier un ECUE
     public function updateEcue($id_ecue, $id_ue, $lib_ecue, $credit)
     {
-        // Crédit disponible pour l’UE en excluant l’ECUE actuel
+        // Crédit disponible pour l'UE en excluant l'ECUE actuel
         $creditDisponible = $this->creditRestantPourUe($id_ue, $id_ecue);
         if ($credit > $creditDisponible) {
             return false;
@@ -87,10 +87,36 @@ class Ecue
         return $creditUe - ($totalCredit ?? 0);
     }
 
-    // Vérifier si on peut ajouter ce crédit à l’UE
+    // Vérifier si on peut ajouter ce crédit à l'UE
     public function verifierCreditDisponible($id_ue, $nouveauCredit)
     {
         $restant = $this->creditRestantPourUe($id_ue);
         return $nouveauCredit <= $restant;
+    }
+
+    public function getEcuesByNiveau(int $niveauId, ?int $studentId = null): array
+    {
+        $sql = "SELECT DISTINCT e.*, u.lib_ue, s.lib_semestre 
+                FROM ecue e 
+                JOIN ue u ON e.id_ue = u.id_ue 
+                JOIN semestre s ON u.id_semestre = s.id_semestre 
+                WHERE s.id_niv_etude = :niveau_id";
+        
+        $params = [':niveau_id' => $niveauId];
+        
+        if ($studentId) {
+            $sql .= " AND e.id_ecue IN (
+                SELECT DISTINCT n.id_ecue 
+                FROM notes n 
+                WHERE n.num_etu = :student_id
+            )";
+            $params[':student_id'] = $studentId;
+        }
+        
+        $sql .= " ORDER BY s.lib_semestre, u.lib_ue, e.lib_ecue";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 }

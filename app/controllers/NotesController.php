@@ -3,82 +3,82 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/AnneeAcademique.php';
 require_once __DIR__ . '/../models/Note.php';
-require_once __DIR__ . '/../models/Ue.php';
+require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/NiveauEtude.php';
+require_once __DIR__ . '/../models/Semestre.php';
+require_once __DIR__ . '/../models/Ue.php';
 require_once __DIR__ . '/../models/Ecue.php';
 
 
-class NotesController {
-    private $notesModel;
-    private $etudiantsModel;
-    private $ueModel;
-    private $niveauEtudeModel;
 
+class NotesController {
+    private $noteModel;
+    private $etudiantModel;
+    private $niveauModel;
+    private $semestreModel;
+    private $ueModel;
+    private $ecueModel;
     private $db;
 
     public function __construct() {
         $this->db = Database::getConnection();
-        $this->notesModel = new Note(db: $this->db);
-        $this->etudiantsModel = new Etudiant($this->db);
-        $this->ueModel = new UE($this->db);
-        $this->niveauEtudeModel = new NiveauEtude($this->db);
+        $this->noteModel = new Note($this->db);
+        $this->etudiantModel = new Etudiant($this->db);
+        $this->ueModel = new Ue($this->db);
+        $this->niveauModel = new NiveauEtude($this->db);
+        $this->ecueModel = new Ecue($this->db);
+        $this->semestreModel = new Semestre($this->db);
     }
 
     public function index() {
-        $niveauxEtude = $this->niveauEtudeModel->getAllNiveauxEtudes();
-        $selectedNiveau = isset($_GET['niveau_id']) ? $_GET['niveau_id'] : null;
-        $selectedStudent = null;
-        $studentGrades = [];
-        
-        // Récupérer les étudiants filtrés par niveau si un niveau est sélectionné
-        if ($selectedNiveau) {
-            $etudiants = $this->etudiantsModel->getEtudiantsByNiveau($selectedNiveau);
-            
-            // Si un étudiant est sélectionné, récupérer ses notes
-            if (isset($_GET['student_id'])) {
-                $student = $this->etudiantsModel->getEtudiantById($_GET['student_id']);
-                if ($student) {
-                    // Convertir l'objet en tableau associatif
-                    $selectedStudent = (array)$student;
-                    $studentGrades = $this->notesModel->getNotesByEtudiant($selectedStudent['num_etu']);
-                }
-            }
-        } else {
-            $etudiants = [];
-        }
 
-        $GLOBALS['listeEtudiants'] = $etudiants;
-        $GLOBALS['niveauxEtude'] = $niveauxEtude;
+       
+       
+
+        $selectedNiveau = isset($_GET['niveau']) ? (int)$_GET['niveau'] : null;
+        $selectedStudent = isset($_GET['student']) ? $_GET['student'] : null;
+        $selectedStudent = $selectedStudent ? $this->etudiantModel->getEtudiantById($selectedStudent) : null;
+
+        $GLOBALS['niveaux'] = $this->niveauModel->getAllNiveauxEtudes();
+        $GLOBALS['etudiants'] = $selectedNiveau ? $this->etudiantModel->getEtudiantsByNiveau($selectedNiveau) : [];
         $GLOBALS['selectedNiveau'] = $selectedNiveau;
         $GLOBALS['selectedStudent'] = $selectedStudent;
-        $GLOBALS['studentGrades'] = $studentGrades;
+
+        $GLOBALS['listeEtudiants'] = $this->etudiantModel->getAllEtudiants();
+        $GLOBALS['niveauxEtude'] = $this->niveauModel->getAllNiveauxEtudes();
+
+        if ($selectedStudent) {
+            $GLOBALS['studentGrades'] = $this->noteModel->getByStudent($selectedStudent->num_etu);
+            $GLOBALS['studentSemestres'] = $selectedNiveau ? $this->semestreModel->getSemestresByNiveau($selectedNiveau) : [];
+            $GLOBALS['studentUes'] = $selectedNiveau ? $this->ueModel->getUesByNiveau($selectedNiveau, $selectedStudent->num_etu) : [];
+            $GLOBALS['studentEcues'] = $selectedNiveau ? $this->ecueModel->getEcuesByNiveau($selectedNiveau, $selectedStudent->num_etu) : [];
+        } else {
+            $GLOBALS['studentGrades'] = [];
+            $GLOBALS['studentSemestres'] = $selectedNiveau ? $this->semestreModel->getSemestresByNiveau($selectedNiveau) : [];
+            $GLOBALS['studentUes'] = $selectedNiveau ? $this->ueModel->getUesByNiveau($selectedNiveau) : [];
+            $GLOBALS['studentEcues'] = $selectedNiveau ? $this->ecueModel->getEcuesByNiveau($selectedNiveau) : [];
+        }
+
+       
     }
 
     public function updateNote() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            header('Content-Type: application/json');
-            
-            $data = json_decode(file_get_contents('php://input'), true);
-            
-            if (isset($data['student_id'], $data['ue_id'], $data['note'])) {
-                $success = $this->notesModel->updateNote(
-                    $data['student_id'],
-                    $data['ue_id'],
-                    $data['note'],
-                    $data['commentaire'] ?? null
-                );
-                
-                echo json_encode(['success' => $success]);
-                exit;
+        $data = json_decode(file_get_contents('php://input'), true);
+        $success = true;
+
+        foreach ($data as $note) {
+            if (!$this->noteModel->updateNote($note['student_id'], $note['ue_id'], $note['note'], $note['commentaire'])) {
+                $success = false;
+                break;
             }
         }
-        
-        echo json_encode(['success' => false, 'message' => 'Invalid request']);
+
+        echo json_encode(['success' => $success]);
     }
 
     public function getNotesByEtudiant() {
         if (isset($_GET['student_id'])) {
-            $notes = $this->notesModel->getNotesByEtudiant($_GET['student_id']);
+            $notes = $this->noteModel->getByStudent($_GET['student_id']);
             echo json_encode($notes);
             exit;
         }

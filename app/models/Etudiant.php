@@ -130,7 +130,7 @@ class Etudiant {
         $stmt->bindParam(':niveau_id', $niveauId, PDO::PARAM_INT);
         $stmt->execute();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function getCandidature($num_etu) {

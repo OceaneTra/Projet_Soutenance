@@ -27,6 +27,15 @@
 
     // Slice the array for pagination
     $listeUes = array_slice($listeUes, $offset, $limit);
+
+    // Préparer les données des semestres pour le JavaScript
+    $semestresData = array_map(function($semestre) {
+        return [
+            'id_semestre' => $semestre->id_semestre,
+            'lib_semestre' => $semestre->lib_semestre,
+            'id_niv_etude' => $semestre->id_niv_etude
+        ];
+    }, $listeSemestres);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -520,6 +529,33 @@
     const cancelModify = document.getElementById('cancelModify');
     const ueForm = document.getElementById('ueForm');
     const submitModifierHidden = document.getElementById('btn_modifier_ue_hidden');
+
+    // Gestion du filtrage des semestres
+    const niveauEtudeSelect = document.getElementById('niveau_etude');
+    const semestreSelect = document.getElementById('semestre');
+    const allSemestres = <?= json_encode($semestresData) ?>;
+
+    niveauEtudeSelect.addEventListener('change', function() {
+        const selectedNiveauId = this.value;
+
+        // Réinitialiser le select des semestres
+        semestreSelect.innerHTML = '<option value="">Sélectionnez un semestre</option>';
+
+        if (selectedNiveauId) {
+            // Filtrer les semestres pour le niveau sélectionné
+            const filteredSemestres = allSemestres.filter(semestre =>
+                semestre.id_niv_etude == selectedNiveauId
+            );
+
+            // Ajouter les options filtrées
+            filteredSemestres.forEach(semestre => {
+                const option = document.createElement('option');
+                option.value = semestre.id_semestre;
+                option.textContent = semestre.lib_semestre;
+                semestreSelect.appendChild(option);
+            });
+        }
+    });
 
     // Initialisation
     updateDeleteButtonState();

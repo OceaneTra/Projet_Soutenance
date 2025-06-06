@@ -15,6 +15,11 @@ class NiveauEtude
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getAll()
+    {
+        return $this->getAllNiveauxEtudes();
+    }
+
     public function ajouterNiveauEtude($lib,$montant_scolarite,$montant_inscription)
     {
         $stmt = $this->pdo->prepare("INSERT INTO niveau_etude (lib_niv_etude,montant_scolarite,montant_inscription) VALUES (?,?,?)");

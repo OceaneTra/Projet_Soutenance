@@ -107,6 +107,54 @@ $studentGrades = $GLOBALS['studentGrades'];
         animation: fadeIn 0.3s ease-in;
     }
     </style>
+    <script>
+    function toggleSemestreValidation(semestre) {
+        fetch('<?php echo '?page=gestion_notes_evaluations'; ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    semestre: semestre,
+                    etudiant_id: '<?php echo $GLOBALS['selectedStudent']->num_etu; ?>'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Erreur lors de la validation du semestre');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la validation du semestre');
+            });
+    }
+
+    document.getElementById('saisiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('<?php echo '?page=gestion_notes_evaluations'; ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Erreur lors de l\'enregistrement des notes');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'enregistrement des notes');
+            });
+    });
+    </script>
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
@@ -116,354 +164,423 @@ $studentGrades = $GLOBALS['studentGrades'];
             <!-- Interface de saisie des notes (optimisée) -->
             <div id="notes" class="tab-content active max-w-7xl mx-auto">
                 <!-- Header with student search -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800">Gestion des notes</h1>
-                        <p class="text-gray-600">Saisie et validation des notes par UE</p>
+                <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Notes</h2>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <select id="niveauSelect"
+                                    class="block w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Sélectionner un niveau</option>
+                                    <?php foreach ($GLOBALS['niveaux'] as $niveau): ?>
+                                    <option value="<?php echo htmlspecialchars($niveau->id_niv_etude); ?>"
+                                        <?php echo $GLOBALS['selectedNiveau'] == $niveau->id_niv_etude ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($niveau->lib_niv_etude); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <select id="studentSelect"
+                                    class="block w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Sélectionner un étudiant</option>
+                                    <?php foreach ($GLOBALS['etudiants'] as $etudiant): ?>
+                                    <option value="<?php echo htmlspecialchars($etudiant->num_etu); ?>"
+                                        <?php echo isset($GLOBALS['selectedStudent']) && $GLOBALS['selectedStudent']['num_etu'] == $etudiant->num_etu ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($etudiant->nom_etu . ' ' . $etudiant->prenom_etu); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="w-full md:w-96">
-                        <div class="bg-white rounded-lg shadow-sm p-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Sélection</h3>
-                            <form method="GET" action="" class="space-y-4">
-                                <!-- Liste déroulante pour le niveau d'étude -->
-                                <div>
-                                    <label for="niveauEtude" class="block text-sm font-medium text-gray-700 mb-1">
-                                        <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>Niveau d'étude
-                                    </label>
-                                    <select id="niveauEtude" name="niveau_id" onchange="this.form.submit()"
-                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white shadow-sm hover:border-blue-400 transition-colors duration-200">
-                                        <option value="">Sélectionner un niveau...</option>
-                                        <?php foreach ($niveauxEtude as $niveau): ?>
-                                        <option value="<?php echo $niveau->id_niv_etude; ?>"
-                                            <?php echo ($selectedNiveau == $niveau->id_niv_etude) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($niveau->lib_niv_etude); ?>
-                                        </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
 
-                                <!-- Liste déroulante pour les étudiants -->
-                                <div>
-                                    <label for="studentSelect" class="block text-sm font-medium text-gray-700 mb-1">
-                                        <i class="fas fa-user-graduate mr-2 text-blue-500"></i>Étudiant
-                                    </label>
-                                    <select id="studentSelect" name="student_id" onchange="this.form.submit()"
-                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white shadow-sm hover:border-blue-400 transition-colors duration-200"
-                                        <?php echo empty($selectedNiveau) ? 'disabled' : ''; ?>>
-                                        <option value="">Sélectionner un étudiant...</option>
-                                        <?php if (!empty($students)): ?>
-                                        <?php foreach ($students as $etudiant): ?>
-                                        <option value="<?php echo $etudiant['num_etu']; ?>"
-                                            <?php echo (isset($selectedStudent) && $selectedStudent['num_etu'] == $etudiant['num_etu']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($etudiant['nom_etu'] . ' ' . $etudiant['prenom_etu']); ?>
-                                        </option>
-                                        <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                    <?php if (empty($selectedNiveau)): ?>
-                                    <p class="mt-1 text-sm text-gray-500">Veuillez d'abord sélectionner un niveau
-                                        d'étude</p>
-                                    <?php elseif (empty($students)): ?>
-                                    <p class="mt-1 text-sm text-gray-500">Aucun étudiant trouvé pour ce niveau</p>
-                                    <?php endif; ?>
-                                </div>
+                    <!-- Message initial -->
+                    <?php if (empty($GLOBALS['selectedNiveau'])) { ?>
+                    <div class="text-center py-12 bg-gray-50 rounded-lg">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                            <i class="fas fa-graduation-cap text-2xl text-blue-600"></i>
+                        </div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-2">Sélectionnez un niveau d'étude</h4>
+                        <p class="text-gray-500">Veuillez sélectionner un niveau d'étude pour afficher les semestres et
+                            les unités d'enseignement.</p>
+                    </div>
+                    <?php } ?>
 
-                                <!-- Conserver les autres paramètres GET s'ils existent -->
-                                <?php
-                                foreach ($_GET as $key => $value) {
-                                    if ($key !== 'niveau_id' && $key !== 'student_id') {
-                                        echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                    <!-- Résumé des notes -->
+                    <?php if (!empty($GLOBALS['selectedStudent'])): ?>
+                    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Moyenne Générale</h3>
+                                <p class="text-2xl font-bold text-blue-600">
+                                    <?php
+                                    $totalNotes = 0;
+                                    $totalCredits = 0;
+                                    foreach ($GLOBALS['studentGrades'] as $grade) {
+                                        $totalNotes += $grade->note * $grade->credit;
+                                        $totalCredits += $grade->credit;
+                                    }
+                                    echo $totalCredits > 0 ? number_format($totalNotes / $totalCredits, 2) : '0.00';
+                                    ?>
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Crédits Validés</h3>
+                                <p class="text-2xl font-bold text-green-600">
+                                    <?php
+                                    $creditsValides = 0;
+                                    foreach ($GLOBALS['studentGrades'] as $grade) {
+                                        if ($grade->note >= 10) {
+                                            $creditsValides += $grade->credit;
+                                        }
+                                    }
+                                    echo $creditsValides;
+                                    ?>
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">UE Validées</h3>
+                                <p class="text-2xl font-bold text-green-600">
+                                    <?php
+                                    $uesValidees = 0;
+                                    $uesTraitees = [];
+                                    foreach ($GLOBALS['studentGrades'] as $grade) {
+                                        if (!in_array($grade->ue_id, $uesTraitees)) {
+                                            if ($grade->note >= 10) {
+                                                $uesValidees++;
+                                            }
+                                            $uesTraitees[] = $grade->ue_id;
+                                        }
+                                    }
+                                    echo $uesValidees;
+                                    ?>
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">UE en Échec</h3>
+                                <p class="text-2xl font-bold text-red-600">
+                                    <?php
+                                    $uesEchec = 0;
+                                    $uesTraitees = [];
+                                    foreach ($GLOBALS['studentGrades'] as $grade) {
+                                        if (!in_array($grade->ue_id, $uesTraitees)) {
+                                            if ($grade->note < 10) {
+                                                $uesEchec++;
+                                            }
+                                            $uesTraitees[] = $grade->ue_id;
+                                        }
+                                    }
+                                    echo $uesEchec;
+                                    ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Informations de l'étudiant -->
+                    <?php if (!empty($GLOBALS['selectedStudent'])): ?>
+                    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    <?php echo htmlspecialchars($GLOBALS['selectedStudent']->nom_etu . ' ' . $GLOBALS['selectedStudent']->prenom_etu); ?>
+                                </h3>
+                                <p class="text-gray-600">Matricule:
+                                    <?php echo htmlspecialchars($GLOBALS['selectedStudent']->num_etu); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Résumé des semestres -->
+                    <?php if (!empty($GLOBALS['selectedStudent'])): ?>
+                    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Résumé des Semestres</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <?php
+                            $semestres = [];
+                            foreach ($GLOBALS['studentUes'] as $ue) {
+                                if (!isset($semestres[$ue->lib_semestre])) {
+                                    $semestres[$ue->lib_semestre] = [
+                                        'total_credits' => 0,
+                                        'total_notes' => 0,
+                                        'ues_validees' => 0,
+                                        'ues_total' => 0
+                                    ];
+                                }
+                                $semestres[$ue->lib_semestre]['total_credits'] += $ue->credit;
+                                $semestres[$ue->lib_semestre]['ues_total']++;
+                                
+                                // Calculer la moyenne de l'UE
+                                $note_ue = null;
+                                foreach ($GLOBALS['studentGrades'] as $grade) {
+                                    if ($grade->ue_id == $ue->id_ue) {
+                                        $note_ue = $grade->note;
+                                        break;
                                     }
                                 }
-                                ?>
-                            </form>
+                                
+                                if ($note_ue !== null) {
+                                    $semestres[$ue->lib_semestre]['total_notes'] += $note_ue * $ue->credit;
+                                    if ($note_ue >= 10) {
+                                        $semestres[$ue->lib_semestre]['ues_validees']++;
+                                    }
+                                }
+                            }
+
+                            foreach ($semestres as $lib_semestre => $data):
+                                $moyenne = $data['total_credits'] > 0 ? $data['total_notes'] / $data['total_credits'] : 0;
+                                $is_valide = $moyenne >= 10;
+                            ?>
+                            <div
+                                class="bg-gray-50 rounded-lg p-4 border <?php echo $is_valide ? 'border-green-200' : 'border-red-200'; ?>">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium text-gray-900"><?php echo htmlspecialchars($lib_semestre); ?>
+                                    </h4>
+                                    <span class="text-sm <?php echo $is_valide ? 'text-green-600' : 'text-red-600'; ?>">
+                                        <?php echo $is_valide ? 'Validé' : 'Non validé'; ?>
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">Moyenne:</span>
+                                        <span class="font-medium"><?php echo number_format($moyenne, 2); ?></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Crédits:</span>
+                                        <span class="font-medium"><?php echo $data['total_credits']; ?></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">UE validées:</span>
+                                        <span
+                                            class="font-medium"><?php echo $data['ues_validees']; ?>/<?php echo $data['ues_total']; ?></span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button"
+                                        class="w-full px-3 py-1.5 text-sm rounded-md <?php echo $is_valide ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'; ?>"
+                                        onclick="toggleSemestreValidation('<?php echo $lib_semestre; ?>')">
+                                        <?php echo $is_valide ? 'Dévalider le semestre' : 'Valider le semestre'; ?>
+                                    </button>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
-                </div>
+                    <?php endif; ?>
 
-                <?php if (isset($selectedStudent) && is_array($selectedStudent)): ?>
-                <div id="selectedStudentInfo" class="bg-white rounded-lg shadow-sm p-4 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-800" id="selectedStudentName">
-                                <?php 
-                                $nom = isset($selectedStudent['nom_etu']) ? $selectedStudent['nom_etu'] : '';
-                                $prenom = isset($selectedStudent['prenom_etu']) ? $selectedStudent['prenom_etu'] : '';
-                                echo htmlspecialchars($prenom . ' ' . $nom); 
-                                ?>
-                            </h2>
-                            <p class="text-sm text-gray-600" id="selectedStudentProgram">
-                                <?php echo isset($selectedStudent['promotion_etu']) ? htmlspecialchars($selectedStudent['promotion_etu']) : ''; ?>
-                            </p>
-                        </div>
-                        <!-- Résumé du niveau d'étude -->
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Résumé du niveau d'étude</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-500">Niveau</p>
-                                    <p class="text-lg font-semibold text-gray-800">
-                                        <?php 
-                                $niveau = array_filter($niveauxEtude, function($n) use ($selectedNiveau) {
-                                    return $n->id_niv_etude == $selectedNiveau;
-                                });
-                                $niveau = reset($niveau);
-                                echo $niveau ? htmlspecialchars($niveau->lib_niv_etude) : '';
-                                ?>
-                                    </p>
+                    <!-- Semestres et UE -->
+                    <div class="space-y-6">
+                        <?php if (!empty($GLOBALS['selectedNiveau'])) { ?>
+                        <form id="saisiForm" class="space-y-6">
+                            <?php 
+                                $currentSemestre = null;
+                                foreach ($GLOBALS['studentUes'] as $ue) {
+                                    if ($currentSemestre !== $ue->lib_semestre) {
+                                        if ($currentSemestre !== null) {
+                                            echo '</div></div>';
+                                        }
+                                        $currentSemestre = $ue->lib_semestre;
+                                        
+                                        // Calculer le total des crédits pour ce semestre
+                                        $totalCreditsSemestre = 0;
+                                        foreach ($GLOBALS['studentUes'] as $ueSemestre) {
+                                            if ($ueSemestre->lib_semestre === $currentSemestre) {
+                                                $totalCreditsSemestre += $ueSemestre->credit;
+                                            }
+                                        }
+                                        ?>
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                                <div class="px-6 py-4 bg-blue-500">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-lg font-semibold text-white">
+                                            <?php echo htmlspecialchars($ue->lib_semestre); ?></h3>
+                                        <span class="text-sm text-blue-100"><?php echo $totalCreditsSemestre; ?>
+                                            crédits</span>
+                                    </div>
                                 </div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-500">Promotion</p>
-                                    <p class="text-lg font-semibold text-gray-800">
-                                        <?php echo isset($selectedStudent['promotion_etu']) ? htmlspecialchars($selectedStudent['promotion_etu']) : ''; ?>
-                                    </p>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-500">Statut</p>
-                                    <p class="text-lg font-semibold text-blue-600">En cours</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <div class="p-6">
+                                    <?php
+                                    }
+                                    ?>
+                                    <div class="mb-6 last:mb-0">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="text-lg font-medium text-gray-900">
+                                                <?php echo htmlspecialchars($ue->lib_ue); ?></h4>
+                                            <span class="text-sm text-gray-500"><?php echo $ue->credit; ?>
+                                                crédits</span>
+                                        </div>
 
+                                        <?php
+                                        // Récupérer les ECUE de cette UE
+                                        $ecues = [];
+                                        foreach ($GLOBALS['studentEcues'] as $ecue) {
+                                            if ($ecue->id_ue == $ue->id_ue) {
+                                                $ecues[] = $ecue;
+                                            }
+                                        }
+                                        
+                                        if (!empty($ecues)) {
+                                            echo '<div class="bg-gray-50 rounded-lg p-4 mb-4">';
+                                            echo '<h5 class="text-sm font-medium text-gray-700 mb-3">Éléments constitutifs (ECUE)</h5>';
+                                            echo '<div class="space-y-3">';
+                                            foreach ($ecues as $ecue) {
+                                                echo '<div class="flex items-center space-x-4">';
+                                                echo '<div class="flex-1">';
+                                                echo '<label class="block text-sm text-gray-600 mb-1">' . htmlspecialchars($ecue->lib_ecue) . '</label>';
+                                                echo '<input type="number" step="0.01" min="0" max="20" name="notes_ecue[' . $ecue->id_ecue . ']" value="';
+                                                $note_ecue = null;
+                                                foreach ($GLOBALS['studentGrades'] as $grade) {
+                                                    if ($grade->ecue_id == $ecue->id_ecue) {
+                                                        $note_ecue = $grade->note;
+                                                        break;
+                                                    }
+                                                }
+                                                echo $note_ecue !== null ? htmlspecialchars($note_ecue) : '';
+                                                echo '" class="note-input w-24 px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">';
+                                                echo '</div>';
+                                                echo '<div class="flex-1">';
+                                                echo '<input type="text" name="commentaires_ecue[' . $ecue->id_ecue . ']" value="';
+                                                $commentaire_ecue = null;
+                                                foreach ($GLOBALS['studentGrades'] as $grade) {
+                                                    if ($grade->ecue_id == $ecue->id_ecue) {
+                                                        $commentaire_ecue = $grade->commentaire;
+                                                        break;
+                                                    }
+                                                }
+                                                echo $commentaire_ecue !== null ? htmlspecialchars($commentaire_ecue) : '';
+                                                echo '" placeholder="Commentaire" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">';
+                                                echo '</div>';
+                                                echo '</div>';
+                                            }
+                                            echo '</div>';
+                                            echo '</div>';
+                                        }
+                                        ?>
 
-
-                <!-- Semestres et UE -->
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Semestres et Unités d'Enseignement</h3>
-
-                    <form id="saisiForm" class="space-y-6">
-
-
-                        <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
-                            <div class="px-6 py-3 bg-gray-100 flex justify-between items-center">
-                                <h4 class="text-lg font-semibold text-gray-800">Semestre </h4>
-                                <div class="flex items-center space-x-4 text-sm text-gray-600">
-                                    <span>Crédits: <span class="font-bold text-gray-800"></span></span>
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/6">
-                                                UE</th>
-                                            <th scope="col"
-                                                class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                                                Crédits</th>
-                                            <th scope="col"
-                                                class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                                                Moyenne</th>
-                                            <th scope="col"
-                                                class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                                                Statut</th>
-                                            <th scope="col"
-                                                class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-3/12">
-                                                Commentaire</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-
-                                        <tr>
-                                            <td class="px-4 py-2 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                </div>
-                                                <div class="text-sm text-gray-500">Responsable: N/A</div>
-
-                                            </td>
-                                            <td class="px-4 py-2 whitespace-nowrap text-center text-sm text-gray-500">
-                                            </td>
-                                            <td class="px-4 py-2 whitespace-nowrap">
-                                                <input type="number" min="0" max="20" step="0.5"
-                                                    class="note-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                    value="" placeholder="Non saisie" data-student-id="" data-ue-id="">
-                                            </td>
-                                            <td class="px-4 py-2 whitespace-nowrap">
-
-                                                <span
-                                                    class="px-2.5 py-0.5 rounded-full text-xs font-medium <?php echo $statusClass; ?>">
-
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-2 whitespace-nowrap">
-                                                <input type="text"
-                                                    class="note-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                    placeholder="Ajouter un commentaire..." value="" data-student-id=""
-                                                    data-ue-id="">
-                                            </td>
-                                        </tr>
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-
-                        <div class="flex justify-end mt-6">
-                            <button type="button" onclick="saveAllGrades()"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition flex items-center justify-center">
-                                <i class="fas fa-save mr-2"></i>Enregistrer les notes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Summary card -->
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Résumé académique</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <?php
-                         $totalCredits = 0;
-                         $totalNotes = 0;
-                         $totalCoefficients = 0;
-                         $creditsObtenus = 0;
-                         
-                         foreach ($studentGrades as $grade) {
-                             $totalCredits += $grade['credits'];
-                             if (isset($grade['note']) && $grade['note'] !== null) {
-                                 $totalNotes += $grade['note'] * $grade['coefficient'];
-                                 $totalCoefficients += $grade['coefficient'];
-                                 if ($grade['note'] >= 10) {
-                                     $creditsObtenus += $grade['credits'];
-                                 }
-                             }
-                         }
-                         
-                         $moyenneGenerale = $totalCoefficients > 0 ? $totalNotes / $totalCoefficients : 0;
-                         $pourcentageProgression = $totalCredits > 0 ? ($creditsObtenus / $totalCredits) * 100 : 0;
-                         ?>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Moyenne Générale</p>
-                            <p class="text-xl font-semibold text-blue-600">
-                                <?php echo number_format($moyenneGenerale, 2); ?></p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Crédits obtenus</p>
-                            <p class="text-xl font-semibold text-gray-800">
-                                <?php echo $creditsObtenus; ?>/<?php echo $totalCredits; ?></p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Statut global</p>
-                            <span
-                                class="status-badge <?php echo $moyenneGenerale >= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
-                                <?php echo $moyenneGenerale >= 10 ? 'Validé' : 'Non validé'; ?>
-                            </span>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Progression</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                                <div class="bg-blue-600 h-2.5 rounded-full"
-                                    style="width: <?php echo $pourcentageProgression; ?>%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                <?php echo number_format($pourcentageProgression, 1); ?>% du parcours validé</p>
-                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-24">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Note
+                                                    UE</label>
+                                                <input type="number" step="0.01" min="0" max="20"
+                                                    name="notes[<?php echo $ue->id_ue; ?>]" value="<?php 
+                                                        $note = null;
+                                                        foreach ($GLOBALS['studentGrades'] as $grade) {
+                                                            if ($grade->ue_id == $ue->id_ue) {
+                                                                $note = $grade->note;
+                                                                break;
+                                                            }
+                                                        }
+                                                        echo $note !== null ? htmlspecialchars($note) : '';
+                                                    ?>"
+                                                    class="note-input w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire
+                                                    UE</label>
+                                                <input type="text" name="commentaires[<?php echo $ue->id_ue; ?>]" value="<?php 
+                                                        $commentaire = null;
+                                                        foreach ($GLOBALS['studentGrades'] as $grade) {
+                                                            if ($grade->ue_id == $ue->id_ue) {
+                                                                $commentaire = $grade->commentaire;
+                                                                break;
+                                                            }
+                                                        }
+                                                        echo $commentaire !== null ? htmlspecialchars($commentaire) : '';
+                                                    ?>"
+                                                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
+                                if ($currentSemestre !== null) {
+                                    echo '</div></div>';
+                                }
+                            ?>
+                                    <div class="flex justify-end mt-6">
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            Enregistrer les notes
+                                        </button>
+                                    </div>
+                        </form>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const niveauSelect = document.getElementById('niveauSelect');
+        const studentSelect = document.getElementById('studentSelect');
+
+        niveauSelect.addEventListener('change', function() {
+            const niveauId = this.value;
+            if (niveauId) {
+                window.location.href = `?page=gestion_notes_evaluations&niveau=${niveauId}`;
+            }
+        });
+
+        studentSelect.addEventListener('change', function() {
+            const studentId = this.value;
+            const niveauId = niveauSelect.value;
+            if (studentId && niveauId) {
+                window.location.href =
+                    `?page=gestion_notes_evaluations&niveau=${niveauId}&student=${studentId}`;
+            }
+        });
+    });
+
     function saveAllGrades() {
-        const noteInputs = document.querySelectorAll('.note-input');
+        const inputs = document.querySelectorAll('.note-input');
         const updates = [];
 
-        noteInputs.forEach(input => {
-            if (input.type === 'number') {
-                const studentId = input.dataset.studentId;
-                const ueId = input.dataset.ueId;
-                const note = input.value;
-                const commentaire = input.parentElement.nextElementSibling.querySelector('input').value;
-
+        inputs.forEach(input => {
+            if (input.value !== '') {
                 updates.push({
-                    action: 'update_grade',
-                    student_id: studentId,
-                    ue_id: ueId,
-                    note: note,
-                    commentaire: commentaire
+                    student_id: input.dataset.studentId,
+                    ue_id: input.dataset.ueId,
+                    note: input.value,
+                    commentaire: input.nextElementSibling?.value || ''
                 });
             }
         });
 
-        // Envoi des mises à jour au serveur
-        fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updates)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Notes enregistrées avec succès');
-                } else {
+        if (updates.length > 0) {
+            fetch('updateNote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updates)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Notes enregistrées avec succès');
+                        location.reload();
+                    } else {
+                        alert('Erreur lors de l\'enregistrement des notes');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('Erreur lors de l\'enregistrement des notes');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors de l\'enregistrement des notes');
-            });
+                });
+        }
     }
-
-    function printGrades() {
-        window.print();
-    }
-
-    // Gestion de la recherche d'étudiant
-    document.getElementById('studentSearch').addEventListener('input', function(e) {
-        const selectedStudentInfo = document.getElementById('selectedStudentInfo');
-        if (e.target.value) {
-            selectedStudentInfo.classList.remove('hidden');
-            // Mise à jour du nom de l'étudiant sélectionné
-            document.getElementById('selectedStudentName').textContent = e.target.value;
-        } else {
-            selectedStudentInfo.classList.add('hidden');
-        }
-    });
-
-    // Gestion du changement de niveau d'étude
-    document.getElementById('niveauEtude').addEventListener('change', function(e) {
-        console.log('Niveau sélectionné:', this.value); // Debug log
-
-        const niveauId = this.value;
-        let newUrl = window.location.pathname;
-
-        if (niveauId) {
-            newUrl += '?niveau_id=' + encodeURIComponent(niveauId);
-        }
-
-        console.log('Nouvelle URL:', newUrl); // Debug log
-        window.location.href = newUrl;
-    });
-
-    // Gestion du changement d'étudiant
-    document.getElementById('studentSelect').addEventListener('change', function(e) {
-        console.log('Étudiant sélectionné:', this.value); // Debug log
-
-        const studentId = this.value;
-        const niveauId = document.getElementById('niveauEtude').value;
-        let newUrl = window.location.pathname;
-
-        if (niveauId) {
-            newUrl += '?niveau_id=' + encodeURIComponent(niveauId);
-            if (studentId) {
-                newUrl += '&student_id=' + encodeURIComponent(studentId);
-            }
-        }
-
-        console.log('Nouvelle URL:', newUrl); // Debug log
-        window.location.href = newUrl;
-    });
-
-    // Vérification que les événements sont bien attachés
-    console.log('Script chargé');
-    console.log('Élément niveauEtude:', document.getElementById('niveauEtude'));
-    console.log('Élément studentSelect:', document.getElementById('studentSelect'));
     </script>
+
 </body>
 
 </html>
