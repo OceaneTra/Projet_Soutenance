@@ -32,7 +32,10 @@ class NotesController {
 
     public function index() {
 
-       
+       if(isset($_GET['action']) && $_GET['action'] == 'enregistrer_notes'){
+        $this->updateNote();
+        
+       }
        
 
         $selectedNiveau = isset($_GET['niveau']) ? (int)$_GET['niveau'] : null;
