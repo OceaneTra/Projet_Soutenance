@@ -6,6 +6,7 @@ $stat_etudiants = $GLOBALS['stats_etudiants'] ?? [
     'inactifs' => 0,
     'taux_activite' => 0
 ];
+
 $stat_enseignants = $GLOBALS['stats_enseignants'] ?? [
     'total' => 0,
     'actifs' => 0,
@@ -25,10 +26,7 @@ $stat_utilisateurs = $GLOBALS['stats_utilisateurs'] ?? [
     'taux_activite' => 0
 ];
 
-var_dump($stat_etudiants);
-var_dump($stat_enseignants);
-var_dump($stat_personnel);
-var_dump($stat_utilisateurs);
+
 
 ?>
 

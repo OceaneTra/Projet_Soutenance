@@ -74,7 +74,7 @@ class DashboardController
     private function getGlobalStats()
     {
         // Statistiques des étudiants
-        $GLOBALS['total_etudiants'] = count($this->etudiant->getAllEtudiants() ) ?? 0;
+        $GLOBALS['total_etudiants'] = count($this->etudiant->getAllEtudiants() ) ;
         $GLOBALS['etudiants_actifs'] = count($this->utilisateur->getEtudiantActif() ) ?? 0;
         $GLOBALS['etudiants_inactifs'] = count($this->utilisateur->getEtudiantInactif() ) ?? 0;
 
@@ -104,38 +104,38 @@ class DashboardController
     {
         // Statistiques détaillées des étudiants
         $GLOBALS['stats_etudiants'] = [
-            'total' => $GLOBALS['total_etudiants'],
-            'actifs' => $GLOBALS['etudiants_actifs'],
-            'inactifs' => $GLOBALS['etudiants_inactifs'],
-            'taux_activite' => $GLOBALS['total_etudiants'] > 0 ? 
-                round(($GLOBALS['etudiants_actifs'] / $GLOBALS['total_etudiants']) * 100, 1) : 0
+            'total' => $GLOBALS['total_etudiants'] ?? 0,
+            'actifs' => $GLOBALS['etudiants_actifs'] ?? 0,
+            'inactifs' => $GLOBALS['etudiants_inactifs'] ?? 0,
+            'taux_activite' => ($GLOBALS['total_etudiants'] ?? 0) > 0 ? 
+                round((($GLOBALS['etudiants_actifs'] ?? 0) / ($GLOBALS['total_etudiants'] ?? 1)) * 100, 1) : 0
         ];
 
         // Statistiques détaillées des enseignants
         $GLOBALS['stats_enseignants'] = [
-            'total' => $GLOBALS['total_enseignants'],
-            'actifs' => $GLOBALS['enseignants_actifs'],
-            'inactifs' => $GLOBALS['enseignants_inactifs'],
-            'taux_activite' => $GLOBALS['total_enseignants'] > 0 ? 
-                round(($GLOBALS['enseignants_actifs'] / $GLOBALS['total_enseignants']) * 100, 1) : 0
+            'total' => $GLOBALS['total_enseignants'] ?? 0,
+            'actifs' => $GLOBALS['enseignants_actifs'] ?? 0,
+            'inactifs' => $GLOBALS['enseignants_inactifs'] ?? 0,
+            'taux_activite' => ($GLOBALS['total_enseignants'] ?? 0) > 0 ? 
+                round((($GLOBALS['enseignants_actifs'] ?? 0) / ($GLOBALS['total_enseignants'] ?? 1)) * 100, 1) : 0
         ];
 
         // Statistiques détaillées du personnel
         $GLOBALS['stats_personnel'] = [
-            'total' => $GLOBALS['total_pers_admin'],
-            'actifs' => $GLOBALS['pers_admin_actifs'],
-            'inactifs' => $GLOBALS['pers_admin_inactifs'],
-            'taux_activite' => $GLOBALS['total_pers_admin'] > 0 ? 
-                round(($GLOBALS['pers_admin_actifs'] / $GLOBALS['total_pers_admin']) * 100, 1) : 0
+            'total' => $GLOBALS['total_pers_admin'] ?? 0,
+            'actifs' => $GLOBALS['pers_admin_actifs'] ?? 0,
+            'inactifs' => $GLOBALS['pers_admin_inactifs'] ?? 0,
+            'taux_activite' => ($GLOBALS['total_pers_admin'] ?? 0) > 0 ? 
+                round((($GLOBALS['pers_admin_actifs'] ?? 0) / ($GLOBALS['total_pers_admin'] ?? 1)) * 100, 1) : 0
         ];
 
         // Statistiques détaillées des utilisateurs
         $GLOBALS['stats_utilisateurs'] = [
-            'total' => $GLOBALS['total_utilisateurs'],
-            'actifs' => $GLOBALS['utilisateurs_actifs'],
-            'inactifs' => $GLOBALS['utilisateurs_inactifs'],
-            'taux_activite' => $GLOBALS['total_utilisateurs'] > 0 ? 
-                round(($GLOBALS['utilisateurs_actifs'] / $GLOBALS['total_utilisateurs']) * 100, 1) : 0
+            'total' => $GLOBALS['total_utilisateurs'] ?? 0,
+            'actifs' => $GLOBALS['utilisateurs_actifs'] ?? 0,
+            'inactifs' => $GLOBALS['utilisateurs_inactifs'] ?? 0,
+            'taux_activite' => ($GLOBALS['total_utilisateurs'] ?? 0) > 0 ? 
+                round((($GLOBALS['utilisateurs_actifs'] ?? 0) / ($GLOBALS['total_utilisateurs'] ?? 1)) * 100, 1) : 0
         ];
     }
 
