@@ -411,13 +411,6 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     }
                                     ?>
                                     <div class="mb-6 last:mb-0">
-                                        <div class="flex justify-between items-center mb-2">
-                                            <h4 class="text-lg font-medium text-gray-900">
-                                                <?php echo htmlspecialchars($ue->lib_ue); ?></h4>
-                                            <span class="text-sm text-gray-500"><?php echo $ue->credit; ?>
-                                                crédits</span>
-                                        </div>
-
                                         <?php
                                         // Récupérer les ECUE de cette UE
                                         $ecues = [];
