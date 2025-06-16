@@ -151,7 +151,7 @@ body {
 <div class="receipt-box">
     <div class="header">
         <div>
-            <img src="/images/FHB.png" alt="Logo Université">
+            <!-- <img src="/images/FHB.png" alt="Logo Université"> -->
         </div>
         <div class="university-info">
             <!-- Vous pouvez ajouter ici le nom complet de l'université -->
@@ -162,7 +162,7 @@ body {
             <p>Cel: 07 07 89 94 26 / 07 07 69 15 04</p>
         </div>
         <div>
-            <img src="/images/logo_mathInfo_fond_blanc.png" alt="Logo MathInfo">
+            <!-- <img src="/images/logo_mathInfo_fond_blanc.png" alt="Logo MathInfo"> -->
         </div>
     </div>
 
