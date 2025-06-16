@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : lun. 02 juin 2025 à 16:46
+-- Généré le : lun. 16 juin 2025 à 13:14
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -70,6 +70,14 @@ CREATE TABLE `annee_academique` (
 --
 
 INSERT INTO `annee_academique` (`id_annee_acad`, `date_deb`, `date_fin`) VALUES
+(21413, '2013-09-08', '2014-06-25'),
+(21514, '2014-09-02', '2015-06-21'),
+(21615, '2015-09-03', '2016-06-24'),
+(21716, '2016-09-05', '2017-06-20'),
+(21817, '2017-09-01', '2018-06-25'),
+(21918, '2018-09-04', '2019-06-23'),
+(22019, '2019-09-08', '2020-06-24'),
+(22120, '2020-09-01', '2021-06-27'),
 (22221, '2021-09-08', '2022-07-20'),
 (22322, '2022-09-10', '2023-07-31'),
 (22423, '2023-09-11', '2024-07-17'),
@@ -115,11 +123,36 @@ INSERT INTO `avoir` (`id_grade`, `id_enseignant`, `date_grade`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `candidature_soutenance`
+--
+
+CREATE TABLE `candidature_soutenance` (
+  `id_candidature` int NOT NULL,
+  `num_etu` int NOT NULL,
+  `date_candidature` datetime NOT NULL,
+  `statut_candidature` enum('En attente','Approuvée','Rejetée') NOT NULL DEFAULT 'En attente',
+  `date_traitement` datetime DEFAULT NULL,
+  `commentaire_admin` text,
+  `id_pers_admin` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `candidature_soutenance`
+--
+
+INSERT INTO `candidature_soutenance` (`id_candidature`, `num_etu`, `date_candidature`, `statut_candidature`, `date_traitement`, `commentaire_admin`, `id_pers_admin`) VALUES
+(1, 2004003, '2025-06-06 00:49:02', 'En attente', NULL, NULL, NULL),
+(3, 2007003, '2025-06-06 02:35:15', 'En attente', NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `compte_rendu`
 --
 
 CREATE TABLE `compte_rendu` (
   `id_CR` int NOT NULL,
+  `num_etu` int NOT NULL,
   `nom_CR` varchar(70) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `date_CR` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
@@ -159,7 +192,16 @@ INSERT INTO `echeances` (`id_echeance`, `id_inscription`, `montant`, `date_echea
 (2, 2, 565000.00, '2025-09-01', 'En attente'),
 (6, 4, 188333.33, '2025-09-01', 'En attente'),
 (7, 4, 188333.33, '2025-12-01', 'En attente'),
-(8, 4, 188333.33, '2026-03-01', 'En attente');
+(8, 4, 188333.33, '2026-03-01', 'En attente'),
+(10, 16, 205000.00, '2025-09-03', 'En attente'),
+(11, 16, 205000.00, '2025-12-03', 'En attente'),
+(12, 17, 565000.00, '2025-09-03', 'En attente'),
+(15, 19, 410000.00, '2025-09-03', 'En attente'),
+(36, 18, 220000.00, '2025-09-03', 'En attente'),
+(37, 18, 220000.00, '2025-12-03', 'En attente'),
+(38, 20, 565000.00, '2025-09-04', 'En attente'),
+(49, 25, 565000.00, '2025-09-04', 'En attente'),
+(50, 26, 565000.00, '2025-09-04', 'En attente');
 
 -- --------------------------------------------------------
 
@@ -179,12 +221,51 @@ CREATE TABLE `ecue` (
 --
 
 INSERT INTO `ecue` (`id_ecue`, `id_ue`, `lib_ecue`, `credit`) VALUES
-(3, 7, 'Unix', 4),
-(5, 6, 'Statistique Inférentille', 2),
-(6, 9, 'Intranet', 3),
 (7, 8, 'Economie 1', 2),
-(8, 9, 'Fondamentaux des réseaux', 2),
-(9, 8, 'Economie 2', 2);
+(9, 8, 'Economie 2', 2),
+(10, 13, 'Suites et fonctions', 3),
+(11, 13, 'Calcul intégral', 2),
+(12, 14, 'Elements de logique', 2),
+(13, 14, 'Structures algébriques', 3),
+(14, 17, 'Géométrie', 1),
+(15, 17, 'Calcul matriciel', 2),
+(16, 17, 'espaces vectoriels', 3),
+(17, 18, 'Probabilités 1', 2),
+(18, 18, 'Statistique 1', 2),
+(19, 18, 'Initiation au langage R', 1),
+(20, 82, 'Algorithmique', 3),
+(21, 82, 'programmation Java', 2),
+(22, 21, 'Methodologie de travail', 1),
+(23, 21, 'Technique d\'expression', 1),
+(24, 26, 'Fondamentaux de POO', 3),
+(25, 26, 'Programmation POO', 3),
+(26, 28, 'Analyse 2', 3),
+(27, 28, 'Algèbre', 3),
+(28, 29, 'Probabilités 2', 2),
+(29, 29, 'Statistique 2', 2),
+(30, 30, 'Modèle comptable', 2),
+(31, 30, 'Opérations comptables', 2),
+(32, 30, 'Opérations d\'inventaires', 2),
+(33, 32, 'Arithmétique', 2),
+(34, 33, 'Base de données relationnelles', 3),
+(35, 33, 'Données semi-structurées', 2),
+(36, 33, 'base de données et applications', 3),
+(37, 35, 'Initiation au Langage SCALA', 2),
+(38, 35, 'Atelier de Génie Logiciel', 4),
+(39, 36, 'Programmation VBA', 2),
+(40, 36, 'Programmation C#', 2),
+(41, 38, 'Application à la cryptographie', 2),
+(42, 40, 'Fondamentaux des systèmes d\'exploitation', 2),
+(43, 40, 'UNIX et langage C', 4),
+(44, 41, 'Algo avancé et Java', 5),
+(45, 46, 'Suivi des performances', 2),
+(46, 46, 'Coût complet et coût partiel', 2),
+(47, 9, 'Fondamentaux des réseaux', 3),
+(48, 9, 'Internet/Intranet', 2),
+(49, 56, 'ISI', 2),
+(50, 56, 'UML', 3),
+(51, 57, 'Files d\'attente et gestion de stock', 3),
+(52, 57, 'Regression linéaire', 1);
 
 -- --------------------------------------------------------
 
@@ -198,7 +279,7 @@ CREATE TABLE `enseignants` (
   `prenom_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `mail_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `id_specialite` int NOT NULL,
-  `type_enseignant` enum('Simple','Administratif') COLLATE utf8mb3_general_mysql500_ci NOT NULL
+  `type_enseignant` enum('Simple','Administratif') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
 --
@@ -230,7 +311,8 @@ CREATE TABLE `entreprises` (
 
 INSERT INTO `entreprises` (`id_entreprise`, `lib_entreprise`) VALUES
 (3, 'Deloitte Côte d\'Ivoire'),
-(5, 'Orange Côte d\'Ivoire');
+(5, 'Orange Côte d\'Ivoire'),
+(7, 'Tuzzo Côte d\'Ivoire');
 
 -- --------------------------------------------------------
 
@@ -242,7 +324,7 @@ CREATE TABLE `etudiants` (
   `num_etu` int NOT NULL,
   `nom_etu` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `prenom_etu` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `email_etu` varchar(60) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `email_etu` varchar(60) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `date_naiss_etu` date NOT NULL,
   `genre_etu` enum('Homme','Femme','Neutre') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `promotion_etu` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
@@ -480,7 +562,7 @@ INSERT INTO `etudiants` (`num_etu`, `nom_etu`, `prenom_etu`, `email_etu`, `date_
 (2010024, 'Tuo', 'Kolotioloma Augustin', 'augustin.tuo@miage.edu', '1988-11-11', 'Homme', '2010-2011'),
 (2010025, 'Ya', 'Sandrine Anne-elodie', 'sandrine.ya@miage.edu', '1987-01-23', 'Femme', '2010-2011'),
 (2010026, 'Yéyé', 'Schadrachs Guy-roland', 'guy.yeye@miage.edu', '1988-07-06', 'Homme', '2010-2011'),
-(20250001, 'Emmanuel', 'Malan', 'emmanuelmalan@gmail.com', '1999-12-05', 'Homme', '2019-2020');
+(20190001, 'Emmanuel', 'Malan', 'emmanuelmalan@gmail.com', '1998-01-05', 'Homme', '2019-2020');
 
 -- --------------------------------------------------------
 
@@ -494,18 +576,6 @@ CREATE TABLE `evaluer` (
   `id_enseignant` int NOT NULL,
   `date_evaluation` datetime NOT NULL,
   `note` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `faire_stage`
---
-
-CREATE TABLE `faire_stage` (
-  `id_entreprise` int NOT NULL,
-  `num_etu` int NOT NULL,
-  `date_deb_stage` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
 -- --------------------------------------------------------
@@ -546,8 +616,12 @@ CREATE TABLE `grade` (
 INSERT INTO `grade` (`id_grade`, `lib_grade`) VALUES
 (7, 'A1'),
 (6, 'A2'),
+(14, 'A3'),
 (10, 'B1'),
-(12, 'B2');
+(12, 'B2'),
+(15, 'D1'),
+(16, 'E2'),
+(13, 'F4');
 
 -- --------------------------------------------------------
 
@@ -578,6 +652,48 @@ INSERT INTO `groupe_utilisateur` (`id_GU`, `lib_GU`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `historique_reclamations`
+--
+
+CREATE TABLE `historique_reclamations` (
+  `id_historique` int NOT NULL,
+  `id_reclamation` int NOT NULL,
+  `action` varchar(100) NOT NULL,
+  `commentaire` text,
+  `id_utilisateur` int DEFAULT NULL,
+  `date_action` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `informations_stage`
+--
+
+CREATE TABLE `informations_stage` (
+  `id_info_stage` int NOT NULL,
+  `num_etu` int NOT NULL,
+  `id_entreprise` int NOT NULL,
+  `date_debut_stage` date NOT NULL,
+  `date_fin_stage` date NOT NULL,
+  `sujet_stage` text NOT NULL,
+  `description_stage` text NOT NULL,
+  `encadrant_entreprise` varchar(100) NOT NULL,
+  `email_encadrant` varchar(100) NOT NULL,
+  `telephone_encadrant` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `informations_stage`
+--
+
+INSERT INTO `informations_stage` (`id_info_stage`, `num_etu`, `id_entreprise`, `date_debut_stage`, `date_fin_stage`, `sujet_stage`, `description_stage`, `encadrant_entreprise`, `email_encadrant`, `telephone_encadrant`) VALUES
+(1, 2004003, 7, '2024-05-04', '2024-11-05', 'Développement d\'application mobile', 'ce stage a été effectué dans le but de d\'améliorer mes compétences en UI/UX Design', 'Tra Bi Hervé', 'fabriceherve@gmail.com', '+255 0705925841'),
+(2, 2007003, 5, '2024-02-15', '2024-08-20', 'Conception d\'intelligence artificielle', 'Ce stage consistait à explorer les nouvelles techniques de conception d\'ia en CI.', 'Kouakou Fernand', 'kouakoufernand@gmail.com', '+225 0741526369');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `inscriptions`
 --
 
@@ -589,18 +705,27 @@ CREATE TABLE `inscriptions` (
   `date_inscription` datetime DEFAULT NULL,
   `statut_inscription` enum('En cours','Validée','Annulée') DEFAULT NULL,
   `nombre_tranche` int NOT NULL,
-  `reste_a_payer` decimal(10,2) NOT NULL
+  `reste_a_payer` decimal(10,2) NOT NULL,
+  `montant_paye` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `inscriptions`
 --
 
-INSERT INTO `inscriptions` (`id_inscription`, `id_etudiant`, `id_niveau`, `id_annee_acad`, `date_inscription`, `statut_inscription`, `nombre_tranche`, `reste_a_payer`) VALUES
-(1, 2003001, 9, 22423, '2025-06-01 21:07:42', 'En cours', 2, 565000.00),
-(2, 2003002, 9, 22524, '2025-06-01 21:22:01', 'En cours', 2, 565000.00),
-(4, 2003003, 9, 22221, '2025-06-01 23:10:25', 'En cours', 4, 565000.00),
-(13, 2003004, 9, 22221, '2025-06-02 04:24:22', 'En cours', 1, 565000.00);
+INSERT INTO `inscriptions` (`id_inscription`, `id_etudiant`, `id_niveau`, `id_annee_acad`, `date_inscription`, `statut_inscription`, `nombre_tranche`, `reste_a_payer`, `montant_paye`) VALUES
+(1, 2003001, 9, 22423, '2025-06-01 21:07:42', 'En cours', 2, 565000.00, 670000.00),
+(2, 2003002, 9, 22524, '2025-06-01 21:22:01', 'En cours', 2, 565000.00, 670000.00),
+(4, 2003003, 9, 22221, '2025-06-01 23:10:25', 'En cours', 4, 565000.00, 670000.00),
+(15, 2003004, 9, 22221, '2025-06-03 00:53:09', 'En cours', 1, 565000.00, 670000.00),
+(16, 2003005, 8, 22322, '2025-06-03 00:53:33', 'En cours', 3, 410000.00, 500000.00),
+(17, 2003006, 9, 22221, '2025-06-03 00:55:05', 'En cours', 2, 565000.00, 670000.00),
+(18, 2003007, 7, 22221, '2025-06-03 00:57:34', 'En cours', 3, 0.00, 890000.00),
+(19, 2003008, 8, 22322, '2025-06-03 00:59:02', 'En cours', 2, 0.00, 910000.00),
+(20, 2003009, 9, 22221, '2025-06-04 13:55:43', 'En cours', 2, 565000.00, 670000.00),
+(25, 2003010, 9, 22221, '2025-06-04 19:09:06', 'En cours', 2, 565000.00, 670000.00),
+(26, 2003011, 9, 22221, '2025-06-04 19:10:40', 'En cours', 2, 0.00, 1235000.00),
+(30, 2004003, 9, 21817, '2025-06-16 00:48:39', 'En cours', 1, 565000.00, 670000.00);
 
 -- --------------------------------------------------------
 
@@ -689,6 +814,24 @@ INSERT INTO `niveau_etude` (`id_niv_etude`, `lib_niv_etude`, `montant_scolarite`
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `notes`
+--
+
+CREATE TABLE `notes` (
+  `id` int NOT NULL,
+  `num_etu` int NOT NULL,
+  `id_ue` int NOT NULL,
+  `id_ecue` int NOT NULL,
+  `moyenne` decimal(4,2) NOT NULL,
+  `commentaire` text,
+  `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
+  `date_modification` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `statut` enum('en_attente','validée','rejetée') DEFAULT 'en_attente'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `occuper`
 --
 
@@ -721,8 +864,8 @@ CREATE TABLE `personnel_admin` (
   `nom_pers_admin` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `prenom_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `email_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `tel_pers_admin` varchar(20) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `poste` varchar(30) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `tel_pers_admin` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `poste` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `date_embauche` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
@@ -847,6 +990,34 @@ INSERT INTO `rattacher` (`id_GU`, `id_traitement`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `reclamations`
+--
+
+CREATE TABLE `reclamations` (
+  `id_reclamation` int NOT NULL,
+  `num_etu` int DEFAULT NULL,
+  `id_utilisateur` int DEFAULT NULL,
+  `titre_reclamation` varchar(255) NOT NULL,
+  `description_reclamation` text NOT NULL,
+  `type_reclamation` enum('Académique','Administrative','Technique','Financière','Autre') NOT NULL,
+  `priorite_reclamation` enum('Faible','Moyenne','Élevée','Urgente') NOT NULL DEFAULT 'Moyenne',
+  `statut_reclamation` enum('En attente','En cours','Résolue','Rejetée') NOT NULL DEFAULT 'En attente',
+  `fichier_joint` varchar(255) DEFAULT NULL,
+  `date_creation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_mise_a_jour` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id_admin_assigne` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `reclamations`
+--
+
+INSERT INTO `reclamations` (`id_reclamation`, `num_etu`, `id_utilisateur`, `titre_reclamation`, `description_reclamation`, `type_reclamation`, `priorite_reclamation`, `statut_reclamation`, `fichier_joint`, `date_creation`, `date_mise_a_jour`, `id_admin_assigne`) VALUES
+(1, 2006002, NULL, 'Mes notes on été echanger', 'les chiennns la mes notes ahi vous avez quelle probleme bande de cafards', 'Académique', 'Moyenne', 'En attente', NULL, '2025-06-16 13:13:39', '2025-06-16 13:13:39', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `rendre`
 --
 
@@ -902,7 +1073,17 @@ INSERT INTO `specialite` (`id_specialite`, `lib_specialite`) VALUES
 (2, 'Informatique'),
 (3, 'Comptabilité'),
 (5, 'Mathématique'),
-(6, 'Réseaux');
+(6, 'Réseaux'),
+(7, 'Médecine'),
+(8, 'Géoscience'),
+(9, 'Physique'),
+(10, 'Génie Électrique et Électronique'),
+(11, 'Biologie'),
+(12, 'Droit Public'),
+(13, 'Langues Étrangères'),
+(14, 'Management'),
+(15, 'Finance'),
+(16, 'Marketing');
 
 -- --------------------------------------------------------
 
@@ -932,8 +1113,8 @@ INSERT INTO `statut_jury` (`id_jury`, `lib_jury`) VALUES
 CREATE TABLE `traitement` (
   `id_traitement` int NOT NULL,
   `lib_traitement` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `label_traitement` varchar(60) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-  `icone_traitement` varchar(30) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `label_traitement` varchar(60) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+  `icone_traitement` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
   `ordre_traitement` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 
@@ -1016,10 +1197,82 @@ CREATE TABLE `ue` (
 --
 
 INSERT INTO `ue` (`id_ue`, `lib_ue`, `id_niveau_etude`, `id_semestre`, `id_annee_academique`, `credit`) VALUES
-(6, 'Statistique Inférentielle', 7, 12, 22423, 2),
-(7, 'Système d\'exploitation', 8, 12, 22423, 6),
-(8, 'Economie générale', 6, 12, 22322, 5),
-(9, 'Réseaux', 8, 19, 22423, 6);
+(8, 'Economie', 6, 12, 22524, 5),
+(9, 'Réseaux informatiques', 8, 19, 22423, 5),
+(10, 'Initiation à l\'informatique', 6, 12, 22524, 4),
+(11, 'Initiation à l\'algorithmique', 6, 12, 22524, 3),
+(12, 'Outils bureautiques 1', 6, 12, 22524, 2),
+(13, 'Mathématiques 1', 6, 12, 22524, 5),
+(14, 'Mathématiques 2', 6, 12, 22524, 5),
+(15, 'Organisation des entreprises', 6, 12, 22524, 3),
+(16, 'Électronique', 6, 12, 22524, 3),
+(17, 'Mathématiques 3', 6, 15, 22524, 6),
+(18, 'Probabilité et Statistique 1', 6, 15, 22524, 5),
+(19, 'Outils bureautiques 2', 6, 15, 22524, 2),
+(20, 'Atelier de maintenance', 6, 15, 22524, 1),
+(21, 'Technique d\'expression et méthodologie de travail', 6, 15, 22524, 2),
+(22, 'Intelligence économique', 6, 15, 22524, 2),
+(23, 'Gestion des Ressources Humaines', 6, 15, 22524, 2),
+(24, 'Logiciel de traitement d\'images ou de montage vidéo', 6, 15, 22524, 2),
+(25, 'Anglais', 6, 15, 22524, 3),
+(26, 'Programmation orientée objet', 7, 16, 22524, 6),
+(27, 'Outils formels pour l\'informatique', 7, 16, 22524, 2),
+(28, 'Mathématiques 4', 7, 16, 22524, 6),
+(29, 'Probabilité et Statistique 2', 7, 16, 22524, 4),
+(30, 'Comptabilité generale', 7, 16, 22524, 6),
+(31, 'Anglais', 7, 16, 22524, 3),
+(32, 'Mathématiques 5', 7, 17, 22524, 2),
+(33, 'Données semi-structurées et bases de données', 7, 17, 22524, 8),
+(34, 'Programmation web', 7, 17, 22524, 3),
+(35, 'Génie logiciel', 7, 17, 22524, 6),
+(36, 'Programmation sous windows', 7, 17, 22524, 4),
+(37, 'Contrôle budgétaire', 7, 17, 22524, 3),
+(38, 'Initiation Python', 7, 17, 22524, 2),
+(39, 'Projet', 7, 17, 22524, 2),
+(40, 'Systèmes informatiques', 8, 18, 22524, 6),
+(41, 'Programmation', 8, 18, 22524, 5),
+(42, 'Base de données avancées', 8, 18, 22524, 3),
+(43, 'Programmation client web', 8, 18, 22524, 3),
+(44, 'Algorithmique des graphes', 8, 18, 22524, 3),
+(45, 'Programmation linéaire', 8, 18, 22524, 3),
+(46, 'Comptabilité de gestion', 8, 18, 22524, 4),
+(47, 'Files d\'attente et gestion de stock', 8, 19, 22524, 3),
+(48, 'Analyse de données', 8, 19, 22524, 3),
+(49, 'Programmation d\'application', 8, 19, 22524, 3),
+(51, 'Théorie des langages', 8, 19, 22524, 3),
+(53, 'Anglais', 8, 19, 22524, 3),
+(54, 'Projet', 8, 19, 22524, 4),
+(55, 'Environnement juridique', 8, 19, 22524, 3),
+(56, 'Modélisation système d\'information', 10, 20, 22524, 5),
+(57, 'Compléments de mathématiques', 10, 20, 22423, 4),
+(58, 'Intelligence Artificielle', 10, 20, 22423, 2),
+(59, 'Base de données avancées', 10, 20, 22524, 4),
+(60, 'Programmation avancée Java', 10, 20, 22524, 4),
+(61, 'Progiciel de comptabilité (SAGE)', 10, 20, 22423, 2),
+(62, 'Management des entreprises', 10, 20, 22423, 3),
+(63, 'Concurrence et coopération dans les systèmes et les réseaux', 10, 20, 22423, 4),
+(64, 'Internet/Intranet', 10, 20, 22423, 2),
+(65, 'Base de données décisionnelles ', 10, 21, 22524, 3),
+(66, 'Programmation impérative et developpement d\'IHM ', 10, 21, 22524, 4),
+(67, 'Système d\'information repartis', 10, 21, 22524, 5),
+(68, 'Contrôle de gestion', 10, 21, 22524, 3),
+(69, 'Comptabilité analytique', 10, 21, 22524, 4),
+(70, 'Marketing', 10, 21, 22524, 3),
+(71, 'Projet de developpement logiciel', 10, 21, 22524, 5),
+(72, 'Anglais', 10, 21, 22524, 3),
+(73, 'Analyse et conception à objet', 9, 22, 22524, 5),
+(74, 'Gestion financière', 9, 22, 22524, 3),
+(75, 'Management de projet et intégration d\'application', 9, 22, 22524, 6),
+(76, 'Audit informatique', 9, 22, 22524, 3),
+(77, 'Entrepreunariat', 9, 22, 22524, 2),
+(78, 'Multimedia mobile', 9, 22, 22524, 3),
+(79, 'Ingenierie des exigences et veille technologique', 9, 22, 22524, 3),
+(80, 'Mathématiques financières', 9, 22, 22524, 3),
+(81, 'Anglais', 9, 22, 22524, 2),
+(82, 'Algorithmique et Programmation', 6, 15, 22524, 5),
+(83, 'Gestion financière', 8, 19, 22524, 3),
+(84, 'Analyse de données', 7, 16, 22524, 3),
+(85, 'BMO', 8, 18, 22524, 3);
 
 -- --------------------------------------------------------
 
@@ -1113,7 +1366,7 @@ CREATE TABLE `versements` (
   `id_versement` int NOT NULL,
   `id_inscription` int DEFAULT NULL,
   `montant` decimal(10,2) DEFAULT NULL,
-  `date_versement` datetime DEFAULT NULL,
+  `date_versement` datetime DEFAULT CURRENT_TIMESTAMP,
   `type_versement` enum('Premier versement','Tranche') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `methode_paiement` enum('Espèce','Carte bancaire','Virement','Chèque') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1126,7 +1379,19 @@ INSERT INTO `versements` (`id_versement`, `id_inscription`, `montant`, `date_ver
 (1, 1, 670000.00, '2025-06-01 21:07:42', 'Premier versement', 'Espèce'),
 (2, 2, 670000.00, '2025-06-01 21:22:01', 'Premier versement', 'Espèce'),
 (4, 4, 670000.00, '2025-06-01 23:10:25', 'Premier versement', 'Espèce'),
-(6, 13, 670000.00, '2025-06-02 04:24:22', 'Premier versement', 'Chèque');
+(19, 15, 670000.00, '2025-06-03 00:53:09', 'Premier versement', 'Espèce'),
+(20, 16, 500000.00, '2025-06-03 00:53:33', 'Premier versement', 'Carte bancaire'),
+(21, 17, 670000.00, '2025-06-03 00:55:05', 'Premier versement', 'Carte bancaire'),
+(22, 18, 450000.00, '2025-06-03 00:57:34', 'Premier versement', 'Espèce'),
+(23, 19, 500000.00, '2025-06-03 00:59:02', 'Premier versement', 'Carte bancaire'),
+(24, 20, 670000.00, '2025-06-04 13:55:43', 'Premier versement', 'Carte bancaire'),
+(29, 25, 670000.00, '2025-06-04 19:09:06', 'Premier versement', 'Virement'),
+(30, 26, 670000.00, '2025-06-04 19:10:40', 'Premier versement', 'Espèce'),
+(45, 26, 165000.00, '2025-06-15 23:37:22', 'Tranche', 'Carte bancaire'),
+(46, 19, 410000.00, '2025-06-15 23:44:56', 'Tranche', 'Chèque'),
+(51, 30, 670000.00, '2025-06-16 00:48:39', 'Premier versement', 'Virement'),
+(54, 26, 400000.00, '2025-06-16 01:33:56', 'Tranche', 'Espèce'),
+(55, 18, 440000.00, '2025-06-16 01:36:18', 'Tranche', 'Carte bancaire');
 
 --
 -- Index pour les tables déchargées
@@ -1167,10 +1432,19 @@ ALTER TABLE `avoir`
   ADD KEY `Key_avoir_enseignant` (`id_enseignant`);
 
 --
+-- Index pour la table `candidature_soutenance`
+--
+ALTER TABLE `candidature_soutenance`
+  ADD PRIMARY KEY (`id_candidature`),
+  ADD KEY `num_etu` (`num_etu`),
+  ADD KEY `id_pers_admin` (`id_pers_admin`);
+
+--
 -- Index pour la table `compte_rendu`
 --
 ALTER TABLE `compte_rendu`
-  ADD PRIMARY KEY (`id_CR`);
+  ADD PRIMARY KEY (`id_CR`),
+  ADD KEY `fk_etudiant` (`num_etu`);
 
 --
 -- Index pour la table `deposer`
@@ -1204,7 +1478,8 @@ ALTER TABLE `enseignants`
 -- Index pour la table `entreprises`
 --
 ALTER TABLE `entreprises`
-  ADD PRIMARY KEY (`id_entreprise`);
+  ADD PRIMARY KEY (`id_entreprise`),
+  ADD UNIQUE KEY `lib_entreprise` (`lib_entreprise`);
 
 --
 -- Index pour la table `etudiants`
@@ -1219,13 +1494,6 @@ ALTER TABLE `evaluer`
   ADD KEY `Key_evaluer_ecue` (`id_ecue`),
   ADD KEY `Key_evaluer_enseignant` (`id_enseignant`),
   ADD KEY `Key_evaluer_etudiant` (`num_etu`);
-
---
--- Index pour la table `faire_stage`
---
-ALTER TABLE `faire_stage`
-  ADD KEY `Key_faireStage_entreprise` (`id_entreprise`),
-  ADD KEY `Key_faireStage_etudiant` (`num_etu`);
 
 --
 -- Index pour la table `fonction`
@@ -1245,6 +1513,23 @@ ALTER TABLE `grade`
 --
 ALTER TABLE `groupe_utilisateur`
   ADD PRIMARY KEY (`id_GU`);
+
+--
+-- Index pour la table `historique_reclamations`
+--
+ALTER TABLE `historique_reclamations`
+  ADD PRIMARY KEY (`id_historique`),
+  ADD KEY `idx_id_reclamation` (`id_reclamation`),
+  ADD KEY `idx_id_utilisateur` (`id_utilisateur`),
+  ADD KEY `idx_date_action` (`date_action`);
+
+--
+-- Index pour la table `informations_stage`
+--
+ALTER TABLE `informations_stage`
+  ADD PRIMARY KEY (`id_info_stage`),
+  ADD KEY `num_etu` (`num_etu`),
+  ADD KEY `id_entreprise` (`id_entreprise`);
 
 --
 -- Index pour la table `inscriptions`
@@ -1278,6 +1563,15 @@ ALTER TABLE `niveau_approbation`
 --
 ALTER TABLE `niveau_etude`
   ADD PRIMARY KEY (`id_niv_etude`);
+
+--
+-- Index pour la table `notes`
+--
+ALTER TABLE `notes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notes_ibfk_1` (`num_etu`),
+  ADD KEY `notes_ibfk_2` (`id_ue`),
+  ADD KEY `notes_ibfk_3` (`id_ecue`);
 
 --
 -- Index pour la table `occuper`
@@ -1319,6 +1613,18 @@ ALTER TABLE `rapport_etudiants`
 ALTER TABLE `rattacher`
   ADD KEY `Key_rattacher_GU` (`id_GU`),
   ADD KEY `Key_rattacher_traitement` (`id_traitement`);
+
+--
+-- Index pour la table `reclamations`
+--
+ALTER TABLE `reclamations`
+  ADD PRIMARY KEY (`id_reclamation`),
+  ADD KEY `idx_num_etu` (`num_etu`),
+  ADD KEY `idx_id_utilisateur` (`id_utilisateur`),
+  ADD KEY `idx_id_admin_assigne` (`id_admin_assigne`),
+  ADD KEY `idx_statut` (`statut_reclamation`),
+  ADD KEY `idx_type` (`type_reclamation`),
+  ADD KEY `idx_date_creation` (`date_creation`);
 
 --
 -- Index pour la table `rendre`
@@ -1408,6 +1714,12 @@ ALTER TABLE `annee_academique`
   MODIFY `id_annee_acad` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29901;
 
 --
+-- AUTO_INCREMENT pour la table `candidature_soutenance`
+--
+ALTER TABLE `candidature_soutenance`
+  MODIFY `id_candidature` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT pour la table `compte_rendu`
 --
 ALTER TABLE `compte_rendu`
@@ -1417,13 +1729,13 @@ ALTER TABLE `compte_rendu`
 -- AUTO_INCREMENT pour la table `echeances`
 --
 ALTER TABLE `echeances`
-  MODIFY `id_echeance` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_echeance` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT pour la table `ecue`
 --
 ALTER TABLE `ecue`
-  MODIFY `id_ecue` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_ecue` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT pour la table `enseignants`
@@ -1435,7 +1747,7 @@ ALTER TABLE `enseignants`
 -- AUTO_INCREMENT pour la table `entreprises`
 --
 ALTER TABLE `entreprises`
-  MODIFY `id_entreprise` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_entreprise` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `etudiants`
@@ -1453,7 +1765,7 @@ ALTER TABLE `fonction`
 -- AUTO_INCREMENT pour la table `grade`
 --
 ALTER TABLE `grade`
-  MODIFY `id_grade` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_grade` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT pour la table `groupe_utilisateur`
@@ -1462,10 +1774,22 @@ ALTER TABLE `groupe_utilisateur`
   MODIFY `id_GU` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
+-- AUTO_INCREMENT pour la table `historique_reclamations`
+--
+ALTER TABLE `historique_reclamations`
+  MODIFY `id_historique` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `informations_stage`
+--
+ALTER TABLE `informations_stage`
+  MODIFY `id_info_stage` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT pour la table `inscriptions`
 --
 ALTER TABLE `inscriptions`
-  MODIFY `id_inscription` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_inscription` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT pour la table `messages`
@@ -1492,6 +1816,12 @@ ALTER TABLE `niveau_etude`
   MODIFY `id_niv_etude` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
+-- AUTO_INCREMENT pour la table `notes`
+--
+ALTER TABLE `notes`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `personnel_admin`
 --
 ALTER TABLE `personnel_admin`
@@ -1504,6 +1834,12 @@ ALTER TABLE `rapport_etudiants`
   MODIFY `id_rapport` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pour la table `reclamations`
+--
+ALTER TABLE `reclamations`
+  MODIFY `id_reclamation` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT pour la table `semestre`
 --
 ALTER TABLE `semestre`
@@ -1513,7 +1849,7 @@ ALTER TABLE `semestre`
 -- AUTO_INCREMENT pour la table `specialite`
 --
 ALTER TABLE `specialite`
-  MODIFY `id_specialite` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_specialite` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT pour la table `statut_jury`
@@ -1537,7 +1873,7 @@ ALTER TABLE `type_utilisateur`
 -- AUTO_INCREMENT pour la table `ue`
 --
 ALTER TABLE `ue`
-  MODIFY `id_ue` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_ue` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT pour la table `utilisateur`
@@ -1549,7 +1885,7 @@ ALTER TABLE `utilisateur`
 -- AUTO_INCREMENT pour la table `versements`
 --
 ALTER TABLE `versements`
-  MODIFY `id_versement` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_versement` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- Contraintes pour les tables déchargées
@@ -1576,6 +1912,19 @@ ALTER TABLE `approuver`
 ALTER TABLE `avoir`
   ADD CONSTRAINT `fk_avoir_enseignant` FOREIGN KEY (`id_enseignant`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_avoir_grade` FOREIGN KEY (`id_grade`) REFERENCES `grade` (`id_grade`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `candidature_soutenance`
+--
+ALTER TABLE `candidature_soutenance`
+  ADD CONSTRAINT `candidature_soutenance_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
+  ADD CONSTRAINT `candidature_soutenance_ibfk_2` FOREIGN KEY (`id_pers_admin`) REFERENCES `personnel_admin` (`id_pers_admin`);
+
+--
+-- Contraintes pour la table `compte_rendu`
+--
+ALTER TABLE `compte_rendu`
+  ADD CONSTRAINT `fk_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `deposer`
@@ -1611,11 +1960,18 @@ ALTER TABLE `evaluer`
   ADD CONSTRAINT `fk_evaluer_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Contraintes pour la table `faire_stage`
+-- Contraintes pour la table `historique_reclamations`
 --
-ALTER TABLE `faire_stage`
-  ADD CONSTRAINT `fk_faire_stage_entreprise` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_faire_stage_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `historique_reclamations`
+  ADD CONSTRAINT `fk_historique_reclamation` FOREIGN KEY (`id_reclamation`) REFERENCES `reclamations` (`id_reclamation`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_historique_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `informations_stage`
+--
+ALTER TABLE `informations_stage`
+  ADD CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
+  ADD CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`);
 
 --
 -- Contraintes pour la table `inscriptions`
@@ -1624,6 +1980,14 @@ ALTER TABLE `inscriptions`
   ADD CONSTRAINT `inscriptions_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`num_etu`),
   ADD CONSTRAINT `inscriptions_ibfk_2` FOREIGN KEY (`id_niveau`) REFERENCES `niveau_etude` (`id_niv_etude`),
   ADD CONSTRAINT `inscriptions_ibfk_3` FOREIGN KEY (`id_annee_acad`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Contraintes pour la table `notes`
+--
+ALTER TABLE `notes`
+  ADD CONSTRAINT `notes_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notes_ibfk_2` FOREIGN KEY (`id_ue`) REFERENCES `ue` (`id_ue`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notes_ibfk_3` FOREIGN KEY (`id_ecue`) REFERENCES `ecue` (`id_ecue`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `occuper`
@@ -1658,6 +2022,14 @@ ALTER TABLE `rapport_etudiants`
 ALTER TABLE `rattacher`
   ADD CONSTRAINT `fk_rattacher_gu` FOREIGN KEY (`id_GU`) REFERENCES `groupe_utilisateur` (`id_GU`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_rattacher_traitement` FOREIGN KEY (`id_traitement`) REFERENCES `traitement` (`id_traitement`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `reclamations`
+--
+ALTER TABLE `reclamations`
+  ADD CONSTRAINT `fk_reclamations_admin_assigne` FOREIGN KEY (`id_admin_assigne`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reclamations_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reclamations_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `rendre`
@@ -1700,47 +2072,6 @@ ALTER TABLE `valider`
 --
 ALTER TABLE `versements`
   ADD CONSTRAINT `versements_ibfk_1` FOREIGN KEY (`id_inscription`) REFERENCES `inscriptions` (`id_inscription`);
-
---
--- Structure de la table `candidature_soutenance`
---
-
-CREATE TABLE `candidature_soutenance` (
-  `id_candidature` int NOT NULL AUTO_INCREMENT,
-  `num_etu` int NOT NULL,
-  `date_candidature` datetime NOT NULL,
-  `statut_candidature` enum('En attente','Approuvée','Rejetée') NOT NULL DEFAULT 'En attente',
-  `date_traitement` datetime DEFAULT NULL,
-  `commentaire_admin` text,
-  `id_pers_admin` int DEFAULT NULL,
-  PRIMARY KEY (`id_candidature`),
-  KEY `num_etu` (`num_etu`),
-  KEY `id_pers_admin` (`id_pers_admin`),
-  CONSTRAINT `candidature_soutenance_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
-  CONSTRAINT `candidature_soutenance_ibfk_2` FOREIGN KEY (`id_pers_admin`) REFERENCES `personnel_admin` (`id_pers_admin`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Structure de la table `informations_stage`
---
-
-CREATE TABLE `informations_stage` (
-  `id_info_stage` int NOT NULL AUTO_INCREMENT,
-  `num_etu` int NOT NULL,
-  `id_entreprise` int NOT NULL,
-  `date_debut_stage` date NOT NULL,
-  `date_fin_stage` date NOT NULL,
-  `sujet_stage` text NOT NULL,
-  `description_stage` text NOT NULL,
-  `encadrant_entreprise` varchar(100) NOT NULL,
-  `email_encadrant` varchar(100) NOT NULL,
-  `telephone_encadrant` varchar(20) NOT NULL,
-  PRIMARY KEY (`id_info_stage`),
-  KEY `num_etu` (`num_etu`),
-  KEY `id_entreprise` (`id_entreprise`),
-  CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
-  CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

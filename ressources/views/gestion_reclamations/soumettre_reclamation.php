@@ -93,7 +93,7 @@
                     <?php if (isset($erreurs['description'])): ?>
                         <p class="mt-1 text-sm text-red-600"><?php echo htmlspecialchars($erreurs['description']); ?></p>
                     <?php endif; ?>
-                    <p class="mt-1 text-sm text-gray-500">Minimum 20 caractères requis</p>
+                    <p class="mt-1 text-sm text-gray-500">Minimum 60 caractères requis</p>
                 </div>
 
                 <!-- Pièces jointes -->
@@ -208,9 +208,9 @@
             content.value = quill.root.innerHTML;
 
             // Validation côté client
-            if (quill.getText().trim().length < 20) {
+            if (quill.getText().trim().length < 60) {
                 e.preventDefault();
-                alert('La description doit contenir au moins 20 caractères.');
+                alert('La description doit contenir au moins 60 caractères.');
                 return false;
             }
         });
@@ -226,7 +226,7 @@
                 document.querySelector('#editor').parentNode.appendChild(counter);
             }
             counter.textContent = `${textLength} caractères`;
-            counter.className = textLength >= 20 ?
+            counter.className = textLength >= 60 ?
                 'mt-1 text-sm text-green-600 text-right' :
                 'mt-1 text-sm text-gray-500 text-right';
         };
