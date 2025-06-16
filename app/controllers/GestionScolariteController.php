@@ -14,8 +14,6 @@ class GestionScolariteController {
     }
 
     public function index() {
-       
-
         // Récupérer les étudiants non inscrits
         $GLOBALS['etudiantsNonInscrits'] = $this->scolariteModel->getEtudiantsNonInscrits();
         
@@ -31,214 +29,180 @@ class GestionScolariteController {
         // Récupérer les années académiques
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
 
-
-
         // Si un numéro d'étudiant est fourni, récupérer ses informations
         if (isset($_GET['num_etu'])) {
             $GLOBALS['etudiantInfo'] = $this->scolariteModel->getInfoEtudiant($_GET['num_etu']);
         }
 
+        // Si on est en mode modification, récupérer les informations du versement
+        if (isset($_GET['action']) && $_GET['action'] === 'mettre_a_jour_versement' && isset($_GET['id'])) {
+            $versement = $this->scolariteModel->getVersementById($_GET['id']);
+            if ($versement && $versement['type_versement'] === 'Tranche') {
+                $GLOBALS['versementAModifier'] = $versement;
+            } else {
+                $GLOBALS['messageErreur'] = "Ce versement ne peut pas être modifié.";
+            }
+        }
 
         // Traiter la soumission du formulaire
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['action'])) {
-                switch ($_POST['action']) {
+            if (isset($_GET['action'])) {
+                switch ($_GET['action']) {
                     case 'enregistrer_versement':
                         $this->enregistrerVersement();
                         break;
                     case 'mettre_a_jour_versement':
                         $this->mettreAJourVersement();
                         break;
-                    case 'supprimer_versements':
-                        $this->supprimerVersement();
-                        break;
-                    case 'imprimer_recu':
-                        $this->imprimerRecu();
-                        break;
+                    
                 }
             }
         }
 
-        // Passer les messages à la vue
+        // Récupérer la liste des versements
         $GLOBALS['listeVersement'] = $this->scolariteModel->getAllVersements();
     }
 
     public function enregistrerVersement() {
-        // Valider les données du formulaire POST
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $messageErreur = '';
-            $messageSuccess = '';
-            
-            $id_etudiant = $_POST['id_etudiant'] ?? null;
-            $montant = $_POST['montant'] ?? null;
-            $date_versement = $_POST['date_versement'] ?? null;
-            $methode_paiement = $_POST['methode_paiement'] ?? null;
-
+        try {
             // Validation des données
-            if (!$id_etudiant || !$montant || !$date_versement || !$methode_paiement) {
+            if (empty($_POST['id_etudiant']) || empty($_POST['montant']) || empty($_POST['methode_paiement'])) {
                 $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
                 return;
             }
 
-            // Récupérer l'id_inscription à partir de l'id_etudiant
-            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($id_etudiant);
+            // Récupérer l'inscription de l'étudiant
+            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($_POST['id_etudiant']);
             if (!$inscription) {
                 $GLOBALS['messageErreur'] = "Aucune inscription trouvée pour cet étudiant.";
                 return;
             }
 
-            // Vérifier si le montant ne dépasse pas le reste à payer
-            $montant_total = $inscription['montant_scolarite'];
-            $montant_paye = $inscription['montant_inscription'];
-            $reste_a_payer = $montant_total - $montant_paye;
-
-            if ($montant > $reste_a_payer) {
-                $GLOBALS['messageErreur'] = "Le montant du versement ne peut pas dépasser le reste à payer.";
+            // Vérifier si l'étudiant a déjà soldé sa scolarité
+            if ($inscription['reste_a_payer'] <= 0) {
+                $GLOBALS['messageErreur'] = "Cet étudiant a déjà soldé sa scolarité.";
                 return;
             }
+
+            // Vérifier si le montant du versement ne dépasse pas le reste à payer
+            $montant = floatval($_POST['montant']);
+            if ($montant > $inscription['reste_a_payer']) {
+                $GLOBALS['messageErreur'] = "Le montant du versement ne peut pas dépasser le reste à payer (" . number_format($inscription['reste_a_payer'], 2) . " FCFA).";
+                return;
+            }
+
+            // Préparer les données du versement
+            $data = [
+                'id_inscription' => $inscription['id_inscription'],
+                'montant' => $montant,
+                'methode_paiement' => $_POST['methode_paiement']
+            ];
 
             // Enregistrer le versement
-            if ($this->scolariteModel->enregistrerVersement($inscription['id_inscription'], $montant, $date_versement, $methode_paiement)) {
-                $messageSuccess = "Versement enregistré avec succès.";
+            if ($this->scolariteModel->addVersement($data)) {
+                // Récupérer les informations mises à jour
+                $inscriptionMiseAJour = $this->scolariteModel->getInscriptionByEtudiantId($_POST['id_etudiant']);
+                if ($inscriptionMiseAJour) {
+                    $GLOBALS['montantTotal'] = $inscriptionMiseAJour['montant_scolarite'];
+                    $GLOBALS['montantPaye'] = $inscriptionMiseAJour['montant_inscription'];
+                    $GLOBALS['resteAPayer'] = $inscriptionMiseAJour['reste_a_payer'];
+                }
+                $GLOBALS['messageSuccess'] = "Versement enregistré avec succès.";
             } else {
-                $messageErreur = "Erreur lors de l'enregistrement du versement.";
+                $GLOBALS['messageErreur'] = "Erreur lors de l'enregistrement du versement.";
             }
+        } catch (Exception $e) {
+            error_log("Erreur dans enregistrerVersement : " . $e->getMessage());
+            $GLOBALS['messageErreur'] = "Une erreur est survenue lors de l'enregistrement du versement.";
         }
-
-        $GLOBALS['messageSuccess'] = $messageSuccess;
-        $GLOBALS['messageErreur'] = $messageErreur;
     }
+    
 
     public function mettreAJourVersement() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $messageErreur = '';
-            $messageSuccess = '';
-            
-            $id_versement = $_POST['id_versement'] ?? null;
-            $id_etudiant = $_POST['id_etudiant'] ?? null;
-            $montant = $_POST['montant'] ?? null;
-            $date_versement = $_POST['date_versement'] ?? null;
-            $methode_paiement = $_POST['methode_paiement'] ?? null;
-
+        try {
             // Validation des données
-            if (!$id_versement || !$id_etudiant || !$montant || !$date_versement || !$methode_paiement) {
+            if (empty($_POST['id_versement']) || empty($_POST['montant']) || empty($_POST['methode_paiement'])) {
                 $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
                 return;
             }
 
-            // Récupérer l'id_inscription à partir de l'id_etudiant
-            $inscription = $this->scolariteModel->getInscriptionByEtudiantId($id_etudiant);
+            // Récupérer le versement pour vérifier son type
+            $versement = $this->scolariteModel->getVersementById($_POST['id_versement']);
+            if (!$versement) {
+                $GLOBALS['messageErreur'] = "Versement introuvable.";
+                return;
+            }
+
+            // Vérifier si le versement est de type "Tranche"
+            if ($versement['type_versement'] !== 'Tranche') {
+                $GLOBALS['messageErreur'] = "Seuls les versements de type 'Tranche' peuvent être modifiés.";
+                return;
+            }
+
+            // Récupérer l'inscription associée au versement
+            $inscription = $this->scolariteModel->getInscriptionById($versement['id_inscription']);
             if (!$inscription) {
-                $GLOBALS['messageErreur'] = "Aucune inscription trouvée pour cet étudiant.";
+                $GLOBALS['messageErreur'] = "Inscription introuvable.";
                 return;
             }
 
-            // Récupérer le versement actuel
-            $versement_actuel = $this->scolariteModel->getVersementById($id_versement);
-            if (!$versement_actuel) {
-                $GLOBALS['messageErreur'] = "Versement non trouvé.";
-                return;
-            }
+            // Calculer la différence entre l'ancien montant et le nouveau
+            $ancienMontant = floatval($versement['montant']);
+            $nouveauMontant = floatval($_POST['montant']);
+            $difference = $nouveauMontant - $ancienMontant;
 
-            // Vérifier si le nouveau montant ne dépasse pas le reste à payer
-            $montant_total = $inscription['montant_scolarite'];
-            $montant_paye = $inscription['montant_inscription'] - $versement_actuel['montant'] + $montant;
-            $reste_a_payer = $montant_total - $montant_paye;
+            if ($ancienMontant != $nouveauMontant) {
+                // Vérifier si le nouveau montant total ne dépasse pas le montant de scolarité
+                $montantTotalPaye = floatval($inscription['montant_paye'] ?? 0) + $difference;
+                $montantScolarite = floatval($inscription['montant_scolarite'] ?? 0);
+                
+                if ($montantTotalPaye > $montantScolarite) {
+                    $GLOBALS['messageErreur'] = "Le montant total des versements ne peut pas dépasser le montant de scolarité (" . number_format($montantScolarite, 2) . " FCFA).";
+                    return;
+                }
 
-            if ($montant > $reste_a_payer) {
-                $GLOBALS['messageErreur'] = "Le montant du versement ne peut pas dépasser le reste à payer.";
-                return;
-            }
+                // Préparer les données de mise à jour
+                $data = [
+                    'montant' => $nouveauMontant,
+                    'methode_paiement' => $_POST['methode_paiement']
+                ];
 
-            // Mettre à jour le versement
-            if ($this->scolariteModel->mettreAJourVersement($id_versement, $montant, $date_versement, $methode_paiement)) {
-                $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
-            } else {
-                $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
-            }
-        }
-    }
-
-    public function supprimerVersement() {
-        // Initialize message variables
-        $messageErreur = '';
-        $messageSuccess = '';
-        
-        // Gérer la suppression via une requête POST (recommandé pour les suppressions)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            // Récupérer l'ID du versement depuis la requête (GET ou POST, selon comment le JS l'envoie)
-             $id_versement = $_REQUEST['id'] ?? null; // Utiliser $_REQUEST pour gérer GET ou POST
-
-            // Vérifier si la requête est AJAX pour renvoyer du JSON
-            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
-            if ($id_versement) {
-                try {
-                    if ($this->scolariteModel->deleteVersement($id_versement)) {
-                         if ($isAjax) {
-                             header('Content-Type: application/json');
-                             echo json_encode(['success' => true, 'message' => 'Versement supprimé avec succès.']);
-                         } else {
-                             $GLOBALS['messageSuccess'] = "Versement supprimé avec succès.";
-                            
-                         }
-                    } else {
-                         if ($isAjax) {
-                             header('Content-Type: application/json');
-                             echo json_encode(['success' => false, 'message' => 'Échec de la suppression du versement.']);
-                         } else {
-                              $GLOBALS['messageErreur'] = "Échec de la suppression du versement.";
-                           
-                         }
+                // Mettre à jour le versement
+                if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
+                    // Mettre à jour le montant total payé et le reste à payer
+                    $this->scolariteModel->updateMontantsInscription($inscription['id_inscription'], $montantTotalPaye);
+                    
+                    // Récupérer les informations mises à jour
+                    $inscriptionMiseAJour = $this->scolariteModel->getInscriptionById($inscription['id_inscription']);
+                    if ($inscriptionMiseAJour) {
+                        $GLOBALS['montantTotal'] = floatval($inscriptionMiseAJour['montant_scolarite'] ?? 0);
+                        $GLOBALS['montantPaye'] = floatval($inscriptionMiseAJour['montant_paye'] ?? 0);
+                        $GLOBALS['resteAPayer'] = floatval($inscriptionMiseAJour['reste_a_payer'] ?? 0);
                     }
-                } catch (Exception $e) {
-                     if ($isAjax) {
-                         header('Content-Type: application/json');
-                         echo json_encode(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()]);
-                     } else {
-                         $GLOBALS['messageErreur'] = "Erreur serveur lors de la suppression: " . $e->getMessage();
-                         header('Location: ?page=gestion_scolarite');
-                     }
+                    
+                    $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
+                } else {
+                    $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
                 }
             } else {
-                 if ($isAjax) {
-                     header('Content-Type: application/json');
-                     echo json_encode(['success' => false, 'message' => 'ID de versement manquant.']);
-                 } else {
-                     $GLOBALS['messageErreur'] = "ID de versement manquant.";
-                     
-                 }
+                // Si le montant n'a pas changé, on met juste à jour la méthode de paiement
+                $data = [
+                    'montant' => $nouveauMontant,
+                    'methode_paiement' => $_POST['methode_paiement']
+                ];
+
+                if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
+                    $GLOBALS['messageSuccess'] = "Méthode de paiement mise à jour avec succès.";
+                } else {
+                    $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour de la méthode de paiement.";
+                }
             }
-            exit(); // Assurez-vous de sortir après l'envoi de la réponse JSON ou la redirection
-        } else {
-            // Si ce n'est pas une requête POST, rediriger ou afficher un message d'erreur
-            $GLOBALS['messageErreur'] = "Méthode non autorisée.";
-             
+        } catch (Exception $e) {
+            error_log("Erreur dans mettreAJourVersement : " . $e->getMessage());
+            $GLOBALS['messageErreur'] = "Une erreur est survenue lors de la mise à jour du versement.";
         }
     }
 
-    public function imprimerRecu() {
-        // Récupérer l'ID du versement depuis l'URL (GET)
-        $id_versement = $_GET['id'] ?? null;
-
-        if ($id_versement) {
-            $versement = $this->scolariteModel->getVersementById($id_versement);
-
-            if ($versement) {
-                // Préparer les données pour le reçu
-                $GLOBALS['versementPourRecu'] = $versement;
-
-                // Inclure la vue spécifique pour le reçu (à créer)
-                require_once __DIR__ . '/../ressources/views/recu_versement.php'; // Il faudra créer ce fichier
-
-            } else {
-                echo "<p>Reçu introuvable.</p>"; // Gérer l'erreur d'affichage du reçu
-            }
-        } else {
-            echo "<p>ID de versement manquant.</p>"; // Gérer l'erreur d'ID manquant
-        }
-    }
 
 }
 

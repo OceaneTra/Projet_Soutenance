@@ -147,9 +147,6 @@ switch ($currentMenuSlug) {
 
                 $id_inscription = $_GET['id_inscription'];
                 
-                // TODO: Récupérer les informations de l'inscription et de l'étudiant (si ce n'est pas déjà fait)
-                // Assurez-vous que les variables nécessaires (comme $inscription, $etudiant) sont disponibles ici
-
                 // Démarrer la mise en mémoire tampon de sortie
                 ob_start();
 
@@ -196,6 +193,45 @@ switch ($currentMenuSlug) {
                 $currentPageLabel = 'Gestion des étudiants';
             }
             break;
+        case 'gestion_scolarite':
+             // Gérer l'action d'impression de reçu PDF
+            if (isset($_GET['action']) && $_GET['action'] === 'imprimer_recu' && isset($_GET['id'])) {
+                // Inclure l'autoloader de Composer pour Dompdf
+                require_once __DIR__ . '/../vendor/autoload.php'; // Assurez-vous que ce chemin est correct
+
+                $id_inscription = $_GET['id'];
+
+                // Démarrer la mise en mémoire tampon de sortie
+                ob_start();
+
+                // Inclure le fichier du modèle de reçu
+                include __DIR__ . '../../ressources/views/recu_versement.php';
+
+                // Capturer le contenu de la mémoire tampon et le stocker dans $html
+                $html = ob_get_clean();
+
+                // Instancier Dompdf
+                $dompdf = new Dompdf\Dompdf();
+
+                // Définir le répertoire de base pour les ressources (images, css)
+                $dompdf->setBasePath(__DIR__ . '../public/images/');
+
+                // Charger le HTML
+                
+                $dompdf->loadHtml($html);
+
+                // (Optionnel) Définir la taille et l\'orientation du papier
+                $dompdf->setPaper('A4', 'portrait');
+
+                // Rendre le PDF
+                $dompdf->render();
+
+                // Envoyer le PDF au navigateur
+                // Le paramètre Attachment => false permet d\'afficher le PDF directement
+                $dompdf->stream("recu_paiement_" . $id_inscription . ".pdf", array("Attachment" => false));
+
+                exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
+            }
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];

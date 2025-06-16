@@ -21,17 +21,17 @@ class Scolarite {
         $this->db->beginTransaction();
         try {
             // Créer l'inscription
-            $query = "INSERT INTO inscriptions (id_etudiant, id_niveau, id_annee_acad, date_inscription, statut_inscription,nombre_tranche,reste_a_payer) 
-                     VALUES (?, ?, ?, NOW(), 'En cours',?,?)";
+            $query = "INSERT INTO inscriptions (id_etudiant, id_niveau, id_annee_acad, date_inscription, statut_inscription, nombre_tranche, reste_a_payer, montant_paye) 
+                     VALUES (?, ?, ?, NOW(), 'En cours', ?, ?, ?)";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$id_etudiant, $id_niveau, $id_annee_acad,$nombre_tranches,$reste_a_payer]);
+            $stmt->execute([$id_etudiant, $id_niveau, $id_annee_acad, $nombre_tranches, $reste_a_payer, $montant_premier_versement]);
             $id_inscription = $this->db->lastInsertId();
 
             // Enregistrer le premier versement
-            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement,methode_paiement) 
-                     VALUES (?, ?, NOW(), 'Premier versement',?)";
+            $query = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement, methode_paiement) 
+                     VALUES (?, ?, NOW(), 'Premier versement', ?)";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$id_inscription, $montant_premier_versement,$methode_paiement]);
+            $stmt->execute([$id_inscription, $montant_premier_versement, $methode_paiement]);
 
             $this->db->commit();
             return $id_inscription;
@@ -73,13 +73,13 @@ class Scolarite {
     }
 
     public function getEtudiantsInscrits() {
-        $query = "SELECT i.*,v.*, e.nom_etu as nom, e.prenom_etu as prenom, n.lib_niv_etude as nom_niveau, 
-                        a.date_deb, a.date_fin,n.montant_scolarite,n.montant_inscription
+        $query = "SELECT DISTINCT i.*, e.nom_etu as nom, e.prenom_etu as prenom, n.lib_niv_etude as nom_niveau, 
+                        a.date_deb, a.date_fin, n.montant_scolarite, n.montant_inscription
                  FROM inscriptions i 
                  JOIN etudiants e ON i.id_etudiant = e.num_etu 
                  JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
                  JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad
-                 JOIN versements v ON i.id_inscription = v.id_inscription
+                 LEFT JOIN versements v ON i.id_inscription = v.id_inscription
                  ORDER BY i.date_inscription DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
@@ -218,135 +218,138 @@ class Scolarite {
 
     // Ajouter un nouveau versement
     public function addVersement($data) {
-        $this->db->beginTransaction();
         try {
-            // Insérer le nouveau versement
-            $queryVersement = "INSERT INTO versements (id_inscription, montant, date_versement, type_versement, methode_paiement) VALUES (?, ?, ?, ?, ?)";
-            $stmtVersement = $this->db->prepare($queryVersement);
-            $stmtVersement->execute([
-                $data['id_inscription'],
-                $data['montant'],
-                $data['date_versement'],
-                $data['type'] ?? 'Tranche', // Utiliser un type par défaut si non spécifié
-                $data['methode_paiement']
+            // Insérer le versement
+            $sql = "INSERT INTO versements (id_inscription, montant, methode_paiement, type_versement) 
+                    VALUES (:id_inscription, :montant, :methode_paiement, 'Tranche')";
+            $stmt = $this->db->prepare($sql);
+
+            $result = $stmt->execute([
+                'id_inscription' => $data['id_inscription'],
+                'montant' => $data['montant'],
+                'methode_paiement' => $data['methode_paiement']
             ]);
 
-            // Mettre à jour le reste à payer dans la table inscriptions
-            // Récupérer le reste à payer actuel
-            $querySelectReste = "SELECT reste_a_payer FROM inscriptions WHERE id_inscription = ?";
-            $stmtSelectReste = $this->db->prepare($querySelectReste);
-            $stmtSelectReste->execute([$data['id_inscription']]);
-            $inscription = $stmtSelectReste->fetch(PDO::FETCH_ASSOC);
-
-            if ($inscription) {
-                $nouveauResteAPayer = $inscription['reste_a_payer'] - $data['montant'];
-                // S'assurer que le reste à payer ne devient pas négatif
-                $nouveauResteAPayer = max(0, $nouveauResteAPayer);
-
-                $queryUpdateInscription = "UPDATE inscriptions SET reste_a_payer = ? WHERE id_inscription = ?";
-                $stmtUpdateInscription = $this->db->prepare($queryUpdateInscription);
-                $stmtUpdateInscription->execute([$nouveauResteAPayer, $data['id_inscription']]);
+            if(!$result){
+                return false;
             } else {
-                // Gérer le cas où l'inscription n'est pas trouvée (cela ne devrait pas arriver si l'id_inscription est valide)
-                throw new Exception("Inscription non trouvée pour la mise à jour du reste à payer.");
-            }
+                // Mettre à jour le montant payé dans l'inscription
+                $sql = "UPDATE inscriptions i 
+                        JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                        SET i.montant_paye = i.montant_paye + :montant,
+                            i.reste_a_payer = n.montant_scolarite - i.montant_paye
+                        WHERE i.id_inscription = :id_inscription";
+                $stmt = $this->db->prepare($sql);
 
-            $this->db->commit();
-            return true; // Indique que l'ajout et la mise à jour ont réussi
+                $result = $stmt->execute([
+                    'montant' => $data['montant'],
+                    'id_inscription' => $data['id_inscription']
+                ]);
+
+                return true;
+            }
         } catch (Exception $e) {
-            $this->db->rollBack();
-            // Log l'erreur ou la gérer autrement
-            // echo "Erreur lors de l'ajout du versement et de la mise à jour de l'inscription : " . $e->getMessage();
-            return false; // Indique que l'opération a échoué
+            error_log("Erreur lors de l'ajout du versement : " . $e->getMessage());
+            return false;
         }
     }
 
     // Modifier un versement existant
     public function updateVersement($id_versement, $data) {
-        // Assurez-vous que $data contient les clés nécessaires à la mise à jour (montant, date_versement, methode_paiement, type)
-        $query = "UPDATE versements SET montant = ?, date_versement = ?, methode_paiement = ?, type = ? WHERE id_versement = ?";
-        $stmt = $this->db->prepare($query);
-         // Le type doit être inclus dans $data si vous voulez le modifier, sinon utilisez le type existant ou un type par défaut.
-        // Pour simplifier, on suppose que le type n'est pas modifiable via ce formulaire ou utilise un type générique.
-        // Si le type doit être mis à jour, assurez-vous que $data['type'] existe.
-        $type = isset($data['type']) ? $data['type'] : 'Tranche'; // Utiliser le type des données ou un défaut
-        return $stmt->execute([$data['montant'], $data['date_versement'], $data['methode_paiement'], $type, $id_versement]);
-    }
-
-    // Supprimer un versement
-    public function deleteVersement($id_versement) {
-        $query = "DELETE FROM versements WHERE id_versement = ?";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute([$id_versement]);
-    }
-
-    // Récupérer l'ID de l'inscription par ID de l'étudiant
-    public function getInscriptionByEtudiantId($id_etudiant) {
-        $query = "SELECT id_inscription FROM inscriptions WHERE id_etudiant = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$id_etudiant]);
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Retourne la première inscription trouvée
-    }
-
-    public function enregistrerVersement($id_inscription, $montant, $date_versement, $methode_paiement) {
         try {
-            $this->db->beginTransaction();
-
-            // Insérer le versement
-            $query = "INSERT INTO versements (id_inscription, montant, date_versement, methode_paiement, type_versement) 
-                     VALUES (?, ?, ?, ?, 'Tranche')";
-            $stmt = $this->db->prepare($query);
-            $stmt->execute([$id_inscription, $montant, $date_versement, $methode_paiement]);
-
-            // Mettre à jour le reste à payer dans l'inscription
-            $query = "UPDATE inscriptions 
-                     SET reste_a_payer = reste_a_payer - ? 
-                     WHERE id_inscription = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->execute([$montant, $id_inscription]);
-
-            $this->db->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            return false;
-        }
-    }
-
-    public function mettreAJourVersement($id_versement, $montant, $date_versement, $methode_paiement) {
-        try {
-            $this->db->beginTransaction();
-
             // Récupérer le versement actuel
-            $versement_actuel = $this->getVersementById($id_versement);
-            if (!$versement_actuel) {
+            $query = "SELECT v.*, i.montant_scolarite, i.montant_paye 
+                     FROM versements v 
+                     JOIN inscriptions i ON v.id_inscription = i.id_inscription 
+                     WHERE v.id_versement = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([$id_versement]);
+            $versement = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$versement) {
                 throw new Exception("Versement non trouvé");
             }
 
             // Calculer la différence de montant
-            $difference_montant = $montant - $versement_actuel['montant'];
+            $difference = $data['montant'] - $versement['montant'];
 
             // Mettre à jour le versement
             $query = "UPDATE versements 
-                     SET montant = ?, date_versement = ?, methode_paiement = ? 
+                     SET montant = ?, 
+                         methode_paiement = ? 
                      WHERE id_versement = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$montant, $date_versement, $methode_paiement, $id_versement]);
+            $stmt->execute([
+                $data['montant'],
+                $data['methode_paiement'],
+                $id_versement
+            ]);
 
             // Mettre à jour le montant payé dans l'inscription
             $query = "UPDATE inscriptions 
-                     SET montant_inscription = montant_inscription + ? 
+                     SET montant_paye = montant_paye + ?,
+                         reste_a_payer = montant_scolarite - (montant_paye + ?)
                      WHERE id_inscription = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->execute([$difference_montant, $versement_actuel['id_inscription']]);
+            $stmt->execute([
+                $difference,
+                $difference,
+                $versement['id_inscription']
+            ]);
 
-            $this->db->commit();
             return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            error_log("Erreur lors de la mise à jour du versement : " . $e->getMessage());
             return false;
         }
     }
 
-   
+
+    // Récupérer l'ID de l'inscription par ID de l'étudiant
+    public function getInscriptionByEtudiantId($id_etudiant) {
+        try {
+            $sql = "SELECT i.*, n.montant_scolarite, n.montant_inscription
+                    FROM inscriptions i
+                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                    WHERE i.id_etudiant = :id_etudiant
+                    ORDER BY i.date_inscription DESC
+                    LIMIT 1";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_etudiant' => $id_etudiant]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Erreur lors de la récupération de l'inscription : " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateMontantsInscription($idInscription, $montantTotalPaye) {
+        try {
+            // Récupérer l'inscription pour obtenir le montant de scolarité
+            $inscription = $this->getInscriptionById($idInscription);
+            if (!$inscription) {
+                return false;
+            }
+
+            // Calculer le reste à payer
+            $resteAPayer = $inscription['montant_scolarite'] - $montantTotalPaye;
+
+            // Mettre à jour les montants
+            $sql = "UPDATE inscriptions SET 
+                    montant_paye = :montant_paye,
+                    reste_a_payer = :reste_a_payer
+                    WHERE id_inscription = :id_inscription";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                'montant_paye' => $montantTotalPaye,
+                'reste_a_payer' => $resteAPayer,
+                'id_inscription' => $idInscription
+            ]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans updateMontantsInscription : " . $e->getMessage());
+            return false;
+        }
+    }
 } 

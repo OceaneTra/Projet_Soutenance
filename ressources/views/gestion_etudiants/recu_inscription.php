@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../../app/utils/ReceiptUtils.php';
 
 // Récupérer les données nécessaires
 $inscription = $GLOBALS['inscriptionAModifier'] ?? [];
+
 $etudiant = [
     'nom_etu' => $inscription['nom_etudiant'] ?? '',
     'prenom_etu' => $inscription['prenom_etudiant'] ?? ''

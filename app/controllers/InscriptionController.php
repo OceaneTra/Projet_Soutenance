@@ -148,7 +148,8 @@ class InscriptionController {
             $id_annee_acad = $_POST['annee_academique'];
             $montant_premier_versement = floatval($_POST['premier_versement']);
             $nombre_tranches = isset($_POST['nombre_tranches']) ? intval($_POST['nombre_tranches']) : 1;
-            $reste_a_payer = floatval(str_replace([' ', ' '], '', $_POST['reste_payer']));
+            // Nettoyer la valeur du reste à payer en supprimant tous les types d'espaces
+            $reste_a_payer = str_replace([' ', ' ', ' ', ' '], '', $_POST['reste_payer']);
             $methode_paiement = $_POST['methode_paiement'];
 
             // Vérifier si l'étudiant est déjà inscrit pour cette année académique
@@ -158,7 +159,15 @@ class InscriptionController {
             }
 
             // Créer l'inscription avec le premier versement
-            $id_inscription = $this->scolarite->creerInscription($id_etudiant, $id_niveau, $id_annee_acad, $montant_premier_versement, $nombre_tranches,$reste_a_payer,$methode_paiement);
+            $id_inscription = $this->scolarite->creerInscription(
+                $id_etudiant, 
+                $id_niveau, 
+                $id_annee_acad, 
+                $montant_premier_versement, 
+                $nombre_tranches,
+                $reste_a_payer,
+                $methode_paiement
+            );
 
             if ($id_inscription) {
                 // Si des tranches sont demandées, les créer

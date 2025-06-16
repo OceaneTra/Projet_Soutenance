@@ -539,8 +539,8 @@ $listeAnnees = isset($GLOBALS['listeAnnees']) ? $GLOBALS['listeAnnees'] : [];
     </div>
 
     <!-- Modal de confirmation de suppression -->
-    <div id="deleteModal" class="fixed inset-0 hidden overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 w-96 shadow-2xl rounded-md bg-white">
+    <div id="deleteModal" class="fixed inset-0 hidden overflow-y-auto h-full w-full top-16">
+        <div class="relative top-16 mx-auto p-5 w-96 shadow-2xl rounded-md bg-white">
             <div class="mt-3 text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                     <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
