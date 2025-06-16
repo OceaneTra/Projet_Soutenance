@@ -94,15 +94,6 @@ class Scolarite {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Vérifier si un étudiant est déjà inscrit
-    public function estEtudiantInscrit($num_etu) {
-        $query = "SELECT COUNT(*) as count FROM inscriptions WHERE id_etudiant = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$num_etu]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['count'] > 0;
-    }
-
     // Vérifier si un étudiant est déjà inscrit pour une année académique spécifique
     public function estEtudiantInscritPourAnnee($num_etu, $id_annee_acad) {
         $query = "SELECT COUNT(*) as count FROM inscriptions WHERE id_etudiant = ? AND id_annee_acad = ?";
@@ -132,14 +123,6 @@ class Scolarite {
             $this->db->rollBack();
             throw $e;
         }
-    }
-
-    // Récupérer la liste des années académiques
-    public function getAnneesAcademiques() {
-        $query = "SELECT id_annee_acad, date_deb, date_fin FROM annee_academique ORDER BY date_deb DESC";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Supprimer les échéances d'une inscription
@@ -258,7 +241,7 @@ class Scolarite {
     public function updateVersement($id_versement, $data) {
         try {
             // Récupérer le versement actuel
-            $query = "SELECT v.*, i.montant_scolarite, i.montant_paye 
+            $query = "SELECT v.*, i.reste_a_payer, i.montant_paye 
                      FROM versements v 
                      JOIN inscriptions i ON v.id_inscription = i.id_inscription 
                      WHERE v.id_versement = ?";
@@ -270,8 +253,6 @@ class Scolarite {
                 throw new Exception("Versement non trouvé");
             }
 
-            // Calculer la différence de montant
-            $difference = $data['montant'] - $versement['montant'];
 
             // Mettre à jour le versement
             $query = "UPDATE versements 
@@ -286,16 +267,18 @@ class Scolarite {
             ]);
 
             // Mettre à jour le montant payé dans l'inscription
-            $query = "UPDATE inscriptions 
-                     SET montant_paye = montant_paye + ?,
-                         reste_a_payer = montant_scolarite - (montant_paye + ?)
-                     WHERE id_inscription = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->execute([
-                $difference,
-                $difference,
-                $versement['id_inscription']
-            ]);
+                $sql = "UPDATE inscriptions i 
+                        JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                        SET i.montant_paye = i.montant_paye - :difference,
+                            i.reste_a_payer = n.montant_scolarite - i.montant_paye
+                        WHERE i.id_inscription = :id_inscription";
+                $stmt = $this->db->prepare($sql);
+
+                $stmt->execute([
+                    'difference' => $data['difference'],
+                    'id_inscription' => $versement['id_inscription']
+                ]);
+
 
             return true;
         } catch (Exception $e) {
@@ -324,32 +307,4 @@ class Scolarite {
         }
     }
 
-    public function updateMontantsInscription($idInscription, $montantTotalPaye) {
-        try {
-            // Récupérer l'inscription pour obtenir le montant de scolarité
-            $inscription = $this->getInscriptionById($idInscription);
-            if (!$inscription) {
-                return false;
-            }
-
-            // Calculer le reste à payer
-            $resteAPayer = $inscription['montant_scolarite'] - $montantTotalPaye;
-
-            // Mettre à jour les montants
-            $sql = "UPDATE inscriptions SET 
-                    montant_paye = :montant_paye,
-                    reste_a_payer = :reste_a_payer
-                    WHERE id_inscription = :id_inscription";
-
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                'montant_paye' => $montantTotalPaye,
-                'reste_a_payer' => $resteAPayer,
-                'id_inscription' => $idInscription
-            ]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans updateMontantsInscription : " . $e->getMessage());
-            return false;
-        }
-    }
 } 

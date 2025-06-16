@@ -146,15 +146,16 @@ class GestionScolariteController {
                 return;
             }
 
-            // Calculer la différence entre l'ancien montant et le nouveau
             $ancienMontant = floatval($versement['montant']);
             $nouveauMontant = floatval($_POST['montant']);
-            $difference = $nouveauMontant - $ancienMontant;
+            $difference = $ancienMontant - $nouveauMontant;
+        
 
             if ($ancienMontant != $nouveauMontant) {
+
                 // Vérifier si le nouveau montant total ne dépasse pas le montant de scolarité
-                $montantTotalPaye = floatval($inscription['montant_paye'] ?? 0) + $difference;
-                $montantScolarite = floatval($inscription['montant_scolarite'] ?? 0);
+                $montantTotalPaye = floatval($inscription['montant_paye']) - $difference;
+                $montantScolarite = floatval($inscription['montant_total']);
                 
                 if ($montantTotalPaye > $montantScolarite) {
                     $GLOBALS['messageErreur'] = "Le montant total des versements ne peut pas dépasser le montant de scolarité (" . number_format($montantScolarite, 2) . " FCFA).";
@@ -164,13 +165,12 @@ class GestionScolariteController {
                 // Préparer les données de mise à jour
                 $data = [
                     'montant' => $nouveauMontant,
+                    'difference' => $difference,
                     'methode_paiement' => $_POST['methode_paiement']
                 ];
 
                 // Mettre à jour le versement
                 if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
-                    // Mettre à jour le montant total payé et le reste à payer
-                    $this->scolariteModel->updateMontantsInscription($inscription['id_inscription'], $montantTotalPaye);
                     
                     // Récupérer les informations mises à jour
                     $inscriptionMiseAJour = $this->scolariteModel->getInscriptionById($inscription['id_inscription']);
@@ -187,7 +187,8 @@ class GestionScolariteController {
             } else {
                 // Si le montant n'a pas changé, on met juste à jour la méthode de paiement
                 $data = [
-                    'montant' => $nouveauMontant,
+                    'montant' => $_POST['montant'],
+                    'difference' => $difference,
                     'methode_paiement' => $_POST['methode_paiement']
                 ];
 
