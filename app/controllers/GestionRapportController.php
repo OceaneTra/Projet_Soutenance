@@ -59,13 +59,11 @@ class GestionRapportController {
             if ($this->isEtudiant()) {
                 $statistiquesRapports = $this->rapportModel->getStatsEtudiant($_SESSION['num_etu']);
                 $rapportsRecents = $this->rapportModel->getRapportsByEtudiant($_SESSION['num_etu']);
-                $rapportsRecents = array_slice($rapportsRecents, 0, 5);
+                $rapportsRecents = array_slice($rapportsRecents, 0, 5); // Limiter à 5 pour le dashboard
             } else {
                 $rapportsRecents = $this->rapportModel->getRecentRapports(5);
                 $statistiquesRapports = $this->calculerStatistiquesGlobales();
             }
-
-            // Les données sont maintenant disponibles globalement pour la vue
 
         } catch (Exception $e) {
             $this->afficherErreur("Erreur lors du chargement du dashboard : " . $e->getMessage());
@@ -104,9 +102,6 @@ class GestionRapportController {
     private function traiterCreationRapport()
     {
         try {
-            // Debug : afficher les données reçues
-            error_log("POST data rapports: " . print_r($_POST, true));
-
             $action = $_POST['action'] ?? '';
 
             if ($action === 'save_rapport') {
@@ -119,7 +114,8 @@ class GestionRapportController {
 
         } catch (Exception $e) {
             error_log("Exception dans traiterCreationRapport: " . $e->getMessage());
-            $this->afficherMessage("Erreur lors du traitement : " . $e->getMessage(), 'error');
+
+            // Toujours renvoyer du JSON pour les requêtes AJAX
             $this->sendJsonResponse(['success' => false, 'message' => $e->getMessage()]);
         }
     }

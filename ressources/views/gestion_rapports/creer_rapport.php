@@ -87,7 +87,7 @@
             <?php endif; ?>
 
             <!-- Formulaire principal -->
-            <form id="rapportForm" method="POST">
+            <form id="rapportForm" method="POST" onsubmit="return false;">
                 <input type="hidden" name="action" value="save_rapport">
                 <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
                     <input type="hidden" name="edit_id" value="<?= $rapport->id_rapport ?>">
@@ -335,11 +335,12 @@
             `;
 
         // Load template button event
-        loadTemplateBtn.addEventListener('click', function() {
+        loadTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // IMPORTANT : Empêcher la soumission du formulaire
+
             loadingIndicator.classList.remove('hidden');
             documentStatusMessage.textContent = 'Chargement du modèle en cours...';
 
-            // Simulate loading delay
             setTimeout(function() {
                 if (editor) {
                     editor.setContent(templateContent);
@@ -368,11 +369,12 @@
 
         // Save button event
         saveBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+            e.preventDefault(); // CRUCIAL
+            e.stopPropagation(); // Empêcher la propagation
 
             if (!editor) {
                 showNotification('error', 'Éditeur non initialisé');
-                return;
+                return false;
             }
 
             // Validation des champs requis
@@ -380,45 +382,62 @@
             const themeRapport = document.getElementById('theme_rapport').value.trim();
             const content = editor.getContent();
 
-            if (!nomRapport) {
-                showNotification('error', 'Le nom du rapport est requis');
-                return;
+            if (!nomRapport || nomRapport.length < 5) {
+                showNotification('error', 'Le nom du rapport doit contenir au moins 5 caractères');
+                return false;
             }
 
-            if (!themeRapport) {
-                showNotification('error', 'Le thème du rapport est requis');
-                return;
+            if (!themeRapport || themeRapport.length < 10) {
+                showNotification('error', 'Le thème du rapport doit contenir au moins 10 caractères');
+                return false;
             }
 
-            if (!content || content.trim() === '') {
-                showNotification('error', 'Le contenu du rapport est requis');
-                return;
+            if (!content || content.trim() === '' || content.replace(/<[^>]*>/g, '').trim().length < 50) {
+                showNotification('error', 'Le contenu du rapport doit contenir au moins 50 caractères');
+                return false;
             }
 
-            // Mettre le contenu dans le textarea
-            document.querySelector('textarea[name="contenu_rapport"]').value = content;
+            // Créer FormData manuellement
+            const formData = new FormData();
+            formData.append('action', 'save_rapport');
+            formData.append('nom_rapport', nomRapport);
+            formData.append('theme_rapport', themeRapport);
+            formData.append('contenu_rapport', content);
 
-            // Envoyer le formulaire via AJAX
-            const formData = new FormData(document.getElementById('rapportForm'));
+            // Ajouter edit_id si existe
+            const editId = document.querySelector('input[name="edit_id"]');
+            if (editId) {
+                formData.append('edit_id', editId.value);
+            }
 
-            // Afficher un indicateur de chargement
+            // Afficher indicateur de chargement
             saveBtn.disabled = true;
             saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>Enregistrement...';
 
-            fetch('?page=gestion_rapports&action=creer_rapport', {
+            fetch(window.location.href, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Important pour identifier AJAX côté serveur
+                }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         showNotification('success', data.message);
-                        // Rediriger après un délai
                         setTimeout(() => {
                             window.location.href = '?page=gestion_rapports';
                         }, 2000);
                     } else {
                         showNotification('error', data.message || 'Erreur lors de la sauvegarde');
+                        if (data.errors) {
+                            console.log('Erreurs de validation:', data.errors);
+                        }
                     }
                 })
                 .catch(error => {
@@ -430,6 +449,8 @@
                     saveBtn.disabled = false;
                     saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>Enregistrer';
                 });
+
+            return false;
         });
 
 

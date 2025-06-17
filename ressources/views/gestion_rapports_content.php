@@ -101,6 +101,74 @@
         </div>
     </section>
 
+    <section class="mt-16 max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-bold text-gray-800">Mes Rapports</h3>
+                    <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                    <?= isset($statistiquesRapports) ? ($statistiquesRapports->total_rapports ?? 0) : 0 ?> rapport(s)
+                </span>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <?php if (isset($rapportsRecents) && !empty($rapportsRecents)): ?>
+                    <div class="space-y-4">
+                        <?php foreach ($rapportsRecents as $rapport): ?>
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+                                            <?= htmlspecialchars($rapport->nom_rapport) ?>
+                                        </h4>
+                                        <p class="text-gray-600 mb-2">
+                                            <strong>Thème:</strong> <?= htmlspecialchars($rapport->theme_rapport) ?>
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            Créé le <?= date('d/m/Y à H:i', strtotime($rapport->date_rapport)) ?>
+                                        </p>
+                                    </div>
+                                    <div class="flex space-x-2 ml-4">
+                                        <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            <i class="fas fa-eye mr-1"></i> Voir
+                                        </button>
+                                        <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
+                                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            <i class="fas fa-edit mr-1"></i> Modifier
+                                        </button>
+                                        <button onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
+                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            <i class="fas fa-trash mr-1"></i> Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if (count($rapportsRecents) >= 5): ?>
+                        <div class="mt-6 text-center">
+                            <a href="?page=gestion_rapports&action=suivi_rapport"
+                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center">
+                                <i class="fas fa-list mr-2"></i> Voir tous mes rapports
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <div class="text-center py-8">
+                        <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
+                        <a href="?page=gestion_rapports&action=creer_rapport"
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
     <section class="mt-16 max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
         <div class="p-8">
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Processus de validation</h3>
@@ -157,6 +225,8 @@
 
 
 
+
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -205,6 +275,101 @@
             });
         });
     });
+
+    function voirRapport(rapportId) {
+        window.location.href = `?page=gestion_rapports&action=compte_rendu_rapport&id=${rapportId}`;
+    }
+
+    function modifierRapport(rapportId) {
+        window.location.href = `?page=gestion_rapports&action=creer_rapport&edit=${rapportId}`;
+    }
+
+    function supprimerRapport(rapportId, nomRapport) {
+        if (!confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${nomRapport}" ?\n\nCette action est irréversible.`)) {
+            return;
+        }
+
+        // Afficher un indicateur de chargement
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg">
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                    <span>Suppression en cours...</span>
+                </div>
+            </div>
+        </div>
+    `;
+        document.body.appendChild(loadingDiv);
+
+        // Envoyer la requête de suppression
+        const formData = new FormData();
+        formData.append('rapport_id', rapportId);
+
+        fetch('?page=gestion_rapports&action=deleteRapportAjax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.body.removeChild(loadingDiv);
+
+                if (data.success) {
+                    // Supprimer visuellement le rapport de la liste
+                    const rapportElement = event.target.closest('.border');
+                    rapportElement.remove();
+
+                    // Afficher un message de succès
+                    showNotification('success', data.message);
+                } else {
+                    showNotification('error', data.message || 'Erreur lors de la suppression');
+                }
+            })
+            .catch(error => {
+                document.body.removeChild(loadingDiv);
+                console.error('Erreur:', error);
+                showNotification('error', 'Erreur lors de la suppression');
+            });
+    }
+
+    function showNotification(type, message) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto overflow-hidden transform transition-all duration-300 z-50`;
+
+        let iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
+        let bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
+        let icon = type === 'success' ? 'check' : 'times';
+
+        notification.innerHTML = `
+        <div class="${bgColor} p-4 flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-${icon} ${iconColor}"></i>
+            </div>
+            <div class="ml-3 w-0 flex-1">
+                <p class="text-sm font-medium text-gray-900">${message}</p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button onclick="this.parentElement.parentElement.parentElement.remove()"
+                        class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+        document.body.appendChild(notification);
+
+        // Supprimer automatiquement après 3 secondes
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
     </script>
 </body>
 
