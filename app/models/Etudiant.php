@@ -19,6 +19,28 @@ class Etudiant {
         }
     }
 
+    public function getAllListeEtudiants() {
+        try {
+            $query = "SELECT e.*, n.lib_niv_etude, n.id_niv_etude, a.id_annee_acad, a.date_deb, a.date_fin
+                      FROM etudiants e
+                      LEFT JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                      LEFT JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                      LEFT JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad
+                      WHERE i.id_inscription = (
+                          SELECT i2.id_inscription FROM inscriptions i2
+                          WHERE i2.id_etudiant = e.num_etu
+                          ORDER BY i2.date_inscription DESC LIMIT 1
+                      )
+                      ORDER BY e.nom_etu, e.prenom_etu";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des étudiants : " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function getEtudiantById($num_etu) {
         try {
             $query = "SELECT * FROM etudiants WHERE num_etu = :num_etu";
@@ -49,18 +71,7 @@ class Etudiant {
 
     
 
-    public function isNumEtuExists($num_etu) {
-        try {
-            $query = "SELECT COUNT(*) FROM etudiants WHERE num_etu = :num_etu";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':num_etu', $num_etu);
-            $stmt->execute();
-            return $stmt->fetchColumn() > 0;
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la vérification du numéro étudiant : " . $e->getMessage());
-            return false;
-        }
-    }
+    
 
     public function ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $email_etu, $promotion_etu) {
         try {
@@ -163,45 +174,10 @@ class Etudiant {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getEtudiantByNumEtu($num_etu) {
-        $query = "SELECT * FROM etudiants WHERE num_etu = :num_etu";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':num_etu', $num_etu, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    
 
-    public function getSemestreValide($num_etu) {
-        $query = "SELECT * FROM notes_etudiants 
-                 WHERE num_etu = :num_etu 
-                 AND statut = 'validé' 
-                 ORDER BY semestre DESC 
-                 LIMIT 1";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':num_etu', $num_etu, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
 
-    public function validerCandidature($num_etu) {
-        $query = "UPDATE candidatures_soutenance 
-                 SET statut = 'validée', 
-                     date_traitement = NOW() 
-                 WHERE num_etu = :num_etu";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':num_etu', $num_etu, PDO::PARAM_STR);
-        return $stmt->execute();
-    }
-
-    public function rejeterCandidature($num_etu) {
-        $query = "UPDATE candidatures_soutenance 
-                 SET statut = 'rejetée', 
-                     date_traitement = NOW() 
-                 WHERE num_etu = :num_etu";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':num_etu', $num_etu, PDO::PARAM_STR);
-        return $stmt->execute();
-    }
+    
 
     public function verifierCandidature($numEtu) {
         $resultats = [];
@@ -309,24 +285,6 @@ class Etudiant {
         }
     }
 
-    public function getAbsencesEtudiant($numEtu) {
-        try {
-            $sql = "SELECT SUM(nombre_heures) as total_heures 
-                   FROM absences 
-                   WHERE num_etu = :num_etu";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([':num_etu' => $numEtu]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            return [
-                'total_heures' => $result['total_heures'] ?? 0
-            ];
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération des absences: " . $e->getMessage());
-            return ['total_heures' => 0];
-        }
-    }
 
     public function getInfoStage($numEtu) {
         try {

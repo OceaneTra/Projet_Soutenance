@@ -1,3 +1,47 @@
+<?php
+require_once __DIR__ . '/../../app/config/database.php';
+require_once __DIR__ . '/../../app/models/AnneeAcademique.php';
+require_once __DIR__ . '/../../app/models/NiveauEtude.php';
+require_once __DIR__ . '/../../app/models/Etudiant.php';
+
+$pdo = Database::getConnection();
+$anneeAcademiqueModel = new AnneeAcademique($pdo);
+$listeAnnees = $anneeAcademiqueModel->getAllAnneeAcademiques();
+$niveauEtudeModel = new NiveauEtude($pdo);
+$listeNiveaux = $niveauEtudeModel->getAllNiveauxEtudes();
+$etudiantModel = new Etudiant($pdo);
+$etudiants = $etudiantModel->getAllListeEtudiants();
+
+// Récupération des filtres
+$search = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
+$promotion = isset($_GET['promotion']) ? $_GET['promotion'] : '';
+$niveau = isset($_GET['niveau']) ? $_GET['niveau'] : '';
+
+// Filtrage des étudiants
+$filteredEtudiants = array_filter($etudiants, function($etudiant) use ($search, $promotion, $niveau) {
+    // Recherche texte (nom, prénom, email)
+    $matchesSearch = $search === '' ||
+        (isset($etudiant->nom_etu) && strpos(strtolower($etudiant->nom_etu), $search) !== false) ||
+        (isset($etudiant->prenom_etu) && strpos(strtolower($etudiant->prenom_etu), $search) !== false) ||
+        (isset($etudiant->email_etu) && strpos(strtolower($etudiant->email_etu), $search) !== false);
+    // Filtre promotion (année académique)
+    $matchesPromotion = $promotion === '' || (isset($etudiant->id_annee_acad) && $etudiant->id_annee_acad == $promotion);
+    // Filtre niveau
+    $matchesNiveau = $niveau === '' || (isset($etudiant->id_niv_etude) && $etudiant->id_niv_etude == $niveau);
+    // On applique tous les filtres activés (recherche ET (promotion si choisi) ET (niveau si choisi))
+    return $matchesSearch && $matchesPromotion && $matchesNiveau;
+});
+
+// Pagination
+$etudiantsParPage = 10;
+$p = isset($_GET['p']) && is_numeric($_GET['p']) && $_GET['p'] > 0 ? (int)$_GET['p'] : 1;
+$totalEtudiants = count($filteredEtudiants);
+$totalPages = max(1, ceil($totalEtudiants / $etudiantsParPage));
+$p = min($p, $totalPages); // éviter page trop grande
+$offset = ($p - 1) * $etudiantsParPage;
+$etudiantsPage = array_slice($filteredEtudiants, $offset, $etudiantsParPage);
+
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -13,27 +57,42 @@
                 class="text-emerald-600">MIAGE</span></h1>
 
         <!-- Section de recherche et de filtres -->
-        <div class="mb-6 flex flex-wrap gap-4 items-center">
-            <input type="text" id="searchInput" placeholder="Rechercher par nom, prénom ou email..."
+        <form method="get" class="mb-6 flex flex-wrap gap-4 items-center">
+            <?php if (isset($_GET['p'])): ?>
+            <input type="hidden" name="p" value="<?= htmlspecialchars($_GET['p']) ?>">
+            <?php endif; ?>
+            <?php if (isset($_GET['page'])): ?>
+            <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
+            <?php endif; ?>
+            <input type="text" name="search" placeholder="Rechercher par nom, prénom ou email..."
                 class="flex-1 min-w-[200px] p-3 pl-4 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 shadow-sm md:text-base text-sm"
-                onkeyup="filterStudents()">
+                value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
 
-            <select id="promotionFilter" onchange="filterStudents()"
+            <select name="promotion"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 shadow-sm md:text-base text-sm">
-                <option value="">Toutes les Promotions</option>
-                <option value="2025">Promotion 2025</option>
-                <option value="2026">Promotion 2026</option>
-                <option value="2027">Promotion 2027</option>
+                <option value="">Toutes les Années Académiques</option>
+                <?php foreach ($listeAnnees as $annee): ?>
+                <option value="<?= htmlspecialchars($annee->id_annee_acad) ?>"
+                    <?php if(isset($_GET['promotion']) && $_GET['promotion'] == $annee->id_annee_acad) echo 'selected'; ?>>
+                    <?= htmlspecialchars(date('Y', strtotime($annee->date_deb)) . '-' . date('Y', strtotime($annee->date_fin))) ?>
+                </option>
+                <?php endforeach; ?>
             </select>
 
-            <select id="niveauFilter" onchange="filterStudents()"
+            <select name="niveau"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 shadow-sm md:text-base text-sm">
                 <option value="">Tous les Niveaux</option>
-                <option value="L3">Licence 3</option>
-                <option value="M1">Master 1</option>
-                <option value="M2">Master 2</option>
+                <?php foreach ($listeNiveaux as $niv): ?>
+                <option value="<?= htmlspecialchars($niv->id_niv_etude) ?>"
+                    <?php if(isset($_GET['niveau']) && $_GET['niveau'] == $niv->id_niv_etude) echo 'selected'; ?>>
+                    <?= htmlspecialchars($niv->lib_niv_etude) ?>
+                </option>
+                <?php endforeach; ?>
             </select>
-        </div>
+
+            <button type="submit"
+                class="p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Filtrer</button>
+        </form>
 
         <!-- Conteneur pour la liste des étudiants (tableau) -->
         <div id="studentListContainer" class="overflow-x-auto">
@@ -68,191 +127,71 @@
                     </tr>
                 </thead>
                 <tbody id="studentTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Les lignes des étudiants seront ajoutées ici par JS -->
+                    <?php
+if (empty($etudiantsPage)) {
+    echo '<tr><td colspan="6" class="text-center text-gray-500 py-8">Aucun étudiant trouvé pour votre recherche.</td></tr>';
+} else {
+    foreach ($etudiantsPage as $etudiant) {
+        echo '<tr class="table-row-hover">';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">'.htmlspecialchars($etudiant->nom_etu ?? '').'</td>';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">'.htmlspecialchars($etudiant->prenom_etu ?? '').'</td>';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 hover:text-emerald-800">'.htmlspecialchars($etudiant->email_etu ?? '').'</td>';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">'.(isset($etudiant->date_deb, $etudiant->date_fin) ? htmlspecialchars(date('Y', strtotime($etudiant->date_deb)) . '-' . date('Y', strtotime($etudiant->date_fin))) : '').'</td>';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">'.htmlspecialchars($etudiant->lib_niv_etude ?? '').'</td>';
+        echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">'.htmlspecialchars($etudiant->date_naiss_etu ?? '').'</td>';
+        echo '</tr>';
+    }
+}
+?>
                 </tbody>
             </table>
         </div>
-
-        <!-- Message si aucun étudiant n'est trouvé -->
-        <div id="noResults" class="text-center text-gray-500 py-8 hidden">
-            Aucun étudiant trouvé pour votre recherche.
-        </div>
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <nav class="flex justify-center mt-6">
+            <ul class="inline-flex items-center -space-x-px">
+                <!-- Précédent -->
+                <li>
+                    <a href="?<?php
+                        $params = $_GET;
+                        $params['p'] = max(1, $p - 1);
+                        if (isset($_GET['page'])) $params['page'] = $_GET['page'];
+                        echo http_build_query($params);
+                    ?>"
+                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 <?php if($p == 1) echo 'pointer-events-none opacity-50'; ?>">
+                        Précédent
+                    </a>
+                </li>
+                <!-- Numéros de page -->
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li>
+                    <a href="?<?php
+                        $params = $_GET;
+                        $params['p'] = $i;
+                        if (isset($_GET['page'])) $params['page'] = $_GET['page'];
+                        echo http_build_query($params);
+                    ?>"
+                        class="px-3 py-2 leading-tight border border-gray-300 <?php echo $i == $p ? 'bg-emerald-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700'; ?>">
+                        <?= $i ?>
+                    </a>
+                </li>
+                <?php endfor; ?>
+                <!-- Suivant -->
+                <li>
+                    <a href="?<?php
+                        $params = $_GET;
+                        $params['p'] = min($totalPages, $p + 1);
+                        if (isset($_GET['page'])) $params['page'] = $_GET['page'];
+                        echo http_build_query($params);
+                    ?>"
+                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 <?php if($p == $totalPages) echo 'pointer-events-none opacity-50'; ?>">
+                        Suivant
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <?php endif; ?>
     </div>
-
-    <script>
-    // Données d'exemple pour les étudiants de la filière MIAGE avec promotion et niveau
-    // En production, ces données seraient chargées depuis une API ou une base de données.
-    const students = [{
-            id: 1,
-            lastName: 'Dupont',
-            firstName: 'Jean',
-            email: 'jean.dupont@univ.fr',
-            dob: '1999-05-15',
-            status: 'Actif',
-            promotion: '2025',
-            niveau: 'M1'
-        },
-        {
-            id: 2,
-            lastName: 'Martin',
-            firstName: 'Sophie',
-            email: 'sophie.martin@univ.fr',
-            dob: '2000-01-20',
-            status: 'Actif',
-            promotion: '2026',
-            niveau: 'L3'
-        },
-        {
-            id: 3,
-            lastName: 'Bernard',
-            firstName: 'Pierre',
-            email: 'pierre.bernard@univ.fr',
-            dob: '1998-11-03',
-            status: 'Actif',
-            promotion: '2025',
-            niveau: 'M2'
-        },
-        {
-            id: 4,
-            lastName: 'Thomas',
-            firstName: 'Marie',
-            email: 'marie.thomas@univ.fr',
-            dob: '2001-07-22',
-            status: 'Inactif',
-            promotion: '2027',
-            niveau: 'L3'
-        },
-        {
-            id: 5,
-            lastName: 'Petit',
-            firstName: 'Luc',
-            email: 'luc.petit@univ.fr',
-            dob: '1999-09-10',
-            status: 'Actif',
-            promotion: '2026',
-            niveau: 'M1'
-        },
-        {
-            id: 6,
-            lastName: 'Durand',
-            firstName: 'Anna',
-            email: 'anna.durand@univ.fr',
-            dob: '2000-03-25',
-            status: 'Actif',
-            promotion: '2025',
-            niveau: 'L3'
-        },
-        {
-            id: 7,
-            lastName: 'Leroy',
-            firstName: 'Paul',
-            email: 'paul.leroy@univ.fr',
-            dob: '1998-06-08',
-            status: 'Actif',
-            promotion: '2027',
-            niveau: 'M2'
-        },
-        {
-            id: 8,
-            lastName: 'Moreau',
-            firstName: 'Clara',
-            email: 'clara.moreau@univ.fr',
-            dob: '2001-02-14',
-            status: 'Actif',
-            promotion: '2026',
-            niveau: 'M2'
-        },
-        {
-            id: 9,
-            lastName: 'Simon',
-            firstName: 'Louis',
-            email: 'louis.simon@univ.fr',
-            dob: '1999-12-01',
-            status: 'Actif',
-            promotion: '2025',
-            niveau: 'M1'
-        },
-        {
-            id: 10,
-            lastName: 'Roux',
-            firstName: 'Emma',
-            email: 'emma.roux@univ.fr',
-            dob: '2000-10-18',
-            status: 'Inactif',
-            promotion: '2027',
-            niveau: 'M1'
-        }
-    ];
-
-    const studentTableBody = document.getElementById('studentTableBody');
-    const searchInput = document.getElementById('searchInput');
-    const promotionFilter = document.getElementById('promotionFilter');
-    const niveauFilter = document.getElementById('niveauFilter');
-    const noResultsMessage = document.getElementById('noResults');
-
-    /**
-     * Affiche la liste des étudiants dans le tableau.
-     * @param {Array} studentArray - Le tableau d'étudiants à afficher.
-     */
-    function displayStudents(studentArray) {
-        studentTableBody.innerHTML = ''; // Vide le tableau avant d'ajouter de nouvelles lignes
-
-        if (studentArray.length === 0) {
-            noResultsMessage.classList.remove('hidden'); // Affiche le message "aucun résultat"
-        } else {
-            noResultsMessage.classList.add('hidden'); // Cache le message "aucun résultat"
-            studentArray.forEach(student => {
-                const row = document.createElement('tr');
-                // Ajoute des classes Tailwind pour le style de ligne et l'effet de survol
-                row.classList.add('table-row-hover');
-
-                row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">${student.lastName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${student.firstName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 hover:text-emerald-800">${student.email}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${student.promotion}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${student.niveau}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${student.dob}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                ${student.status === 'Actif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                ${student.status}
-                            </span>
-                        </td>
-                    `;
-                studentTableBody.appendChild(row);
-            });
-        }
-    }
-
-    /**
-     * Filtre les étudiants en fonction de la valeur de recherche et des filtres de promotion/niveau.
-     * La recherche est insensible à la casse.
-     */
-    function filterStudents() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedPromotion = promotionFilter.value;
-        const selectedNiveau = niveauFilter.value;
-
-        const filteredStudents = students.filter(student => {
-            const matchesSearch = student.lastName.toLowerCase().includes(searchTerm) ||
-                student.firstName.toLowerCase().includes(searchTerm) ||
-                student.email.toLowerCase().includes(searchTerm);
-
-            const matchesPromotion = selectedPromotion === '' || student.promotion === selectedPromotion;
-            const matchesNiveau = selectedNiveau === '' || student.niveau === selectedNiveau;
-
-            // Un étudiant correspond si sa recherche, sa promotion ET son niveau correspondent
-            return matchesSearch && matchesPromotion && matchesNiveau;
-        });
-        displayStudents(filteredStudents); // Affiche les étudiants filtrés
-    }
-
-    // Initialisation : affiche tous les étudiants au chargement de la page
-    document.addEventListener('DOMContentLoaded', () => {
-        displayStudents(students);
-    });
-    </script>
 </body>
 
 </html>
