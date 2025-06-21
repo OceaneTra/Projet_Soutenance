@@ -215,15 +215,6 @@ class Etudiant {
                 'Moyenne générale insuffisante (' . number_format($notes['moyenne'], 2) . ')'
         ];
 
-        // Vérifier les absences
-        $absences = $this->getAbsencesEtudiant($numEtu);
-        $resultats['absences'] = [
-            'status' => $absences['total_heures'] <= 20 ? 'success' : 'error',
-            'message' => $absences['total_heures'] <= 20 ? 
-                'Nombre d\'absences acceptable (' . $absences['total_heures'] . ' heures)' : 
-                'Nombre d\'absences excessif (' . $absences['total_heures'] . ' heures)'
-        ];
-
         // Vérifier le stage
         $stage = $this->getInfoStage($numEtu);
         $resultats['stage'] = [

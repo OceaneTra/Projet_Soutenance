@@ -61,4 +61,59 @@ class GestionCandidaturesController {
             echo json_encode($historique);
         }
     }
+
+    // Ajout d'une méthode pour gérer la vérification par étape (AJAX)
+    public function verifier_etape() {
+        if (isset($_GET['num_etu']) && isset($_GET['etape'])) {
+            $numEtu = $_GET['num_etu'];
+            $etape = intval($_GET['etape']);
+            header('Content-Type: application/json');
+            switch ($etape) {
+                case 1: // Inscription
+                    // ... code existant pour l'inscription ...
+                    echo json_encode([
+                        'status' => 'Validé',
+                        'date' => '',
+                        'filiere' => ''
+                    ]);
+                    break;
+                case 2: // Scolarité
+                    // ... code existant pour la scolarité ...
+                    echo json_encode([
+                        'status' => 'Validé',
+                        'montant' => '',
+                        'dernierPaiement' => ''
+                    ]);
+                    break;
+                case 3: // Stage
+                    $stageModel = new InfoStage($this->db);
+                    $stage = $stageModel->getStageInfo($numEtu);
+                    if ($stage) {
+                        echo json_encode([
+                            'entreprise' => $stage['nom_entreprise'] ?? '',
+                            'sujet' => $stage['sujet_stage'] ?? '',
+                            'periode' => ($stage['date_debut_stage'] ?? '') . ' - ' . ($stage['date_fin_stage'] ?? ''),
+                            'encadrant' => $stage['encadrant_entreprise'] ?? ''
+                        ]);
+                    } else {
+                        echo json_encode([
+                            'entreprise' => 'Non renseigné',
+                            'sujet' => 'Non renseigné',
+                            'periode' => 'Non renseigné',
+                            'encadrant' => 'Non renseigné'
+                        ]);
+                    }
+                    break;
+                case 4: // Semestre
+                    // ... code existant pour le semestre ...
+                    echo json_encode([
+                        'semestre' => '',
+                        'moyenne' => '',
+                        'unites' => ''
+                    ]);
+                    break;
+            }
+            exit;
+        }
+    }
 } 

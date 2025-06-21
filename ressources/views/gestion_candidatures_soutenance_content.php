@@ -2,6 +2,26 @@
 
 $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
 
+$statutFiltre = $_GET['statut'] ?? 'all';
+if ($statutFiltre !== 'all') {
+    $candidatures = array_filter($candidatures, function($c) use ($statutFiltre) {
+        return $c['statut_candidature'] === $statutFiltre;
+    });
+}
+
+$examiner = $_GET['examiner'] ?? null;
+$etape = intval($_GET['etape'] ?? 1);
+
+if ($examiner) {
+    // Charger les infos de l'étudiant selon l'étape
+    // Exemple :
+    if ($etape === 1) {
+        // Charger infos inscription
+    } elseif ($etape === 2) {
+        // Charger infos scolarité
+    }
+    // etc.
+}
 
 ?>
 
@@ -425,9 +445,6 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
         gap: 10px;
     }
 
-    .modal-footer .right-button {
-        /* For the Close button */
-    }
 
     /* History Table Styles */
     .history-section {
@@ -571,14 +588,22 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
             <div class="filters">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Rechercher un étudiant...">
+                    <input type="text" id="searchInput" style="outline: none;" placeholder="Rechercher un étudiant...">
                 </div>
-                <select id="statusFilter">
-                    <option value="all">Tous les statuts</option>
-                    <option value="en_attente">En attente</option>
-                    <option value="validee">Validée</option>
-                    <option value="rejetee">Rejetée</option>
-                </select>
+                <form method="get" id="filterForm" style="margin:0;">
+                    <input type="hidden" name="page" value="gestion_candidatures_soutenance">
+                    <select name="statut" id="statusFilter" style="outline: none;"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option value="all" <?php if(($_GET['statut'] ?? 'all') === 'all') echo 'selected'; ?>>Tous les
+                            statuts</option>
+                        <option value="En attente"
+                            <?php if(($_GET['statut'] ?? '') === 'En attente') echo 'selected'; ?>>En attente</option>
+                        <option value="Validée" <?php if(($_GET['statut'] ?? '') === 'Validée') echo 'selected'; ?>>
+                            Validée</option>
+                        <option value="Rejetée" <?php if(($_GET['statut'] ?? '') === 'Rejetée') echo 'selected'; ?>>
+                            Rejetée</option>
+                    </select>
+                </form>
             </div>
 
             <!-- Liste des candidatures -->
@@ -600,7 +625,8 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
                                 <?php echo ucfirst($candidature['statut_candidature']); ?>
                             </span></p>
                     </div>
-                    <button onclick="examinerCandidature('<?php echo $candidature['num_etu']; ?>')" class="btn-examine">
+                    <button class="btn-examine"
+                        onclick="window.location.href='?page=gestion_candidatures_soutenance&examiner=<?php echo $candidature['num_etu']; ?>&etape=1'">
                         Examiner
                     </button>
                 </div>
@@ -649,6 +675,12 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
                     </div>
                     <div class="step-label">Scolarité</div>
                 </div>
+                <div class="step" id="stepStage">
+                    <div class="step-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="step-label">Stage</div>
+                </div>
                 <div class="step" id="stepSemestre">
                     <div class="step-icon">
                         <i class="fas fa-graduation-cap"></i>
@@ -689,6 +721,28 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
                     <div class="info-item">
                         <strong>Dernier paiement:</strong>
                         <span id="scolariteDernierPaiement"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-content" id="stepStageContent">
+                <div class="info-section">
+                    <h3>Vérification des informations de stage</h3>
+                    <div class="info-item">
+                        <strong>Entreprise :</strong>
+                        <span id="stageEntreprise"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Sujet :</strong>
+                        <span id="stageSujet"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Période :</strong>
+                        <span id="stagePeriode"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Encadrant :</strong>
+                        <span id="stageEncadrant"></span>
                     </div>
                 </div>
             </div>
@@ -742,13 +796,17 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
     <script>
     let currentNumEtu = null;
     let currentStep = 1;
-    let totalSteps = 3;
+    let totalSteps = 4;
     let stepResults = {
         inscription: {
             status: null,
             comment: ''
         },
         scolarite: {
+            status: null,
+            comment: ''
+        },
+        stage: {
             status: null,
             comment: ''
         },
@@ -784,7 +842,7 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
     }
 
     function getStepName(step) {
-        const steps = ['Inscription', 'Scolarite', 'Semestre'];
+        const steps = ['Inscription', 'Scolarite', 'Stage', 'Semestre'];
         return steps[step - 1];
     }
 
@@ -810,6 +868,12 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
                 document.getElementById('scolariteDernierPaiement').textContent = data.dernierPaiement;
                 break;
             case 3:
+                document.getElementById('stageEntreprise').textContent = data.entreprise;
+                document.getElementById('stageSujet').textContent = data.sujet;
+                document.getElementById('stagePeriode').textContent = data.periode;
+                document.getElementById('stageEncadrant').textContent = data.encadrant;
+                break;
+            case 4:
                 document.getElementById('semestreActuel').textContent = data.semestre;
                 document.getElementById('semestreMoyenne').textContent = data.moyenne;
                 document.getElementById('semestreUnites').textContent = data.unites;
@@ -910,41 +974,31 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
             });
     }
 
-    function closeModal() {
-        const modal = document.getElementById('examinationModal');
-        modal.style.display = 'none';
-        currentNumEtu = null;
-        currentStep = 1;
-        stepResults = {
-            inscription: {
-                status: null,
-                comment: ''
-            },
-            scolarite: {
-                status: null,
-                comment: ''
-            },
-            semestre: {
-                status: null,
-                comment: ''
-            }
-        };
-    }
 
-    // Fermer la modale si on clique en dehors
-    window.onclick = function(event) {
-        const modal = document.getElementById('examinationModal');
-        if (event.target === modal) {
-            closeModal();
+    const modal = document.getElementById('examinationModal');
+    modal.style.display = 'none';
+    currentNumEtu = null;
+    currentStep = 1;
+    stepResults = {
+        inscription: {
+            status: null,
+            comment: ''
+        },
+        scolarite: {
+            status: null,
+            comment: ''
+        },
+        stage: {
+            status: null,
+            comment: ''
+        },
+        semestre: {
+            status: null,
+            comment: ''
         }
-    }
+    };
 
-    // Ajouter un gestionnaire d'événements pour la touche Escape
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeModal();
-        }
-    });
+
 
     // Fonction de recherche
     document.getElementById('searchInput').addEventListener('input', function(e) {
@@ -956,44 +1010,6 @@ $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
             item.style.display = text.includes(searchTerm) ? '' : 'none';
         });
     });
-
-    // Fonction de filtrage par statut
-    document.getElementById('statusFilter').addEventListener('change', function(e) {
-        const status = e.target.value;
-        const items = document.querySelectorAll('.candidate-item');
-
-        items.forEach(item => {
-            if (status === 'all' || item.dataset.status === status) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    });
-
-    // Fonction pour charger l'historique
-    function chargerHistorique() {
-        fetch('?page=gestion_candidatures&action=historique')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.getElementById('historiqueTableBody');
-                tbody.innerHTML = data.map(item => `
-                    <tr>
-                        <td>${item.nom_etu} ${item.prenom_etu}</td>
-                        <td>
-                            <span class="action-badge action-${item.action}">
-                                ${item.action}
-                            </span>
-                        </td>
-                        <td>${item.commentaire || '-'}</td>
-                        <td>${new Date(item.date_action).toLocaleString()}</td>
-                    </tr>
-                `).join('');
-            });
-    }
-
-    // Charger l'historique au chargement de la page
-    document.addEventListener('DOMContentLoaded', chargerHistorique);
     </script>
 </body>
 

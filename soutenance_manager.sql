@@ -1741,6 +1741,28 @@ CREATE TABLE `informations_stage` (
   CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
   CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Structure de la table `notes`
+--
+
+CREATE TABLE `notes` (
+  `id_note` int NOT NULL AUTO_INCREMENT,
+  `num_etu` int NOT NULL,
+  `id_ue` int DEFAULT NULL,
+  `id_ecue` int DEFAULT NULL,
+  `moyenne` decimal(4,2) NOT NULL,
+  `commentaire` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci,
+  `date_evaluation` datetime NOT NULL,
+  `date_modification` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_note`),
+  KEY `num_etu` (`num_etu`),
+  KEY `id_ue` (`id_ue`),
+  KEY `id_ecue` (`id_ecue`),
+  CONSTRAINT `notes_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
+  CONSTRAINT `notes_ibfk_2` FOREIGN KEY (`id_ue`) REFERENCES `ue` (`id_ue`),
+  CONSTRAINT `notes_ibfk_3` FOREIGN KEY (`id_ecue`) REFERENCES `ecue` (`id_ecue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_mysql500_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -94,7 +94,7 @@ class Ecue
         return $nouveauCredit <= $restant;
     }
 
-    public function getEcuesByNiveau(int $niveauId, ?int $studentId = null): array
+    public function getEcuesByNiveau(int $niveauId): array
     {
         $sql = "SELECT DISTINCT e.*, u.lib_ue, s.lib_semestre 
                 FROM ecue e 
@@ -103,15 +103,6 @@ class Ecue
                 WHERE s.id_niv_etude = :niveau_id";
         
         $params = [':niveau_id' => $niveauId];
-        
-        if ($studentId) {
-            $sql .= " AND e.id_ecue IN (
-                SELECT DISTINCT n.id_ecue 
-                FROM notes n 
-                WHERE n.num_etu = :student_id
-            )";
-            $params[':student_id'] = $studentId;
-        }
         
         $sql .= " ORDER BY s.lib_semestre, u.lib_ue, e.lib_ecue";
         

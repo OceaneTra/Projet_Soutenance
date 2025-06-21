@@ -94,7 +94,7 @@ $activites = $dashboardData['activites'];
                     <div class="bg-white p-4 rounded-lg shadow-sm hover-scale">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">Nouvelles inscriptions</p>
+                                <p class="text-sm font-medium text-gray-500">Étudiants enregistrés</p>
                                 <p class="text-2xl font-bold text-gray-800">
                                     <?php echo number_format($stats['nouvelles_inscriptions']); ?></p>
                                 <p class="text-xs text-gray-500">7 derniers jours</p>
@@ -108,7 +108,7 @@ $activites = $dashboardData['activites'];
                     <div class="bg-white p-4 rounded-lg shadow-sm hover-scale">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">Notes à valider</p>
+                                <p class="text-sm font-medium text-gray-500">Paiements complets</p>
                                 <p class="text-2xl font-bold text-gray-800">
                                     <?php echo number_format($stats['notes_a_valider']); ?></p>
                                 <p class="text-xs text-gray-500">En attente de validation</p>
@@ -122,7 +122,7 @@ $activites = $dashboardData['activites'];
                     <div class="bg-white p-4 rounded-lg shadow-sm hover-scale">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">Paiements en attente</p>
+                                <p class="text-sm font-medium text-gray-500">Paiements partiels</p>
                                 <p class="text-2xl font-bold text-gray-800">
                                     <?php echo number_format($stats['paiements_en_attente']); ?></p>
                                 <p class="text-xs text-gray-500">Total:

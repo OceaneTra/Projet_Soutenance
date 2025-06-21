@@ -1,13 +1,19 @@
 <?php
 require_once __DIR__ . '/../../app/utils/ReceiptUtils.php';
+require_once __DIR__ . '/../../app/models/Scolarite.php';
+require_once __DIR__ . '/../../app/config/database.php';
+
+
+$scolarite = new Scolarite(Database::getConnection());
+
 
 // Récupérer les données du versement
-$versement = $GLOBALS['versementAModifier'] ;
+$versement = $scolarite->getVersementById($id_versement);
 
 
 
 // Récupérer l'inscription associée au versement
-$inscription = $GLOBALS['inscriptionAModifier'] ?? null;
+$inscription = $scolarite->getInscriptionById($versement['id_inscription']);
 
 
 
@@ -22,7 +28,7 @@ $methodePaiement = $versement['methode_paiement'] ?? '';
 $dateVersement = $versement['date_versement'] ?? date('Y-m-d');
 $anneeAcademique = $inscription['annee_academique'] ?? '';
 $nomNiveau = $inscription['nom_niveau'] ?? '';
-$montantScolarite = floatval($inscription['montant_scolarite'] ?? 0);
+$montantScolarite = floatval($inscription['montant_total'] ?? 0);
 $montantPaye = floatval($inscription['montant_paye'] ?? 0);
 $resteAPayer = floatval($inscription['reste_a_payer'] ?? 0);
 ?>

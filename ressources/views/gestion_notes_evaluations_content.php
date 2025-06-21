@@ -106,6 +106,24 @@ $studentGrades = $GLOBALS['studentGrades'];
         display: block;
         animation: fadeIn 0.3s ease-in;
     }
+
+    /* Styles pour les alertes */
+    [role="alert"] {
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    [role="alert"].show {
+        opacity: 1;
+    }
+
+    #alertContainer {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 400px;
+    }
     </style>
     <script>
     function toggleSemestreValidation(semestre) {
@@ -137,7 +155,7 @@ $studentGrades = $GLOBALS['studentGrades'];
         e.preventDefault();
         const formData = new FormData(this);
 
-        fetch('<?php echo '?page=gestion_notes_evaluations'; ?>', {
+        fetch('<?php echo '?page=gestion_notes_evaluations&action=enregistrer_notes'; ?>', {
                 method: 'POST',
                 body: formData
             })
@@ -161,6 +179,23 @@ $studentGrades = $GLOBALS['studentGrades'];
     <div class="flex h-screen overflow-hidden">
         <!-- Main content area -->
         <div class="flex-1 p-4 md:p-6 overflow-y-auto ">
+            <div id="alertContainer">
+                <?php if (isset($_SESSION['success'])): ?>
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+                    role="alert">
+                    <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
+                </div>
+                <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                    <span class="block sm:inline"><?php echo $_SESSION['error']; ?></span>
+                </div>
+                <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+            </div>
+
             <!-- Interface de saisie des notes (optimisée) -->
             <div id="notes" class="tab-content active max-w-7xl mx-auto">
                 <!-- Header with student search -->
@@ -168,6 +203,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-800">Gestion des Notes</h2>
                         <div class="flex items-center space-x-4">
+                            <!-- Niveau d'étude -->
                             <div class="relative">
                                 <select id="niveauSelect"
                                     class="block w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -180,6 +216,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <!-- Étudiant -->
                             <div class="relative">
                                 <select id="studentSelect"
                                     class="block w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -230,8 +267,11 @@ $studentGrades = $GLOBALS['studentGrades'];
                     <!-- Semestres et UE -->
                     <div class="space-y-6">
                         <?php if (!empty($GLOBALS['selectedNiveau'])) { ?>
-                        <form id="saisiForm" class="space-y-6"
-                            action="?page=gestion_notes_evaluations&enregistrer_notes" method="POST">
+
+                        <form id="saisiForm" class="space-y-6" action="?page=gestion_notes_evaluations<?php 
+                                echo !empty($GLOBALS['selectedNiveau']) ? '&niveau=' . htmlspecialchars($GLOBALS['selectedNiveau']) : '';
+                                echo !empty($GLOBALS['selectedStudent']) ? '&student=' . htmlspecialchars($GLOBALS['selectedStudent']->num_etu) : '';
+                            ?>&action=enregistrer_notes" method="POST">
                             <?php 
                                 $currentSemestre = null;
                                 if (!empty($GLOBALS['studentUes'])) {
@@ -296,7 +336,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                                 if (!empty($GLOBALS['studentGrades'])) {
                                                     foreach ($GLOBALS['studentGrades'] as $grade) {
                                                         if ($grade->ecue_id == $ecue->id_ecue) {
-                                                            $note_ecue = $grade->note;
+                                                            $note_ecue = $grade->moyenne;
                                                             break;
                                                         }
                                                     }
@@ -334,7 +374,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                             if (!empty($GLOBALS['studentGrades'])) {
                                                 foreach ($GLOBALS['studentGrades'] as $grade) {
                                                     if ($grade->ue_id == $ue->id_ue) {
-                                                        $note = $grade->note;
+                                                        $note = $grade->moyenne;
                                                         break;
                                                     }
                                                 }
@@ -370,15 +410,17 @@ $studentGrades = $GLOBALS['studentGrades'];
                                 }
                             ?>
                                     <div class="flex justify-end mt-6">
-                                        <button type="submit"
+                                        <button type="submit" name="btn_enregistrer_notes"
                                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                             Enregistrer les notes
                                         </button>
                                     </div>
                         </form>
                         <?php } ?>
+
+                        <?php } ?>
                     </div>
-                    <?php } ?>
+
                     <!-- Résumé des notes -->
                     <?php if (!empty($GLOBALS['selectedStudent'])): ?>
                     <div class="bg-blue-50 rounded-lg p-4 mb-6 mt-4">
@@ -390,7 +432,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     $totalNotes = 0;
                                     $totalCredits = 0;
                                     foreach ($GLOBALS['studentGrades'] as $grade) {
-                                        $totalNotes += $grade->note * $grade->credit;
+                                        $totalNotes += $grade->moyenne * $grade->credit;
                                         $totalCredits += $grade->credit;
                                     }
                                     echo $totalCredits > 0 ? number_format($totalNotes / $totalCredits, 2) : '0.00';
@@ -403,7 +445,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     <?php
                                     $creditsValides = 0;
                                     foreach ($GLOBALS['studentGrades'] as $grade) {
-                                        if ($grade->note >= 10) {
+                                        if ($grade->moyenne >= 10) {
                                             $creditsValides += $grade->credit;
                                         }
                                     }
@@ -419,7 +461,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     $uesTraitees = [];
                                     foreach ($GLOBALS['studentGrades'] as $grade) {
                                         if (!in_array($grade->ue_id, $uesTraitees)) {
-                                            if ($grade->note >= 10) {
+                                            if ($grade->moyenne >= 10) {
                                                 $uesValidees++;
                                             }
                                             $uesTraitees[] = $grade->ue_id;
@@ -437,7 +479,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                     $uesTraitees = [];
                                     foreach ($GLOBALS['studentGrades'] as $grade) {
                                         if (!in_array($grade->ue_id, $uesTraitees)) {
-                                            if ($grade->note < 10) {
+                                            if ($grade->moyenne < 10) {
                                                 $uesEchec++;
                                             }
                                             $uesTraitees[] = $grade->ue_id;
@@ -460,6 +502,23 @@ $studentGrades = $GLOBALS['studentGrades'];
         const niveauSelect = document.getElementById('niveauSelect');
         const studentSelect = document.getElementById('studentSelect');
 
+        // Gestion des messages d'alerte
+        const alerts = document.querySelectorAll('[role="alert"]');
+        alerts.forEach(alert => {
+            // Faire apparaître l'alerte
+            setTimeout(() => {
+                alert.classList.add('show');
+            }, 100);
+
+            // Faire disparaître l'alerte après 5 secondes
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
         niveauSelect.addEventListener('change', function() {
             const niveauId = this.value;
             if (niveauId) {
@@ -476,47 +535,7 @@ $studentGrades = $GLOBALS['studentGrades'];
             }
         });
     });
-
-    function saveAllGrades() {
-        const inputs = document.querySelectorAll('.note-input');
-        const updates = [];
-
-        inputs.forEach(input => {
-            if (input.value !== '') {
-                updates.push({
-                    student_id: input.dataset.studentId,
-                    ue_id: input.dataset.ueId,
-                    note: input.value,
-                    commentaire: input.nextElementSibling?.value || ''
-                });
-            }
-        });
-
-        if (updates.length > 0) {
-            fetch('updateNote', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updates)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Notes enregistrées avec succès');
-                        location.reload();
-                    } else {
-                        alert('Erreur lors de l\'enregistrement des notes');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Erreur lors de l\'enregistrement des notes');
-                });
-        }
-    }
     </script>
 </body>
-
 
 </html>

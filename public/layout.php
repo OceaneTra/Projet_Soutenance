@@ -199,7 +199,7 @@ switch ($currentMenuSlug) {
                 // Inclure l'autoloader de Composer pour Dompdf
                 require_once __DIR__ . '/../vendor/autoload.php'; // Assurez-vous que ce chemin est correct
 
-                $id_inscription = $_GET['id'];
+                $id_versement = $_GET['id'];
 
                 // Démarrer la mise en mémoire tampon de sortie
                 ob_start();
@@ -228,7 +228,7 @@ switch ($currentMenuSlug) {
 
                 // Envoyer le PDF au navigateur
                 // Le paramètre Attachment => false permet d\'afficher le PDF directement
-                $dompdf->stream("recu_paiement_" . $id_inscription . ".pdf", array("Attachment" => false));
+                $dompdf->stream("recu_paiement_" . $id_versement . ".pdf", array("Attachment" => false));
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
             }
