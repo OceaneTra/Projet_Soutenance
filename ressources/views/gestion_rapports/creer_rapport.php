@@ -49,22 +49,24 @@
                 <p class="text-gray-600 mt-2">Créez et modifiez votre rapport facilement</p>
             </div>
             <div class="flex space-x-3 mt-4 md:mt-0">
+                <a href="?page=gestion_rapports"
+                   class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Retour
+                </a>
                 <button id="saveBtn"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
-                        </path>
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                     </svg>
                     Enregistrer
                 </button>
                 <button id="exportBtn"
-                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                     Exporter
                 </button>
@@ -73,7 +75,53 @@
 
         <!-- Main Content -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <?php if (isset($erreurs) && !empty($erreurs)): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                    <strong>Erreurs de validation :</strong>
+                    <ul class="mt-2 list-disc list-inside">
+                        <?php foreach ($erreurs as $erreur): ?>
+                            <li><?= htmlspecialchars($erreur) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <!-- Formulaire principal -->
+            <form id="rapportForm" method="POST" onsubmit="return false;">
+                <input type="hidden" name="action" value="save_rapport">
+                <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
+                    <input type="hidden" name="edit_id" value="<?= $rapport->id_rapport ?>">
+                <?php endif; ?>
             <!-- Toolbar -->
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations du rapport</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="nom_rapport" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nom du rapport <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   id="nom_rapport"
+                                   name="nom_rapport"
+                                   value="<?= isset($rapport) ? htmlspecialchars($rapport->nom_rapport) : '' ?>"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Ex: Rapport de stage - Développement Web"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="theme_rapport" class="block text-sm font-medium text-gray-700 mb-2">
+                                Thème du rapport <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   id="theme_rapport"
+                                   name="theme_rapport"
+                                   value="<?= isset($rapport) ? htmlspecialchars($rapport->theme_rapport) : '' ?>"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Ex: Intégration d'un système CRM"
+                                   required>
+                        </div>
+                    </div>
+                </div>
             <div class="bg-gray-50 border-b border-gray-200 p-4 flex flex-wrap justify-between items-center">
                 <div class="flex items-center space-x-4 mb-3 md:mb-0">
                     <button id="loadTemplateBtn"
@@ -121,9 +169,10 @@
                 <div id="documentStatusMessage" class="text-center py-8 text-gray-500">
                     Veuillez charger le modèle pour commencer l'édition
                 </div>
-                <textarea id="editor" class="hidden"></textarea>
+                <textarea id="editor" name="contenu_rapport" class="hidden"></textarea>
             </div>
         </div>
+        </form>
 
         <!-- Footer -->
         <div class="mt-6 text-center text-gray-600 text-sm">
@@ -286,11 +335,12 @@
             `;
 
         // Load template button event
-        loadTemplateBtn.addEventListener('click', function() {
+        loadTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // IMPORTANT : Empêcher la soumission du formulaire
+
             loadingIndicator.classList.remove('hidden');
             documentStatusMessage.textContent = 'Chargement du modèle en cours...';
 
-            // Simulate loading delay
             setTimeout(function() {
                 if (editor) {
                     editor.setContent(templateContent);
@@ -318,13 +368,91 @@
         });
 
         // Save button event
-        saveBtn.addEventListener('click', function() {
-            if (editor) {
-                const content = editor.getContent();
-                localStorage.setItem('reportContent', content);
-                showNotification('success', 'Rapport enregistré localement avec succès!');
+        saveBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // CRUCIAL
+            e.stopPropagation(); // Empêcher la propagation
+
+            if (!editor) {
+                showNotification('error', 'Éditeur non initialisé');
+                return false;
             }
+
+            // Validation des champs requis
+            const nomRapport = document.getElementById('nom_rapport').value.trim();
+            const themeRapport = document.getElementById('theme_rapport').value.trim();
+            const content = editor.getContent();
+
+            if (!nomRapport || nomRapport.length < 5) {
+                showNotification('error', 'Le nom du rapport doit contenir au moins 5 caractères');
+                return false;
+            }
+
+            if (!themeRapport || themeRapport.length < 10) {
+                showNotification('error', 'Le thème du rapport doit contenir au moins 10 caractères');
+                return false;
+            }
+
+            if (!content || content.trim() === '' || content.replace(/<[^>]*>/g, '').trim().length < 50) {
+                showNotification('error', 'Le contenu du rapport doit contenir au moins 50 caractères');
+                return false;
+            }
+
+            // Créer FormData manuellement
+            const formData = new FormData();
+            formData.append('action', 'save_rapport');
+            formData.append('nom_rapport', nomRapport);
+            formData.append('theme_rapport', themeRapport);
+            formData.append('contenu_rapport', content);
+
+            // Ajouter edit_id si existe
+            const editId = document.querySelector('input[name="edit_id"]');
+            if (editId) {
+                formData.append('edit_id', editId.value);
+            }
+
+            // Afficher indicateur de chargement
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>Enregistrement...';
+
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Important pour identifier AJAX côté serveur
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showNotification('success', data.message);
+                        setTimeout(() => {
+                            window.location.href = '?page=gestion_rapports';
+                        }, 2000);
+                    } else {
+                        showNotification('error', data.message || 'Erreur lors de la sauvegarde');
+                        if (data.errors) {
+                            console.log('Erreurs de validation:', data.errors);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showNotification('error', 'Erreur lors de la sauvegarde');
+                })
+                .finally(() => {
+                    // Restaurer le bouton
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>Enregistrer';
+                });
+
+            return false;
         });
+
 
         // Export button event
         exportBtn.addEventListener('click', function() {

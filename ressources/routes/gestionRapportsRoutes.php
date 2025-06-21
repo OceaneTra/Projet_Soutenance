@@ -1,4 +1,5 @@
 <?php
+
 if ($_GET['page'] === 'gestion_rapports') {
     require_once __DIR__ . '/../../app/controllers/GestionRapportController.php';
     $controller = new GestionRapportController();
@@ -14,9 +15,23 @@ if ($_GET['page'] === 'gestion_rapports') {
             case 'compte_rendu_rapport':
                 $controller->compteRenduRapport();
                 break;
+            case 'delete_rapport':
+                $controller->deleteRapportAjax();
+                break;
+            case 'get_rapport':
+                $controller->getRapportAjax();
+                break;
+            case 'exporter_rapports':
+                $controller->exporterRapports();
+                break;
             default:
-                '';
+                // Action non reconnue, rediriger vers le dashboard
+                header('Location: ?page=gestion_rapports');
+                exit;
         }
+    } else {
+        // Pas d'action spécifiée, afficher le dashboard
+        $controller->index();
     }
-
 }
+?>

@@ -197,46 +197,41 @@
 </head>
 
 <body>
+<div class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Suivi des Rapports</h1>
+                <p class="text-gray-600 mt-2">Suivez l'avancement de vos rapports en temps réel</p>
+            </div>
+            <a href="?page=gestion_rapports"
+               class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Retour au tableau de bord
+            </a>
+        </div>
     <div class="container">
         <!-- Statistiques -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div style="display: flex; align-items: center;">
-                    <i class="fas fa-file-alt"></i>
-                    <div>
-                        <h3>En Cours</h3>
-                        <p>5</p>
+        <?php if (isset($statistiques)): ?>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                            <i class="fas fa-file-alt text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Total</h3>
+                            <p class="text-2xl font-semibold text-gray-700"><?= $statistiques['total'] ?? 0 ?></p>
+                        </div>
                     </div>
                 </div>
+                <!-- Répéter pour les autres statistiques... -->
             </div>
-            <div class="stat-card">
-                <div style="display: flex; align-items: center;">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <h3>En Révision</h3>
-                        <p>3</p>
-                    </div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div style="display: flex; align-items: center;">
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <h3>Validés</h3>
-                        <p>8</p>
-                    </div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div style="display: flex; align-items: center;">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <h3>À Corriger</h3>
-                        <p>2</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php endif; ?>
 
         <!-- Contenu principal -->
         <div class="main-content">
