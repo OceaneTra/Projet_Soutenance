@@ -12,6 +12,7 @@ include 'menu.php';
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDashboardRoutes.php';
+include __DIR__ . '/../ressources/routes/dashboardEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionScolariteRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionNotesRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
@@ -48,7 +49,8 @@ if (isset($_GET['page'])) {
     }
 }else{
   $currentMenuSlug = $traitements[0]['lib_traitement'];
-    $currentPageLabel = $traitements[0]['label_traitement'];
+  $currentPageLabel = $traitements[0]['label_traitement'];
+  
 }
 
 // Générer le HTML du menu
@@ -235,6 +237,7 @@ switch ($currentMenuSlug) {
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
             }
+        
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];

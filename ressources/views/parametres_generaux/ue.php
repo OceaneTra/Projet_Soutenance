@@ -245,6 +245,18 @@
                                 <?php endforeach; ?>
                             </select>
 
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Professeur responsable</label>
+                            <select id="professeur_responsable" name="professeur_responsable"
+                                class="form-select w-2/3 px-3 py-2 border border-gray-300 mb-3 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+                                <option value="">Sélectionnez un professeur</option>
+                                <?php foreach ($GLOBALS['listeEnseignants'] ?? [] as $enseignant): ?>
+                                <option value="<?= $enseignant->id_enseignant ?>"
+                                    <?= $ue_a_modifier && $ue_a_modifier->id_enseignant == $enseignant->id_enseignant ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+
                             <label class="block text-sm font-medium text-gray-700 mb-2">Libellé de l'UE</label>
                             <input type="text" id="lib_ue" name="lib_ue" required
                                 value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->lib_ue) : '' ?>"
@@ -273,6 +285,8 @@
                                 value="<?= $ue_a_modifier ? htmlspecialchars($ue_a_modifier->credit) : '' ?>"
                                 placeholder="Ex: 6"
                                 class="form-input w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-4 focus:outline-green-300 focus:ring-green-300 focus:border-green-300 focus:ring-opacity-50 transition-all duration-200">
+
+
 
                         </div>
                     </div>
@@ -356,6 +370,8 @@
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semestre
                         </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Professeur
+                            responsable</th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions
                         </th>
                     </tr>
@@ -383,6 +399,9 @@
                         <td class="px-4 py-3 text-sm text-gray-700">
                             <?= htmlspecialchars($ue->lib_semestre) ?>
                         </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <?= htmlspecialchars($ue->nom_professeur ?? 'Non assigné') ?>
+                        </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex justify-center space-x-2">
                                 <a href="?page=parametres_generaux&action=ue&id_ue=<?= $ue->id_ue ?>"
@@ -395,7 +414,7 @@
                     <?php endforeach; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="7" class="text-center text-sm text-gray-500 py-4">
+                        <td colspan="8" class="text-center text-sm text-gray-500 py-4">
                             Aucune UE enregistrée.
                         </td>
                     </tr>

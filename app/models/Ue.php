@@ -12,25 +12,27 @@ class Ue
     public function getAllUes()
     {
       $stmt = $this->pdo->query("SELECT ue.*, n.lib_niv_etude, s.lib_semestre, 
-                          CONCAT(YEAR(a.date_deb), ' - ', YEAR(a.date_fin)) AS annee 
+                          CONCAT(YEAR(a.date_deb), ' - ', YEAR(a.date_fin)) AS annee,
+                          CONCAT(e.nom_enseignant, ' ', e.prenom_enseignant) AS nom_professeur
                           FROM ue 
                           JOIN niveau_etude n ON ue.id_niveau_etude = n.id_niv_etude
                           JOIN semestre s ON ue.id_semestre = s.id_semestre
                           JOIN annee_academique a ON ue.id_annee_academique = a.id_annee_acad
+                          LEFT JOIN enseignants e ON ue.id_enseignant = e.id_enseignant
                           ORDER BY lib_ue");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit)
+    public function ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit, $id_enseignant = null)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO ue (lib_ue, id_niveau_etude, id_semestre, id_annee_academique, credit) VALUES (?, ?, ?, ?, ?)");
-        return $stmt->execute([$lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit]);
+        $stmt = $this->pdo->prepare("INSERT INTO ue (lib_ue, id_niveau_etude, id_semestre, id_annee_academique, credit, id_enseignant) VALUES (?, ?, ?, ?, ?, ?)");
+        return $stmt->execute([$lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit, $id_enseignant]);
     }
 
-    public function updateUe($id_ue, $lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit)
+    public function updateUe($id_ue, $lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit, $id_enseignant = null)
     {
-        $stmt = $this->pdo->prepare("UPDATE ue SET lib_ue = ?, id_niveau_etude = ?, id_semestre = ?, id_annee_academique = ?, credit = ? WHERE id_ue = ?");
-        return $stmt->execute([$lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit, $id_ue]);
+        $stmt = $this->pdo->prepare("UPDATE ue SET lib_ue = ?, id_niveau_etude = ?, id_semestre = ?, id_annee_academique = ?, credit = ?, id_enseignant = ? WHERE id_ue = ?");
+        return $stmt->execute([$lib_ue, $id_niveau_etude, $id_semestre, $id_annee_academique, $credit, $id_enseignant, $id_ue]);
     }
 
     public function deleteUe($id)

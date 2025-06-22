@@ -37,7 +37,7 @@
                             <i class="fas fa-chalkboard-teacher text-white text-xl opacity-80"></i>
                         </div>
                         <div class="text-white text-3xl font-bold">
-                            <p>4</p>
+                            <p><?php echo $GLOBALS['total_cours'] ?? 0; ?></p>
                         </div>
                     </div>
                     <!-- Assignments to Evaluate Card -->
@@ -48,7 +48,7 @@
                             <i class="fas fa-clipboard-list text-white text-xl opacity-80"></i>
                         </div>
                         <div class="text-white text-3xl font-bold">
-                            <p>12</p>
+                            <p><?php echo $GLOBALS['total_evaluations_a_faire'] ?? 0; ?></p>
                         </div>
                     </div>
                     <!-- Students Supervised Card -->
@@ -59,7 +59,7 @@
                             <i class="fas fa-users text-white text-xl opacity-80"></i>
                         </div>
                         <div class="text-white text-3xl font-bold">
-                            <p>7</p>
+                            <p><?php echo $GLOBALS['total_etudiants_encadres'] ?? 0; ?></p>
                         </div>
                     </div>
                     <!-- Evaluations Completed Card -->
@@ -70,7 +70,7 @@
                             <i class="fas fa-check-circle text-white text-xl opacity-80"></i>
                         </div>
                         <div class="text-white text-3xl font-bold">
-                            <p>35</p>
+                            <p><?php echo $GLOBALS['total_evaluations_terminees'] ?? 0; ?></p>
                         </div>
                     </div>
                 </div>
@@ -83,11 +83,12 @@
                         <!-- Progress circle (example: 78%) -->
                         <!-- This would typically be dynamic based on actual data -->
                         <div class="absolute inset-0 rounded-full"
-                            style="background: conic-gradient(#34C759 78%, transparent 0%);"></div>
+                            style="background: conic-gradient(#34C759 <?php echo $GLOBALS['progression_evaluations'] ?? 0; ?>%, transparent 0%);">
+                        </div>
                         <!-- Inner circle to mask -->
                         <div
                             class="relative z-10 bg-white w-[calc(100%-16px)] h-[calc(100%-16px)] rounded-full flex items-center justify-center text-gray-900 text-xl font-bold">
-                            <span>78%</span>
+                            <span><?php echo $GLOBALS['progression_evaluations'] ?? 0; ?>%</span>
                         </div>
                     </div>
                     <div class="flex-1">
@@ -95,10 +96,12 @@
                         <p class="text-gray-500 text-sm">Pour le semestre en cours</p>
                         <div class="flex space-x-4 mt-3 text-sm">
                             <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-1"></span> Terminées: 35
+                                <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-1"></span> Terminées:
+                                <?php echo $GLOBALS['total_evaluations_terminees'] ?? 0; ?>
                             </div>
                             <div class="flex items-center">
-                                <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Restantes: 10
+                                <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Restantes:
+                                <?php echo $GLOBALS['total_evaluations_a_faire'] ?? 0; ?>
                             </div>
                         </div>
                     </div>
@@ -117,44 +120,28 @@
                     <h2 class="text-gray-900 text-xl font-bold mb-4 pb-3 border-b border-gray-200">Activités Récentes
                     </h2>
                     <div class="space-y-4">
-                        <!-- Example item (replace with dynamic data) -->
+                        <?php if (!empty($GLOBALS['activites_recentes'])): ?>
+                        <?php foreach ($GLOBALS['activites_recentes'] as $activite): ?>
                         <div
                             class="flex justify-between items-center flex-wrap gap-4 pb-4 border-b border-gray-200 last:border-b-0">
                             <div class="flex-1">
-                                <h3 class="text-gray-900 text-base font-semibold">Nouveau rapport soumis par Jean Dupont
-                                    (Base de Données)</h3>
-                                <p class="text-gray-500 text-sm mt-1">Soumis le 15 Mai 2024</p>
+                                <h3 class="text-gray-900 text-base font-semibold">
+                                    <?php echo htmlspecialchars($activite['description']); ?></h3>
+                                <p class="text-gray-500 text-sm mt-1"><?php echo htmlspecialchars($activite['date']); ?>
+                                </p>
                             </div>
                             <div class="flex-shrink-0">
                                 <button
-                                    class="bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:bg-gray-100">Évaluer</button>
+                                    class="bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:bg-gray-100"><?php echo htmlspecialchars($activite['action']); ?></button>
                             </div>
                         </div>
-                        <div
-                            class="flex justify-between items-center flex-wrap gap-4 pb-4 border-b border-gray-200 last:border-b-0">
-                            <div class="flex-1">
-                                <h3>5 nouveaux devoirs soumis pour le cours de Réseaux</h3>
-                                <p class="text-gray-500 text-sm mt-1">Dernière soumission le 14 Mai 2024</p>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <button
-                                    class="bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:bg-gray-100">Voir
-                                    devoirs</button>
-                            </div>
+                        <?php endforeach; ?>
+                        <?php else: ?>
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-inbox text-4xl mb-4"></i>
+                            <p>Aucune activité récente</p>
                         </div>
-                        <div
-                            class="flex justify-between items-center flex-wrap gap-4 pb-4 border-b border-gray-200 last:border-b-0">
-                            <div class="flex-1">
-                                <h3>Demande de rendez-vous de Lucie Durand</h3>
-                                <p class="text-gray-500 text-sm mt-1">Reçue le 14 Mai 2024</p>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <button
-                                    class="bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:bg-gray-100">Voir
-                                    message</button>
-                            </div>
-                        </div>
-                        <!-- Add more recent activities here -->
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -162,12 +149,16 @@
                 <div class="dashboard-section bg-white rounded-xl shadow-md p-6">
                     <h2 class="text-gray-900 text-xl font-bold mb-4 pb-3 border-b border-gray-200">Mes Cours</h2>
                     <div class="space-y-4">
-                        <!-- Example item (replace with dynamic data) -->
+                        <?php if (!empty($GLOBALS['mes_cours'])): ?>
+                        <?php foreach ($GLOBALS['mes_cours'] as $cours): ?>
                         <div
                             class="flex justify-between items-center flex-wrap gap-4 pb-4 border-b border-gray-200 last:border-b-0">
                             <div class="flex-1">
-                                <h3 class="text-gray-900 text-base font-semibold">Base de Données Avancées (M2)</h3>
-                                <p class="text-gray-500 text-sm mt-1">35 étudiants inscrits</p>
+                                <h3 class="text-gray-900 text-base font-semibold">
+                                    <?php echo htmlspecialchars($cours['nom']); ?>
+                                    (<?php echo htmlspecialchars($cours['niveau']); ?>)</h3>
+                                <p class="text-gray-500 text-sm mt-1"><?php echo $cours['nombre_etudiants']; ?>
+                                    étudiants inscrits</p>
                             </div>
                             <div class="flex-shrink-0">
                                 <button
@@ -175,19 +166,13 @@
                                     cours</button>
                             </div>
                         </div>
-                        <div
-                            class="flex justify-between items-center flex-wrap gap-4 pb-4 border-b border-gray-200 last:border-b-0">
-                            <div class="flex-1">
-                                <h3>Programmation Web (L3)</h3>
-                                <p class="text-gray-500 text-sm mt-1">50 étudiants inscrits</p>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <button
-                                    class="bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:bg-gray-100">Voir
-                                    cours</button>
-                            </div>
+                        <?php endforeach; ?>
+                        <?php else: ?>
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-chalkboard-teacher text-4xl mb-4"></i>
+                            <p>Aucun cours assigné</p>
                         </div>
-                        <!-- Add more courses here -->
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -198,29 +183,25 @@
                 <div class="dashboard-section bg-white rounded-xl shadow-md p-6 mb-6">
                     <h2 class="text-gray-900 text-xl font-bold mb-4 pb-3 border-b border-gray-200">Mon Calendrier</h2>
                     <div class="space-y-4">
-                        <!-- Example Schedule Items -->
+                        <?php if (!empty($GLOBALS['calendrier'])): ?>
+                        <?php foreach ($GLOBALS['calendrier'] as $evenement): ?>
                         <div class="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg shadow-sm">
-                            <i class="fas fa-calendar-alt text-orange-500 text-lg"></i>
+                            <i
+                                class="fas fa-calendar-alt text-<?php echo $evenement['couleur'] ?? 'blue'; ?>-500 text-lg"></i>
                             <div class="flex-1">
-                                <h4 class="text-gray-900 text-sm font-semibold">Date limite d'évaluation - Rapport BD
-                                </h4>
-                                <p class="text-gray-500 text-xs mt-0.5">18 Mai 2024</p>
+                                <h4 class="text-gray-900 text-sm font-semibold">
+                                    <?php echo htmlspecialchars($evenement['titre']); ?></h4>
+                                <p class="text-gray-500 text-xs mt-0.5">
+                                    <?php echo date('d/m/Y', strtotime($evenement['date'])); ?></p>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg shadow-sm">
-                            <i class="fas fa-calendar-alt text-green-500 text-lg"></i>
-                            <div class="flex-1">
-                                <h4 class="text-gray-900 text-sm font-semibold">Réunion d'équipe pédagogique</h4>
-                                <p class="text-gray-500 text-xs mt-0.5">20 Mai 2024</p>
-                            </div>
+                        <?php endforeach; ?>
+                        <?php else: ?>
+                        <div class="text-center text-gray-500 py-4">
+                            <i class="fas fa-calendar text-2xl mb-2"></i>
+                            <p class="text-sm">Aucun événement à venir</p>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg shadow-sm">
-                            <i class="fas fa-calendar-alt text-blue-500 text-lg"></i>
-                            <div class="flex-1">
-                                <h4 class="text-gray-900 text-sm font-semibold">Soutenance de stage - Projet Alpha</h4>
-                                <p class="text-gray-500 text-xs mt-0.5">25 Mai 2024</p>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -246,6 +227,21 @@
                                         class="fas fa-chevron-right"></i></button>
                             </div>
                         </div>
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200 last:border-b-0">
+                            <div>
+                                <h3 class="text-gray-900 text-base font-semibold">Évaluer les rapports</h3>
+                                <?php if (($GLOBALS['total_rapports_a_evaluer'] ?? 0) > 0): ?>
+                                <span
+                                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full ml-2">
+                                    <?php echo $GLOBALS['total_rapports_a_evaluer']; ?>
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200"><i
+                                        class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -253,6 +249,40 @@
         </div>
 
     </div>
+
+    <!-- Script pour rafraîchir les données en temps réel -->
+    <script>
+    // Fonction pour rafraîchir les statistiques
+    function refreshStats() {
+        fetch('?page=dashboard_enseignant&action=get_stats')
+            .then(response => response.json())
+            .then(data => {
+                // Mise à jour des statistiques
+                if (data.stats) {
+                    // Mise à jour des cartes de statistiques
+                    document.querySelector('.bg-gradient-to-br.from-orange-300 .text-3xl p').textContent = data
+                        .stats.cours.total || 0;
+                    document.querySelector('.bg-gradient-to-br.from-green-400 .text-3xl p').textContent = data.stats
+                        .evaluations.a_faire || 0;
+                    document.querySelector('.bg-gradient-to-br.from-blue-400 .text-3xl p').textContent = data.stats
+                        .etudiants.encadres || 0;
+                    document.querySelector('.bg-gradient-to-br.from-purple-400 .text-3xl p').textContent = data
+                        .stats.evaluations.terminees || 0;
+
+                    // Mise à jour de la progression
+                    const progressionElement = document.querySelector(
+                        '.bg-white.w-\\[calc\\(100\\%-16px\\)\\] span');
+                    if (progressionElement) {
+                        progressionElement.textContent = (data.stats.evaluations.progression || 0) + '%';
+                    }
+                }
+            })
+            .catch(error => console.error('Erreur lors du rafraîchissement:', error));
+    }
+
+    // Rafraîchir les données toutes les 30 secondes
+    setInterval(refreshStats, 30000);
+    </script>
 </body>
 
 </html>

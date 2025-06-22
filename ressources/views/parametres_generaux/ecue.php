@@ -273,6 +273,21 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                                 <?php endif; ?>
                             </select>
                         </div>
+                        <div>
+                            <label for="professeur_responsable" class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-user-tie text-green-500 mr-2"></i>Professeur responsable
+                            </label>
+                            <select id="professeur_responsable" name="professeur_responsable"
+                                class="form-select w-50 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-green-500 bg-white transition-all duration-200">
+                                <option value="">Sélectionnez un professeur</option>
+                                <?php foreach ($GLOBALS['listeEnseignants'] ?? [] as $enseignant): ?>
+                                <option value="<?= $enseignant->id_enseignant ?>"
+                                    <?= $ecue_a_modifier && $ecue_a_modifier->id_enseignant == $enseignant->id_enseignant ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="space-y-2 mt-3 flex gap-6 w-full ">
@@ -295,6 +310,8 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                                 value="<?= $ecue_a_modifier ? htmlspecialchars($ecue_a_modifier->credit) : '' ?>"
                                 class="form-input w-50 px-4 py-2.5  border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:outline-2 focus:outline-green-500  focus:ring-green-500 focus:border-green-500 bg-white transition-all duration-200">
                         </div>
+
+
                     </div>
 
                 </div>
@@ -401,6 +418,10 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                                     Crédits
                                 </th>
                                 <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Professeur responsable
+                                </th>
+                                <th scope="col"
                                     class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
@@ -433,6 +454,9 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <?= htmlspecialchars($ecue->credit) ?>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($ecue->nom_professeur ?? 'Non assigné') ?>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     <a href="?page=parametres_generaux&action=ecue&id_ecue=<?= htmlspecialchars($ecue->id_ecue) ?>"
                                         class="text-green-600 hover:text-green-900 mr-3">
@@ -444,7 +468,7 @@ $listeEcues = array_slice($listeEcues, $offset, $limit);
                             <?php endforeach; ?>
                             <?php else: ?>
                             <tr class="items-center">
-                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
                                     Aucun ECUE enregistré
                                 </td>
                             </tr>

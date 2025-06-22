@@ -48,6 +48,8 @@ class AuthController {
 
             $type_utilisateur = $utilisateur->getLibelleTypeUtilisateur($infoUtilisateur['id_utilisateur']);
 
+            
+
             if ($type_utilisateur !== 'Etudiant') {
                 if ($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif') {
                     // Récupérer les informations de l'enseignant
