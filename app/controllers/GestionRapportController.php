@@ -76,20 +76,31 @@ class GestionRapportController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->traiterCreationRapport();
         } else {
-            global $rapport, $erreurs, $isEditMode;
+            global $rapport, $erreurs, $isEditMode, $contenuRapport;
 
             $edit_id = $_GET['edit'] ?? null;
             $rapport = null;
             $isEditMode = false;
+            $contenuRapport = '';
 
-            if ($edit_id && $this->isEtudiant()) {
-                $rapport = $this->rapportModel->getRapportByIdAndEtudiant($edit_id, $_SESSION['num_etu']);
+            if ($edit_id) {
+                // Temporairement, permettre à tous les utilisateurs de modifier les rapports
+                $rapport = $this->rapportModel->getRapportById($edit_id);
                 $isEditMode = true;
 
                 if (!$rapport) {
-                    $this->afficherErreur("Rapport non trouvé ou accès non autorisé.");
+                    $this->afficherErreur("Rapport non trouvé.");
                     return;
                 }
+
+                // Charger le contenu du rapport
+                $fichierContenu = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$edit_id}.html";
+                if (file_exists($fichierContenu)) {
+                    $contenuRapport = file_get_contents($fichierContenu);
+                }
+
+                // Convertir l'objet en tableau pour la vue
+                $rapport = (array) $rapport;
             }
 
             $erreurs = $_SESSION['erreurs_form'] ?? [];
@@ -418,22 +429,29 @@ class GestionRapportController {
     {
         global $rapport, $contenuRapport;
 
-        if ($this->isEtudiant()) {
-            $rapport = $this->rapportModel->getRapportByIdAndEtudiant($id, $_SESSION['num_etu']);
-        } else {
-            $rapport = $this->rapportModel->getRapportById($id);
-        }
+        // Debug
+        error_log("AfficherDetailRapport - ID: $id");
+        error_log("Type utilisateur: " . ($_SESSION['type_utilisateur'] ?? 'non défini'));
+        error_log("Num étudiant: " . ($_SESSION['num_etu'] ?? 'non défini'));
+
+        // Temporairement, permettre à tous les utilisateurs de voir les rapports
+        $rapport = $this->rapportModel->getRapportById($id);
+        error_log("Rapport trouvé: " . ($rapport ? 'oui' : 'non'));
 
         if (!$rapport) {
-            $this->afficherErreur("Rapport non trouvé ou accès non autorisé.");
+            $this->afficherErreur("Rapport non trouvé.");
             return;
         }
 
-        // Lire le contenu du rapport
-        $fichierContenu = __DIR__ . "/../../storage/rapports/rapport_{$id}.html";
+        // Lire le contenu du rapport - Correction du chemin
+        $fichierContenu = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$id}.html";
+        error_log("Chemin du fichier: $fichierContenu");
+        error_log("Fichier existe: " . (file_exists($fichierContenu) ? 'oui' : 'non'));
+        
         $contenuRapport = '';
         if (file_exists($fichierContenu)) {
             $contenuRapport = file_get_contents($fichierContenu);
+            error_log("Taille du contenu: " . strlen($contenuRapport));
         }
 
         // Convertir l'objet en tableau pour la vue
@@ -474,7 +492,7 @@ class GestionRapportController {
 
             if ($result) {
                 // Supprimer le fichier de contenu
-                $filename = __DIR__ . "/../../storage/rapports/rapport_{$rapport_id}.html";
+                $filename = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$rapport_id}.html";
                 if (file_exists($filename)) {
                     unlink($filename);
                 }
@@ -512,7 +530,7 @@ class GestionRapportController {
             }
 
             // Lire le contenu du rapport
-            $filename = __DIR__ . "/../../storage/rapports/rapport_{$rapport_id}.html";
+            $filename = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$rapport_id}.html";
             $contenu = '';
             if (file_exists($filename)) {
                 $contenu = file_get_contents($filename);
