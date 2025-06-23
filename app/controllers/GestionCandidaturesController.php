@@ -3,117 +3,250 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Scolarite.php';
 require_once __DIR__ . '/../models/InfoStage.php';
+require_once __DIR__ . '/../utils/EmailService.php';
 
 class GestionCandidaturesController {
     private $db;
     private $etudiant;
     private $scolarite;
+    private $emailService;
 
     public function __construct() {
         $this->db = Database::getConnection();
         $this->etudiant = new Etudiant($this->db);
         $this->scolarite = new Scolarite($this->db);
+        $this->emailService = new EmailService();
     }
 
     public function index() {
         $GLOBALS['candidatures_soutenance'] = $this->etudiant->getAllCandidature();
-       
     }
 
-    public function verifierCandidature() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['num_etu'])) {
-            $numEtu = $_POST['num_etu'];
-            $resultats = $this->etudiant->verifierCandidature($numEtu);
-            echo json_encode($resultats);
+    // Méthode pour gérer l'examen d'une candidature
+    public function examinerCandidature() {
+        $examiner = $_GET['examiner'] ?? null;
+        $etape = intval($_GET['etape'] ?? 1);
+        $action = $_GET['action'] ?? '';
+
+        // Démarrer la session pour stocker les étapes validées/rejetées
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
-    }
 
-    public function traiterCandidature() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $numEtu = $_POST['num_etu'];
-            $decision = $_POST['decision'];
-            $commentaire = $_POST['commentaire'] ?? null;
-
-            $success = $this->etudiant->traiterCandidature($numEtu, $decision, $commentaire);
+        // Gestion des actions - DOIT être avant tout output HTML
+        if ($action === 'valider_etape' && $examiner) {
+            $etapeValidee = $_POST['etape'] ?? '';
+            $_SESSION['etapes_validation'][$examiner][$etapeValidee] = 'validé';
             
-            if ($success) {
-                // Ajouter l'action dans l'historique
-                $action = $decision === 'validee' ? 'validation' : 'rejet';
-                $this->etudiant->ajouterHistoriqueCandidature($numEtu, $action, $commentaire);
-                echo json_encode(['success' => true]);
+            // Si c'est la dernière étape, aller au résumé final
+            if ($etapeValidee == 3) {
+                header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=4");
+                exit;
             } else {
-                echo json_encode(['success' => false, 'message' => 'Erreur lors du traitement de la candidature']);
+                // Passer à l'étape suivante
+                header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=" . ($etape + 1));
+                exit;
             }
         }
-    }
 
-    public function getHistorique() {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $historique = $this->etudiant->getHistoriqueCandidature();
-            echo json_encode($historique);
-        }
-    }
-
-    public function getHistoriqueEtudiant() {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['num_etu'])) {
-            $numEtu = $_GET['num_etu'];
-            $historique = $this->etudiant->getHistoriqueCandidature($numEtu);
-            echo json_encode($historique);
-        }
-    }
-
-    // Ajout d'une méthode pour gérer la vérification par étape (AJAX)
-    public function verifier_etape() {
-        if (isset($_GET['num_etu']) && isset($_GET['etape'])) {
-            $numEtu = $_GET['num_etu'];
-            $etape = intval($_GET['etape']);
-            header('Content-Type: application/json');
-            switch ($etape) {
-                case 1: // Inscription
-                    // ... code existant pour l'inscription ...
-                    echo json_encode([
-                        'status' => 'Validé',
-                        'date' => '',
-                        'filiere' => ''
-                    ]);
-                    break;
-                case 2: // Scolarité
-                    // ... code existant pour la scolarité ...
-                    echo json_encode([
-                        'status' => 'Validé',
-                        'montant' => '',
-                        'dernierPaiement' => ''
-                    ]);
-                    break;
-                case 3: // Stage
-                    $stageModel = new InfoStage($this->db);
-                    $stage = $stageModel->getStageInfo($numEtu);
-                    if ($stage) {
-                        echo json_encode([
-                            'entreprise' => $stage['nom_entreprise'] ?? '',
-                            'sujet' => $stage['sujet_stage'] ?? '',
-                            'periode' => ($stage['date_debut_stage'] ?? '') . ' - ' . ($stage['date_fin_stage'] ?? ''),
-                            'encadrant' => $stage['encadrant_entreprise'] ?? ''
-                        ]);
-                    } else {
-                        echo json_encode([
-                            'entreprise' => 'Non renseigné',
-                            'sujet' => 'Non renseigné',
-                            'periode' => 'Non renseigné',
-                            'encadrant' => 'Non renseigné'
-                        ]);
-                    }
-                    break;
-                case 4: // Semestre
-                    // ... code existant pour le semestre ...
-                    echo json_encode([
-                        'semestre' => '',
-                        'moyenne' => '',
-                        'unites' => ''
-                    ]);
-                    break;
+        if ($action === 'rejeter_etape' && $examiner) {
+            $etapeRejetee = $_POST['etape'] ?? '';
+            $_SESSION['etapes_validation'][$examiner][$etapeRejetee] = 'rejeté';
+            
+            // Traiter le rejet
+            $this->traiterRejet($examiner, $etapeRejetee);
+            
+            // Passer à l'étape suivante même en cas de rejet
+            if ($etapeRejetee < 3) {
+                header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=" . ($etapeRejetee + 1));
+            } else {
+                // Si c'est la dernière étape, aller au résumé
+                header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=4");
             }
             exit;
         }
+
+        // Nouvelle action pour envoyer les résultats
+        if ($action === 'envoyer_resultats' && $examiner) {
+            $this->envoyerResultatsFinaux($examiner);
+            header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=4&email_envoye=1");
+            exit;
+        }
+
+        // Vérifier si l'étape précédente a été validée/rejetée
+        $etapePrecedenteValidee = false;
+        if ($etape > 1 && $etape < 4) {
+            $etapePrecedenteValidee = isset($_SESSION['etapes_validation'][$examiner][$etape - 1]);
+        }
+
+        // Si l'étape précédente n'est pas validée et qu'on n'est pas au résumé final, rediriger vers l'étape précédente
+        if ($etape > 1 && $etape < 4 && !$etapePrecedenteValidee) {
+            header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=" . ($etape - 1));
+            exit;
+        }
+
+        // Initialiser les étapes validées/rejetées pour cet étudiant
+        if ($examiner && !isset($_SESSION['etapes_validation'][$examiner])) {
+            $_SESSION['etapes_validation'][$examiner] = [];
+        }
+
+        // Données de l'étudiant à examiner
+        $etudiantData = null;
+        $etapeData = null;
+
+        if ($examiner) {
+            // Trouver l'étudiant dans les candidatures
+            $etudiantData = $this->etudiant->getEtudiantByNumEtu($examiner);
+            
+            
+            // Charger les données selon l'étape depuis la base de données
+            if ($etudiantData) {
+                switch ($etape) {
+                    case 1: // Scolarité (anciennement étape 2)
+                        $scolarite = $this->scolarite->getScolariteEtudiant($examiner);
+                        $etapeData = [
+                            'status' => ($scolarite && $scolarite['reste_a_payer'] > 0) ? 'En retard' : 'À jour',
+                            'montant' => $scolarite ? number_format($scolarite['montant_total'], 0, ',', ' ') . ' FCFA' : '0 FCFA',
+                            'montant_paye' => $scolarite ? number_format($scolarite['montant_paye'], 0, ',', ' ') . ' FCFA' : '0 FCFA',
+                            'dernierPaiement' => ($scolarite && $scolarite['dernier_paiement']) ? date('d/m/Y', strtotime($scolarite['dernier_paiement'])) : 'Aucun paiement'
+                        ];
+                        break;
+                        
+                    case 2: // Stage (anciennement étape 3)
+                        $stage = $this->etudiant->getInfoStage($examiner);
+                        $etapeData = [
+                            'entreprise' => $stage ? $stage['nom_entreprise'] : 'Non renseigné',
+                            'sujet' => $stage ? $stage['sujet_stage'] : 'Non renseigné',
+                            'periode' => $stage ? date('d/m/Y', strtotime($stage['date_debut_stage'])) . ' - ' . date('d/m/Y', strtotime($stage['date_fin_stage'])) : 'Non renseigné',
+                            'encadrant' => $stage ? $stage['encadrant_entreprise'] : 'Non renseigné'
+                        ];
+                        break;
+                        
+                    case 3: // Semestre (anciennement étape 4)
+                        $notes = $this->etudiant->getNotesEtudiant($examiner);
+                        $semestre = $this->etudiant->getSemestreActuel($examiner);
+                        $etapeData = [
+                            'semestre' => $semestre ? $semestre['lib_semestre'] : 'Non renseigné',
+                            'moyenne' => number_format($notes['moyenne'] ?? 0, 2) . '/20',
+                            'unites' => ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits du Master 2 validés'
+                        ];
+                        break;
+                        
+                    case 4: // Résumé final (anciennement étape 5)
+                        $etapeData = $this->genererResumeFinal($examiner);
+                        break;
+                }
+            }
+        }
+
+        // Passer les données à la vue
+        $GLOBALS['examiner'] = $examiner;
+        $GLOBALS['etape'] = $etape;
+        $GLOBALS['etudiantData'] = $etudiantData;
+        $GLOBALS['etapeData'] = $etapeData;
     }
-} 
+
+    // Méthode pour traiter un rejet
+    private function traiterRejet($examiner, $etape) {
+        $etapes_noms = [
+            1 => 'Scolarité',
+            2 => 'Stage',
+            3 => 'Semestre'
+        ];
+        
+        $raison = "Étape '" . $etapes_noms[$etape] . "' non validée";
+        $this->etudiant->traiterCandidature($examiner, 'Rejetée', $raison);
+        
+        // Ne plus envoyer d'email ici - l'email sera envoyé uniquement à la fin
+        // $this->envoyerEmailRejet($examiner, $etapes_noms[$etape]);
+    }
+
+    // Méthode pour envoyer les résultats finaux
+    private function envoyerResultatsFinaux($examiner) {
+        $resume = $this->genererResumeFinal($examiner);
+        $decision = $this->determinerDecision($resume);
+        
+        // Mettre à jour le statut de la candidature
+        $this->etudiant->traiterCandidature($examiner, $decision, 'Évaluation complète terminée');
+        
+        // Envoyer l'email à l'étudiant avec le résumé complet
+        $this->envoyerEmailResultat($examiner, $resume, $decision);
+        
+        // Marquer que l'email a été envoyé
+        $_SESSION['email_envoye'][$examiner] = true;
+    }
+
+    // Méthode pour générer le résumé final
+    private function genererResumeFinal($examiner) {
+        $resume = [];
+        
+        // Récupérer les données de toutes les étapes
+        $scolarite = $this->scolarite->getScolariteEtudiant($examiner);
+        $stage = $this->etudiant->getInfoStage($examiner);
+        $notes = $this->etudiant->getNotesEtudiant($examiner);
+        
+        // Étape 1 - Scolarité
+        $resume['scolarite'] = [
+            'statut' => ($scolarite && $scolarite['reste_a_payer'] > 0) ? 'En retard' : 'À jour',
+            'montant_total' => $scolarite ? number_format($scolarite['montant_total'], 0, ',', ' ') . ' FCFA' : '0 FCFA',
+            'montant_paye' => $scolarite ? number_format($scolarite['montant_paye'], 0, ',', ' ') . ' FCFA' : '0 FCFA',
+            'dernier_paiement' => ($scolarite && $scolarite['dernier_paiement']) ? date('d/m/Y', strtotime($scolarite['dernier_paiement'])) : 'Aucun paiement',
+            'validation' => $_SESSION['etapes_validation'][$examiner][1] ?? 'Non évalué'
+        ];
+        
+        // Étape 2 - Stage
+        $resume['stage'] = [
+            'entreprise' => $stage ? $stage['nom_entreprise'] : 'Non renseigné',
+            'sujet' => $stage ? $stage['sujet_stage'] : 'Non renseigné',
+            'periode' => $stage ? date('d/m/Y', strtotime($stage['date_debut_stage'])) . ' - ' . date('d/m/Y', strtotime($stage['date_fin_stage'])) : 'Non renseigné',
+            'encadrant' => $stage ? $stage['encadrant_entreprise'] : 'Non renseigné',
+            'validation' => $_SESSION['etapes_validation'][$examiner][2] ?? 'Non évalué'
+        ];
+        
+        // Étape 3 - Semestre
+        $semestre = $this->etudiant->getSemestreActuel($examiner);
+        $resume['semestre'] = [
+            'semestre' => $semestre ? $semestre['lib_semestre'] : 'Non renseigné',
+            'moyenne' => number_format($notes['moyenne'] ?? 0, 2) . '/20',
+            'unites' => ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits du Master 2 validés',
+            'validation' => $_SESSION['etapes_validation'][$examiner][3] ?? 'Non évalué'
+        ];
+        
+        return $resume;
+    }
+
+    // Méthode pour déterminer la décision finale
+    private function determinerDecision($resume) {
+        $rejets = 0;
+        foreach ($resume as $etape) {
+            if ($etape['validation'] === 'rejeté') {
+                $rejets++;
+            }
+        }
+        
+        return $rejets > 0 ? 'Rejetée' : 'Validée';
+    }
+
+    // Méthode pour envoyer l'email de résultat
+    private function envoyerEmailResultat($examiner, $resume, $decision) {
+        // Récupérer les informations de l'étudiant
+        $etudiant = $this->etudiant->getEtudiantByNumEtu($examiner);
+        if (!$etudiant || empty($etudiant['email_etu'])) {
+            error_log("Email non trouvé pour l'étudiant: $examiner");
+            return;
+        }
+        
+        $studentName = $etudiant['prenom_etu'] . ' ' . $etudiant['nom_etu'];
+        
+        // Utiliser le service EmailService avec PHPMailer
+        return $this->emailService->sendResultEmail($etudiant['email_etu'], $studentName, $resume, $decision);
+    }
+
+   
+
+
+
+ 
+
+   
+}

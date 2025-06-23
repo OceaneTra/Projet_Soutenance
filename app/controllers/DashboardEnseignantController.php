@@ -73,8 +73,10 @@ class DashboardEnseignantController
         // Récupération des cours de l'enseignant
         $this->getTeacherCourses();
         
-        // Affichage de la vue
-        $this->displayView();
+        // Récupération des statistiques avancées pour les graphiques
+        $this->getAdvancedStats();
+        
+       
     }
 
     /**
@@ -322,10 +324,7 @@ class DashboardEnseignantController
     /**
      * Affiche la vue du dashboard
      */
-    private function displayView()
-    {
-        include $this->baseViewPath . 'dashboard_enseignant_content.php';
-    }
+    
 
     /**
      * API pour récupérer les statistiques en JSON
@@ -342,5 +341,285 @@ class DashboardEnseignantController
             'calendrier' => $GLOBALS['calendrier'] ?? [],
             'cours' => $GLOBALS['mes_cours'] ?? []
         ]);
+    }
+
+    /**
+     * Récupère les statistiques avancées pour les graphiques
+     */
+    private function getAdvancedStats()
+    {
+        $enseignantId = $this->getCurrentTeacherId();
+        
+        // Statistiques des évaluations par mois
+        $GLOBALS['evaluations_par_mois'] = $this->getEvaluationsParMois($enseignantId);
+        
+        // Statistiques des notes moyennes par cours
+        $GLOBALS['notes_moyennes_cours'] = $this->getNotesMoyennesParCours($enseignantId);
+        
+        // Statistiques des types d'évaluations
+        $GLOBALS['types_evaluations'] = $this->getTypesEvaluations($enseignantId);
+        
+        // Statistiques des étudiants par niveau
+        $GLOBALS['etudiants_par_niveau'] = $this->getEtudiantsParNiveau($enseignantId);
+        
+        // Statistiques de performance des cours
+        $GLOBALS['performance_cours'] = $this->getPerformanceCours($enseignantId);
+        
+        // Statistiques des échéances
+        $GLOBALS['echeances_prochaines'] = $this->getEcheancesProchaines($enseignantId);
+        
+        // Statistiques des rapports
+        $GLOBALS['stats_rapports'] = $this->getStatsRapports($enseignantId);
+        
+        // Distribution des notes
+        $GLOBALS['distribution_notes'] = $this->getDistributionNotes($enseignantId);
+    }
+
+    /**
+     * Récupère les évaluations par mois pour l'année en cours
+     */
+    private function getEvaluationsParMois($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    MONTH(e.date_creation) as mois,
+                    COUNT(*) as nombre_evaluations,
+                    COUNT(CASE WHEN e.statut = 'terminee' THEN 1 END) as evaluations_terminees,
+                    COUNT(CASE WHEN e.statut = 'en_attente' THEN 1 END) as evaluations_en_attente
+                FROM evaluations e
+                JOIN cours c ON e.id_cours = c.id_cours
+                WHERE c.id_enseignant = ?
+                AND YEAR(e.date_creation) = YEAR(CURDATE())
+                GROUP BY MONTH(e.date_creation)
+                ORDER BY mois
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération évaluations par mois: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les notes moyennes par cours
+     */
+    private function getNotesMoyennesParCours($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    c.nom_cours,
+                    c.niveau,
+                    COUNT(n.id) as nombre_notes,
+                    AVG(n.moyenne) as moyenne_generale,
+                    MIN(n.moyenne) as note_min,
+                    MAX(n.moyenne) as note_max
+                FROM cours c
+                LEFT JOIN evaluations e ON c.id_cours = e.id_cours
+                LEFT JOIN devoirs d ON e.id_evaluation = d.id_evaluation
+                LEFT JOIN notes n ON d.id_devoir = n.id_devoir
+                WHERE c.id_enseignant = ?
+                AND n.moyenne IS NOT NULL
+                GROUP BY c.id_cours, c.nom_cours, c.niveau
+                ORDER BY moyenne_generale DESC
+                LIMIT 10
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération notes moyennes: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les types d'évaluations
+     */
+    private function getTypesEvaluations($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    e.type_evaluation,
+                    COUNT(*) as nombre,
+                    COUNT(CASE WHEN e.statut = 'terminee' THEN 1 END) as terminees,
+                    COUNT(CASE WHEN e.statut = 'en_attente' THEN 1 END) as en_attente
+                FROM evaluations e
+                JOIN cours c ON e.id_cours = c.id_cours
+                WHERE c.id_enseignant = ?
+                GROUP BY e.type_evaluation
+                ORDER BY nombre DESC
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération types évaluations: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les étudiants par niveau
+     */
+    private function getEtudiantsParNiveau($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    c.niveau,
+                    COUNT(DISTINCT d.num_etu) as nombre_etudiants
+                FROM cours c
+                LEFT JOIN devoirs d ON c.id_cours = d.id_cours
+                WHERE c.id_enseignant = ?
+                GROUP BY c.niveau
+                ORDER BY nombre_etudiants DESC
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération étudiants par niveau: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère la performance des cours
+     */
+    private function getPerformanceCours($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    c.nom_cours,
+                    c.niveau,
+                    COUNT(DISTINCT d.num_etu) as nombre_etudiants,
+                    AVG(n.moyenne) as moyenne_cours,
+                    COUNT(CASE WHEN n.moyenne >= 10 THEN 1 END) as reussites,
+                    COUNT(CASE WHEN n.moyenne < 10 THEN 1 END) as echecs
+                FROM cours c
+                LEFT JOIN evaluations e ON c.id_cours = e.id_cours
+                LEFT JOIN devoirs d ON e.id_evaluation = d.id_evaluation
+                LEFT JOIN notes n ON d.id_devoir = n.id_devoir
+                WHERE c.id_enseignant = ?
+                AND n.moyenne IS NOT NULL
+                GROUP BY c.id_cours, c.nom_cours, c.niveau
+                ORDER BY moyenne_cours DESC
+                LIMIT 8
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération performance cours: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les échéances prochaines
+     */
+    private function getEcheancesProchaines($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    e.id_evaluation,
+                    c.nom_cours,
+                    e.type_evaluation,
+                    e.date_limite,
+                    DATEDIFF(e.date_limite, CURDATE()) as jours_restants,
+                    COUNT(d.id_devoir) as devoirs_soumis,
+                    e.nombre_devoirs
+                FROM evaluations e
+                JOIN cours c ON e.id_cours = c.id_cours
+                LEFT JOIN devoirs d ON e.id_evaluation = d.id_evaluation
+                WHERE c.id_enseignant = ?
+                AND e.statut = 'en_attente'
+                AND e.date_limite >= CURDATE()
+                GROUP BY e.id_evaluation, c.nom_cours, e.type_evaluation, e.date_limite, e.nombre_devoirs
+                ORDER BY e.date_limite ASC
+                LIMIT 10
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération échéances: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les statistiques des rapports
+     */
+    private function getStatsRapports($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    COUNT(*) as total_rapports,
+                    COUNT(CASE WHEN r.statut_rapport = 'en_cours' THEN 1 END) as rapports_en_cours,
+                    COUNT(CASE WHEN r.statut_rapport = 'valide' THEN 1 END) as rapports_valides,
+                    COUNT(CASE WHEN r.statut_rapport = 'rejete' THEN 1 END) as rapports_rejetes,
+                    AVG(CASE WHEN ev.note IS NOT NULL THEN ev.note END) as note_moyenne
+                FROM rapport_etudiants r
+                LEFT JOIN evaluations_rapports ev ON r.id_rapport = ev.id_rapport
+                WHERE r.id_enseignant_encadrant = ?
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération stats rapports: " . $e->getMessage());
+            return [
+                'total_rapports' => 0,
+                'rapports_en_cours' => 0,
+                'rapports_valides' => 0,
+                'rapports_rejetes' => 0,
+                'note_moyenne' => 0
+            ];
+        }
+    }
+
+    /**
+     * Récupère la distribution des notes
+     */
+    private function getDistributionNotes($enseignantId)
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+                SELECT 
+                    CASE 
+                        WHEN n.moyenne BETWEEN 0 AND 5 THEN '0-5'
+                        WHEN n.moyenne BETWEEN 6 AND 10 THEN '6-10'
+                        WHEN n.moyenne BETWEEN 11 AND 15 THEN '11-15'
+                        WHEN n.moyenne BETWEEN 16 AND 20 THEN '16-20'
+                    END as tranche_notes,
+                    COUNT(*) as nombre_etudiants
+                FROM notes n
+                JOIN devoirs d ON n.id_devoir = d.id_devoir
+                JOIN evaluations e ON d.id_evaluation = e.id_evaluation
+                JOIN cours c ON e.id_cours = c.id_cours
+                WHERE c.id_enseignant = ?
+                AND n.moyenne IS NOT NULL
+                GROUP BY 
+                    CASE 
+                        WHEN n.moyenne BETWEEN 0 AND 5 THEN '0-5'
+                        WHEN n.moyenne BETWEEN 6 AND 10 THEN '6-10'
+                        WHEN n.moyenne BETWEEN 11 AND 15 THEN '11-15'
+                        WHEN n.moyenne BETWEEN 16 AND 20 THEN '16-20'
+                    END
+                ORDER BY tranche_notes
+            ");
+            $stmt->execute([$enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération distribution notes: " . $e->getMessage());
+            return [
+                ['tranche_notes' => '0-5', 'nombre_etudiants' => 0],
+                ['tranche_notes' => '6-10', 'nombre_etudiants' => 0],
+                ['tranche_notes' => '11-15', 'nombre_etudiants' => 0],
+                ['tranche_notes' => '16-20', 'nombre_etudiants' => 0]
+            ];
+        }
     }
 } 

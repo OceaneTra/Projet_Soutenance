@@ -47,7 +47,7 @@ class GestionUtilisateurController
             // Récupérer les personnes non enregistrées comme utilisateurs
             $enseignantsNonUtilisateurs = $this->utilisateur->getEnseignantsNonUtilisateurs();
             $personnelNonUtilisateurs = $this->utilisateur->getPersonnelNonUtilisateurs();
-            $etudiantsNonUtilisateurs = $this->utilisateur->getEtudiantsNonUtilisateurs();
+            $etudiantsNonUtilisateurs = $this->utilisateur->getEtudiantsMaster2NonUtilisateurs();
 
             // Gestion des actions GET pour les modales
             if ($action === 'edit' && isset($_GET['id_utilisateur'])) {

@@ -1,6 +1,15 @@
 <?php
-
+// Récupérer les données du contrôleur
 $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
+$examiner = $GLOBALS['examiner'] ?? null;
+$etape = $GLOBALS['etape'] ?? 1;
+$etudiantData = $GLOBALS['etudiantData'] ?? null;
+$etapeData = $GLOBALS['etapeData'] ?? null;
+
+// Démarrer la session pour accéder aux étapes validées/rejetées
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $statutFiltre = $_GET['statut'] ?? 'all';
 if ($statutFiltre !== 'all') {
@@ -8,24 +17,7 @@ if ($statutFiltre !== 'all') {
         return $c['statut_candidature'] === $statutFiltre;
     });
 }
-
-$examiner = $_GET['examiner'] ?? null;
-$etape = intval($_GET['etape'] ?? 1);
-
-if ($examiner) {
-    // Charger les infos de l'étudiant selon l'étape
-    // Exemple :
-    if ($etape === 1) {
-        // Charger infos inscription
-    } elseif ($etape === 2) {
-        // Charger infos scolarité
-    }
-    // etc.
-}
-
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -191,11 +183,13 @@ if ($examiner) {
         border-radius: 10px;
         max-width: 700px;
         width: 90%;
+        max-height: 90vh;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         position: relative;
         display: flex;
         /* Use flex for internal layout */
         flex-direction: column;
+        overflow: hidden;
     }
 
     .close-button {
@@ -287,6 +281,8 @@ if ($examiner) {
 
     .step.active .step-icon {
         background-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.3);
+        transform: scale(1.1);
     }
 
     .step.completed .step-icon {
@@ -312,12 +308,35 @@ if ($examiner) {
     .modal-body {
         flex-grow: 1;
         /* Allows body to take up available space */
-        overflow-y: auto;
-        /* Enable scrolling if content overflows */
-        max-height: 400px;
+        overflow-y: scroll;
+        /* Force scrollbar to always show */
+        max-height: 70vh;
         /* Limit height for scrolling */
         padding-right: 15px;
         /* Add padding for scrollbar */
+        scrollbar-width: thin;
+        /* For Firefox */
+        scrollbar-color: #888 #f1f1f1;
+        /* For Firefox */
+    }
+
+    /* Custom scrollbar for Webkit browsers */
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 
     .step-content {
@@ -576,6 +595,128 @@ if ($examiner) {
         background-color: #fef3c7;
         color: #92400e;
     }
+
+    /* Styles pour le résumé final */
+    .resume-final {
+        margin-top: 20px;
+    }
+
+    .decision-finale {
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .decision-finale.validee {
+        background-color: #D1FAE5;
+        border: 2px solid var(--success);
+        color: #065F46;
+    }
+
+    .decision-finale.rejetee {
+        background-color: #FEE2E2;
+        border: 2px solid var(--danger);
+        color: #991B1B;
+    }
+
+    .decision-finale h4 {
+        margin: 0 0 10px 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .decision-finale p {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .resume-etapes {
+        margin-top: 20px;
+    }
+
+    .resume-etapes h4 {
+        margin-bottom: 15px;
+        color: var(--text-color-dark);
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 5px;
+    }
+
+    .etape-resume {
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid var(--gray);
+    }
+
+    .etape-resume.validé {
+        background-color: #F0FDF4;
+        border-left-color: var(--success);
+    }
+
+    .etape-resume.rejeté {
+        background-color: #FEF2F2;
+        border-left-color: var(--danger);
+    }
+
+    .etape-resume h5 {
+        margin: 0 0 10px 0;
+        color: var(--text-color-dark);
+        font-size: 16px;
+    }
+
+    .etape-resume h5 i {
+        margin-right: 8px;
+        color: var(--primary);
+    }
+
+    .etape-details p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge.validé {
+        background-color: var(--success);
+        color: white;
+    }
+
+    .badge.rejeté {
+        background-color: var(--danger);
+        color: white;
+    }
+
+    .badge.non-évalué {
+        background-color: var(--gray);
+        color: white;
+    }
+
+    .email-notification {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #EFF6FF;
+        border: 1px solid #3B82F6;
+        border-radius: 8px;
+        color: #1E40AF;
+    }
+
+    .email-notification p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .email-notification i {
+        margin-right: 8px;
+        color: #3B82F6;
+    }
     </style>
 </head>
 
@@ -583,6 +724,14 @@ if ($examiner) {
     <div class="container">
         <div class="main-content">
             <h1 class="text-2xl font-bold mb-6">Gestion des Candidatures de Soutenance</h1>
+
+            <!-- Message d'erreur pour les étudiants sans informations de stage -->
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'no_stage_info'): ?>
+            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                <strong>Erreur :</strong> Cet étudiant n'a pas rempli ses informations de stage. Il ne peut pas être
+                examiné tant qu'il n'a pas complété cette étape.
+            </div>
+            <?php endif; ?>
 
             <!-- Filtres -->
             <div class="filters">
@@ -657,349 +806,246 @@ if ($examiner) {
     </div>
 
     <!-- Modal d'examen -->
-    <div id="examinationModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="close-button" onclick="closeModal()">&times;</button>
-            <h2 class="modal-title">Examen de la Candidature</h2>
+    <?php if ($examiner && $etudiantData): ?>
+    <div id="examinationModal" class="modal" style="display: flex;">
+        <?php else: ?>
+        <div id="examinationModal" class="modal" style="display: none;">
+            <?php endif; ?>
+            <div class="modal-content">
+                <a href="?page=gestion_candidatures_soutenance" class="close-button">&times;</a>
+                <h2 class="modal-title">Examen de la Candidature -
+                    <?php echo htmlspecialchars($etudiantData['nom_etu'] . ' ' . $etudiantData['prenom_etu']); ?></h2>
 
-            <div class="step-indicator">
-                <div class="step" id="stepInscription">
-                    <div class="step-icon">
-                        <i class="fas fa-user-check"></i>
+                <div class="step-indicator">
+                    <div class="step <?php echo isset($_SESSION['etapes_validation'][$examiner][1]) ? $_SESSION['etapes_validation'][$examiner][1] : ($etape == 1 ? 'active' : ''); ?>"
+                        id="stepScolarite">
+                        <div class="step-icon">
+                            <i class="fas fa-money-check"></i>
+                        </div>
+                        <div class="step-label">Scolarité</div>
                     </div>
-                    <div class="step-label">Inscription</div>
-                </div>
-                <div class="step" id="stepScolarite">
-                    <div class="step-icon">
-                        <i class="fas fa-money-check"></i>
+                    <div class="step <?php echo isset($_SESSION['etapes_validation'][$examiner][2]) ? $_SESSION['etapes_validation'][$examiner][2] : ($etape == 2 ? 'active' : ''); ?>"
+                        id="stepStage">
+                        <div class="step-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="step-label">Stage</div>
                     </div>
-                    <div class="step-label">Scolarité</div>
-                </div>
-                <div class="step" id="stepStage">
-                    <div class="step-icon">
-                        <i class="fas fa-briefcase"></i>
+                    <div class="step <?php echo isset($_SESSION['etapes_validation'][$examiner][3]) ? $_SESSION['etapes_validation'][$examiner][3] : ($etape == 3 ? 'active' : ''); ?>"
+                        id="stepSemestre">
+                        <div class="step-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="step-label">Semestre</div>
                     </div>
-                    <div class="step-label">Stage</div>
-                </div>
-                <div class="step" id="stepSemestre">
-                    <div class="step-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                    <div class="step <?php echo $etape == 4 ? 'active' : ''; ?>" id="stepResume">
+                        <div class="step-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="step-label">Résumé</div>
                     </div>
-                    <div class="step-label">Semestre</div>
                 </div>
-            </div>
 
-            <div class="step-content" id="stepInscriptionContent">
-                <div class="info-section">
-                    <h3>Vérification de l'inscription</h3>
-                    <div class="info-item">
-                        <strong>Statut d'inscription:</strong>
-                        <span id="inscriptionStatus"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Date d'inscription:</strong>
-                        <span id="inscriptionDate"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Filière:</strong>
-                        <span id="inscriptionFiliere"></span>
-                    </div>
-                </div>
-            </div>
+                <?php if ($etapeData): ?>
+                <div class="step-content active">
+                    <div class="info-section">
+                        <?php if ($etape == 4): ?>
+                        <!-- Résumé final -->
+                        <h3>Résumé de l'évaluation</h3>
+                        <div class="resume-final">
+                            <?php 
+                            $decision = 'Validée';
+                            $rejets = 0;
+                            foreach ($etapeData as $key => $data) {
+                                if ($data['validation'] === 'rejeté') {
+                                    $rejets++;
+                                    $decision = 'Rejetée';
+                                }
+                            }
+                            ?>
+                            <div class="decision-finale <?php echo $decision === 'Validée' ? 'validee' : 'rejetee'; ?>">
+                                <h4>Décision finale : <?php echo $decision; ?></h4>
+                                <?php if ($decision === 'Validée'): ?>
+                                <p>🎉 Félicitations ! Votre candidature a été validée. Vous pouvez procéder à votre
+                                    soutenance.</p>
+                                <?php else: ?>
+                                <p>❌ Votre candidature a été rejetée. Veuillez corriger les problèmes identifiés
+                                    ci-dessous.</p>
+                                <?php endif; ?>
+                            </div>
 
-            <div class="step-content" id="stepScolariteContent">
-                <div class="info-section">
-                    <h3>Vérification de la scolarité</h3>
-                    <div class="info-item">
-                        <strong>Statut des paiements:</strong>
-                        <span id="scolariteStatus"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Montant total:</strong>
-                        <span id="scolariteMontant"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Dernier paiement:</strong>
-                        <span id="scolariteDernierPaiement"></span>
-                    </div>
-                </div>
-            </div>
+                            <div class="resume-etapes">
+                                <h4>Détail par étape :</h4>
 
-            <div class="step-content" id="stepStageContent">
-                <div class="info-section">
-                    <h3>Vérification des informations de stage</h3>
-                    <div class="info-item">
-                        <strong>Entreprise :</strong>
-                        <span id="stageEntreprise"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Sujet :</strong>
-                        <span id="stageSujet"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Période :</strong>
-                        <span id="stagePeriode"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Encadrant :</strong>
-                        <span id="stageEncadrant"></span>
-                    </div>
-                </div>
-            </div>
+                                <!-- Scolarité -->
+                                <div
+                                    class="etape-resume <?php echo $etapeData['scolarite']['validation']; ?> flex gap-2 items-center">
+                                    <div class="etape-details flex gap-2 items-center">
+                                        <h5><i class="fas fa-money-check"></i> Scolarité</h5>
+                                        <p><strong>Validation :</strong>
+                                            <span class="badge <?php echo $etapeData['scolarite']['validation']; ?>">
+                                                <?php echo strtoupper($etapeData['scolarite']['validation']); ?>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
 
-            <div class="step-content" id="stepSemestreContent">
-                <div class="info-section">
-                    <h3>Vérification du semestre</h3>
-                    <div class="info-item">
-                        <strong>Semestre actuel:</strong>
-                        <span id="semestreActuel"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Moyenne générale:</strong>
-                        <span id="semestreMoyenne"></span>
-                    </div>
-                    <div class="info-item">
-                        <strong>Unités validées:</strong>
-                        <span id="semestreUnites"></span>
-                    </div>
-                </div>
-            </div>
+                                <!-- Stage -->
+                                <div
+                                    class="etape-resume <?php echo $etapeData['stage']['validation']; ?> flex gap-2 items-center">
+                                    <div class="etape-details flex gap-2 items-center mb-2">
+                                        <h5><i class="fas fa-briefcase"></i> Stage</h5>
+                                        <p><strong>Validation :</strong>
+                                            <span class="badge <?php echo $etapeData['stage']['validation']; ?>">
+                                                <?php echo strtoupper($etapeData['stage']['validation']); ?>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
 
-            <div class="step-content" id="stepResumeContent">
-                <div class="info-section">
-                    <h3>Résumé de l'examen</h3>
-                    <div id="resumeContent"></div>
-                </div>
-            </div>
+                                <!-- Semestre -->
+                                <div
+                                    class="etape-resume <?php echo $etapeData['semestre']['validation']; ?> flex gap-2 items-center">
 
-            <div class="modal-footer">
-                <div class="left-buttons">
-                    <button id="btnPrevious" class="btn btn-secondary" onclick="previousStep()" style="display: none;">
-                        Précédent
-                    </button>
-                    <button id="btnNext" class="btn btn-primary" onclick="nextStep()">
-                        Suivant
-                    </button>
+                                    <div class="etape-details flex gap-2 items-center mb-2">
+                                        <h5><i class="fas fa-graduation-cap"></i> Semestre</h5>
+                                        <p><strong>Validation :</strong>
+                                            <span class="badge <?php echo $etapeData['semestre']['validation']; ?>">
+                                                <?php echo strtoupper($etapeData['semestre']['validation']); ?>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php if (isset($_GET['email_envoye']) && $_GET['email_envoye'] == '1'): ?>
+                            <div class="email-notification"
+                                style="background-color: #D1FAE5; border: 1px solid var(--success); color: #065F46;">
+                                <p><i class="fas fa-check-circle"></i> <strong>Email envoyé avec succès !</strong> Les
+                                    résultats ont été envoyés à l'étudiant.</p>
+                            </div>
+                            <?php else: ?>
+                            <div class="email-notification"
+                                style="background-color: #EFF6FF; border: 1px solid #3B82F6; color: #1E40AF;">
+                                <p><i class="fas fa-envelope"></i> Cliquez sur "Envoyer les résultats" pour notifier
+                                    l'étudiant de la décision finale.</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php else: ?>
+                        <!-- Contenu normal des étapes -->
+                        <h3>
+                            <?php 
+                        switch($etape) {
+                            case 1: echo 'Vérification de la scolarité'; break;
+                            case 2: echo 'Vérification du stage'; break;
+                            case 3: echo 'Vérification du semestre'; break;
+                        }
+                        ?>
+                        </h3>
+
+                        <?php if ($etape == 1): ?>
+                        <div class="info-item">
+                            <strong>Statut des paiements:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['status']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Montant total:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['montant']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Montant payé:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['montant_paye']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Dernier paiement:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['dernierPaiement']); ?></span>
+                        </div>
+                        <?php elseif ($etape == 2): ?>
+                        <div class="info-item">
+                            <strong>Entreprise :</strong>
+                            <span><?php echo htmlspecialchars($etapeData['entreprise']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Sujet :</strong>
+                            <span><?php echo htmlspecialchars($etapeData['sujet']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Période :</strong>
+                            <span><?php echo htmlspecialchars($etapeData['periode']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Encadrant :</strong>
+                            <span><?php echo htmlspecialchars($etapeData['encadrant']); ?></span>
+                        </div>
+                        <?php elseif ($etape == 3): ?>
+                        <div class="info-item">
+                            <strong>Semestre actuel:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['semestre']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Moyenne générale:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['moyenne']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Unités validées:</strong>
+                            <span><?php echo htmlspecialchars($etapeData['unites']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="right-buttons">
-                    <button id="btnReject" class="btn-reject" onclick="rejectStep()">
-                        Rejeter
-                    </button>
-                    <button id="btnValidate" class="btn-validate" onclick="validateStep()">
-                        Valider
-                    </button>
+                <?php endif; ?>
+
+                <div class="modal-footer">
+                    <div class="left-buttons">
+                        <?php if ($etape > 1 && $etape < 4): ?>
+                        <a href="?page=gestion_candidatures_soutenance&examiner=<?php echo $examiner; ?>&etape=<?php echo $etape - 1; ?>"
+                            class="btn btn-secondary">
+                            Précédent
+                        </a>
+                        <?php endif; ?>
+
+                        <?php if ($etape < 4): ?>
+                        <a href="?page=gestion_candidatures_soutenance&examiner=<?php echo $examiner; ?>&etape=<?php echo $etape + 1; ?>"
+                            class="btn btn-primary">
+                            Suivant
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                    <div class="right-buttons">
+                        <?php if ($etape < 4): ?>
+                        <form method="post"
+                            action="?page=gestion_candidatures_soutenance&action=rejeter_etape&examiner=<?php echo $examiner; ?>&etape=<?php echo $etape; ?>"
+                            style="display: inline;">
+                            <input type="hidden" name="etape" value="<?php echo $etape; ?>">
+                            <button type="submit" class="btn-reject">Rejeter</button>
+                        </form>
+                        <form method="post"
+                            action="?page=gestion_candidatures_soutenance&action=valider_etape&examiner=<?php echo $examiner; ?>&etape=<?php echo $etape; ?>"
+                            style="display: inline;">
+                            <input type="hidden" name="etape" value="<?php echo $etape; ?>">
+                            <button type="submit" class="btn-validate">
+                                <?php echo $etape == 3 ? 'Terminer l\'évaluation' : 'Valider'; ?>
+                            </button>
+                        </form>
+                        <?php elseif ($etape == 4): ?>
+                        <form method="post"
+                            action="?page=gestion_candidatures_soutenance&action=envoyer_resultats&examiner=<?php echo $examiner; ?>"
+                            style="display: inline;">
+                            <button type="submit" class="btn-validate" style="background-color: #059669;">
+                                <i class="fas fa-envelope"></i> Envoyer les résultats
+                            </button>
+                        </form>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+
     <script>
-    let currentNumEtu = null;
-    let currentStep = 1;
-    let totalSteps = 4;
-    let stepResults = {
-        inscription: {
-            status: null,
-            comment: ''
-        },
-        scolarite: {
-            status: null,
-            comment: ''
-        },
-        stage: {
-            status: null,
-            comment: ''
-        },
-        semestre: {
-            status: null,
-            comment: ''
-        }
-    };
-
-    function examinerCandidature(numEtu) {
-        currentNumEtu = numEtu;
-        currentStep = 1;
-        document.getElementById('examinationModal').style.display = 'flex';
-        showStep(currentStep);
-        loadStepData(currentStep);
-    }
-
-    function showStep(step) {
-        document.querySelectorAll('.step-content').forEach(content => {
-            content.style.display = 'none';
-        });
-        document.getElementById(`step${getStepName(step)}Content`).style.display = 'block';
-
-        document.getElementById('btnPrevious').style.display = step > 1 ? 'block' : 'none';
-        document.getElementById('btnNext').style.display = step < totalSteps ? 'block' : 'none';
-
-        document.querySelectorAll('.step').forEach((s, index) => {
-            s.classList.remove('active');
-            if (index + 1 === step) {
-                s.classList.add('active');
-            }
-        });
-    }
-
-    function getStepName(step) {
-        const steps = ['Inscription', 'Scolarite', 'Stage', 'Semestre'];
-        return steps[step - 1];
-    }
-
-    function loadStepData(step) {
-        fetch(`?page=gestion_candidatures&action=verifier_etape&num_etu=${currentNumEtu}&etape=${step}`)
-            .then(response => response.json())
-            .then(data => {
-                updateStepContent(step, data);
-            });
-    }
-
-    function updateStepContent(step, data) {
-        const stepName = getStepName(step).toLowerCase();
-        switch (step) {
-            case 1:
-                document.getElementById('inscriptionStatus').textContent = data.status;
-                document.getElementById('inscriptionDate').textContent = data.date;
-                document.getElementById('inscriptionFiliere').textContent = data.filiere;
-                break;
-            case 2:
-                document.getElementById('scolariteStatus').textContent = data.status;
-                document.getElementById('scolariteMontant').textContent = data.montant;
-                document.getElementById('scolariteDernierPaiement').textContent = data.dernierPaiement;
-                break;
-            case 3:
-                document.getElementById('stageEntreprise').textContent = data.entreprise;
-                document.getElementById('stageSujet').textContent = data.sujet;
-                document.getElementById('stagePeriode').textContent = data.periode;
-                document.getElementById('stageEncadrant').textContent = data.encadrant;
-                break;
-            case 4:
-                document.getElementById('semestreActuel').textContent = data.semestre;
-                document.getElementById('semestreMoyenne').textContent = data.moyenne;
-                document.getElementById('semestreUnites').textContent = data.unites;
-                break;
-        }
-    }
-
-    function previousStep() {
-        if (currentStep > 1) {
-            currentStep--;
-            showStep(currentStep);
-        }
-    }
-
-    function nextStep() {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            showStep(currentStep);
-            loadStepData(currentStep);
-        }
-    }
-
-    function validateStep() {
-        const stepName = getStepName(currentStep).toLowerCase();
-        stepResults[stepName] = {
-            status: 'validé',
-            comment: 'Étape validée avec succès'
-        };
-
-        if (currentStep === totalSteps) {
-            showResume();
-        } else {
-            nextStep();
-        }
-    }
-
-    function rejectStep() {
-        const stepName = getStepName(currentStep).toLowerCase();
-        stepResults[stepName] = {
-            status: 'rejeté',
-            comment: 'Étape rejetée'
-        };
-        showResume();
-    }
-
-    function showResume() {
-        const resumeContent = document.getElementById('resumeContent');
-        let html = '<div class="resume-section">';
-
-        for (const [step, result] of Object.entries(stepResults)) {
-            html += `
-                <div class="resume-item">
-                    <h4>${step.charAt(0).toUpperCase() + step.slice(1)}</h4>
-                    <p>Statut: <span class="status-badge ${result.status}">${result.status}</span></p>
-                    <p>Commentaire: ${result.comment}</p>
-                </div>
-            `;
-        }
-
-        html += '</div>';
-        resumeContent.innerHTML = html;
-
-        document.querySelectorAll('.step-content').forEach(content => {
-            content.style.display = 'none';
-        });
-        document.getElementById('stepResumeContent').style.display = 'block';
-
-        document.getElementById('btnPrevious').style.display = 'none';
-        document.getElementById('btnNext').style.display = 'none';
-        document.getElementById('btnReject').style.display = 'none';
-        document.getElementById('btnValidate').style.display = 'none';
-
-        const footer = document.querySelector('.modal-footer');
-        footer.innerHTML = `
-            <button class="btn btn-primary" onclick="envoyerResultat()">
-                Envoyer le résultat
-            </button>
-        `;
-    }
-
-    function envoyerResultat() {
-        fetch(`?page=gestion_candidatures&action=envoyer_resultat&num_etu=${currentNumEtu}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(stepResults)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Le résultat a été envoyé avec succès à l\'étudiant.');
-                    closeModal();
-                    window.location.reload();
-                } else {
-                    alert('Une erreur est survenue lors de l\'envoi du résultat.');
-                }
-            });
-    }
-
-
-    const modal = document.getElementById('examinationModal');
-    modal.style.display = 'none';
-    currentNumEtu = null;
-    currentStep = 1;
-    stepResults = {
-        inscription: {
-            status: null,
-            comment: ''
-        },
-        scolarite: {
-            status: null,
-            comment: ''
-        },
-        stage: {
-            status: null,
-            comment: ''
-        },
-        semestre: {
-            status: null,
-            comment: ''
-        }
-    };
-
-
-
     // Fonction de recherche
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
