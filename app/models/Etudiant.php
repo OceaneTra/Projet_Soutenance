@@ -317,4 +317,14 @@ class Etudiant {
         return $row;
     }
 
+    /**
+     * Retourne toutes les candidatures d'un étudiant
+     */
+    public function getCandidatures($num_etu) {
+        $sql = "SELECT * FROM candidature_soutenance WHERE num_etu = ? ORDER BY date_candidature DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 } 

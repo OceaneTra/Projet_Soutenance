@@ -297,18 +297,32 @@ foreach ($candidatures as $c) {
         transition: background-color 0.3s ease;
     }
 
-    .step.active .step-icon {
-        background-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.3);
-        transform: scale(1.1);
+    .step.active-scolarite .step-icon {
+        background-color: #a78bfa !important;
+        /* violet */
+        color: #fff;
+        box-shadow: 0 0 0 3px #f3e8ff;
     }
 
-    .step.completed .step-icon {
-        background-color: var(--success);
+    .step.active-stage .step-icon {
+        background-color: #38bdf8 !important;
+        /* bleu */
+        color: #fff;
+        box-shadow: 0 0 0 3px #e0f2fe;
     }
 
-    .step.rejected .step-icon {
-        background-color: var(--danger);
+    .step.active-semestre .step-icon {
+        background-color: #fde047 !important;
+        /* jaune */
+        color: #fff;
+        box-shadow: 0 0 0 3px #fef9c3;
+    }
+
+    .step.active-resume .step-icon {
+        background-color: #22c55e !important;
+        /* vert */
+        color: #fff;
+        box-shadow: 0 0 0 3px #dcfce7;
     }
 
     .step-label {
@@ -754,6 +768,26 @@ foreach ($candidatures as $c) {
         max-height: none;
     }
 
+    .step-content.active-scolarite {
+        background: #f3e8ff;
+        /* violet très clair */
+    }
+
+    .step-content.active-stage {
+        background: #e0f2fe;
+        /* bleu très clair */
+    }
+
+    .step-content.active-semestre {
+        background: #fef9c3;
+        /* jaune très clair */
+    }
+
+    .step-content.active-resume {
+        background: #dcfce7;
+        /* vert très clair */
+    }
+
     @media print {
         body * {
             visibility: hidden;
@@ -880,7 +914,7 @@ foreach ($candidatures as $c) {
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" id="searchHistoriqueInput" placeholder="Rechercher dans l'historique..."
                             style="padding: 8px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 14px;">
-                        <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i>
+                        <button class="btn btn-secondary" onclick="printHistoriqueTable()"><i class="fas fa-print"></i>
                             Imprimer</button>
                         <button class="btn btn-primary" onclick="exportHistoriqueCSV()"><i class="fas fa-file-csv"></i>
                             Exporter</button>
@@ -989,7 +1023,7 @@ foreach ($candidatures as $c) {
                 <a href="?page=gestion_candidatures_soutenance" class="close-button">&times;</a>
                 <h2 class="modal-title">Examen de la Candidature -
                     <?php echo htmlspecialchars($etudiantData['nom_etu'] . ' ' . $etudiantData['prenom_etu']); ?></h2>
-
+                <!--partie des step-icon-->
                 <div class="step-indicator">
                     <div class="step <?php echo isset($_SESSION['etapes_validation'][$examiner][1]) ? $_SESSION['etapes_validation'][$examiner][1] : ($etape == 1 ? 'active' : ''); ?>"
                         id="stepScolarite">
@@ -1021,7 +1055,13 @@ foreach ($candidatures as $c) {
                 </div>
 
                 <?php if ($etapeData): ?>
-                <div class="step-content active">
+                <div class="step-content active
+                    <?php
+                        if ($etape == 1) echo 'active-scolarite';
+                        elseif ($etape == 2) echo 'active-stage';
+                        elseif ($etape == 3) echo 'active-semestre';
+                        elseif ($etape == 4) echo 'active-resume';
+                    ?>">
                     <div class="info-section">
                         <?php if ($etape == 4): ?>
                         <!-- Résumé final -->
@@ -1277,6 +1317,70 @@ foreach ($candidatures as $c) {
     function closeHistoriqueModal() {
         document.getElementById('historiqueDetailsModal').style.display = 'none';
     }
+
+    function printHistoriqueTable() {
+        const printWindow = window.open('', '_blank');
+        const table = document.querySelector('#historiqueCandidaturesTable');
+        const title = 'Historique des candidatures examinées';
+        // Construction des en-têtes sans la colonne Action
+        const headers = Array.from(table.querySelectorAll('th')).slice(0, -1).map(th => `<th>${th.textContent}</th>`)
+            .join('');
+        // Construction des lignes sans la colonne Action
+        const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
+            const cells = Array.from(row.querySelectorAll('td')).slice(0, -1).map(td =>
+                `<td>${td.textContent}</td>`).join('');
+            return `<tr>${cells}</tr>`;
+        }).join('');
+        const content = `
+            <html>
+            <head>
+                <title>Impression - ${title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    th, td { border: 1px solid #888; padding: 10px 16px; text-align: left; font-size: 14px; }
+                    th { background-color: #f5f5f5; }
+                    h1 { text-align: center; color: #333; }
+                    @media print {
+                        body { margin: 0; padding: 20px; }
+                        table { page-break-inside: auto; }
+                        tr { page-break-inside: avoid; page-break-after: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>${title}</h1>
+                <table>
+                    <thead><tr>${headers}</tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.onload = function() {
+            printWindow.print();
+            printWindow.close();
+        };
+    }
+
+    function highlightActiveStep(etape) {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.remove('active-scolarite', 'active-stage', 'active-semestre', 'active-resume');
+        });
+        if (etape == 1) {
+            document.getElementById('stepScolarite').classList.add('active-scolarite');
+        } else if (etape == 2) {
+            document.getElementById('stepStage').classList.add('active-stage');
+        } else if (etape == 3) {
+            document.getElementById('stepSemestre').classList.add('active-semestre');
+        } else if (etape == 4) {
+            document.getElementById('stepResume').classList.add('active-resume');
+        }
+    }
+    highlightActiveStep(<?php echo (int)$etape; ?>);
     </script>
 </body>
 

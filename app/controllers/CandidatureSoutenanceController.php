@@ -56,6 +56,10 @@ class CandidatureSoutenanceController {
         // Vérifier si l'étudiant a déjà soumis une candidature
         $candidature = $this->etudiant->getCandidature($_SESSION['num_etu']);
         $GLOBALS['has_candidature'] = !empty($candidature);
+
+        // Charger toutes les candidatures de l'étudiant
+        $candidatures_etudiant = $this->etudiant->getCandidatures($_SESSION['num_etu']);
+        $GLOBALS['candidatures_etudiant'] = $candidatures_etudiant;
       
     }
 
@@ -69,8 +73,10 @@ class CandidatureSoutenanceController {
             
             // Vérifier si l'étudiant a déjà soumis une candidature
             $existing_candidature = $this->etudiant->getCandidature($etudiant_id);
+
+            $status = $existing_candidature ? $existing_candidature['statut_candidature'] : null;
             
-            if ($existing_candidature) {
+            if ($existing_candidature && ($status === 'En attente' || $status === 'Validée')) {
                 $_SESSION['error'] = "Vous avez déjà soumis une candidature.";
                 return;
             }
