@@ -90,7 +90,7 @@
             <form id="rapportForm" method="POST" onsubmit="return false;">
                 <input type="hidden" name="action" value="save_rapport">
                 <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
-                    <input type="hidden" name="edit_id" value="<?= $rapport->id_rapport ?>">
+                    <input type="hidden" name="edit_id" value="<?= $rapport['id_rapport'] ?>">
                 <?php endif; ?>
             <!-- Toolbar -->
                 <div class="p-6 border-b border-gray-200">
@@ -103,7 +103,7 @@
                             <input type="text"
                                    id="nom_rapport"
                                    name="nom_rapport"
-                                   value="<?= isset($rapport) ? htmlspecialchars($rapport->nom_rapport) : '' ?>"
+                                   value="<?= isset($rapport) ? htmlspecialchars($rapport['nom_rapport']) : '' ?>"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    placeholder="Ex: Rapport de stage - Développement Web"
                                    required>
@@ -115,7 +115,7 @@
                             <input type="text"
                                    id="theme_rapport"
                                    name="theme_rapport"
-                                   value="<?= isset($rapport) ? htmlspecialchars($rapport->theme_rapport) : '' ?>"
+                                   value="<?= isset($rapport) ? htmlspecialchars($rapport['theme_rapport']) : '' ?>"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    placeholder="Ex: Intégration d'un système CRM"
                                    required>
@@ -238,6 +238,29 @@
                 ed.on('init', function() {
                     // Initial setup when editor is ready
                     document.getElementById('editor').classList.remove('hidden');
+                    
+                    <?php if (isset($isEditMode) && $isEditMode && !empty($contenuRapport)): ?>
+                    // Mode édition : charger le contenu du rapport
+                    setTimeout(function() {
+                        editor.setContent(<?= json_encode($contenuRapport) ?>);
+                        editorContainer.classList.remove('document-loading');
+                        editorContainer.classList.add('document-loaded');
+                        documentStatusMessage.classList.add('hidden');
+                        showNotification('info', 'Rapport chargé en mode édition');
+                    }, 500);
+                    <?php else: ?>
+                    // Mode création : vérifier le localStorage
+                    const savedContent = localStorage.getItem('reportContent');
+                    if (savedContent) {
+                        setTimeout(function() {
+                            editor.setContent(savedContent);
+                            editorContainer.classList.remove('document-loading');
+                            editorContainer.classList.add('document-loaded');
+                            documentStatusMessage.classList.add('hidden');
+                            showNotification('info', 'Rapport précédemment enregistré chargé');
+                        }, 500);
+                    }
+                    <?php endif; ?>
                 });
             }
         });
@@ -475,20 +498,6 @@
         // Close notification
         document.getElementById('closeNotification').addEventListener('click', function() {
             document.getElementById('notification').classList.add('hidden');
-        });
-
-        // Check for saved content
-        window.addEventListener('load', function() {
-            const savedContent = localStorage.getItem('reportContent');
-            if (savedContent && editor) {
-                setTimeout(function() {
-                    editor.setContent(savedContent);
-                    editorContainer.classList.remove('document-loading');
-                    editorContainer.classList.add('document-loaded');
-                    documentStatusMessage.classList.add('hidden');
-                    showNotification('info', 'Rapport précédemment enregistré chargé');
-                }, 1000);
-            }
         });
 
         // Utility function to show notifications
