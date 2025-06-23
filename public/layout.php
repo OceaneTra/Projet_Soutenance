@@ -18,6 +18,7 @@ include __DIR__ . '/../ressources/routes/gestionNotesRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsRoutes.php';
 include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
+include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
 
 
 
@@ -237,6 +238,14 @@ switch ($currentMenuSlug) {
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
             }
+            break;
+            
+        case 'verification_candidatures_soutenance':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page de vérification
+            $contentFile = $partialsBasePath . 'verification_candidatures_soutenance_content.php';
+            $currentPageLabel = 'Vérification des candidatures soutenance';
+            break;
         
         default:
        
