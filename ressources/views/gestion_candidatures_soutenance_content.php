@@ -1,4 +1,5 @@
 <?php
+// NOTE : Ce fichier utilise un endpoint AJAX 'resume_candidature_ajax.php' à créer pour charger dynamiquement le résumé de candidature depuis la base.
 // Récupérer les données du contrôleur
 $candidatures = $GLOBALS['candidatures_soutenance'] ?? [];
 $examiner = $GLOBALS['examiner'] ?? null;
@@ -16,6 +17,17 @@ if ($statutFiltre !== 'all') {
     $candidatures = array_filter($candidatures, function($c) use ($statutFiltre) {
         return $c['statut_candidature'] === $statutFiltre;
     });
+}
+
+// Charger les résumés de candidatures pour les étudiants traités
+require_once __DIR__ . '/../../app/models/Etudiant.php';
+require_once __DIR__ . '/../../app/config/database.php';
+$resumes_candidatures = [];
+foreach ($candidatures as $c) {
+    if ($c['statut_candidature'] !== 'En attente') {
+        $resume = (new Etudiant(Database::getConnection()))->getResumeCandidature($c['num_etu']);
+        $resumes_candidatures[$c['num_etu']] = $resume;
+    }
 }
 ?>
 
@@ -121,27 +133,34 @@ if ($statutFiltre !== 'all') {
         /* Allow wrapping on smaller screens */
         gap: 10px;
         /* Spacing between flex items */
+        transition: box-shadow 0.2s;
+    }
+
+    .candidate-item:hover {
+        box-shadow: 0 4px 12px rgba(111, 66, 193, 0.10);
+        border-color: var(--primary);
     }
 
     .candidate-info h3 {
         margin: 0;
-        font-size: 16px;
+        font-size: 18px;
+        font-weight: 600;
         color: var(--text-color-dark);
     }
 
     .candidate-info p {
         margin: 5px 0 0;
-        font-size: 14px;
+        font-size: 15px;
         color: var(--gray);
     }
 
     .btn-examine {
         background: var(--primary);
         color: white;
-        padding: 8px 16px;
+        padding: 10px 20px;
         border: none;
         border-radius: 6px;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -181,13 +200,12 @@ if ($statutFiltre !== 'all') {
         margin: auto;
         padding: 30px;
         border-radius: 10px;
-        max-width: 700px;
-        width: 90%;
-        max-height: 90vh;
+        max-width: 900px;
+        width: 95%;
+        max-height: 95vh;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         position: relative;
         display: flex;
-        /* Use flex for internal layout */
         flex-direction: column;
         overflow: hidden;
     }
@@ -490,18 +508,18 @@ if ($statutFiltre !== 'all') {
     .history-table th,
     .history-table td {
         text-align: left;
-        padding: 12px;
+        padding: 14px 18px;
         border-bottom: 1px solid var(--border-color);
     }
 
     .history-table th {
         background-color: #F9FAFB;
-        font-size: 14px;
+        font-size: 15px;
         color: var(--text-color-dark);
     }
 
     .history-table td {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .history-table tbody tr:last-child td {
@@ -510,9 +528,9 @@ if ($statutFiltre !== 'all') {
 
     .status-badge {
         display: inline-block;
-        padding: 4px 8px;
+        padding: 5px 10px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 500;
     }
 
@@ -717,6 +735,75 @@ if ($statutFiltre !== 'all') {
         margin-right: 8px;
         color: #3B82F6;
     }
+
+    /* Spécifique à l'étape 4 (Résumé) : agrandir la modal et désactiver le scroll */
+    .modal-content.resume-step {
+        max-width: 850px;
+        max-height: 98vh;
+        height: auto;
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-content.resume-step .modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        min-height: 0;
+        padding-right: 15px;
+        max-height: none;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .main-content,
+        .main-content * {
+            visibility: visible;
+        }
+
+        .filters,
+        .btn,
+        .btn-examine,
+        .btn-details,
+        .table-header,
+        .modal,
+        .modal *,
+        .candidate-list,
+        .candidate-item,
+        #historiqueDetailsModal {
+            display: none !important;
+        }
+
+        .table-container,
+        .history-table {
+            box-shadow: none !important;
+            background: white !important;
+            color: black !important;
+        }
+
+        .history-table th,
+        .history-table td {
+            border: 1px solid #222 !important;
+            background: white !important;
+            color: #222 !important;
+        }
+
+        .status-badge,
+        .badge {
+            color: #222 !important;
+            background: #eee !important;
+            border: 1px solid #bbb !important;
+        }
+
+        /* Masquer la colonne Action (Voir détails) */
+        .history-table th:last-child,
+        .history-table td:last-child {
+            display: none !important;
+        }
+    }
     </style>
 </head>
 
@@ -774,33 +861,120 @@ if ($statutFiltre !== 'all') {
                                 <?php echo ucfirst($candidature['statut_candidature']); ?>
                             </span></p>
                     </div>
+                    <?php if ($candidature['statut_candidature'] === 'En attente'): ?>
                     <button class="btn-examine"
                         onclick="window.location.href='?page=gestion_candidatures_soutenance&examiner=<?php echo $candidature['num_etu']; ?>&etape=1'">
                         Examiner
                     </button>
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
                 <?php endif; ?>
             </div>
 
-            <!-- Table d'historique -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h2 class="table-title">Historique des actions</h2>
+            <!-- Table d'historique des candidatures examinées -->
+            <div class="table-container" style="margin-top: 2rem;">
+                <div class="table-header"
+                    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <h2 class="table-title">Historique des candidatures examinées</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="searchHistoriqueInput" placeholder="Rechercher dans l'historique..."
+                            style="padding: 8px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 14px;">
+                        <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i>
+                            Imprimer</button>
+                        <button class="btn btn-primary" onclick="exportHistoriqueCSV()"><i class="fas fa-file-csv"></i>
+                            Exporter</button>
+                    </div>
                 </div>
-                <table class="history-table">
+                <table class="history-table" id="historiqueCandidaturesTable">
                     <thead>
                         <tr>
                             <th>Étudiant</th>
-                            <th>Action</th>
-                            <th>Commentaire</th>
+                            <th>Statut</th>
                             <th>Date</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="historiqueTableBody">
-                        <!-- L'historique sera chargé ici -->
+                    <tbody>
+                        <?php foreach ($candidatures as $candidature): ?>
+                        <?php if ($candidature['statut_candidature'] !== 'En attente'): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($candidature['nom_etu'] . ' ' . $candidature['prenom_etu']); ?>
+                            </td>
+                            <td><span
+                                    class="status-badge <?php echo strtolower($candidature['statut_candidature']); ?>"><?php echo ucfirst($candidature['statut_candidature']); ?></span>
+                            </td>
+                            <td><?php echo date('d/m/Y', strtotime($candidature['date_traitement'] ?? $candidature['date_candidature'])); ?>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-details"
+                                    data-numetu="<?php echo $candidature['num_etu']; ?>">Voir détails</button>
+                                <div id="resume-candidature-<?php echo $candidature['num_etu']; ?>"
+                                    style="display:none;">
+                                    <?php if (!empty($resumes_candidatures[$candidature['num_etu']])): 
+                                        $resume = $resumes_candidatures[$candidature['num_etu']]; ?>
+                                    <div class="resume-final">
+                                        <div
+                                            class="decision-finale <?php echo $resume['decision'] === 'Validée' ? 'validee' : 'rejetee'; ?>">
+                                            <h4>Décision finale : <?php echo $resume['decision']; ?></h4>
+                                            <p>Date de traitement : <?php echo $resume['date_enregistrement']; ?></p>
+                                            <?php if ($resume['decision'] === 'Validée'): ?>
+                                            <p>🎉 Félicitations ! Candidature validée.</p>
+                                            <?php else: ?>
+                                            <p>❌ Candidature rejetée. Voir détails ci-dessous.</p>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="resume-etapes">
+                                            <h4>Détail par étape :</h4>
+                                            <?php $r = $resume['resume_json']; ?>
+                                            <?php if (!empty($r['scolarite'])): ?>
+                                            <div class="etape-resume <?php echo $r['scolarite']['validation']; ?>">
+                                                <h5><i class='fas fa-money-check'></i> Scolarité</h5>
+                                                <p><strong>Validation :</strong> <span
+                                                        class="badge <?php echo $r['scolarite']['validation']; ?>"><?php echo strtoupper($r['scolarite']['validation']); ?></span>
+                                                </p>
+                                            </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($r['stage'])): ?>
+                                            <div class="etape-resume <?php echo $r['stage']['validation']; ?>">
+                                                <h5><i class='fas fa-briefcase'></i> Stage</h5>
+                                                <p><strong>Validation :</strong> <span
+                                                        class="badge <?php echo $r['stage']['validation']; ?>"><?php echo strtoupper($r['stage']['validation']); ?></span>
+                                                </p>
+                                            </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($r['semestre'])): ?>
+                                            <div class="etape-resume <?php echo $r['semestre']['validation']; ?>">
+                                                <h5><i class='fas fa-graduation-cap'></i> Semestre</h5>
+                                                <p><strong>Validation :</strong> <span
+                                                        class="badge <?php echo $r['semestre']['validation']; ?>"><?php echo strtoupper($r['semestre']['validation']); ?></span>
+                                                </p>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <?php else: ?>
+                                    <p>Aucun résumé trouvé pour cet étudiant.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Modal détails historique -->
+            <div id="historiqueDetailsModal" class="modal" style="display:none;">
+                <div class="modal-content" style="max-width:600px;">
+                    <span class="close-button" onclick="closeHistoriqueModal()">&times;</span>
+                    <h2 class="modal-title">Résumé de l'examen de candidature</h2>
+                    <div id="historiqueDetailsContent">
+                        <!-- Contenu dynamique à charger côté serveur/JS -->
+                        <p>Chargement...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -811,7 +985,7 @@ if ($statutFiltre !== 'all') {
         <?php else: ?>
         <div id="examinationModal" class="modal" style="display: none;">
             <?php endif; ?>
-            <div class="modal-content">
+            <div class="modal-content<?php echo ($etape == 4 ? ' resume-step' : ''); ?>">
                 <a href="?page=gestion_candidatures_soutenance" class="close-button">&times;</a>
                 <h2 class="modal-title">Examen de la Candidature -
                     <?php echo htmlspecialchars($etudiantData['nom_etu'] . ' ' . $etudiantData['prenom_etu']); ?></h2>
@@ -877,6 +1051,8 @@ if ($statutFiltre !== 'all') {
                             <div class="resume-etapes">
                                 <h4>Détail par étape :</h4>
 
+
+
                                 <!-- Scolarité -->
                                 <div
                                     class="etape-resume <?php echo $etapeData['scolarite']['validation']; ?> flex gap-2 items-center">
@@ -916,8 +1092,8 @@ if ($statutFiltre !== 'all') {
                                         </p>
                                     </div>
                                 </div>
-                            </div>
 
+                            </div>
                             <?php if (isset($_GET['email_envoye']) && $_GET['email_envoye'] == '1'): ?>
                             <div class="email-notification"
                                 style="background-color: #D1FAE5; border: 1px solid var(--success); color: #065F46;">
@@ -1056,6 +1232,51 @@ if ($statutFiltre !== 'all') {
             item.style.display = text.includes(searchTerm) ? '' : 'none';
         });
     });
+
+    // Recherche dynamique sur la table d'historique
+    document.getElementById('searchHistoriqueInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#historiqueCandidaturesTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Export CSV
+    function exportHistoriqueCSV() {
+        let csv = 'Étudiant,Statut,Date\n';
+        document.querySelectorAll('#historiqueCandidaturesTable tbody tr').forEach(row => {
+            if (row.style.display !== 'none') {
+                const cols = row.querySelectorAll('td');
+                csv += Array.from(cols).slice(0, 3).map(td => '"' + td.textContent.replace(/"/g, '""') + '"')
+                    .join(',') + '\n';
+            }
+        });
+        const blob = new Blob([csv], {
+            type: 'text/csv'
+        });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'historique_candidatures.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Modal Voir détails (AJAX pour charger le résumé)
+    document.querySelectorAll('.btn-details').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const numEtu = this.getAttribute('data-numetu');
+            const resumeDiv = document.getElementById('resume-candidature-' + numEtu);
+            document.getElementById('historiqueDetailsContent').innerHTML = resumeDiv ? resumeDiv
+                .innerHTML : '<p>Aucun résumé trouvé.</p>';
+            document.getElementById('historiqueDetailsModal').style.display = 'flex';
+        });
+    });
+
+    function closeHistoriqueModal() {
+        document.getElementById('historiqueDetailsModal').style.display = 'none';
+    }
     </script>
 </body>
 

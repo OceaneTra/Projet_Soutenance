@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Scolarite.php';
 require_once __DIR__ . '/../models/InfoStage.php';
+require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../utils/EmailService.php';
 
 class GestionCandidaturesController {
@@ -11,14 +12,18 @@ class GestionCandidaturesController {
     private $scolarite;
     private $emailService;
 
+    private $pers_admin;
+
     public function __construct() {
         $this->db = Database::getConnection();
         $this->etudiant = new Etudiant($this->db);
         $this->scolarite = new Scolarite($this->db);
         $this->emailService = new EmailService();
+        $this->pers_admin = new PersAdmin($this->db);
     }
-
+    
     public function index() {
+        
         $GLOBALS['candidatures_soutenance'] = $this->etudiant->getAllCandidature();
     }
 
@@ -52,9 +57,6 @@ class GestionCandidaturesController {
         if ($action === 'rejeter_etape' && $examiner) {
             $etapeRejetee = $_POST['etape'] ?? '';
             $_SESSION['etapes_validation'][$examiner][$etapeRejetee] = 'rejeté';
-            
-            // Traiter le rejet
-            $this->traiterRejet($examiner, $etapeRejetee);
             
             // Passer à l'étape suivante même en cas de rejet
             if ($etapeRejetee < 3) {
@@ -146,32 +148,24 @@ class GestionCandidaturesController {
         $GLOBALS['etapeData'] = $etapeData;
     }
 
-    // Méthode pour traiter un rejet
-    private function traiterRejet($examiner, $etape) {
-        $etapes_noms = [
-            1 => 'Scolarité',
-            2 => 'Stage',
-            3 => 'Semestre'
-        ];
-        
-        $raison = "Étape '" . $etapes_noms[$etape] . "' non validée";
-        $this->etudiant->traiterCandidature($examiner, 'Rejetée', $raison);
-        
-        // Ne plus envoyer d'email ici - l'email sera envoyé uniquement à la fin
-        // $this->envoyerEmailRejet($examiner, $etapes_noms[$etape]);
-    }
+    
 
     // Méthode pour envoyer les résultats finaux
     private function envoyerResultatsFinaux($examiner) {
         $resume = $this->genererResumeFinal($examiner);
         $decision = $this->determinerDecision($resume);
-        
+
+        $pers_admin = $this->pers_admin->getPersAdminByLogin($_SESSION['login_utilisateur']);
+
         // Mettre à jour le statut de la candidature
-        $this->etudiant->traiterCandidature($examiner, $decision, 'Évaluation complète terminée');
-        
+        $this->etudiant->traiterCandidature($examiner, $decision, 'Évaluation complète terminée',$pers_admin->id_pers_admin);
+
+        // Enregistrer le résumé dans la table resume_candidature
+        $this->etudiant->saveResumeCandidature($examiner, $resume, $decision);
+
         // Envoyer l'email à l'étudiant avec le résumé complet
         $this->envoyerEmailResultat($examiner, $resume, $decision);
-        
+
         // Marquer que l'email a été envoyé
         $_SESSION['email_envoye'][$examiner] = true;
     }
@@ -240,6 +234,11 @@ class GestionCandidaturesController {
         
         // Utiliser le service EmailService avec PHPMailer
         return $this->emailService->sendResultEmail($etudiant['email_etu'], $studentName, $resume, $decision);
+    }
+
+    // Nouvelle méthode pour récupérer le résumé de candidature
+    public function afficherResumeCandidature($num_etu) {
+        return $this->etudiant->getResumeCandidature($num_etu);
     }
 
    

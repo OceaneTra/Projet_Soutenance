@@ -69,10 +69,6 @@ class Etudiant {
 
     }
 
-    
-
-    
-
     public function ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $email_etu, $promotion_etu) {
         try {
             $sql = "INSERT INTO etudiants (num_etu, nom_etu, prenom_etu, date_naiss_etu, genre_etu, email_etu, promotion_etu) 
@@ -161,12 +157,6 @@ class Etudiant {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createCandidature($etudiant_id) {
-        $sql = "INSERT INTO candidature_soutenance (num_etu, date_candidature, statut_candidature) VALUES (?, NOW(), 'En attente')";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$etudiant_id]);
-    }
-
     public function getCompteRendu($etudiant_id) {
         $sql = "SELECT * FROM compte_rendu WHERE num_etu = ?";
         $stmt = $this->db->prepare($sql);
@@ -174,12 +164,12 @@ class Etudiant {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-
-    public function traiterCandidature($numEtu, $decision, $commentaire = null) {
+    public function traiterCandidature($numEtu, $decision, $commentaire,$id_pers_admin) {
         try {
             $sql = "UPDATE candidature_soutenance 
                    SET statut_candidature = :decision, 
-                       commentaire = :commentaire,
+                       commentaire_admin = :commentaire,
+                       id_pers_admin = :id_pers_admin,
                        date_traitement = NOW()
                    WHERE num_etu = :num_etu";
             
@@ -187,6 +177,7 @@ class Etudiant {
             return $stmt->execute([
                 ':decision' => $decision,
                 ':commentaire' => $commentaire,
+                ':id_pers_admin' => $id_pers_admin,
                 ':num_etu' => $numEtu
             ]);
         } catch (PDOException $e) {
@@ -289,6 +280,41 @@ class Etudiant {
             error_log("Erreur lors de la récupération du semestre actuel: " . $e->getMessage());
             return null;
         }
+    }
+
+    public function createCandidature($etudiant_id) {
+        $sql = "INSERT INTO candidature_soutenance (num_etu, date_candidature, statut_candidature) VALUES (?, NOW(), 'En attente')";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$etudiant_id]);
+    }
+
+    /**
+     * Enregistre ou met à jour le résumé de candidature pour un étudiant
+     */
+    public function saveResumeCandidature($num_etu, $resume, $decision) {
+        $sql = "INSERT INTO resume_candidature (num_etu, resume_json, decision, date_enregistrement)
+                VALUES (:num_etu, :resume_json, :decision, NOW())
+                ON DUPLICATE KEY UPDATE resume_json = :resume_json, decision = :decision, date_enregistrement = NOW()";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':num_etu' => $num_etu,
+            ':resume_json' => json_encode($resume),
+            ':decision' => $decision
+        ]);
+    }
+
+    /**
+     * Récupère le résumé de candidature pour un étudiant
+     */
+    public function getResumeCandidature($num_etu) {
+        $sql = "SELECT * FROM resume_candidature WHERE num_etu = ? ORDER BY date_enregistrement DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $row['resume_json'] = json_decode($row['resume_json'], true);
+        }
+        return $row;
     }
 
 } 
