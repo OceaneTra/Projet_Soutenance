@@ -503,7 +503,7 @@ class GestionRapportController {
             }
         } catch (Exception $e) {
             error_log("Erreur suppression rapport: " . $e->getMessage());
-            $this->sendJsonResponse(['success' => false, 'message' => 'Erreur lors de la suppression']);
+            $this->sendJsonResponse(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
         }
     }
 

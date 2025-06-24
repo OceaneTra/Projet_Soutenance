@@ -116,7 +116,7 @@
                 <?php if (isset($rapportsRecents) && !empty($rapportsRecents)): ?>
                     <div class="space-y-4">
                         <?php foreach ($rapportsRecents as $rapport): ?>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div id="rapport-<?= $rapport->id_rapport ?>" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <h4 class="text-lg font-semibold text-gray-800 mb-2">
@@ -307,33 +307,42 @@
         const formData = new FormData();
         formData.append('rapport_id', rapportId);
 
-        fetch('?page=gestion_rapports&action=deleteRapportAjax', {
+        fetch('?page=gestion_rapports&action=delete_rapport', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                document.body.removeChild(loadingDiv);
+        .then(response => {
+            if (!response.ok) {
+                // Si le statut HTTP n'est pas OK (e.g. 500 Internal Server Error)
+                // On lit la réponse comme du texte et on la lance comme une erreur
+                return response.text().then(text => { throw new Error(text || 'Réponse invalide du serveur') });
+            }
+            return response.json(); // On tente de parser le JSON si la réponse est OK
+        })
+        .then(data => {
+            document.body.removeChild(loadingDiv);
 
-                if (data.success) {
-                    // Supprimer visuellement le rapport de la liste
-                    const rapportElement = event.target.closest('.border');
+            if (data.success) {
+                // Supprimer visuellement le rapport de la liste
+                const rapportElement = document.getElementById('rapport-' + rapportId);
+                if (rapportElement) {
                     rapportElement.remove();
-
-                    // Afficher un message de succès
-                    showNotification('success', data.message);
-                } else {
-                    showNotification('error', data.message || 'Erreur lors de la suppression');
                 }
-            })
-            .catch(error => {
-                document.body.removeChild(loadingDiv);
-                console.error('Erreur:', error);
-                showNotification('error', 'Erreur lors de la suppression');
-            });
+
+                // Afficher un message de succès
+                showNotification('success', data.message);
+            } else {
+                showNotification('error', data.message || 'Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            document.body.removeChild(loadingDiv);
+            console.error('Erreur brut:', error);
+            showNotification('error', 'Erreur inattendue: ' + error.message);
+        });
     }
 
     function showNotification(type, message) {
