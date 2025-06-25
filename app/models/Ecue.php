@@ -142,6 +142,8 @@ class Ecue
     public function getEtudiantsEncadres($enseignantId, $search = '', $filterEcue = 0, $filterUe = 0, $limit = 10, $offset = 0)
     {
         try {
+            // Requête simplifiée qui récupère les étudiants inscrits dans les niveaux d'étude
+            // où l'enseignant enseigne des ECUEs
             $sql = "SELECT DISTINCT 
                         e.num_etu,
                         e.nom_etu,
@@ -155,11 +157,8 @@ class Ecue
                     FROM etudiants e
                     JOIN inscriptions i ON e.num_etu = i.id_etudiant
                     JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
-                    JOIN ecue ec ON ec.id_ue IN (
-                        SELECT ue.id_ue FROM ue ue 
-                        WHERE ue.id_niveau_etude = n.id_niv_etude
-                    )
-                    JOIN ue u ON ec.id_ue = u.id_ue
+                    JOIN ue u ON u.id_niveau_etude = n.id_niv_etude
+                    JOIN ecue ec ON ec.id_ue = u.id_ue
                     JOIN semestre s ON u.id_semestre = s.id_semestre
                     WHERE ec.id_enseignant = :enseignant_id";
             
@@ -206,11 +205,8 @@ class Ecue
                     FROM etudiants e
                     JOIN inscriptions i ON e.num_etu = i.id_etudiant
                     JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
-                    JOIN ecue ec ON ec.id_ue IN (
-                        SELECT ue.id_ue FROM ue ue 
-                        WHERE ue.id_niveau_etude = n.id_niv_etude
-                    )
-                    JOIN ue u ON ec.id_ue = u.id_ue
+                    JOIN ue u ON u.id_niveau_etude = n.id_niv_etude
+                    JOIN ecue ec ON ec.id_ue = u.id_ue
                     WHERE ec.id_enseignant = :enseignant_id";
             
             $params = [':enseignant_id' => $enseignantId];
@@ -240,6 +236,94 @@ class Ecue
         } catch (PDOException $e) {
             error_log("Erreur lors du comptage des étudiants encadrés: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Méthode alternative pour récupérer les étudiants encadrés (approche simplifiée)
+     */
+    public function getEtudiantsEncadresSimple($enseignantId, $search = '', $filterEcue = 0, $filterUe = 0, $limit = 10, $offset = 0)
+    {
+        try {
+            // Approche plus simple : récupérer tous les étudiants inscrits
+            // dans les niveaux où l'enseignant a des ECUEs
+            $sql = "SELECT DISTINCT 
+                        e.num_etu,
+                        e.nom_etu,
+                        e.prenom_etu,
+                        e.email_etu,
+                        e.promotion_etu,
+                        'N/A' as lib_ecue,
+                        'N/A' as lib_ue,
+                        n.lib_niv_etude,
+                        'N/A' as lib_semestre
+                    FROM etudiants e
+                    JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                    WHERE EXISTS (
+                        SELECT 1 FROM ecue ec 
+                        JOIN ue u ON ec.id_ue = u.id_ue 
+                        WHERE ec.id_enseignant = :enseignant_id 
+                        AND u.id_niveau_etude = n.id_niv_etude
+                    )";
+            
+            $params = [':enseignant_id' => $enseignantId];
+            
+            // Filtre par recherche
+            if (!empty($search)) {
+                $sql .= " AND (e.nom_etu LIKE :search OR e.prenom_etu LIKE :search OR e.email_etu LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            $sql .= " ORDER BY e.nom_etu, e.prenom_etu LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $limit;
+            $params[':offset'] = $offset;
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des étudiants encadrés (méthode simple): " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Méthode très simple pour récupérer tous les étudiants (pour test)
+     */
+    public function getAllEtudiantsForTest($enseignantId, $search = '', $limit = 10, $offset = 0)
+    {
+        try {
+            $sql = "SELECT 
+                        e.num_etu,
+                        e.nom_etu,
+                        e.prenom_etu,
+                        e.email_etu,
+                        e.promotion_etu,
+                        'Test' as lib_ecue,
+                        'Test' as lib_ue,
+                        'Test' as lib_niv_etude,
+                        'Test' as lib_semestre
+                    FROM etudiants e";
+            
+            $params = [];
+            
+            // Filtre par recherche
+            if (!empty($search)) {
+                $sql .= " WHERE (e.nom_etu LIKE :search OR e.prenom_etu LIKE :search OR e.email_etu LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            $sql .= " ORDER BY e.nom_etu, e.prenom_etu LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $limit;
+            $params[':offset'] = $offset;
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération de tous les étudiants: " . $e->getMessage());
+            return [];
         }
     }
 
