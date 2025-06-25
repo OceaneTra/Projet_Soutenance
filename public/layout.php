@@ -48,10 +48,18 @@ if (isset($_GET['page'])) {
             break;
         }
     }
-}else{
-  $currentMenuSlug = $traitements[0]['lib_traitement'];
-  $currentPageLabel = $traitements[0]['label_traitement'];
-  
+}
+
+// Si aucune page valide n'a été trouvée, utiliser la première page autorisée
+if (empty($currentMenuSlug) && !empty($traitements)) {
+    $currentMenuSlug = $traitements[0]['lib_traitement'];
+    $currentPageLabel = $traitements[0]['label_traitement'];
+    
+    // Rediriger vers la première page avec le paramètre page pour éviter les problèmes de rechargement
+    if (!isset($_GET['page'])) {
+        header('Location: layout.php?page=' . urlencode($currentMenuSlug));
+        exit;
+    }
 }
 
 // Générer le HTML du menu

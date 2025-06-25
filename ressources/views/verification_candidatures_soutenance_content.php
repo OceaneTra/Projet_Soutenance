@@ -447,6 +447,30 @@ function traduireStatut($statut) {
         </div>
     </div>
 
+    <!-- Modal de confirmation validation/rejet -->
+    <div id="confirmModal" class="modal fixed inset-0 hidden z-50 flex items-center justify-center p-4 bg-opacity-40">
+        <div class="modal-content bg-white max-w-md w-full rounded-xl shadow-2xl p-6">
+            <h3 id="confirmModalTitle" class="text-xl font-bold mb-4 text-center"></h3>
+            <form id="confirmForm">
+                <input type="hidden" id="confirmAction" name="action">
+                <input type="hidden" id="confirmRapportId" name="id_rapport">
+                <div class="mb-4">
+                    <label for="confirmComment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire
+                        (obligatoire)</label>
+                    <textarea id="confirmComment" name="commentaire" rows="3"
+                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        required></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeConfirmModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Annuler</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Confirmer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
     // Recherche dynamique dans le tableau
     const searchInput = document.getElementById('searchInput');
@@ -459,57 +483,66 @@ function traduireStatut($statut) {
         });
     });
 
-    // Fonction pour valider un rapport
+    // Remplace les fonctions validerRapport/rejeterRapport par ouverture de modale
+    let pendingAction = null;
+    let pendingRapportId = null;
+
     function validerRapport(idRapport) {
-        if (confirm('Êtes-vous sûr de vouloir valider ce rapport ?')) {
-            fetch('?page=verification_candidatures_soutenance&action=valider', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'id_rapport=' + idRapport
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Erreur: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors de la validation');
-                });
-        }
+        openConfirmModal('valider', idRapport);
     }
 
-    // Fonction pour rejeter un rapport
     function rejeterRapport(idRapport) {
-        if (confirm('Êtes-vous sûr de vouloir rejeter ce rapport ?')) {
-            fetch('?page=verification_candidatures_soutenance&action=rejeter', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'id_rapport=' + idRapport
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Erreur: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors du rejet');
-                });
-        }
+        openConfirmModal('rejeter', idRapport);
     }
+
+    function openConfirmModal(action, idRapport) {
+        pendingAction = action;
+        pendingRapportId = idRapport;
+        document.getElementById('confirmModalTitle').textContent = (action === 'valider') ?
+            'Confirmer la validation du rapport ?' : 'Confirmer le rejet du rapport ?';
+        document.getElementById('confirmAction').value = action;
+        document.getElementById('confirmRapportId').value = idRapport;
+        document.getElementById('confirmComment').value = '';
+        document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.add('hidden');
+    }
+    document.getElementById('confirmForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const action = document.getElementById('confirmAction').value;
+        const idRapport = document.getElementById('confirmRapportId').value;
+        const commentaire = document.getElementById('confirmComment').value.trim();
+        if (!commentaire) {
+            alert('Le commentaire est obligatoire.');
+            return;
+        }
+        const url = '?page=verification_candidatures_soutenance&action=' + action;
+        const params = 'id_rapport=' + encodeURIComponent(idRapport) + '&commentaire=' + encodeURIComponent(
+            commentaire);
+        fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                closeConfirmModal();
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                closeConfirmModal();
+                alert('Erreur lors du traitement');
+            });
+    });
 
     // Fonction pour voir les détails d'un rapport
     function voirDetail(idRapport) {

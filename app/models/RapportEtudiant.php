@@ -315,5 +315,15 @@ class RapportEtudiant {
             return [];
         }
     }
+
+    public function ajouterApprobation($id_pers_admin, $id_rapport, $commentaire) {
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO approuver (id_pers_admin, id_rapport, date_approv, commentaire_approv) VALUES (?, ?, NOW(), ?)");
+            return $stmt->execute([$id_pers_admin, $id_rapport, $commentaire]);
+        } catch (PDOException $e) {
+            error_log("Erreur ajout approbation: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?>

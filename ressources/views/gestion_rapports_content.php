@@ -107,64 +107,66 @@
                 <div class="flex justify-between items-center">
                     <h3 class="text-2xl font-bold text-gray-800">Mes Rapports</h3>
                     <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                    <?= isset($statistiquesRapports) ? ($statistiquesRapports->total_rapports ?? 0) : 0 ?> rapport(s)
-                </span>
+                        <?= isset($statistiquesRapports) ? ($statistiquesRapports->total_rapports ?? 0) : 0 ?>
+                        rapport(s)
+                    </span>
                 </div>
             </div>
 
             <div class="p-6">
                 <?php if (isset($rapportsRecents) && !empty($rapportsRecents)): ?>
-                    <div class="space-y-4">
-                        <?php foreach ($rapportsRecents as $rapport): ?>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">
-                                            <?= htmlspecialchars($rapport->nom_rapport) ?>
-                                        </h4>
-                                        <p class="text-gray-600 mb-2">
-                                            <strong>Thème:</strong> <?= htmlspecialchars($rapport->theme_rapport) ?>
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            Créé le <?= date('d/m/Y à H:i', strtotime($rapport->date_rapport)) ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex space-x-2 ml-4">
-                                        <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-eye mr-1"></i> Voir
-                                        </button>
-                                        <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
-                                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-edit mr-1"></i> Modifier
-                                        </button>
-                                        <button onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
-                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-trash mr-1"></i> Supprimer
-                                        </button>
-                                    </div>
-                                </div>
+                <div class="space-y-4">
+                    <?php foreach ($rapportsRecents as $rapport): ?>
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-2">
+                                    <?= htmlspecialchars($rapport->nom_rapport) ?>
+                                </h4>
+                                <p class="text-gray-600 mb-2">
+                                    <strong>Thème:</strong> <?= htmlspecialchars($rapport->theme_rapport) ?>
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Créé le <?= date('d/m/Y à H:i', strtotime($rapport->date_rapport)) ?>
+                                </p>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <?php if (count($rapportsRecents) >= 5): ?>
-                        <div class="mt-6 text-center">
-                            <a href="?page=gestion_rapports&action=suivi_rapport"
-                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center">
-                                <i class="fas fa-list mr-2"></i> Voir tous mes rapports
-                            </a>
+                            <div class="flex space-x-2 ml-4">
+                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> Voir
+                                </button>
+                                <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-edit mr-1"></i> Modifier
+                                </button>
+                                <button
+                                    onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-trash mr-1"></i> Supprimer
+                                </button>
+                            </div>
                         </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <div class="text-center py-8">
-                        <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
-                        <a href="?page=gestion_rapports&action=creer_rapport"
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
-                            <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
-                        </a>
                     </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if (count($rapportsRecents) >= 5): ?>
+                <div class="mt-6 text-center">
+                    <a href="?page=gestion_rapports&action=suivi_rapport"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center">
+                        <i class="fas fa-list mr-2"></i> Voir tous mes rapports
+                    </a>
+                </div>
+                <?php endif; ?>
+                <?php else: ?>
+                <div class="text-center py-8">
+                    <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
+                    <a href="?page=gestion_rapports&action=creer_rapport"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
+                    </a>
+                </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -285,7 +287,8 @@
     }
 
     function supprimerRapport(rapportId, nomRapport) {
-        if (!confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${nomRapport}" ?\n\nCette action est irréversible.`)) {
+        if (!confirm(
+                `Êtes-vous sûr de vouloir supprimer le rapport "${nomRapport}" ?\n\nCette action est irréversible.`)) {
             return;
         }
 
@@ -308,12 +311,12 @@
         formData.append('rapport_id', rapportId);
 
         fetch('?page=gestion_rapports&action=deleteRapportAjax', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
             .then(response => response.json())
             .then(data => {
                 document.body.removeChild(loadingDiv);
@@ -338,7 +341,8 @@
 
     function showNotification(type, message) {
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto overflow-hidden transform transition-all duration-300 z-50`;
+        notification.className =
+            `fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto overflow-hidden transform transition-all duration-300 z-50`;
 
         let iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
         let bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';

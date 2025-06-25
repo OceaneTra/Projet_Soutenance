@@ -16,14 +16,15 @@
 
             <header class="w-full flex justify-center mt-8 mb-6">
                 <div
-                    class="max-w-5xl w-full mx-auto bg-green-200 rounded-2xl shadow-lg px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-green-300">
+                    class="max-w-5xl w-full mx-auto bg-green-200 rounded-2xl px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-green-500">
                     <div class="flex items-center gap-4">
                         <span class="text-green-800 text-xl md:text-2xl font-bold tracking-tight"><i
                                 class="fa-solid fa-file-circle-check mr-2 text-green-600"></i>Dossiers de candidature
                             vérifiés</span>
                         <span
-                            class="ml-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">Total
-                            : <span id="totalRapports">0</span></span>
+                            class=" bg-green-500 w-2/3 text-white text-xs font-semibold px-6 py-1 rounded-full shadow">
+                            Total : <span id="totalRapports">0</span>
+                        </span>
                     </div>
                     <div class="flex items-center gap-2 mt-2 md:mt-0">
                         <div class="relative">
@@ -59,93 +60,125 @@
                                 rapports vérifiés.</p>
                         </div>
                     </div>
-                    <div class="overflow-x-auto rounded-xl shadow-sm border border-green-100">
-                        <table id="rapportsTable" class="min-w-full bg-white rounded-xl text-green-900">
-                            <thead class="sticky top-0 z-10">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 rounded-xl overflow-hidden">
+                            <thead class="bg-gray-50">
                                 <tr>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-left text-base whitespace-nowrap border-b border-green-200">
-                                        <i class="fa-solid fa-user-graduate mr-2 text-green-600"></i>Étudiant
-                                    </th>
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">
+                                        Étudiant</th>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-left text-base whitespace-nowrap border-b border-green-200">
-                                        <i class="fa-solid fa-file-lines mr-2 text-green-600"></i>Rapport
-                                    </th>
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Rapport</th>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-left text-base whitespace-nowrap border-b border-green-200">
-                                        <i class="fa-solid fa-lightbulb mr-2 text-green-600"></i>Thème
-                                    </th>
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Thème</th>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-left text-base whitespace-nowrap border-b border-green-200">
-                                        <i class="fa-solid fa-calendar-day mr-2 text-green-600"></i>Date d'envoi
-                                    </th>
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date d'envoi</th>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-left text-base whitespace-nowrap border-b border-green-200">
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Vérifié par</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Statut</th>
                                     <th
-                                        class="px-4 py-4 bg-green-50 text-green-700 font-bold text-center text-base whitespace-nowrap border-b border-green-200">
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">
                                         Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-green-50" id="rapportsBody">
-                                <!-- Lignes dynamiques à insérer ici en PHP/JS -->
-                                <!-- Exemple statique -->
-                                <tr class="hover:bg-green-50 transition bg-white">
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Exemple statique adapté -->
+                                <tr class="hover:bg-green-50 transition">
                                     <td
-                                        class="px-4 py-3 font-medium text-green-800 flex items-center gap-2 whitespace-nowrap">
+                                        class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg flex items-center gap-2">
                                         <i class="fa-solid fa-user text-green-400"></i> Jean Dupont
                                     </td>
-                                    <td class="px-4 py-3 font-semibold text-green-900 whitespace-nowrap">Rapport de
-                                        stage</td>
-                                    <td class="px-4 py-3 italic text-green-600 whitespace-nowrap">Développement web</td>
-                                    <td class="px-4 py-3 text-green-500 font-medium whitespace-nowrap">12/06/2024</td>
-                                    <td class="px-4 py-3 whitespace-nowrap"><span
-                                            class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Approuvé</span>
+                                    <td
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center gap-2">
+                                        Rapport de stage
+                                        <span
+                                            class="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center gap-1"><i
+                                                class="fa-solid fa-check-circle"></i> Vérifié</span>
                                     </td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap">
-                                        <div class="flex items-center gap-2 justify-center">
-                                            <button onclick="openResumeModal()"
-                                                class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-eye"></i> Voir résumé</button>
-                                            <button
-                                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-print"></i> Imprimer</button>
-                                            <button
-                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-file-export"></i> Exporter</button>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Développement web</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">12/06/2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Dr. Martin</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            <i class="fa-solid fa-circle-check text-green-500"></i> Approuvé
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm rounded-br-lg">
+                                        <div class="flex items-center gap-1 justify-center">
+                                            <button onclick="openResumeModal()" title="Voir résumé"
+                                                class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-eye"></i></button>
+                                            <button title="Imprimer"
+                                                class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-print"></i></button>
+                                            <button title="Exporter"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-file-export"></i></button>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-green-50 transition bg-green-50/40">
+                                <tr class="hover:bg-red-50 transition">
                                     <td
-                                        class="px-4 py-3 font-medium text-green-800 flex items-center gap-2 whitespace-nowrap">
+                                        class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center gap-2">
                                         <i class="fa-solid fa-user text-green-400"></i> Alice Martin
                                     </td>
-                                    <td class="px-4 py-3 font-semibold text-green-900 whitespace-nowrap">Rapport final
+                                    <td
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center gap-2">
+                                        Rapport final
+                                        <span
+                                            class="ml-2 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold flex items-center gap-1"><i
+                                                class="fa-solid fa-xmark-circle"></i> Vérifié</span>
                                     </td>
-                                    <td class="px-4 py-3 italic text-green-600 whitespace-nowrap">Analyse de données
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Analyse de données
                                     </td>
-                                    <td class="px-4 py-3 text-green-500 font-medium whitespace-nowrap">10/06/2024</td>
-                                    <td class="px-4 py-3 whitespace-nowrap"><span
-                                            class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Rejeté</span>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">10/06/2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Mme Dupuis</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-700">
+                                            <i class="fa-solid fa-circle-xmark text-red-400"></i> Rejeté
+                                        </span>
                                     </td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap">
-                                        <div class="flex items-center gap-2 justify-center">
-                                            <button onclick="openResumeModal()"
-                                                class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-eye"></i> Voir résumé</button>
-                                            <button
-                                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-print"></i> Imprimer</button>
-                                            <button
-                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-semibold flex items-center gap-1 shadow transition-colors"><i
-                                                    class="fa-solid fa-file-export"></i> Exporter</button>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                        <div class="flex items-center gap-1 justify-center">
+                                            <button onclick="openResumeModal()" title="Voir résumé"
+                                                class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-eye"></i></button>
+                                            <button title="Imprimer"
+                                                class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-print"></i></button>
+                                            <button title="Exporter"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg text-sm flex items-center gap-1 shadow transition-colors"><i
+                                                    class="fa-solid fa-file-export"></i></button>
                                         </div>
                                     </td>
                                 </tr>
                                 <!-- ... -->
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination statique -->
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-4 gap-2">
+                        <div class="text-gray-600 text-sm">Page 1 sur 1 — Affichage de <span
+                                class="font-semibold">1</span> à <span class="font-semibold">2</span> sur <span
+                                class="font-semibold">2</span> rapports</div>
+                        <div class="flex justify-center mt-2 md:mt-0">
+                            <nav class="inline-flex -space-x-px">
+                                <a href="#"
+                                    class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-300 cursor-not-allowed rounded-l-md">&laquo;</a>
+                                <a href="#"
+                                    class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium bg-green-100 text-green-700 font-bold">1</a>
+                                <a href="#"
+                                    class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-300 cursor-not-allowed rounded-r-md">&raquo;</a>
+                            </nav>
+                        </div>
                     </div>
                 </div>
                 <!-- Modale résumé de candidature -->

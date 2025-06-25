@@ -125,7 +125,7 @@ foreach ($candidatures_etudiant as $cand) {
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-green-500 hover:bg-green-600';
                     ?>
-                    <button id="btnDemandeCandidature" onclick="return handleDemandeCandidatureClick();"
+                    <button id="btnDemandeCandidature" onclick="<?php echo $onclick; ?>"
                         class="card-btn <?php echo $btnClass; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm"
                         style="<?php echo $disableCandidature ? 'opacity:0.6;cursor:not-allowed;' : ''; ?>">
                         <span class="flex items-center">
@@ -181,7 +181,7 @@ foreach ($candidatures_etudiant as $cand) {
     <!-- Modal de confirmation -->
     <div id="confirmationModal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-4">Confirmer votre demande</h3>
+            <h3 class="text-2xl mb-4">Confirmer votre demande</h3>
             <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir soumettre votre demande de candidature à la
                 soutenance ?</p>
             <form method="POST" action="?page=candidature_soutenance&action=demande_candidature">
@@ -422,7 +422,8 @@ foreach ($candidatures_etudiant as $cand) {
     // Fonction pour afficher le message de candidature existante
     function showCandidatureExistsMessage() {
         const warningMessage = document.getElementById('warningMessage');
-        warningMessage.textContent = "Vous avez déjà soumis une candidature.";
+        warningMessage.textContent =
+            "Vous avez déjà soumis une candidature qui est en attente ou validée. Vous ne pouvez pas en soumettre une nouvelle pour le moment.";
         warningMessage.classList.remove('hidden');
         warningMessage.scrollIntoView({
             behavior: 'smooth',
@@ -446,17 +447,6 @@ foreach ($candidatures_etudiant as $cand) {
             }, 5000);
         });
     });
-
-    function handleDemandeCandidatureClick() {
-        var candidatureDesactivee = <?php echo $disableCandidature ? 'true' : 'false'; ?>;
-        if (candidatureDesactivee) {
-            showGlobalCandidatureError(
-                "Vous avez déjà soumis une candidature qui est en attente ou validée. Vous ne pouvez pas en soumettre une nouvelle pour le moment."
-            );
-            return false;
-        }
-        return true;
-    }
 
     function showGlobalCandidatureError(message) {
         var errorDiv = document.getElementById('globalCandidatureError');

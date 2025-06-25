@@ -13,7 +13,7 @@ class Traitement
      * @return array Liste des traitements
      */
     public function getAllTraitements() {
-        $sql = "SELECT * FROM traitement ORDER BY lib_traitement";
+        $sql = "SELECT * FROM traitement ORDER BY ordre_traitement ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -28,7 +28,7 @@ class Traitement
         $sql = "SELECT t.* FROM traitement t 
                 INNER JOIN rattacher r ON t.id_traitement = r.id_traitement 
                 WHERE r.id_GU = :id_GU 
-                ORDER BY t.lib_traitement";
+                ORDER BY t.ordre_traitement ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id_GU' => $id_GU]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
