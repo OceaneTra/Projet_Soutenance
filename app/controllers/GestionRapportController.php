@@ -110,13 +110,31 @@ class GestionRapportController {
         }
     }
 
-    private function traiterCreationRapport()
+    public function traiterCreationRapport()
     {
         try {
             $action = $_POST['action'] ?? '';
 
             if ($action === 'save_rapport') {
                 $this->sauvegarderRapport();
+            } elseif ($action === 'deposer_rapport') {
+                $id_rapport = $_POST['id_rapport'] ?? null;
+                if (!$id_rapport && isset($_POST['edit_id'])) {
+                    $id_rapport = $_POST['edit_id'];
+                }
+                if (!$id_rapport) {
+                    // Si on vient de la création, il faut d'abord créer le rapport puis le déposer
+                    $this->sendJsonResponse(['success' => false, 'message' => 'Aucun rapport à déposer.']);
+                    return;
+                }
+                $result = $this->enregistrerDepotRapport($id_rapport);
+                if ($result) {
+                    header('Location: ?page=gestion_rapports&message=depot_ok');
+                    exit;
+                } else {
+                    header('Location: ?page=gestion_rapports&message=depot_fail');
+                    exit;
+                }
             } elseif ($action === 'export_rapport') {
                 $this->exporterRapport();
             } else {
@@ -125,8 +143,6 @@ class GestionRapportController {
 
         } catch (Exception $e) {
             error_log("Exception dans traiterCreationRapport: " . $e->getMessage());
-
-            // Toujours renvoyer du JSON pour les requêtes AJAX
             $this->sendJsonResponse(['success' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -635,6 +651,23 @@ class GestionRapportController {
         }
     }
 
+    public function enregistrerDepotRapport($id_rapport)
+    {
+        $num_etu = $_SESSION['num_etu'];
+        $date_depot = date('Y-m-d H:i:s');
+
+        // Vérifier si le dépôt existe déjà (éviter les doublons)
+        $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+        $stmt->execute([$num_etu, $id_rapport]);
+        if ($stmt->fetchColumn() > 0) {
+            // Déjà déposé
+            return false;
+        }
+
+        // Insérer le dépôt
+        $stmt = $this->rapportModel->pdo->prepare("INSERT INTO deposer (num_etu, id_rapport, date_depot) VALUES (?, ?, ?)");
+        return $stmt->execute([$num_etu, $id_rapport, $date_depot]);
+    }
 
 }
 ?>

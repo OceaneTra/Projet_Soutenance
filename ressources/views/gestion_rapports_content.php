@@ -10,6 +10,17 @@
 
 <body class="min-h-screen">
 
+    <?php if (isset($_GET['message'])): ?>
+        <?php if ($_GET['message'] === 'depot_ok'): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-center">
+                <strong class="font-bold">Succès !</strong> Le rapport a bien été déposé.
+            </div>
+        <?php elseif ($_GET['message'] === 'depot_fail'): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-center">
+                <strong class="font-bold">Erreur !</strong> Impossible de déposer le rapport (déjà déposé ou erreur technique).
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
 
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Carte 1: Créer un rapport -->
@@ -130,13 +141,17 @@
                                         </p>
                                     </div>
                                     <div class="flex space-x-2 ml-4">
-                                        <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-eye mr-1"></i> Voir
+                                    <form method="POST" action="?page=gestion_rapports" style="display:inline;" id="deposerForm-<?= $rapport->id_rapport ?>">
+                                        <input type="hidden" name="id_rapport" value="<?= $rapport->id_rapport ?>">
+                                        <input type="hidden" name="action" value="deposer_rapport">
+                                        <button type="submit"
+                                            class="bg-blue-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            <i class="fas fa-upload mr-1"></i> Déposer
                                         </button>
+                                    </form>
                                         <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
                                                 class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-edit mr-1"></i> Modifier
+                                            <i class="fas fa-eye mr-1"></i> Voir
                                         </button>
                                         <button onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
                                                 class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
