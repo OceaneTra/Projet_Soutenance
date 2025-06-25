@@ -335,4 +335,54 @@ class Etudiant {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Calcule les moyennes majeures, mineures, la moyenne du semestre et la validation
+     */
+    public function getMoyennesSemestre($numEtu, $id_semestre) {
+        // Récupérer toutes les notes d'UE de l'étudiant pour ce semestre
+        $sql = "SELECT n.moyenne, u.credit
+                FROM notes n
+                JOIN ue u ON n.id_ue = u.id_ue
+                WHERE n.num_etu = :num_etu
+                  AND u.id_semestre = :id_semestre";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':num_etu' => $numEtu, ':id_semestre' => $id_semestre]);
+        $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $majeures = $mineures = [];
+        foreach ($notes as $note) {
+            if ($note['credit'] > 3) {
+                $majeures[] = $note['moyenne'];
+            } else {
+                $mineures[] = $note['moyenne'];
+            }
+        }
+
+        $moyenne_majeure = count($majeures) ? array_sum($majeures) / count($majeures) : 0;
+        $moyenne_mineure = count($mineures) ? array_sum($mineures) / count($mineures) : 0;
+
+        $semestre_valide = ($moyenne_majeure >= 10 && $moyenne_mineure >= 10);
+
+        // Moyenne du semestre = moyenne arithmétique des deux
+        $moyenne_semestre = ($moyenne_majeure + $moyenne_mineure) / 2;
+
+        // Crédits attribués
+        $credits = 0;
+        if ($semestre_valide) {
+            $sql = "SELECT SUM(credit) as total_credits FROM ue WHERE id_semestre = :id_semestre";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':id_semestre' => $id_semestre]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $credits = $row['total_credits'] ?? 0;
+        }
+
+        return [
+            'moyenne_majeure' => round($moyenne_majeure, 2),
+            'moyenne_mineure' => round($moyenne_mineure, 2),
+            'moyenne_semestre' => round($moyenne_semestre, 2),
+            'semestre_valide' => $semestre_valide,
+            'credits_attribues' => $credits
+        ];
+    }
+
 } 
