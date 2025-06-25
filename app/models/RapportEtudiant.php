@@ -1,7 +1,7 @@
 <?php
 
 class RapportEtudiant {
-    private $pdo;
+    public $pdo;
 
     public function __construct($pdo) {
         $this->pdo = $pdo;

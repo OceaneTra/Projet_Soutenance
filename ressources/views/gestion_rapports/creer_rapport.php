@@ -70,6 +70,13 @@
                 </svg>
                 Exporter
             </button>
+            <button id="deposerBtn"
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Déposer
+            </button>
         </div>
     </div>
 
@@ -209,6 +216,7 @@
         const loadTemplateBtn = document.getElementById('loadTemplateBtn');
         const saveBtn = document.getElementById('saveBtn');
         const exportBtn = document.getElementById('exportBtn');
+        const deposerBtn = document.getElementById('deposerBtn');
         const editorContainer = document.getElementById('editorContainer');
         const documentStatusMessage = document.getElementById('documentStatusMessage');
         const loadingIndicator = document.getElementById('loadingIndicator');
@@ -532,6 +540,13 @@
                 notification.classList.add('hidden');
             }, 3000);
         }
+
+        // Déposer button event
+        deposerBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('input[name="action"]').value = 'deposer_rapport';
+            document.getElementById('rapportForm').submit();
+        });
     });
 </script>
 </body>

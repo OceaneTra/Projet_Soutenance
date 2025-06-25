@@ -4,6 +4,12 @@ if ($_GET['page'] === 'gestion_rapports') {
     require_once __DIR__ . '/../../app/controllers/GestionRapportController.php';
     $controller = new GestionRapportController();
 
+    // Gestion du POST pour le dépôt de rapport
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'deposer_rapport') {
+        $controller->traiterCreationRapport();
+        exit;
+    }
+
     if(isset($_GET['action'])){
         switch ($_GET['action']){
             case 'creer_rapport':

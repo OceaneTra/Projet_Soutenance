@@ -31,27 +31,16 @@ if (isset($_SESSION['num_etu'])) {
 
 <body class="min-h-screen">
 
-    <!-- Message d'alerte pour candidature non validée -->
-    <?php if (!$candidature_validee && !empty($message_candidature)): ?>
-    <div class="max-w-6xl mx-auto mt-4 px-4">
-        <div class="bg-yellow-50 border-l-4 border-yellow-300 p-4 mb-6">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path fill-rule="evenodd" class="text-yellow-600"
-                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-600">
-                        <?php echo htmlspecialchars($message_candidature); ?>
-                    </p>
-                </div>
-            </div>
-        </div>
+    <?php if (isset($_GET['message'])): ?>
+    <?php if ($_GET['message'] === 'depot_ok'): ?>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-center">
+        <strong class="font-bold">Succès !</strong> Le rapport a bien été déposé.
     </div>
+    <?php elseif ($_GET['message'] === 'depot_fail'): ?>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-center">
+        <strong class="font-bold">Erreur !</strong> Impossible de déposer le rapport (déjà déposé ou erreur technique).
+    </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -198,13 +187,18 @@ if (isset($_SESSION['num_etu'])) {
                                 </p>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    <i class="fas fa-eye mr-1"></i> Voir
-                                </button>
+                                <form method="POST" action="?page=gestion_rapports" style="display:inline;"
+                                    id="deposerForm-<?= $rapport->id_rapport ?>">
+                                    <input type="hidden" name="id_rapport" value="<?= $rapport->id_rapport ?>">
+                                    <input type="hidden" name="action" value="deposer_rapport">
+                                    <button type="submit"
+                                        class="bg-blue-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                        <i class="fas fa-upload mr-1"></i> Déposer
+                                    </button>
+                                </form>
                                 <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
                                     class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    <i class="fas fa-edit mr-1"></i> Modifier
+                                    <i class="fas fa-eye mr-1"></i> Voir
                                 </button>
                                 <button
                                     onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
