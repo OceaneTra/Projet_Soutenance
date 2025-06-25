@@ -171,14 +171,14 @@ class Etudiant {
                        commentaire_admin = :commentaire,
                        id_pers_admin = :id_pers_admin,
                        date_traitement = NOW()
-                   WHERE num_etu = :num_etu";
+                   WHERE id_candidature = :id_candidature";
             
             $stmt = $this->db->prepare($sql);
             return $stmt->execute([
                 ':decision' => $decision,
                 ':commentaire' => $commentaire,
                 ':id_pers_admin' => $id_pers_admin,
-                ':num_etu' => $numEtu
+                ':id_candidature' => $numEtu
             ]);
         } catch (PDOException $e) {
             error_log("Erreur lors du traitement de la candidature: " . $e->getMessage());
@@ -291,12 +291,13 @@ class Etudiant {
     /**
      * Enregistre ou met à jour le résumé de candidature pour un étudiant
      */
-    public function saveResumeCandidature($num_etu, $resume, $decision) {
-        $sql = "INSERT INTO resume_candidature (num_etu, resume_json, decision, date_enregistrement)
-                VALUES (:num_etu, :resume_json, :decision, NOW())
+    public function saveResumeCandidature($id_candidature, $num_etu, $resume, $decision) {
+        $sql = "INSERT INTO resume_candidature (id_candidature, num_etu, resume_json, decision, date_enregistrement)
+                VALUES (:id_candidature, :num_etu, :resume_json, :decision, NOW())
                 ON DUPLICATE KEY UPDATE resume_json = :resume_json, decision = :decision, date_enregistrement = NOW()";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
+            ':id_candidature' => $id_candidature,
             ':num_etu' => $num_etu,
             ':resume_json' => json_encode($resume),
             ':decision' => $decision
@@ -306,10 +307,10 @@ class Etudiant {
     /**
      * Récupère le résumé de candidature pour un étudiant
      */
-    public function getResumeCandidature($num_etu) {
-        $sql = "SELECT * FROM resume_candidature WHERE num_etu = ? ORDER BY date_enregistrement DESC LIMIT 1";
+    public function getResumeCandidature($id_candidature) {
+        $sql = "SELECT * FROM resume_candidature WHERE id_candidature = ? ORDER BY date_enregistrement DESC LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$num_etu]);
+        $stmt->execute([$id_candidature]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             $row['resume_json'] = json_decode($row['resume_json'], true);
@@ -325,6 +326,13 @@ class Etudiant {
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$num_etu]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+      public function getLastCandidatureByNumEtu($num_etu) {
+        $sql = "SELECT * FROM candidature_soutenance WHERE num_etu = ? ORDER BY date_candidature DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 } 

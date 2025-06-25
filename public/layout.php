@@ -245,14 +245,11 @@ switch ($currentMenuSlug) {
                 $dompdf->stream("recu_paiement_" . $id_versement . ".pdf", array("Attachment" => false));
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
-            }
-            break;
+            } 
+                // Afficher la vue par défaut
+                $contentFile = $partialsBasePath . 'gestion_scolarite_content.php';
+                $currentPageLabel = 'Gestion de la scolarité';
             
-        case 'verification_candidatures_soutenance':
-            // Le fichier de routes est déjà inclus au début
-            // Afficher directement la page de vérification
-            $contentFile = $partialsBasePath . 'verification_candidatures_soutenance_content.php';
-            $currentPageLabel = 'Vérification des candidatures soutenance';
             break;
         
         default:

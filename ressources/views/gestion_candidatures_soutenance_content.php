@@ -25,8 +25,8 @@ require_once __DIR__ . '/../../app/config/database.php';
 $resumes_candidatures = [];
 foreach ($candidatures as $c) {
     if ($c['statut_candidature'] !== 'En attente') {
-        $resume = (new Etudiant(Database::getConnection()))->getResumeCandidature($c['num_etu']);
-        $resumes_candidatures[$c['num_etu']] = $resume;
+        $resume = (new Etudiant(Database::getConnection()))->getResumeCandidature($c['id_candidature']);
+        $resumes_candidatures[$c['id_candidature']] = $resume;
     }
 }
 ?>
@@ -942,11 +942,12 @@ foreach ($candidatures as $c) {
                             </td>
                             <td>
                                 <button class="btn btn-primary btn-details"
-                                    data-numetu="<?php echo $candidature['num_etu']; ?>">Voir détails</button>
-                                <div id="resume-candidature-<?php echo $candidature['num_etu']; ?>"
+                                    data-idcandidature="<?php echo $candidature['id_candidature']; ?>">Voir
+                                    détails</button>
+                                <div id="resume-candidature-<?php echo $candidature['id_candidature']; ?>"
                                     style="display:none;">
-                                    <?php if (!empty($resumes_candidatures[$candidature['num_etu']])): 
-                                        $resume = $resumes_candidatures[$candidature['num_etu']]; ?>
+                                    <?php if (!empty($resumes_candidatures[$candidature['id_candidature']])): 
+                                        $resume = $resumes_candidatures[$candidature['id_candidature']]; ?>
                                     <div class="resume-final">
                                         <div
                                             class="decision-finale <?php echo $resume['decision'] === 'Validée' ? 'validee' : 'rejetee'; ?>">
@@ -1001,7 +1002,7 @@ foreach ($candidatures as $c) {
 
             <!-- Modal détails historique -->
             <div id="historiqueDetailsModal" class="modal" style="display:none;">
-                <div class="modal-content" style="max-width:600px;">
+                <div class="modal-content" style="max-width:700px; max-height:80vh; overflow-y:auto;">
                     <span class="close-button" onclick="closeHistoriqueModal()">&times;</span>
                     <h2 class="modal-title">Résumé de l'examen de candidature</h2>
                     <div id="historiqueDetailsContent">
@@ -1246,6 +1247,9 @@ foreach ($candidatures as $c) {
                             </button>
                         </form>
                         <?php elseif ($etape == 4): ?>
+                        <?php if (isset($_GET['email_envoye']) && $_GET['email_envoye'] == '1'): ?>
+                        <!-- Bouton masqué car email déjà envoyé -->
+                        <?php else: ?>
                         <form method="post"
                             action="?page=gestion_candidatures_soutenance&action=envoyer_resultats&examiner=<?php echo $examiner; ?>"
                             style="display: inline;">
@@ -1253,6 +1257,7 @@ foreach ($candidatures as $c) {
                                 <i class="fas fa-envelope"></i> Envoyer les résultats
                             </button>
                         </form>
+                        <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1306,8 +1311,8 @@ foreach ($candidatures as $c) {
     // Modal Voir détails (AJAX pour charger le résumé)
     document.querySelectorAll('.btn-details').forEach(btn => {
         btn.addEventListener('click', function() {
-            const numEtu = this.getAttribute('data-numetu');
-            const resumeDiv = document.getElementById('resume-candidature-' + numEtu);
+            const idCandidature = this.getAttribute('data-idcandidature');
+            const resumeDiv = document.getElementById('resume-candidature-' + idCandidature);
             document.getElementById('historiqueDetailsContent').innerHTML = resumeDiv ? resumeDiv
                 .innerHTML : '<p>Aucun résumé trouvé.</p>';
             document.getElementById('historiqueDetailsModal').style.display = 'flex';

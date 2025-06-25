@@ -146,8 +146,7 @@ class EmailService {
         if ($decision === 'Validée') {
             $html .= "
                 <div style='background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0;'>
-                    <p><strong>🎉 Félicitations !</strong> Votre candidature a été validée. Vous pouvez maintenant procéder à votre soutenance.</p>
-                    <p>Vous recevrez bientôt les détails de l'organisation.</p>
+                    <p><strong>🎉 Félicitations !</strong> Votre candidature a été validée. Vous pouvez maintenant procéder à la rédaction de votre rapport.</p>
                 </div>";
         } else {
             $html .= "

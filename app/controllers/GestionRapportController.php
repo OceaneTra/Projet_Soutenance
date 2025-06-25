@@ -1,16 +1,21 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
+require_once __DIR__ . '/../models/Etudiant.php';
 
 class GestionRapportController {
 
     private $baseViewPath;
     private $rapportModel;
 
+    private $etudiant;
+
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_rapports/';
         $this->rapportModel = new RapportEtudiant(Database::getConnection());
+        $this->etudiant = new Etudiant(Database::getConnection());
+
 
         // Vérifier que l'utilisateur est connecté
         if (!isset($_SESSION['id_utilisateur'])) {
@@ -25,6 +30,8 @@ class GestionRapportController {
 
     private function verifierVariablesSession()
     {
+
+        $GLOBALS['candidatures_etudiant'] = $this->etudiant->getCandidatures($_SESSION['num_etu']);
         // Vérifier que les variables nécessaires sont présentes
         if (!isset($_SESSION['type_utilisateur'])) {
             throw new Exception("Variables de session manquantes. Veuillez vous reconnecter.");

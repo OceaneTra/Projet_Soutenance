@@ -1,3 +1,24 @@
+<?php
+// Vérifier si l'étudiant a une candidature validée
+$candidature_validee = false;
+$message_candidature = '';
+
+if (isset($_SESSION['num_etu'])) {
+    // Récupérer le statut de candidature de l'étudiant
+    $candidatures_etudiant = isset($GLOBALS['candidatures_etudiant']) ? $GLOBALS['candidatures_etudiant'] : [];
+    
+    foreach ($candidatures_etudiant as $candidature) {
+        if ($candidature['statut_candidature'] === 'Validée') {
+            $candidature_validee = true;
+            break;
+        }
+    }
+    
+    if (!$candidature_validee) {
+        $message_candidature = "Vous devez avoir une candidature validée pour accéder aux fonctionnalités de gestion des rapports.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -10,6 +31,28 @@
 
 <body class="min-h-screen">
 
+    <!-- Message d'alerte pour candidature non validée -->
+    <?php if (!$candidature_validee && !empty($message_candidature)): ?>
+    <div class="max-w-6xl mx-auto mt-4 px-4">
+        <div class="bg-yellow-50 border-l-4 border-yellow-300 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd" class="text-yellow-600"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-600">
+                        <?php echo htmlspecialchars($message_candidature); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Carte 1: Créer un rapport -->
@@ -26,10 +69,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Rédigez et soumettez votre rapport de
                     master directement via notre plateforme sécurisée.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-indigo-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
                         <a href="?page=gestion_rapports&action=creer_rapport">Commencer</a>
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Commencer
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -55,10 +106,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Surveillez l'état de votre soumission en
                     temps réel à chaque étape du processus de validation.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-green-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 floating">
                         <a href="?page=gestion_rapports&action=suivi_rapport">Consulter</a>
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Consulter
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -84,11 +143,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Accédez aux retours détaillés des
                     évaluateurs pour améliorer votre travail académique.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-yellow-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
                         <a href="?page=gestion_rapports&action=compte_rendu_rapport"> Voir les retours</a>
-
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Voir les retours
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -163,10 +229,18 @@
                 <div class="text-center py-8">
                     <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
+                    <?php if ($candidature_validee): ?>
                     <a href="?page=gestion_rapports&action=creer_rapport"
                         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
                         <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
                     </a>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-400 text-gray-600 px-6 py-2 rounded-lg inline-flex items-center cursor-not-allowed"
+                        disabled>
+                        <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
+                    </button>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
             </div>
@@ -223,12 +297,6 @@
             </div>
         </div>
     </section>
-
-
-
-
-
-
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -385,6 +453,10 @@
                 notification.remove();
             }
         }, 3000);
+    }
+
+    function showCandidatureRequiredMessage() {
+        showNotification('error', 'Vous devez avoir une candidature validée pour accéder à cette fonctionnalité.');
     }
     </script>
 </body>
