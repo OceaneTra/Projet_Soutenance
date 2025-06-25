@@ -272,4 +272,20 @@ class Reclamation {
             return [];
         }
     }
+
+    public function getAllReclamationsWithEtudiant() {
+        $sql = "SELECT r.*, e.nom_etu, e.prenom_etu
+                FROM reclamations r
+                JOIN etudiants e ON r.num_etu = e.num_etu
+                ORDER BY r.date_creation DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function updateStatut($id, $statut) {
+        $sql = "UPDATE reclamations SET statut = ? WHERE id_reclamation = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$statut, $id]);
+    }
 }

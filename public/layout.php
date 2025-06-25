@@ -19,6 +19,10 @@ include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsRoutes.php';
 include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
 include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php';
+include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
+
+
 
 
 

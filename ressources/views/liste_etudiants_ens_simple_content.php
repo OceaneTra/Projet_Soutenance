@@ -8,45 +8,113 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-
     <style>
     /* Custom styles if needed (keep minimal, prefer Tailwind utilities) */
     .table-row-hover:hover {
         background-color: #f7fafc;
-        /* hover:bg-gray-50 */
+    }
+
+    .filter-section {
+        transition: all 0.3s ease;
+    }
+
+    .filter-section.collapsed {
+        max-height: 0;
+        overflow: hidden;
+    }
+
+    .pagination-link {
+        transition: all 0.2s ease;
+    }
+
+    .pagination-link:hover {
+        transform: translateY(-1px);
     }
     </style>
-
 </head>
 
 <body class="font-sans bg-gray-100 text-gray-800 min-h-screen p-6">
 
     <div class="container mx-auto px-4 max-w-screen-xl">
 
-        <!-- Header with Title and User -->
-        <!-- Note: Full header from image is part of the layout, replicating main content area -->
-
         <div class="bg-white rounded-lg shadow-lg p-6">
 
             <!-- Section Header and Controls -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4 md:mb-0">Étudiants Encadrés</h2>
-                <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                    <div class="relative w-full sm:w-64">
-                        <input type="text" placeholder="Rechercher..."
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 md:mb-0">
+                    <i class="fas fa-users mr-2 text-green-600"></i>
+                    Étudiants Encadrés
+                </h2>
+
+                <!-- Toggle Filter Button -->
+                <button id="toggleFilters"
+                    class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors duration-200">
+                    <i class="fas fa-filter mr-2"></i> Filtres
+                </button>
+            </div>
+
+            <!-- Filter Section -->
+            <div id="filterSection" class="filter-section mb-6 bg-gray-50 rounded-lg p-4">
+                <form method="GET" action="" class="space-y-4">
+                    <!-- Champ caché pour préserver le paramètre page -->
+                    <input type="hidden" name="page" value="liste_etudiants_ens_simple">
+
+                    <!-- Search and Filters Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Search Bar -->
+                        <div class="relative">
+                            <input type="text" name="search" placeholder="Rechercher un étudiant..."
+                                value="<?php echo htmlspecialchars($GLOBALS['filtres']['search'] ?? ''); ?>"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm">
+                            <i
+                                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+
+                        <!-- UE Filter -->
+                        <div>
+                            <select name="filter_ue"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm">
+                                <option value="0">Toutes les UE</option>
+                                <?php if (!empty($GLOBALS['uesEnseignant'])): ?>
+                                <?php foreach ($GLOBALS['uesEnseignant'] as $ue): ?>
+                                <option value="<?php echo $ue->id_ue; ?>"
+                                    <?php echo ($GLOBALS['filtres']['filterUe'] ?? 0) == $ue->id_ue ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($ue->lib_ue); ?>
+                                </option>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <!-- ECUE Filter -->
+                        <div>
+                            <select name="filter_ecue"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm">
+                                <option value="0">Tous les ECUE</option>
+                                <?php if (!empty($GLOBALS['ecuesEnseignant'])): ?>
+                                <?php foreach ($GLOBALS['ecuesEnseignant'] as $ecue): ?>
+                                <option value="<?php echo $ecue->id_ecue; ?>"
+                                    <?php echo ($GLOBALS['filtres']['filterEcue'] ?? 0) == $ecue->id_ecue ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($ecue->lib_ecue . ' (' . $ecue->lib_ue . ')'); ?>
+                                </option>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors duration-200">
+                                <i class="fas fa-search mr-2"></i> Rechercher
+                            </button>
+                            <a href="?page=liste_etudiants_ens_simple"
+                                class="bg-gray-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-600 transition-colors duration-200">
+                                <i class="fas fa-times mr-2"></i> Réinitialiser
+                            </a>
+                        </div>
                     </div>
-                    <!-- Filter Button -->
-                    <button
-                        class="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors duration-200 w-full sm:w-auto">
-                        <i class="fas fa-filter mr-2"></i> Filter
-                    </button>
-                    <!-- Example: Add New Button -->
-                    <!-- <button class="bg-green-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition-colors duration-200 w-full sm:w-auto">
-                         <i class="fas fa-user-plus mr-2"></i> Ajouter Nouvel Étudiant
-                     </button> -->
-                </div>
+                </form>
             </div>
 
             <!-- Students Table -->
@@ -56,119 +124,195 @@
                         <tr>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Photo</th>
+                                Nom Étudiant
+                            </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nom Étudiant</th>
+                                Numéro Étudiant
+                            </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Numéro Étudiant</th>
+                                Niveau
+                            </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Niveau</th>
+                                Semestre
+                            </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Statut</th>
+                                UE/ECUE
+                            </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
+                                Statut
+                            </th>
+
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <?php
-                        // Placeholder for dynamic student data
-                        $students = [
-                            ['photo' => 'https://randomuser.me/api/portraits/men/1.jpg', 'nom' => 'Dupont', 'prenom' => 'Jean', 'num_etu' => '12345', 'niveau' => 'L3', 'status' => 'Actif'],
-                            ['photo' => 'https://randomuser.me/api/portraits/women/1.jpg', 'nom' => 'Durand', 'prenom' => 'Lucie', 'num_etu' => '67890', 'niveau' => 'M1', 'status' => 'Actif'],
-                            ['photo' => 'https://randomuser.me/api/portraits/men/2.jpg', 'nom' => 'Petit', 'prenom' => 'Thomas', 'num_etu' => '11223', 'niveau' => 'M2', 'status' => 'Inactif'],
-                            ['photo' => 'https://randomuser.me/api/portraits/women/2.jpg', 'nom' => 'Bernard', 'prenom' => 'Sophie', 'num_etu' => '44556', 'niveau' => 'L3', 'status' => 'Actif'],
-                            ['photo' => 'https://randomuser.me/api/portraits/men/3.jpg', 'nom' => 'Martin', 'prenom' => 'Pierre', 'num_etu' => '77889', 'niveau' => 'M2', 'status' => 'Actif'],
-                            // Add more student data here
-                        ];
-
-                        // Loop through students (replace with fetching from database and applying filters/pagination)
-                        foreach ($students as $student) {
-                        ?>
+                        <?php if (!empty($GLOBALS['etudiants'])): ?>
+                        <?php foreach ($GLOBALS['etudiants'] as $etudiant): ?>
                         <tr class="table-row-hover">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <img class="h-10 w-10 rounded-full"
-                                            src="<?php echo htmlspecialchars($student['photo']); ?>" alt="">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <?php echo htmlspecialchars($etudiant->prenom_etu . ' ' . $etudiant->nom_etu); ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <?php echo htmlspecialchars($etudiant->num_etu); ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <?php echo htmlspecialchars($etudiant->lib_niv_etude); ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <?php echo htmlspecialchars($etudiant->lib_semestre); ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <div class="space-y-1">
+                                    <div class="font-medium text-purple-600">
+                                        <?php echo htmlspecialchars($etudiant->lib_ue); ?>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <?php echo htmlspecialchars($etudiant->lib_ecue); ?>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <?php echo htmlspecialchars($student['prenom'] . ' ' . $student['nom']); ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                <?php echo htmlspecialchars($student['num_etu']); ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                <?php echo htmlspecialchars($student['niveau']); ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <?php if ($student['status'] == 'Actif'): ?>
-                                <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Actif
-                                </span>
-                                <?php else: ?>
-                                <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    Inactif
-                                </span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <!-- Actions like View, Edit, Delete, Login -->
-                                <a href="#" class="text-purple-600 hover:text-purple-900 mr-3" title="Voir Profil">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <!-- Add other actions if needed -->
-                                <!-- <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" title="Modifier"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="text-red-600 hover:text-red-900" title="Supprimer"><i class="fas fa-trash"></i></a> -->
-                            </td>
+
                         </tr>
-                        <?php
-                        } // end foreach
-                        // If no students found
-                        if (empty($students)) {
-                        ?>
+                        <?php endforeach; ?>
+                        <?php else: ?>
                         <tr>
-                            <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                Aucun étudiant trouvé.
+                            <td colspan="8" class="px-6 py-8 text-center">
+                                <div class="text-gray-500">
+                                    <i class="fas fa-users text-4xl mb-4"></i>
+                                    <p class="text-lg font-medium">Aucun étudiant trouvé</p>
+                                    <p class="text-sm">Essayez de modifier vos critères de recherche</p>
+                                </div>
                             </td>
                         </tr>
-                        <?php
-                         }
-                        ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination (Simplified for Placeholder) -->
+            <!-- Pagination -->
+            <?php if (!empty($GLOBALS['pagination']) && $GLOBALS['pagination']['totalPages'] > 1): ?>
             <div class="mt-6 flex justify-between items-center">
                 <div class="text-sm text-gray-600">
-                    <!-- Showing X to Y of Z results (dynamic) -->
-                    Affichage de 1 à <?php echo count($students); ?> sur <?php echo count($students); ?> résultats
+                    Page <?php echo $GLOBALS['pagination']['currentPage']; ?> sur
+                    <?php echo $GLOBALS['pagination']['totalPages']; ?>
                 </div>
-                <div class="flex items-center">
-                    <button
-                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                        disabled>
-                        Précédent
-                    </button>
-                    <a href="#"
-                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Suivant
+
+                <div class="flex items-center space-x-2">
+                    <!-- Previous Button -->
+                    <?php if ($GLOBALS['pagination']['currentPage'] > 1): ?>
+                    <?php 
+                    $prevParams = $_GET;
+                    $prevParams['p'] = $GLOBALS['pagination']['currentPage'] - 1;
+                    $prevParams['page'] = 'liste_etudiants_ens_simple';
+                    ?>
+                    <a href="?<?php echo http_build_query($prevParams); ?>"
+                        class="pagination-link relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-chevron-left mr-2"></i> Précédent
                     </a>
+                    <?php else: ?>
+                    <span
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                        <i class="fas fa-chevron-left mr-2"></i> Précédent
+                    </span>
+                    <?php endif; ?>
+
+                    <!-- Page Numbers -->
+                    <div class="flex space-x-1">
+                        <?php for ($i = $GLOBALS['pagination']['start']; $i <= $GLOBALS['pagination']['end']; $i++): ?>
+                        <?php if ($i == $GLOBALS['pagination']['currentPage']): ?>
+                        <span
+                            class="relative inline-flex items-center px-4 py-2 border border-purple-500 text-sm font-medium rounded-md text-white bg-purple-600">
+                            <?php echo $i; ?>
+                        </span>
+                        <?php else: ?>
+                        <?php 
+                        $pageParams = $_GET;
+                        $pageParams['p'] = $i;
+                        $pageParams['page'] = 'liste_etudiants_ens_simple';
+                        ?>
+                        <a href="?<?php echo http_build_query($pageParams); ?>"
+                            class="pagination-link relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <?php echo $i; ?>
+                        </a>
+                        <?php endif; ?>
+                        <?php endfor; ?>
+                    </div>
+
+                    <!-- Next Button -->
+                    <?php if ($GLOBALS['pagination']['currentPage'] < $GLOBALS['pagination']['totalPages']): ?>
+                    <?php 
+                    $nextParams = $_GET;
+                    $nextParams['p'] = $GLOBALS['pagination']['currentPage'] + 1;
+                    $nextParams['page'] = 'liste_etudiants_ens_simple';
+                    ?>
+                    <a href="?<?php echo http_build_query($nextParams); ?>"
+                        class="pagination-link relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Suivant <i class="fas fa-chevron-right ml-2"></i>
+                    </a>
+                    <?php else: ?>
+                    <span
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                        Suivant <i class="fas fa-chevron-right ml-2"></i>
+                    </span>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
 
     </div>
+
+    <script>
+    // Toggle filter section
+    document.getElementById('toggleFilters').addEventListener('click', function() {
+        const filterSection = document.getElementById('filterSection');
+        filterSection.classList.toggle('collapsed');
+
+        // Change button text
+        const icon = this.querySelector('i');
+        if (filterSection.classList.contains('collapsed')) {
+            icon.className = 'fas fa-filter mr-2';
+            this.innerHTML = '<i class="fas fa-filter mr-2"></i> Afficher Filtres';
+        } else {
+            icon.className = 'fas fa-filter mr-2';
+            this.innerHTML = '<i class="fas fa-filter mr-2"></i> Masquer Filtres';
+        }
+    });
+
+    // Auto-submit form when filters change (avec préservation du paramètre page)
+    document.querySelectorAll('select[name="filter_ue"], select[name="filter_ecue"]').forEach(function(select) {
+        select.addEventListener('change', function() {
+            // Créer un formulaire temporaire pour préserver tous les paramètres
+            const form = this.closest('form');
+            const formData = new FormData(form);
+
+            // S'assurer que le paramètre page est présent
+            if (!formData.has('page')) {
+                formData.append('page', 'liste_etudiants_ens_simple');
+            }
+
+            // Réinitialiser la pagination à la page 1
+            formData.set('p', '1');
+
+            // Construire l'URL avec tous les paramètres
+            const params = new URLSearchParams(formData);
+            window.location.href = '?' + params.toString();
+        });
+    });
+
+    // Add loading state to search button
+    document.querySelector('button[type="submit"]').addEventListener('click', function() {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Recherche...';
+        this.disabled = true;
+    });
+    </script>
+
+    <script src="public/js/liste_etudiants_enseignant.js"></script>
 
 </body>
 

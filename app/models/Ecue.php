@@ -112,4 +112,136 @@ class Ecue
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Récupérer tous les ECUE d'un enseignant
+     */
+    public function getEcuesByEnseignant($enseignantId): array
+    {
+        try {
+            $sql = "SELECT DISTINCT e.*, u.lib_ue, s.lib_semestre, n.lib_niv_etude
+                    FROM ecue e
+                    JOIN ue u ON e.id_ue = u.id_ue
+                    JOIN semestre s ON u.id_semestre = s.id_semestre
+                    JOIN niveau_etude n ON u.id_niveau_etude = n.id_niv_etude
+                    WHERE e.id_enseignant = :enseignant_id
+                    ORDER BY u.lib_ue, e.lib_ecue";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':enseignant_id' => $enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des ECUE de l'enseignant: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupérer les étudiants encadrés par un enseignant avec pagination et filtres
+     */
+    public function getEtudiantsEncadres($enseignantId, $search = '', $filterEcue = 0, $filterUe = 0, $limit = 10, $offset = 0)
+    {
+        try {
+            $sql = "SELECT DISTINCT 
+                        e.num_etu,
+                        e.nom_etu,
+                        e.prenom_etu,
+                        e.email_etu,
+                        e.promotion_etu,
+                        ec.lib_ecue,
+                        u.lib_ue,
+                        n.lib_niv_etude,
+                        s.lib_semestre
+                    FROM etudiants e
+                    JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                    JOIN ecue ec ON ec.id_ue IN (
+                        SELECT ue.id_ue FROM ue ue 
+                        WHERE ue.id_niveau_etude = n.id_niv_etude
+                    )
+                    JOIN ue u ON ec.id_ue = u.id_ue
+                    JOIN semestre s ON u.id_semestre = s.id_semestre
+                    WHERE ec.id_enseignant = :enseignant_id";
+            
+            $params = [':enseignant_id' => $enseignantId];
+            
+            // Filtre par recherche
+            if (!empty($search)) {
+                $sql .= " AND (e.nom_etu LIKE :search OR e.prenom_etu LIKE :search OR e.email_etu LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            // Filtre par ECUE
+            if ($filterEcue > 0) {
+                $sql .= " AND ec.id_ecue = :filter_ecue";
+                $params[':filter_ecue'] = $filterEcue;
+            }
+            
+            // Filtre par UE
+            if ($filterUe > 0) {
+                $sql .= " AND u.id_ue = :filter_ue";
+                $params[':filter_ue'] = $filterUe;
+            }
+            
+            $sql .= " ORDER BY e.nom_etu, e.prenom_etu LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $limit;
+            $params[':offset'] = $offset;
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des étudiants encadrés: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Compter le nombre total d'étudiants encadrés par un enseignant
+     */
+    public function countEtudiantsEncadres($enseignantId, $search = '', $filterEcue = 0, $filterUe = 0)
+    {
+        try {
+            $sql = "SELECT COUNT(DISTINCT e.num_etu) as total
+                    FROM etudiants e
+                    JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                    JOIN ecue ec ON ec.id_ue IN (
+                        SELECT ue.id_ue FROM ue ue 
+                        WHERE ue.id_niveau_etude = n.id_niv_etude
+                    )
+                    JOIN ue u ON ec.id_ue = u.id_ue
+                    WHERE ec.id_enseignant = :enseignant_id";
+            
+            $params = [':enseignant_id' => $enseignantId];
+            
+            // Filtre par recherche
+            if (!empty($search)) {
+                $sql .= " AND (e.nom_etu LIKE :search OR e.prenom_etu LIKE :search OR e.email_etu LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            // Filtre par ECUE
+            if ($filterEcue > 0) {
+                $sql .= " AND ec.id_ecue = :filter_ecue";
+                $params[':filter_ecue'] = $filterEcue;
+            }
+            
+            // Filtre par UE
+            if ($filterUe > 0) {
+                $sql .= " AND u.id_ue = :filter_ue";
+                $params[':filter_ue'] = $filterUe;
+            }
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return $result ? $result->total : 0;
+        } catch (PDOException $e) {
+            error_log("Erreur lors du comptage des étudiants encadrés: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+   
 }

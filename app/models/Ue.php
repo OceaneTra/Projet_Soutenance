@@ -63,4 +63,26 @@ class Ue
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Récupérer tous les UE d'un enseignant
+     */
+    public function getUesByEnseignant($enseignantId): array
+    {
+        try {
+            $sql = "SELECT DISTINCT u.*, s.lib_semestre, n.lib_niv_etude
+                    FROM ue u
+                    JOIN semestre s ON u.id_semestre = s.id_semestre
+                    JOIN niveau_etude n ON u.id_niveau_etude = n.id_niv_etude
+                    WHERE u.id_enseignant = :enseignant_id
+                    ORDER BY u.lib_ue";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':enseignant_id' => $enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des UE de l'enseignant: " . $e->getMessage());
+            return [];
+        }
+    }
 }
