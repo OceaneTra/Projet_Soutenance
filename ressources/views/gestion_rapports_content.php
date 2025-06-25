@@ -117,7 +117,8 @@
                 <?php if (isset($rapportsRecents) && !empty($rapportsRecents)): ?>
                 <div class="space-y-4">
                     <?php foreach ($rapportsRecents as $rapport): ?>
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div id="rapport-<?= $rapport->id_rapport ?>"
+                        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-800 mb-2">
@@ -310,21 +311,32 @@
         const formData = new FormData();
         formData.append('rapport_id', rapportId);
 
-        fetch('?page=gestion_rapports&action=deleteRapportAjax', {
+        fetch('?page=gestion_rapports&action=delete_rapport', {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    // Si le statut HTTP n'est pas OK (e.g. 500 Internal Server Error)
+                    // On lit la réponse comme du texte et on la lance comme une erreur
+                    return response.text().then(text => {
+                        throw new Error(text || 'Réponse invalide du serveur')
+                    });
+                }
+                return response.json(); // On tente de parser le JSON si la réponse est OK
+            })
             .then(data => {
                 document.body.removeChild(loadingDiv);
 
                 if (data.success) {
                     // Supprimer visuellement le rapport de la liste
-                    const rapportElement = event.target.closest('.border');
-                    rapportElement.remove();
+                    const rapportElement = document.getElementById('rapport-' + rapportId);
+                    if (rapportElement) {
+                        rapportElement.remove();
+                    }
 
                     // Afficher un message de succès
                     showNotification('success', data.message);
@@ -334,8 +346,8 @@
             })
             .catch(error => {
                 document.body.removeChild(loadingDiv);
-                console.error('Erreur:', error);
-                showNotification('error', 'Erreur lors de la suppression');
+                console.error('Erreur brut:', error);
+                showNotification('error', 'Erreur inattendue: ' + error.message);
             });
     }
 
@@ -349,21 +361,21 @@
         let icon = type === 'success' ? 'check' : 'times';
 
         notification.innerHTML = `
-        <div class="${bgColor} p-4 flex">
-            <div class="flex-shrink-0">
-                <i class="fas fa-${icon} ${iconColor}"></i>
-            </div>
-            <div class="ml-3 w-0 flex-1">
-                <p class="text-sm font-medium text-gray-900">${message}</p>
-            </div>
-            <div class="ml-4 flex-shrink-0 flex">
-                <button onclick="this.parentElement.parentElement.parentElement.remove()"
-                        class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+    <div class="${bgColor} p-4 flex">
+        <div class="flex-shrink-0">
+            <i class="fas fa-${icon} ${iconColor}"></i>
         </div>
-    `;
+        <div class="ml-3 w-0 flex-1">
+            <p class="text-sm font-medium text-gray-900">${message}</p>
+        </div>
+        <div class="ml-4 flex-shrink-0 flex">
+            <button onclick="this.parentElement.parentElement.parentElement.remove()"
+                    class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+`;
 
         document.body.appendChild(notification);
 
