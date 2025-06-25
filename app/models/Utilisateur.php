@@ -491,6 +491,26 @@ class Utilisateur
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    // Récupérer les étudiants en Master 2 non enregistrés comme utilisateurs
+    public function getEtudiantsMaster2NonUtilisateurs() {
+        $query = "SELECT e.num_etu, e.nom_etu, e.prenom_etu, e.email_etu, n.lib_niv_etude
+                 FROM etudiants e 
+                 INNER JOIN inscriptions i ON e.num_etu = i.id_etudiant
+                 INNER JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                 LEFT JOIN utilisateur u ON e.email_etu = u.login_utilisateur 
+                 WHERE u.id_utilisateur IS NULL 
+                 AND n.id_niv_etude = 9
+                 AND i.id_inscription = (
+                     SELECT i2.id_inscription FROM inscriptions i2
+                     WHERE i2.id_etudiant = e.num_etu
+                     ORDER BY i2.date_inscription DESC LIMIT 1
+                 )
+                 ORDER BY e.nom_etu, e.prenom_etu";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     // Vérifier si un login (email) est déjà utilisé
     public function isLoginUsed($login) {
         $query = "SELECT COUNT(*) as count FROM utilisateur WHERE login_utilisateur = :login";

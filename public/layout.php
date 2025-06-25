@@ -12,11 +12,13 @@ include 'menu.php';
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDashboardRoutes.php';
+include __DIR__ . '/../ressources/routes/dashboardEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionScolariteRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionNotesRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsRoutes.php';
 include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
+include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
 
 
 
@@ -48,7 +50,8 @@ if (isset($_GET['page'])) {
     }
 }else{
   $currentMenuSlug = $traitements[0]['lib_traitement'];
-    $currentPageLabel = $traitements[0]['label_traitement'];
+  $currentPageLabel = $traitements[0]['label_traitement'];
+  
 }
 
 // Générer le HTML du menu
@@ -235,6 +238,15 @@ switch ($currentMenuSlug) {
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
             }
+            break;
+            
+        case 'verification_candidatures_soutenance':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page de vérification
+            $contentFile = $partialsBasePath . 'verification_candidatures_soutenance_content.php';
+            $currentPageLabel = 'Vérification des candidatures soutenance';
+            break;
+        
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];

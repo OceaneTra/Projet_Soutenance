@@ -18,6 +18,7 @@ require_once __DIR__ . '/../models/Traitement.php';
 require_once __DIR__ . '/../models/Entreprise.php';
 require_once __DIR__ . '/../models/Message.php';
 require_once __DIR__ . '/../models/Attribution.php';
+require_once __DIR__ . '/../models/Enseignant.php';
 
 class ParametreController
 {
@@ -41,6 +42,7 @@ class ParametreController
     private $message;
 
     private $attribution;
+    private $enseignant;
 
     public function __construct()
     {
@@ -63,6 +65,7 @@ class ParametreController
         $this->entreprise = new Entreprise(Database::getConnection());
         $this->message = new Message(Database::getConnection());
         $this->attribution = new Attribution(Database::getConnection());
+        $this->enseignant = new Enseignant(Database::getConnection());
     }
 
 
@@ -447,15 +450,16 @@ class ParametreController
             $id_niveau_etude = $_POST['niveau_etude'];
             $id_semestre = $_POST['semestre'];
             $id_annee = $_POST['annee_academique'];
+            $id_enseignant = $_POST['professeur_responsable'] ?? null;
 
             if (!empty($_POST['id_ue'])) {
-                if ($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                if ($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit, $id_enseignant)) {
                     $messageSuccess = "UE modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'UE.";
                 }
             } else {
-                if ($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit)) {
+                if ($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit, $id_enseignant)) {
                     $messageSuccess = "UE ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'UE.";
@@ -488,6 +492,7 @@ class ParametreController
         $GLOBALS['listeNiveauxEtude'] = $this->niveauEtude->getAllNiveauxEtudes();
         $GLOBALS['listeSemestres'] = $this->semestre->getAllSemestres();
         $GLOBALS['listeAnnees'] = $this->anneeAcademique->getAllAnneeAcademiques();
+        $GLOBALS['listeEnseignants'] = $this->enseignant->getAllEnseignants();
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
@@ -505,15 +510,16 @@ class ParametreController
             $id_ue = $_POST['id_ue'];
             $lib_ecue = $_POST['lib_ecue'];
             $credit = $_POST['credit'];
+            $id_enseignant = $_POST['professeur_responsable'] ?? null;
 
             if (!empty($_POST['id_ecue'])) {
-                if ($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit)) {
+                if ($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit, $id_enseignant)) {
                     $messageSuccess = "ECUE modifiée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'ECUE.";
                 }
             } else {
-                if ($this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit)) {
+                if ($this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit, $id_enseignant)) {
                     $messageSuccess = "ECUE ajoutée avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'ECUE.";
@@ -544,10 +550,10 @@ class ParametreController
         $GLOBALS['ecue_a_modifier'] = $ecue_a_modifier;
         $GLOBALS['listeEcues'] = $this->ecue->getAllEcues();
         $GLOBALS['listeUes'] = $this->ue->getAllUes();
+        $GLOBALS['listeEnseignants'] = $this->enseignant->getAllEnseignants();
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }
-
     //=============================FIN GESTION ECUE=============================
 
 

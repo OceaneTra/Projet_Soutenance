@@ -194,7 +194,22 @@ class GestionRapportController {
                 'rapport_id' => $rapport_id
             ]);
         } else {
-            throw new Exception('Erreur lors de l\'enregistrement du rapport.');
+            $messageErreur = 'Erreur lors de l\'enregistrement du rapport.';
+            $debug = [
+                'donneesRapport' => $donneesRapport,
+                'num_etu' => $_SESSION['num_etu'],
+                'result' => $result
+            ];
+
+            // Log fichier ou error_log pour voir côté serveur
+            error_log("Erreur sauvegarde rapport: " . print_r($debug, true));
+
+            // Affichage JSON clair dans Network > Response
+            $this->sendJsonResponse([
+                'success' => false,
+                'message' => $messageErreur,
+                'debug' => $debug // ⚠️ à retirer en prod
+            ]);
         }
     }
 

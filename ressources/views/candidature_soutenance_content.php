@@ -3,7 +3,17 @@
 $stage_info = isset($GLOBALS['stage_info']) ? $GLOBALS['stage_info'] : [];
 $compte_rendu = isset($GLOBALS['compte_rendu']) ? $GLOBALS['compte_rendu'] : [];
 $has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidature'] : false;
+$candidature = isset($GLOBALS['candidature']) ? $GLOBALS['candidature'] : null;
+$candidatures_etudiant = isset($GLOBALS['candidatures_etudiant']) ? $GLOBALS['candidatures_etudiant'] : [];
 
+// Vérifier s'il existe au moins une candidature en attente ou validée
+$disableCandidature = empty($stage_info);
+foreach ($candidatures_etudiant as $cand) {
+    if (in_array($cand['statut_candidature'], ['En attente', 'Validée'])) {
+        $disableCandidature = true;
+        break;
+    }
+}
 
 ?>
 
@@ -47,6 +57,11 @@ $has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidatur
 
         <div id="warningMessage" class="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded hidden">
             Veuillez d'abord remplir les informations de stage pour accéder aux autres fonctionnalités.
+        </div>
+
+        <!-- Message d'erreur global pour la demande de candidature -->
+        <div id="globalCandidatureError"
+            style="display:none;z-index:9999;color:#b91c1c;background:#fee2e2;border:1px solid #fca5a5;margin-bottom:22px;padding:12px 24px;border-radius:6px;max-width:90vw;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-size:1rem;opacity:0;transition:opacity 0.4s;">
         </div>
 
         <div class="header text-center mb-8">
@@ -100,9 +115,19 @@ $has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidatur
                     <p class="text-text-light mb-6 flex-grow text-base leading-relaxed">Faite votre demande de
                         candidature
                         au près de l'administration et obtenez une réponse sur votre statut après vérification.</p>
-                    <button
-                        onclick="<?php echo empty($stage_info) ? 'showWarningMessage(); return false;' : ($has_candidature ? 'showCandidatureExistsMessage(); return false;' : 'openConfirmationModal()'); ?>"
-                        class="card-btn <?php echo empty($stage_info) || $has_candidature ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm">
+                    <?php
+                        $onclick = empty($stage_info)
+                            ? 'showWarningMessage(); return false;'
+                            : ($disableCandidature
+                                ? 'showCandidatureExistsMessage(); return false;'
+                                : 'openConfirmationModal()');
+                        $btnClass = $disableCandidature
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-green-500 hover:bg-green-600';
+                    ?>
+                    <button id="btnDemandeCandidature" onclick="return handleDemandeCandidatureClick();"
+                        class="card-btn <?php echo $btnClass; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm"
+                        style="<?php echo $disableCandidature ? 'opacity:0.6;cursor:not-allowed;' : ''; ?>">
                         <span class="flex items-center">
                             Demande de candidature
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -113,6 +138,9 @@ $has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidatur
                             </svg>
                         </span>
                     </button>
+                    <div id="demandeCandidatureError"
+                        style="display:none;color:#b91c1c;background:#fee2e2;border:1px solid #fca5a5;padding:8px 12px;border-radius:4px;max-width:400px;margin-top:8px;">
+                    </div>
                 </div>
             </div>
 
@@ -418,6 +446,32 @@ $has_candidature = isset($GLOBALS['has_candidature']) ? $GLOBALS['has_candidatur
             }, 5000);
         });
     });
+
+    function handleDemandeCandidatureClick() {
+        var candidatureDesactivee = <?php echo $disableCandidature ? 'true' : 'false'; ?>;
+        if (candidatureDesactivee) {
+            showGlobalCandidatureError(
+                "Vous avez déjà soumis une candidature qui est en attente ou validée. Vous ne pouvez pas en soumettre une nouvelle pour le moment."
+            );
+            return false;
+        }
+        return true;
+    }
+
+    function showGlobalCandidatureError(message) {
+        var errorDiv = document.getElementById('globalCandidatureError');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(function() {
+            errorDiv.style.opacity = '1';
+        }, 10); // fade-in
+        setTimeout(function() {
+            errorDiv.style.opacity = '0';
+            setTimeout(function() {
+                errorDiv.style.display = 'none';
+            }, 400);
+        }, 4000);
+    }
     </script>
 </body>
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : dim. 22 juin 2025 à 18:54
+-- Généré le : mer. 25 juin 2025 à 11:05
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -182,7 +182,8 @@ VALUES (10, 2, '2023-06-05'),
     (7, 7, '2022-05-04'),
     (7, 9, '2020-06-27'),
     (7, 10, '2018-02-12'),
-    (6, 11, '2018-05-13');
+    (6, 11, '2018-05-13'),
+    (15, 12, '2008-02-27');
 
 -- --------------------------------------------------------
 
@@ -196,12 +197,12 @@ CREATE TABLE `candidature_soutenance` (
     `date_candidature` datetime NOT NULL,
     `statut_candidature` enum(
         'En attente',
-        'Approuvée',
+        'Validée',
         'Rejetée'
-    ) NOT NULL DEFAULT 'En attente',
+    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'En attente',
     `date_traitement` datetime DEFAULT NULL,
-    `commentaire_admin` text,
-    `id_pers_admin` int DEFAULT NULL
+    `id_pers_admin` int DEFAULT NULL,
+    `commentaire_admin` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 --
@@ -215,22 +216,31 @@ INSERT INTO
         `date_candidature`,
         `statut_candidature`,
         `date_traitement`,
-        `commentaire_admin`,
-        `id_pers_admin`
+        `id_pers_admin`,
+        `commentaire_admin`
     )
 VALUES (
         1,
         2004003,
         '2025-06-06 00:49:02',
-        'En attente',
-        NULL,
-        NULL,
-        NULL
+        'Rejetée',
+        '2025-06-23 11:37:54',
+        6,
+        'Évaluation complète terminée'
     ),
     (
-        3,
-        2007003,
-        '2025-06-06 02:35:15',
+        6,
+        2003003,
+        '2025-06-23 10:23:24',
+        'Rejetée',
+        '2025-06-23 10:36:53',
+        6,
+        'Évaluation complète terminée'
+    ),
+    (
+        7,
+        2003003,
+        '2025-06-23 11:55:25',
         'En attente',
         NULL,
         NULL,
@@ -261,6 +271,61 @@ CREATE TABLE `deposer` (
     `id_rapport` int NOT NULL,
     `date_depot` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `dossier_academique`
+--
+
+CREATE TABLE `dossier_academique` (
+    `id_dossier` int NOT NULL,
+    `num_etu` int NOT NULL,
+    `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
+    `date_modification` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `adresse` varchar(255) DEFAULT NULL,
+    `telephone` varchar(20) DEFAULT NULL,
+    `nationalite` varchar(50) DEFAULT NULL,
+    `situation_familiale` varchar(50) DEFAULT NULL,
+    `dernier_diplome` varchar(100) DEFAULT NULL,
+    `etablissement_origine` varchar(100) DEFAULT NULL,
+    `annee_obtention_diplome` year DEFAULT NULL,
+    `mention_diplome` varchar(50) DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `dossier_academique`
+--
+
+INSERT INTO
+    `dossier_academique` (
+        `id_dossier`,
+        `num_etu`,
+        `date_creation`,
+        `date_modification`,
+        `adresse`,
+        `telephone`,
+        `nationalite`,
+        `situation_familiale`,
+        `dernier_diplome`,
+        `etablissement_origine`,
+        `annee_obtention_diplome`,
+        `mention_diplome`
+    )
+VALUES (
+        1,
+        2004003,
+        '2025-06-21 17:03:27',
+        '2025-06-21 17:21:02',
+        'Cocody, riviera palmeraie, quartier bonoumin',
+        '0759395841',
+        'Ivoirienne',
+        'Marié',
+        'Baccalauréat',
+        'CSM Niangon',
+        '2019',
+        'Assez bien'
+    );
 
 -- --------------------------------------------------------
 
@@ -401,7 +466,8 @@ CREATE TABLE `ecue` (
     `id_ecue` int NOT NULL,
     `id_ue` int NOT NULL,
     `lib_ecue` varchar(70) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `credit` int NOT NULL
+    `credit` int NOT NULL,
+    `id_enseignant` int DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 --
@@ -413,187 +479,281 @@ INSERT INTO
         `id_ecue`,
         `id_ue`,
         `lib_ecue`,
-        `credit`
+        `credit`,
+        `id_enseignant`
     )
-VALUES (7, 8, 'Economie 1', 2),
-    (9, 8, 'Economie 2', 2),
+VALUES (7, 8, 'Economie 1', 2, NULL),
+    (9, 8, 'Economie 2', 2, NULL),
     (
         10,
         13,
         'Suites et fonctions',
-        3
+        3,
+        NULL
     ),
-    (11, 13, 'Calcul intégral', 2),
+    (
+        11,
+        13,
+        'Calcul intégral',
+        2,
+        NULL
+    ),
     (
         12,
         14,
         'Elements de logique',
-        2
+        2,
+        NULL
     ),
     (
         13,
         14,
         'Structures algébriques',
-        3
+        3,
+        NULL
     ),
-    (14, 17, 'Géométrie', 1),
-    (15, 17, 'Calcul matriciel', 2),
+    (14, 17, 'Géométrie', 1, NULL),
+    (
+        15,
+        17,
+        'Calcul matriciel',
+        2,
+        NULL
+    ),
     (
         16,
         17,
         'espaces vectoriels',
-        3
+        3,
+        NULL
     ),
-    (17, 18, 'Probabilités 1', 2),
-    (18, 18, 'Statistique 1', 2),
+    (
+        17,
+        18,
+        'Probabilités 1',
+        2,
+        NULL
+    ),
+    (
+        18,
+        18,
+        'Statistique 1',
+        2,
+        NULL
+    ),
     (
         19,
         18,
         'Initiation au langage R',
-        1
+        1,
+        NULL
     ),
-    (20, 82, 'Algorithmique', 3),
+    (
+        20,
+        82,
+        'Algorithmique',
+        3,
+        NULL
+    ),
     (
         21,
         82,
         'programmation Java',
-        2
+        2,
+        NULL
     ),
     (
         22,
         21,
         'Methodologie de travail',
-        1
+        1,
+        NULL
     ),
     (
         23,
         21,
         'Technique d\'expression',
-        1
+        1,
+        NULL
     ),
     (
         24,
         26,
         'Fondamentaux de POO',
-        3
+        3,
+        NULL
     ),
     (
         25,
         26,
         'Programmation POO',
-        3
+        3,
+        NULL
     ),
-    (26, 28, 'Analyse 2', 3),
-    (27, 28, 'Algèbre', 3),
-    (28, 29, 'Probabilités 2', 2),
-    (29, 29, 'Statistique 2', 2),
-    (30, 30, 'Modèle comptable', 2),
+    (26, 28, 'Analyse 2', 3, NULL),
+    (27, 28, 'Algèbre', 3, NULL),
+    (
+        28,
+        29,
+        'Probabilités 2',
+        2,
+        NULL
+    ),
+    (
+        29,
+        29,
+        'Statistique 2',
+        2,
+        NULL
+    ),
+    (
+        30,
+        30,
+        'Modèle comptable',
+        2,
+        NULL
+    ),
     (
         31,
         30,
         'Opérations comptables',
-        2
+        2,
+        NULL
     ),
     (
         32,
         30,
         'Opérations d\'inventaires',
-        2
+        2,
+        NULL
     ),
-    (33, 32, 'Arithmétique', 2),
+    (
+        33,
+        32,
+        'Arithmétique',
+        2,
+        NULL
+    ),
     (
         34,
         33,
         'Base de données relationnelles',
-        3
+        3,
+        NULL
     ),
     (
         35,
         33,
         'Données semi-structurées',
-        2
+        2,
+        NULL
     ),
     (
         36,
         33,
         'base de données et applications',
-        3
+        3,
+        NULL
     ),
     (
         37,
         35,
         'Initiation au Langage SCALA',
-        2
+        2,
+        NULL
     ),
     (
         38,
         35,
         'Atelier de Génie Logiciel',
-        4
+        4,
+        NULL
     ),
     (
         39,
         36,
         'Programmation VBA',
-        2
+        2,
+        NULL
     ),
-    (40, 36, 'Programmation C#', 2),
+    (
+        40,
+        36,
+        'Programmation C#',
+        2,
+        NULL
+    ),
     (
         41,
         38,
         'Application à la cryptographie',
-        2
+        2,
+        NULL
     ),
     (
         42,
         40,
         'Fondamentaux des systèmes d\'exploitation',
-        2
+        2,
+        NULL
     ),
     (
         43,
         40,
         'UNIX et langage C',
-        4
+        4,
+        NULL
     ),
     (
         44,
         41,
         'Algo avancé et Java',
-        5
+        5,
+        NULL
     ),
     (
         45,
         46,
         'Suivi des performances',
-        2
+        2,
+        NULL
     ),
     (
         46,
         46,
         'Coût complet et coût partiel',
-        2
+        2,
+        NULL
     ),
     (
         47,
         9,
         'Fondamentaux des réseaux',
-        3
+        3,
+        NULL
     ),
-    (48, 9, 'Internet/Intranet', 2),
-    (49, 56, 'ISI', 2),
-    (50, 56, 'UML', 3),
+    (
+        48,
+        9,
+        'Internet/Intranet',
+        2,
+        NULL
+    ),
+    (49, 56, 'ISI', 2, NULL),
+    (50, 56, 'UML', 3, NULL),
     (
         51,
         57,
         'Files d\'attente et gestion de stock',
-        3
+        3,
+        NULL
     ),
     (
         52,
         57,
         'Regression linéaire',
-        1
+        1,
+        NULL
     );
 
 -- --------------------------------------------------------
@@ -671,6 +831,14 @@ VALUES (
         'kouakouflorent@gmail.com',
         5,
         'Simple'
+    ),
+    (
+        12,
+        'Wah',
+        'Médard',
+        'wahmedard@gmail.com',
+        2,
+        'Simple'
     );
 
 -- --------------------------------------------------------
@@ -695,6 +863,7 @@ INSERT INTO
     )
 VALUES (3, 'Deloitte Côte d\'Ivoire'),
     (5, 'Orange Côte d\'Ivoire'),
+    (8, 'QuanTech Côte d\'Ivoire'),
     (7, 'Tuzzo Côte d\'Ivoire');
 
 -- --------------------------------------------------------
@@ -2963,16 +3132,16 @@ VALUES (
         '+255 0705925841'
     ),
     (
-        2,
-        2007003,
         5,
-        '2024-02-15',
-        '2024-08-20',
-        'Conception d\'intelligence artificielle',
-        'Ce stage consistait à explorer les nouvelles techniques de conception d\'ia en CI.',
-        'Kouakou Fernand',
-        'kouakoufernand@gmail.com',
-        '+225 0741526369'
+        2003003,
+        8,
+        '2025-02-28',
+        '2025-06-15',
+        'Développement d\'application mobile',
+        'Ce stage avait pour but d\'améliorer mes compétences en développement d\'application mobile avec flutter.',
+        'Yao Ferdinand',
+        'yaoferdinand@gmail.com',
+        '+2250711489473'
     );
 
 -- --------------------------------------------------------
@@ -3087,8 +3256,8 @@ VALUES (
         '2025-06-03 00:57:34',
         'En cours',
         3,
-        0.00,
-        890000.00
+        40000.00,
+        850000.00
     ),
     (
         19,
@@ -3296,12 +3465,7 @@ CREATE TABLE `notes` (
     `moyenne` decimal(4, 2) NOT NULL,
     `commentaire` text,
     `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
-    `date_modification` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `statut` enum(
-        'en_attente',
-        'validée',
-        'rejetée'
-    ) DEFAULT 'en_attente'
+    `date_modification` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -3331,7 +3495,8 @@ VALUES (5, 2, '2011-02-02'),
     (5, 7, '2016-05-02'),
     (5, 9, '2018-05-01'),
     (2, 10, '2018-02-12'),
-    (3, 11, '2016-04-25');
+    (3, 11, '2016-04-25'),
+    (5, 12, '1998-04-12');
 
 -- --------------------------------------------------------
 
@@ -3438,14 +3603,14 @@ CREATE TABLE `rapport_etudiants` (
     `nom_rapport` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `date_rapport` datetime NOT NULL,
     `theme_rapport` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `chemin_fichier` varchar(255) COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL COMMENT 'Chemin vers le fichier de contenu',
+    `chemin_fichier` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL COMMENT 'Chemin vers le fichier de contenu',
     `statut_rapport` enum(
         'en_cours',
         'en_revision',
         'valide',
         'a_corriger',
         'rejete'
-    ) COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'en_cours',
+    ) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'en_cours',
     `date_modification` datetime DEFAULT NULL,
     `taille_fichier` int DEFAULT NULL COMMENT 'Taille du fichier en octets',
     `version` int NOT NULL DEFAULT '1' COMMENT 'Version du rapport'
@@ -3470,7 +3635,7 @@ INSERT INTO
     )
 VALUES (
         1,
-        2006002,
+        2004003,
         'RARA numero 1 oh',
         '2025-06-16 16:31:50',
         'je sais pas deh',
@@ -3478,18 +3643,6 @@ VALUES (
         'en_cours',
         '2025-06-16 16:31:50',
         9892,
-        1
-    ),
-    (
-        3,
-        2008005,
-        'Lrereet',
-        '2025-06-17 16:21:39',
-        'Tchai c\'est quelque chose',
-        'rapport_3.html',
-        'en_cours',
-        '2025-06-17 16:21:39',
-        9936,
         1
     );
 
@@ -3524,13 +3677,6 @@ VALUES (13, 12),
     (5, 9),
     (5, 19),
     (5, 10),
-    (8, 23),
-    (8, 25),
-    (8, 6),
-    (8, 26),
-    (8, 24),
-    (8, 16),
-    (8, 19),
     (12, 27),
     (12, 28),
     (12, 16),
@@ -3548,6 +3694,19 @@ VALUES (13, 12),
     (6, 29),
     (6, 16),
     (6, 19),
+    (7, 32),
+    (7, 29),
+    (7, 16),
+    (7, 19),
+    (7, 31),
+    (8, 23),
+    (8, 25),
+    (8, 6),
+    (8, 26),
+    (8, 41),
+    (8, 24),
+    (8, 16),
+    (8, 19),
     (11, 37),
     (11, 39),
     (11, 35),
@@ -3556,11 +3715,7 @@ VALUES (13, 12),
     (11, 40),
     (11, 38),
     (11, 19),
-    (7, 32),
-    (7, 29),
-    (7, 16),
-    (7, 19),
-    (7, 31);
+    (11, 42);
 
 -- --------------------------------------------------------
 
@@ -3631,20 +3786,6 @@ VALUES (
         '2025-06-16 13:13:39',
         '2025-06-16 13:13:39',
         NULL
-    ),
-    (
-        2,
-        2006002,
-        NULL,
-        'balablbalbalba',
-        'j\'ai besoin d\'aide pour mon espace etudiant qui ne fonctionne pas',
-        'Technique',
-        'Moyenne',
-        'En attente',
-        'rec_2025-06-22_18-53-15_6858511bee4fa.jpg',
-        '2025-06-22 18:53:16',
-        '2025-06-22 18:53:16',
-        NULL
     );
 
 -- --------------------------------------------------------
@@ -3658,6 +3799,47 @@ CREATE TABLE `rendre` (
     `id_enseignant` int NOT NULL,
     `date_env` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `resume_candidature`
+--
+
+CREATE TABLE `resume_candidature` (
+    `id` int NOT NULL,
+    `num_etu` int NOT NULL,
+    `resume_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    `decision` varchar(20) NOT NULL,
+    `date_enregistrement` datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `resume_candidature`
+--
+
+INSERT INTO
+    `resume_candidature` (
+        `id`,
+        `num_etu`,
+        `resume_json`,
+        `decision`,
+        `date_enregistrement`
+    )
+VALUES (
+        1,
+        2003003,
+        '{\"scolarite\":{\"statut\":\"En retard\",\"montant_total\":\"1 905 000 FCFA\",\"montant_paye\":\"670 000 FCFA\",\"dernier_paiement\":\"01\\/06\\/2025\",\"validation\":\"rejet\\u00e9\"},\"stage\":{\"entreprise\":\"QuanTech C\\u00f4te d\'Ivoire\",\"sujet\":\"D\\u00e9veloppement d\'application mobile\",\"periode\":\"28\\/02\\/2025 - 15\\/06\\/2025\",\"encadrant\":\"Yao Ferdinand\",\"validation\":\"rejet\\u00e9\"},\"semestre\":{\"semestre\":\"Non renseign\\u00e9\",\"moyenne\":\"0.00\\/20\",\"unites\":\"0\\/30 cr\\u00e9dits du Master 2 valid\\u00e9s\",\"validation\":\"rejet\\u00e9\"}}',
+        'Rejetée',
+        '2025-06-23 10:36:53'
+    ),
+    (
+        2,
+        2004003,
+        '{\"scolarite\":{\"statut\":\"En retard\",\"montant_total\":\"1 905 000 FCFA\",\"montant_paye\":\"670 000 FCFA\",\"dernier_paiement\":\"16\\/06\\/2025\",\"validation\":\"rejet\\u00e9\"},\"stage\":{\"entreprise\":\"Tuzzo C\\u00f4te d\'Ivoire\",\"sujet\":\"D\\u00e9veloppement d\'application mobile\",\"periode\":\"04\\/05\\/2024 - 05\\/11\\/2024\",\"encadrant\":\"Tra Bi Herv\\u00e9\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Non renseign\\u00e9\",\"moyenne\":\"0.00\\/20\",\"unites\":\"0\\/30 cr\\u00e9dits du Master 2 valid\\u00e9s\",\"validation\":\"rejet\\u00e9\"}}',
+        'Rejetée',
+        '2025-06-23 11:37:54'
+    );
 
 -- --------------------------------------------------------
 
@@ -3998,6 +4180,20 @@ VALUES (
         'Planification des réunions',
         'fa-calendar-days',
         6
+    ),
+    (
+        41,
+        'gestion_reclamations_scolarite',
+        'Gestion des réclamations étudiantes ',
+        'fa-file',
+        4
+    ),
+    (
+        42,
+        'redaction_compte_rendu',
+        'Rédaction du compte rendu',
+        'fa-file',
+        6
     );
 
 -- --------------------------------------------------------
@@ -4037,7 +4233,8 @@ CREATE TABLE `ue` (
     `id_niveau_etude` int NOT NULL,
     `id_semestre` int NOT NULL,
     `id_annee_academique` int NOT NULL,
-    `credit` int NOT NULL
+    `credit` int NOT NULL,
+    `id_enseignant` int DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 --
@@ -4051,7 +4248,8 @@ INSERT INTO
         `id_niveau_etude`,
         `id_semestre`,
         `id_annee_academique`,
-        `credit`
+        `credit`,
+        `id_enseignant`
     )
 VALUES (
         8,
@@ -4059,7 +4257,8 @@ VALUES (
         6,
         12,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         9,
@@ -4067,7 +4266,8 @@ VALUES (
         8,
         19,
         22423,
-        5
+        5,
+        NULL
     ),
     (
         10,
@@ -4075,7 +4275,8 @@ VALUES (
         6,
         12,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         11,
@@ -4083,7 +4284,8 @@ VALUES (
         6,
         12,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         12,
@@ -4091,7 +4293,8 @@ VALUES (
         6,
         12,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         13,
@@ -4099,7 +4302,8 @@ VALUES (
         6,
         12,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         14,
@@ -4107,7 +4311,8 @@ VALUES (
         6,
         12,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         15,
@@ -4115,7 +4320,8 @@ VALUES (
         6,
         12,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         16,
@@ -4123,7 +4329,8 @@ VALUES (
         6,
         12,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         17,
@@ -4131,7 +4338,8 @@ VALUES (
         6,
         15,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         18,
@@ -4139,7 +4347,8 @@ VALUES (
         6,
         15,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         19,
@@ -4147,7 +4356,8 @@ VALUES (
         6,
         15,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         20,
@@ -4155,7 +4365,8 @@ VALUES (
         6,
         15,
         22524,
-        1
+        1,
+        NULL
     ),
     (
         21,
@@ -4163,7 +4374,8 @@ VALUES (
         6,
         15,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         22,
@@ -4171,7 +4383,8 @@ VALUES (
         6,
         15,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         23,
@@ -4179,7 +4392,8 @@ VALUES (
         6,
         15,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         24,
@@ -4187,7 +4401,8 @@ VALUES (
         6,
         15,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         25,
@@ -4195,7 +4410,8 @@ VALUES (
         6,
         15,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         26,
@@ -4203,7 +4419,8 @@ VALUES (
         7,
         16,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         27,
@@ -4211,7 +4428,8 @@ VALUES (
         7,
         16,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         28,
@@ -4219,7 +4437,8 @@ VALUES (
         7,
         16,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         29,
@@ -4227,7 +4446,8 @@ VALUES (
         7,
         16,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         30,
@@ -4235,7 +4455,8 @@ VALUES (
         7,
         16,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         31,
@@ -4243,7 +4464,8 @@ VALUES (
         7,
         16,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         32,
@@ -4251,7 +4473,8 @@ VALUES (
         7,
         17,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         33,
@@ -4259,7 +4482,8 @@ VALUES (
         7,
         17,
         22524,
-        8
+        8,
+        NULL
     ),
     (
         34,
@@ -4267,7 +4491,8 @@ VALUES (
         7,
         17,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         35,
@@ -4275,7 +4500,8 @@ VALUES (
         7,
         17,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         36,
@@ -4283,7 +4509,8 @@ VALUES (
         7,
         17,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         37,
@@ -4291,7 +4518,8 @@ VALUES (
         7,
         17,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         38,
@@ -4299,16 +4527,26 @@ VALUES (
         7,
         17,
         22524,
-        2
+        2,
+        NULL
     ),
-    (39, 'Projet', 7, 17, 22524, 2),
+    (
+        39,
+        'Projet',
+        7,
+        17,
+        22524,
+        2,
+        NULL
+    ),
     (
         40,
         'Systèmes informatiques',
         8,
         18,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         41,
@@ -4316,7 +4554,8 @@ VALUES (
         8,
         18,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         42,
@@ -4324,7 +4563,8 @@ VALUES (
         8,
         18,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         43,
@@ -4332,7 +4572,8 @@ VALUES (
         8,
         18,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         44,
@@ -4340,7 +4581,8 @@ VALUES (
         8,
         18,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         45,
@@ -4348,7 +4590,8 @@ VALUES (
         8,
         18,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         46,
@@ -4356,7 +4599,8 @@ VALUES (
         8,
         18,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         47,
@@ -4364,7 +4608,8 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         48,
@@ -4372,7 +4617,8 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         49,
@@ -4380,7 +4626,8 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         51,
@@ -4388,7 +4635,8 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         53,
@@ -4396,16 +4644,26 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
-    (54, 'Projet', 8, 19, 22524, 4),
+    (
+        54,
+        'Projet',
+        8,
+        19,
+        22524,
+        4,
+        NULL
+    ),
     (
         55,
         'Environnement juridique',
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         56,
@@ -4413,7 +4671,8 @@ VALUES (
         10,
         20,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         57,
@@ -4421,7 +4680,8 @@ VALUES (
         10,
         20,
         22423,
-        4
+        4,
+        NULL
     ),
     (
         58,
@@ -4429,7 +4689,8 @@ VALUES (
         10,
         20,
         22423,
-        2
+        2,
+        NULL
     ),
     (
         59,
@@ -4437,7 +4698,8 @@ VALUES (
         10,
         20,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         60,
@@ -4445,7 +4707,8 @@ VALUES (
         10,
         20,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         61,
@@ -4453,7 +4716,8 @@ VALUES (
         10,
         20,
         22423,
-        2
+        2,
+        NULL
     ),
     (
         62,
@@ -4461,7 +4725,8 @@ VALUES (
         10,
         20,
         22423,
-        3
+        3,
+        NULL
     ),
     (
         63,
@@ -4469,7 +4734,8 @@ VALUES (
         10,
         20,
         22423,
-        4
+        4,
+        NULL
     ),
     (
         64,
@@ -4477,7 +4743,8 @@ VALUES (
         10,
         20,
         22423,
-        2
+        2,
+        NULL
     ),
     (
         65,
@@ -4485,7 +4752,8 @@ VALUES (
         10,
         21,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         66,
@@ -4493,7 +4761,8 @@ VALUES (
         10,
         21,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         67,
@@ -4501,7 +4770,8 @@ VALUES (
         10,
         21,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         68,
@@ -4509,7 +4779,8 @@ VALUES (
         10,
         21,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         69,
@@ -4517,7 +4788,8 @@ VALUES (
         10,
         21,
         22524,
-        4
+        4,
+        NULL
     ),
     (
         70,
@@ -4525,7 +4797,8 @@ VALUES (
         10,
         21,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         71,
@@ -4533,7 +4806,8 @@ VALUES (
         10,
         21,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         72,
@@ -4541,7 +4815,8 @@ VALUES (
         10,
         21,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         73,
@@ -4549,7 +4824,8 @@ VALUES (
         9,
         22,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         74,
@@ -4557,7 +4833,8 @@ VALUES (
         9,
         22,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         75,
@@ -4565,7 +4842,8 @@ VALUES (
         9,
         22,
         22524,
-        6
+        6,
+        NULL
     ),
     (
         76,
@@ -4573,7 +4851,8 @@ VALUES (
         9,
         22,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         77,
@@ -4581,7 +4860,8 @@ VALUES (
         9,
         22,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         78,
@@ -4589,7 +4869,8 @@ VALUES (
         9,
         22,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         79,
@@ -4597,7 +4878,8 @@ VALUES (
         9,
         22,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         80,
@@ -4605,7 +4887,8 @@ VALUES (
         9,
         22,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         81,
@@ -4613,7 +4896,8 @@ VALUES (
         9,
         22,
         22524,
-        2
+        2,
+        NULL
     ),
     (
         82,
@@ -4621,7 +4905,8 @@ VALUES (
         6,
         15,
         22524,
-        5
+        5,
+        NULL
     ),
     (
         83,
@@ -4629,7 +4914,8 @@ VALUES (
         8,
         19,
         22524,
-        3
+        3,
+        NULL
     ),
     (
         84,
@@ -4637,9 +4923,18 @@ VALUES (
         7,
         16,
         22524,
-        3
+        3,
+        NULL
     ),
-    (85, 'BMO', 8, 18, 22524, 3);
+    (
+        85,
+        'BMO',
+        8,
+        18,
+        22524,
+        3,
+        NULL
+    );
 
 -- --------------------------------------------------------
 
@@ -4682,16 +4977,6 @@ VALUES (
         'Actif',
         'oceanetl27@gmail.com',
         '$2y$10$5xegW5cpfo9paDNWYZHnsup7Qngf8JpejSPRxwVpmxCaxAGP.w4im'
-    ),
-    (
-        21,
-        'Seri Marie Christine',
-        4,
-        7,
-        5,
-        'Actif',
-        'noemietra27@gmail.com',
-        '$2y$10$7wJ0eu/RsZRSNGb1ZK8ow.Bj.9vTM0Z.Kj9bYK4A6y0U44cv1gCse'
     ),
     (
         27,
@@ -4739,7 +5024,7 @@ VALUES (
         6,
         12,
         5,
-        'Inactif',
+        'Actif',
         'ngolokonate@yahoo.fr',
         '$2y$10$o7fxEokbRfMLFoGPOS1TpOFuxjFQ3TFzMMV4mukNEWLs9aNxGjr/u'
     ),
@@ -4749,189 +5034,9 @@ VALUES (
         6,
         12,
         5,
-        'Inactif',
+        'Actif',
         'nindjinmalan@gmail.com',
         '$2y$10$f0Nq70iGpanY5FrbCZI2G.fJ.aj8oDu05Y2Gi5y1LjsrcDc5M3TXa'
-    ),
-    (
-        41,
-        'Abroh Alokré Samuel Eliézer',
-        7,
-        13,
-        4,
-        'Inactif',
-        'samuel.abroh@miage.edu',
-        '$2y$10$F1OOtQYIjbu1CeEzkAZA3OPuZEjABsXAxAzFs/WMlWXbRvnAGK9ZO'
-    ),
-    (
-        42,
-        'Abudrahman Bako Rouhiya',
-        7,
-        13,
-        5,
-        'Inactif',
-        'rouhiya.abudrahman@miage.edu',
-        '$2y$10$h0YCvxudG9rt1FnLVbP7rewIZSNYYtaAvLDYonGiEY1jqJ.0BXOc6'
-    ),
-    (
-        43,
-        'Aby Nanpé Olivier',
-        7,
-        13,
-        5,
-        'Inactif',
-        'olivier.aby@miage.edu',
-        '$2y$10$MvjnGeToYLbiKi22QReaXufAQEl/3nYKeMbAFMAF3uHaldPphVRTS'
-    ),
-    (
-        44,
-        'Acho Dessi Stéphane Ivan',
-        7,
-        13,
-        5,
-        'Actif',
-        'stephane.acho@miage.edu',
-        '$2y$10$9TPspFtSlEL1gffNH0MXzunJ8sNtqEipGJ0MOyaJTxxNLWY5Znhp6'
-    ),
-    (
-        45,
-        'Adja Willy Junior',
-        7,
-        13,
-        5,
-        'Actif',
-        'willy.adja@miage.edu',
-        '$2y$10$YMMUvIsLYs2OetoPi5mUcOI9oOPkAN8PLTjlF4ECT7G6EngerqbRq'
-    ),
-    (
-        46,
-        'Badouon Ange Rodrigue',
-        7,
-        13,
-        5,
-        'Inactif',
-        'rodrigue.badouon@miage.edu',
-        '$2y$10$RxVWtaUqVWVorw4Cb70aQ.draDDRELevfohXHNKc7GmNdAk1TYnjS'
-    ),
-    (
-        47,
-        'Bailly G. Arnaud',
-        7,
-        13,
-        5,
-        'Inactif',
-        'arnaud.bailly@miage.edu',
-        '$2y$10$v0KLyBNPqYIq0pzs5PI5yuXzqDm/4.9LMuGTEb3deC7VSNyvi3DRu'
-    ),
-    (
-        48,
-        'Bakayoko Soumaila',
-        7,
-        13,
-        5,
-        'Inactif',
-        'soumaila.bakayoko@miage.edu',
-        '$2y$10$rD2s96J4BLg00PKoLaKNz.1Mqldbho2xQKTV9KNq.v6yojlgt4zQK'
-    ),
-    (
-        49,
-        'Barthe Kobi Hugues Didier',
-        7,
-        13,
-        5,
-        'Inactif',
-        'hugues.barthe@miage.edu',
-        '$2y$10$GebCeUjBuy/1yoGiIawDRe0XjlvfokxhUw2Sbc0fc6TIWDjSuHZvq'
-    ),
-    (
-        50,
-        'Bédy Nathanael Durand',
-        7,
-        13,
-        5,
-        'Inactif',
-        'nathanael.bedy@miage.edu',
-        '$2y$10$8oARJ1059Pm94PGBHobPluiuoL85oehbLMho7QnQaHmigbnHgDAXm'
-    ),
-    (
-        51,
-        'Agounkpeto Jean Michel',
-        7,
-        13,
-        4,
-        'Actif',
-        'jean.agounkpeto@miage.edu',
-        '$2y$10$VbOgIMd2.EiNrOvsv3A4lO9DN8Z5JW3RfzSGQUDekv205Mo7UwdrO'
-    ),
-    (
-        52,
-        'Ahouana Akichi Roche Wilfried',
-        7,
-        13,
-        4,
-        'Actif',
-        'wilfried.ahouana@miage.edu',
-        '$2y$10$4xg2mUGEsK88oKAJtbbBDuEop3WEdER1ZMoKlycKtsonrVnGg7Q/W'
-    ),
-    (
-        53,
-        'Aka Ange Kévin',
-        7,
-        13,
-        4,
-        'Actif',
-        'ange.aka@miage.edu',
-        '$2y$10$Lkz46NI3W.WE4Deb8CxwleS5L5Hi.lJkffKsrVGOA6IccBeEl5iQe'
-    ),
-    (
-        54,
-        'Aka Manouan Angora Jean-Yves',
-        7,
-        13,
-        5,
-        'Actif',
-        'jean-yves.aka@miage.edu',
-        '$2y$10$X/nhUBb9oxwV4o/zNJyWIOdAqUAGx2qqj7iG0vi1pAZL2XTX4SQDm'
-    ),
-    (
-        55,
-        'Aka Itchi Maxime',
-        7,
-        13,
-        5,
-        'Inactif',
-        'maxime.aka@miage.edu',
-        '$2y$10$3PBcDYPqdPw7MEwDpsHaBOkjzLU44G.wT/Ye6ehFV.8BLB9.GQy1K'
-    ),
-    (
-        56,
-        'Akanza Kouassi Ronald',
-        7,
-        13,
-        5,
-        'Actif',
-        'ronald.akanza@miage.edu',
-        '$2y$10$9teu8Zp/EPpDLLYrRu/iK.nfyrAhvBuuLehanv2o1iHoDGsBMkpUe'
-    ),
-    (
-        57,
-        'Akini Marie Danielle',
-        7,
-        13,
-        5,
-        'Actif',
-        'marie.akini@miage.edu',
-        '$2y$10$cTTUUmNQ3ZiIAWYGOwoHsu6Z1nDJQQfdLS9W5VM2QbGKd93Y.IkUa'
-    ),
-    (
-        58,
-        'Akinola Oyéniyi Alexis Laurent S.',
-        7,
-        13,
-        5,
-        'Inactif',
-        'alexis.akinola@miage.edu',
-        '$2y$10$6ZmvjrDzeWMHSiEQ72RXzeWkFSjdqbmD8gQ0jQxZJY4snBmLK5QpW'
     ),
     (
         59,
@@ -4944,194 +5049,94 @@ VALUES (
         '$2y$10$4Ch3UNErI7enw4qTEum.He/je80LyawhwafWzSd1XFpPslQresEdy'
     ),
     (
-        60,
-        'Akpa Gnagne David Martial',
-        7,
-        13,
-        5,
-        'Inactif',
-        'david.akpa@miage.edu',
-        '$2y$10$yeixpuMsVyPcYVvKFfVK7O.KpNfXb6HtduveqSmDdamq/K1kwMFbS'
-    ),
-    (
-        61,
-        'Aliman Prisca',
-        7,
-        13,
-        5,
-        'Actif',
-        'prisca.aliman@miage.edu',
-        '$2y$10$vMKeytxpNw3QauzeWrPVbOr.qdsObMHNx.NHwWh/e.TP2G5QKgkD2'
-    ),
-    (
-        62,
-        'Allou Niamké Jean-Marc',
-        7,
-        13,
-        5,
-        'Actif',
-        'jean-marc.allou@miage.edu',
-        '$2y$10$n6/8TSV1qrYL08FixLkJsO1ooFp8SPSnceL3x48/EVFMqJ6jLYCVO'
-    ),
-    (
-        63,
-        'Amisia Molay Jean-marie',
-        7,
-        13,
-        5,
-        'Inactif',
-        'jean-marie.amisia@miage.edu',
-        '$2y$10$JwEgONSpm1suZ/RmSzycd.2oAkCUALKvG12FMWpPDC3cxaXB6ZdDS'
-    ),
-    (
-        64,
-        'Amoikon Kangah Christophe',
-        7,
-        13,
-        5,
-        'Inactif',
-        'christophe.amoikon@miage.edu',
-        '$2y$10$yBZHbhQfbS4zXBIe7z.zDO/9Py9sIQDksYbVd2QJmmUrePVz0euJ2'
-    ),
-    (
-        65,
-        'Ané Antoine Ahoua',
-        7,
-        13,
-        5,
-        'Actif',
-        'antoine.ane@miage.edu',
-        '$2y$10$RTOOP8ZEHsYXid3nVvDHfOUmKZMKztJhCnlm/OoKRHuyssxdy66iu'
-    ),
-    (
-        66,
-        'Ango Charles Erwan Brou',
-        7,
-        13,
+        79,
+        'Seri Marie Christine',
         4,
+        7,
+        5,
         'Actif',
-        'charles.ango@miage.edu',
-        '$2y$10$ygTM2WIFHdCyyhWtJeo6HOf7.dNg.qX6NByW.mMY1nhwuVQ3SRuPq'
+        'noemietra27@gmail.com',
+        '$2y$10$MU/.mUpi4WcU.YeihVgip.WdJ7EMmZ1vO3NKnH5IclNzcp.zaWUYy'
     ),
     (
-        67,
-        'Anon Noelly',
+        81,
+        'Brou Kouamé Wa Ambroise',
         7,
         13,
         5,
         'Actif',
-        'noelly.anon@miage.edu',
-        '$2y$10$qFPc3.oAugeDpHXuL/QUxuNj./GzOSmuRYAtqClYkK9p4yvVKE9tC'
+        'kouame.brou@miage.edu',
+        '$2y$10$keRv.zYilWhkPEcFa8zF/uf4fu4mTbHkfF9orQS9zThS3BDU0b/He'
     ),
     (
-        68,
-        'Arra Jean Jonathan',
+        82,
+        'Coulibaly Pécory Ismaèl',
         7,
         13,
         5,
         'Actif',
-        'jean.arra@miage.edu',
-        '$2y$10$332Yfywd06TBzkP0WRg8aOO8pKFA7hx/65.XvvC0GD.yB5.b2wNVa'
+        'pecory.coulibaly@miage.edu',
+        '$2y$10$HliFB0N/ZfI2qWPnclw01O8lBMcJjjhhxyqlLqGWjTRRMfnj.WWGC'
     ),
     (
-        69,
-        'Assy Yves Landry',
-        7,
-        13,
-        5,
-        'Inactif',
-        'yves.assy@miage.edu',
-        '$2y$10$Cd/wgWv795uT5XMpLnKHaOGPqMkFhROimw5ve3fXboOd/epY8h9sS'
-    ),
-    (
-        70,
-        'Attiembone Christelle',
+        83,
+        'Diomandé Gondo Patrick',
         7,
         13,
         5,
         'Actif',
-        'christelle.attiembone@miage.edu',
-        '$2y$10$qBa9JkUqUp/b9Bdzut4KDuLEVu.e1Bs.xYcl3QBAnEPuTI7t31ZFC'
+        'gondo.diomande@miage.edu',
+        '$2y$10$zYnzDrTSquYQmaIYOFkq7eKzL9kqYS/OHO99IEv0PijUvkO.uCVK6'
     ),
     (
-        71,
-        'Attisou Jean-François',
+        84,
+        'Ekponou Georges',
         7,
         13,
         5,
         'Actif',
-        'jean-francois.attisou@miage.edu',
-        '$2y$10$9ABjSrf34KdurB/GSGJEFuAQmg/wRAsty0RJnb5yATv2m2e48LZsC'
+        'georges.ekponou@miage.edu',
+        '$2y$10$X8VsR9CHU/VwYBaHCrf6MuDhJ9JkUv0Ncz7t1RyGnsEn2om0IMDw2'
     ),
     (
-        72,
-        'Attro Elvis Donald',
+        85,
+        'Guiégui Arnaud Kévin Boris',
         7,
         13,
         5,
         'Actif',
-        'elvis.attro@miage.edu',
-        '$2y$10$xfneiO5GQR9tHbnYYXYq/eRSH9aMGCAHtY5i2kUcnnkAcblnhM0HK'
+        'arnaud.guiegui@miage.edu',
+        '$2y$10$MDqlwgj2HvdJ5NZ0zSF59eyL1ZTkRNa9xidM8guQpVZUlzgziqJjG'
     ),
     (
-        73,
-        'Berthé Issa',
+        86,
+        'Kéi Ninsémon Hervé',
         7,
         13,
         5,
         'Actif',
-        'issa.berthe@miage.edu',
-        '$2y$10$jiPYvoRCffth5xPmAUu7Sevr83epUHkKTahvPpQtqFtCRZjONdfiK'
+        'herve.kei@miage.edu',
+        '$2y$10$O1mce8rBqd8FMPOEEOzz8u72lU1fYYACaNRl64vs0IygVbKRcPHkK'
     ),
     (
-        74,
-        'Beugré Wahon Marie-claude Esther',
-        7,
-        13,
-        4,
-        'Actif',
-        'marie-claude.beugre@miage.edu',
-        '$2y$10$tWiciNPGAZy6iIRQsMsrTuEf.cF5wW0mKfFRhCiPm7J3zJPhhyvCO'
-    ),
-    (
-        75,
-        'Blé Aka Jean-Jacques Ferdinand',
-        7,
-        13,
-        4,
-        'Actif',
-        'jean-jacques.ble@miage.edu',
-        '$2y$10$v4.FwYzTBLS59sYe7n/UzurVjQcOghjpF29H1xob1oyiKsDQRIbAC'
-    ),
-    (
-        76,
-        'Bodjé Hippolyte',
-        7,
-        13,
-        5,
-        'Inactif',
-        'hippolyte.bodje@miage.edu',
-        '$2y$10$Valo3K9ZKG7D7TxiDiWC1e7jjGYAxFv2BiPrKk52Xm71dsVJNRbgO'
-    ),
-    (
-        77,
-        'Bodjé N\'kauh Nathan Regis',
-        7,
-        13,
-        5,
-        'Inactif',
-        'nathan.bodje@miage.edu',
-        '$2y$10$byj8vnOGfyD7ob8dEvOWbOCeiDQP9wlyTDkIPb4hDoPA0s9c4pyAG'
-    ),
-    (
-        78,
-        'Boni Jean-Philipe',
+        87,
+        'Kinimo Habia Elvire',
         7,
         13,
         5,
         'Actif',
-        'jean-philipe.boni@miage.edu',
-        '$2y$10$bXu41vPpj6gfVu/jWnG3oOs1wbUFonOXngVTOyUHLM9j6XQhTu4Ja'
+        'elvire.kinimo@miage.edu',
+        '$2y$10$Eb5ji/2./UjVCJFz2kKXuuiCsjgJooZAJYE5woBs6H9BiESPZpiqu'
+    ),
+    (
+        88,
+        'Kouadio Donald',
+        7,
+        13,
+        5,
+        'Actif',
+        'donald.kouadio@miage.edu',
+        '$2y$10$2.Eg0s563GbxmHKklA7SjuPNj.2AgWk7KIInerEOKzOX7VEd3UP.W'
     );
 
 -- --------------------------------------------------------
@@ -5306,10 +5311,10 @@ VALUES (
     (
         55,
         18,
-        440000.00,
+        400000.00,
         '2025-06-16 01:36:18',
         'Tranche',
-        'Carte bancaire'
+        'Chèque'
     );
 
 --
@@ -5371,6 +5376,13 @@ ADD KEY `Key_deposer_etudiant` (`num_etu`),
 ADD KEY `Key_deposer_rapport_etud` (`id_rapport`);
 
 --
+-- Index pour la table `dossier_academique`
+--
+ALTER TABLE `dossier_academique`
+ADD PRIMARY KEY (`id_dossier`),
+ADD KEY `fk_dossier_etudiant` (`num_etu`);
+
+--
 -- Index pour la table `echeances`
 --
 ALTER TABLE `echeances`
@@ -5382,7 +5394,8 @@ ADD KEY `id_inscription` (`id_inscription`);
 --
 ALTER TABLE `ecue`
 ADD PRIMARY KEY (`id_ecue`),
-ADD KEY `Key_ecue_ue` (`id_ue`);
+ADD KEY `Key_ecue_ue` (`id_ue`),
+ADD KEY `fk_enseignant_responsable` (`id_enseignant`);
 
 --
 -- Index pour la table `enseignants`
@@ -5402,14 +5415,6 @@ ADD UNIQUE KEY `lib_entreprise` (`lib_entreprise`);
 -- Index pour la table `etudiants`
 --
 ALTER TABLE `etudiants` ADD PRIMARY KEY (`num_etu`);
-
---
--- Index pour la table `evaluations_rapports`
---
-ALTER TABLE `evaluations_rapports`
-ADD PRIMARY KEY (`id_evaluation`),
-ADD KEY `idx_rapport` (`id_rapport`),
-ADD KEY `idx_evaluateur` (`id_evaluateur`);
 
 --
 -- Index pour la table `evaluer`
@@ -5523,7 +5528,7 @@ ADD KEY `Key_posserder_utilisateur` (`id_utilisateur`);
 --
 ALTER TABLE `rapport_etudiants`
 ADD PRIMARY KEY (`id_rapport`),
-ADD KEY `Key_rapport_etu_etudiant` (`num_etu`);
+ADD KEY `num_etu` (`num_etu`);
 
 --
 -- Index pour la table `rattacher`
@@ -5550,6 +5555,13 @@ ADD KEY `idx_date_creation` (`date_creation`);
 ALTER TABLE `rendre`
 ADD KEY `Key_rendre_CR` (`id_CR`),
 ADD KEY `Key_rendre_enseignant` (`id_enseignant`);
+
+--
+-- Index pour la table `resume_candidature`
+--
+ALTER TABLE `resume_candidature`
+ADD PRIMARY KEY (`id`),
+ADD KEY `num_etu` (`num_etu`);
 
 --
 -- Index pour la table `semestre`
@@ -5586,7 +5598,8 @@ ALTER TABLE `ue`
 ADD PRIMARY KEY (`id_ue`),
 ADD KEY `id_annee_academique` (`id_annee_academique`),
 ADD KEY `id_niveau_etude` (`id_niveau_etude`),
-ADD KEY `id_semestre` (`id_semestre`);
+ADD KEY `id_semestre` (`id_semestre`),
+ADD KEY `fk_enseignant_responsable` (`id_enseignant`);
 
 --
 -- Index pour la table `utilisateur`
@@ -5635,13 +5648,20 @@ AUTO_INCREMENT = 29901;
 --
 ALTER TABLE `candidature_soutenance`
 MODIFY `id_candidature` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 4;
+AUTO_INCREMENT = 8;
 
 --
 -- AUTO_INCREMENT pour la table `compte_rendu`
 --
 ALTER TABLE `compte_rendu`
 MODIFY `id_CR` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `dossier_academique`
+--
+ALTER TABLE `dossier_academique`
+MODIFY `id_dossier` int NOT NULL AUTO_INCREMENT,
+AUTO_INCREMENT = 2;
 
 --
 -- AUTO_INCREMENT pour la table `echeances`
@@ -5662,14 +5682,14 @@ AUTO_INCREMENT = 53;
 --
 ALTER TABLE `enseignants`
 MODIFY `id_enseignant` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 12;
+AUTO_INCREMENT = 13;
 
 --
 -- AUTO_INCREMENT pour la table `entreprises`
 --
 ALTER TABLE `entreprises`
 MODIFY `id_entreprise` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 8;
+AUTO_INCREMENT = 9;
 
 --
 -- AUTO_INCREMENT pour la table `etudiants`
@@ -5677,12 +5697,6 @@ AUTO_INCREMENT = 8;
 ALTER TABLE `etudiants`
 MODIFY `num_etu` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 20250003;
-
---
--- AUTO_INCREMENT pour la table `evaluations_rapports`
---
-ALTER TABLE `evaluations_rapports`
-MODIFY `id_evaluation` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`
@@ -5706,17 +5720,11 @@ MODIFY `id_GU` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 19;
 
 --
--- AUTO_INCREMENT pour la table `historique_reclamations`
---
-ALTER TABLE `historique_reclamations`
-MODIFY `id_historique` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT pour la table `informations_stage`
 --
 ALTER TABLE `informations_stage`
 MODIFY `id_info_stage` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 3;
+AUTO_INCREMENT = 6;
 
 --
 -- AUTO_INCREMENT pour la table `inscriptions`
@@ -5766,17 +5774,10 @@ MODIFY `id_pers_admin` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 9;
 
 --
--- AUTO_INCREMENT pour la table `rapport_etudiants`
+-- AUTO_INCREMENT pour la table `resume_candidature`
 --
-ALTER TABLE `rapport_etudiants`
-MODIFY `id_rapport` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 4;
-
---
--- AUTO_INCREMENT pour la table `reclamations`
---
-ALTER TABLE `reclamations`
-MODIFY `id_reclamation` int NOT NULL AUTO_INCREMENT,
+ALTER TABLE `resume_candidature`
+MODIFY `id` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 3;
 
 --
@@ -5805,7 +5806,7 @@ AUTO_INCREMENT = 8;
 --
 ALTER TABLE `traitement`
 MODIFY `id_traitement` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 41;
+AUTO_INCREMENT = 43;
 
 --
 -- AUTO_INCREMENT pour la table `type_utilisateur`
@@ -5826,7 +5827,7 @@ AUTO_INCREMENT = 86;
 --
 ALTER TABLE `utilisateur`
 MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 79;
+AUTO_INCREMENT = 89;
 
 --
 -- AUTO_INCREMENT pour la table `versements`
@@ -5882,6 +5883,12 @@ ADD CONSTRAINT `fk_deposer_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudian
 ADD CONSTRAINT `fk_deposer_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Contraintes pour la table `dossier_academique`
+--
+ALTER TABLE `dossier_academique`
+ADD CONSTRAINT `fk_dossier_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE;
+
+--
 -- Contraintes pour la table `echeances`
 --
 ALTER TABLE `echeances`
@@ -5891,19 +5898,14 @@ ADD CONSTRAINT `echeances_ibfk_1` FOREIGN KEY (`id_inscription`) REFERENCES `ins
 -- Contraintes pour la table `ecue`
 --
 ALTER TABLE `ecue`
-ADD CONSTRAINT `fk_ecue_ue` FOREIGN KEY (`id_ue`) REFERENCES `ue` (`id_ue`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `fk_ecue_ue` FOREIGN KEY (`id_ue`) REFERENCES `ue` (`id_ue`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `fk_enseignant_responsable` FOREIGN KEY (`id_enseignant`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `enseignants`
 --
 ALTER TABLE `enseignants`
 ADD CONSTRAINT `fk_enseignants_specialite` FOREIGN KEY (`id_specialite`) REFERENCES `specialite` (`id_specialite`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Contraintes pour la table `evaluations_rapports`
---
-ALTER TABLE `evaluations_rapports`
-ADD CONSTRAINT `fk_eval_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `evaluer`
@@ -5914,18 +5916,11 @@ ADD CONSTRAINT `fk_evaluer_enseignant` FOREIGN KEY (`id_enseignant`) REFERENCES 
 ADD CONSTRAINT `fk_evaluer_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Contraintes pour la table `historique_reclamations`
---
-ALTER TABLE `historique_reclamations`
-ADD CONSTRAINT `fk_historique_reclamation` FOREIGN KEY (`id_reclamation`) REFERENCES `reclamations` (`id_reclamation`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `fk_historique_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
 -- Contraintes pour la table `informations_stage`
 --
 ALTER TABLE `informations_stage`
-ADD CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`),
-ADD CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`);
+ADD CONSTRAINT `informations_stage_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `informations_stage_ibfk_2` FOREIGN KEY (`id_entreprise`) REFERENCES `entreprises` (`id_entreprise`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `inscriptions`
@@ -5968,7 +5963,7 @@ ADD CONSTRAINT `fk_posseder_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENC
 -- Contraintes pour la table `rapport_etudiants`
 --
 ALTER TABLE `rapport_etudiants`
-ADD CONSTRAINT `fk_rapport_etudiants_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `ibfk_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `rattacher`
@@ -5978,19 +5973,17 @@ ADD CONSTRAINT `fk_rattacher_gu` FOREIGN KEY (`id_GU`) REFERENCES `groupe_utilis
 ADD CONSTRAINT `fk_rattacher_traitement` FOREIGN KEY (`id_traitement`) REFERENCES `traitement` (`id_traitement`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Contraintes pour la table `reclamations`
---
-ALTER TABLE `reclamations`
-ADD CONSTRAINT `fk_reclamations_admin_assigne` FOREIGN KEY (`id_admin_assigne`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE,
-ADD CONSTRAINT `fk_reclamations_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE SET NULL ON UPDATE CASCADE,
-ADD CONSTRAINT `fk_reclamations_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
 -- Contraintes pour la table `rendre`
 --
 ALTER TABLE `rendre`
 ADD CONSTRAINT `fk_rendre_cr` FOREIGN KEY (`id_CR`) REFERENCES `compte_rendu` (`id_CR`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_rendre_enseignant` FOREIGN KEY (`id_enseignant`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `resume_candidature`
+--
+ALTER TABLE `resume_candidature`
+ADD CONSTRAINT `resume_ibfk_1` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `semestre`
@@ -6004,7 +5997,8 @@ ADD CONSTRAINT `fk_niveau_etude` FOREIGN KEY (`id_niv_etude`) REFERENCES `niveau
 ALTER TABLE `ue`
 ADD CONSTRAINT `ue_ibfk_1` FOREIGN KEY (`id_annee_academique`) REFERENCES `annee_academique` (`id_annee_acad`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `ue_ibfk_2` FOREIGN KEY (`id_niveau_etude`) REFERENCES `niveau_etude` (`id_niv_etude`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `ue_ibfk_3` FOREIGN KEY (`id_semestre`) REFERENCES `semestre` (`id_semestre`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `ue_ibfk_3` FOREIGN KEY (`id_semestre`) REFERENCES `semestre` (`id_semestre`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `ue_ibfk_4` FOREIGN KEY (`id_enseignant`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `utilisateur`

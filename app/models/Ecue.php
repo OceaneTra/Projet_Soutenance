@@ -13,12 +13,14 @@ class Ecue
     public function getAllEcues()
     {
         $sql = "SELECT e.*, u.lib_ue, u.credit AS ue_credit, 
-                       n.lib_niv_etude, s.lib_semestre, a.id_annee_acad
+                       n.lib_niv_etude, s.lib_semestre, a.id_annee_acad,
+                       CONCAT(ens.nom_enseignant, ' ', ens.prenom_enseignant) AS nom_professeur
                 FROM ecue e
                 JOIN ue u ON e.id_ue = u.id_ue
                 JOIN niveau_etude n ON u.id_niveau_etude = n.id_niv_etude
                 JOIN semestre s ON u.id_semestre = s.id_semestre
                 JOIN annee_academique a ON u.id_annee_academique = a.id_annee_acad
+                LEFT JOIN enseignants ens ON e.id_enseignant = ens.id_enseignant
                 ORDER BY e.lib_ecue";
 
         $stmt = $this->pdo->query($sql);
@@ -27,18 +29,18 @@ class Ecue
 
 
     // Ajouter un ECUE avec validation du crédit
-    public function ajouterEcue($id_ue, $lib_ecue, $credit)
+    public function ajouterEcue($id_ue, $lib_ecue, $credit, $id_enseignant = null)
     {
         if (!$this->verifierCreditDisponible($id_ue, $credit)) {
             return false;
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO ecue (id_ue, lib_ecue, credit) VALUES (?, ?, ?)");
-        return $stmt->execute([$id_ue, $lib_ecue, $credit]);
+        $stmt = $this->pdo->prepare("INSERT INTO ecue (id_ue, lib_ecue, credit, id_enseignant) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$id_ue, $lib_ecue, $credit, $id_enseignant]);
     }
 
     // Modifier un ECUE
-    public function updateEcue($id_ecue, $id_ue, $lib_ecue, $credit)
+    public function updateEcue($id_ecue, $id_ue, $lib_ecue, $credit, $id_enseignant = null)
     {
         // Crédit disponible pour l'UE en excluant l'ECUE actuel
         $creditDisponible = $this->creditRestantPourUe($id_ue, $id_ecue);
@@ -46,8 +48,8 @@ class Ecue
             return false;
         }
 
-        $stmt = $this->pdo->prepare("UPDATE ecue SET id_ue = ?, lib_ecue = ?, credit = ? WHERE id_ecue = ?");
-        return $stmt->execute([$id_ue, $lib_ecue, $credit, $id_ecue]);
+        $stmt = $this->pdo->prepare("UPDATE ecue SET id_ue = ?, lib_ecue = ?, credit = ?, id_enseignant = ? WHERE id_ecue = ?");
+        return $stmt->execute([$id_ue, $lib_ecue, $credit, $id_enseignant, $id_ecue]);
     }
 
     // Supprimer un ECUE

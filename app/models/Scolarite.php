@@ -290,21 +290,55 @@ class Scolarite {
 
     // Récupérer l'ID de l'inscription par ID de l'étudiant
     public function getInscriptionByEtudiantId($id_etudiant) {
-        try {
-            $sql = "SELECT i.*, n.montant_scolarite, n.montant_inscription
-                    FROM inscriptions i
-                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
-                    WHERE i.id_etudiant = :id_etudiant
-                    ORDER BY i.date_inscription DESC
-                    LIMIT 1";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute(['id_etudiant' => $id_etudiant]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log("Erreur lors de la récupération de l'inscription : " . $e->getMessage());
-            return null;
+        $query = "SELECT i.*, n.lib_niv_etude,n.montant_inscription, n.montant_scolarite, a.date_deb, a.date_fin
+                 FROM inscriptions i 
+                 JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
+                 JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad 
+                 WHERE i.id_etudiant = ?
+                 ORDER BY i.date_inscription DESC 
+                 LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id_etudiant]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Récupérer les informations d'inscription d'un étudiant
+    public function getInscriptionEtudiant($num_etu) {
+        $query = "SELECT i.*, n.lib_niv_etude, n.montant_scolarite,n.montant_inscription, a.date_deb, a.date_fin
+                 FROM inscriptions i 
+                 JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
+                 JOIN annee_academique a ON i.id_annee_acad = a.id_annee_acad 
+                 WHERE i.id_etudiant = ?
+                 ORDER BY i.date_inscription DESC 
+                 LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Récupérer les informations de scolarité d'un étudiant
+    public function getScolariteEtudiant($num_etu) {
+        $query = "SELECT i.*, n.montant_scolarite, n.montant_inscription,
+                        (SELECT MAX(v.date_versement) FROM versements v WHERE v.id_inscription = i.id_inscription) as dernier_paiement,
+                        (n.montant_scolarite + n.montant_inscription) as montant_total
+                 FROM inscriptions i 
+                 JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
+                 WHERE i.id_etudiant = ?
+                 ORDER BY i.date_inscription DESC 
+                 LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$num_etu]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$result) {
+            return [
+                'reste_a_payer' => 0,
+                'montant_total' => 0,
+                'dernier_paiement' => null
+            ];
         }
+        
+        return $result;
     }
 
 } 

@@ -69,10 +69,6 @@ class Etudiant {
 
     }
 
-    
-
-    
-
     public function ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $email_etu, $promotion_etu) {
         try {
             $sql = "INSERT INTO etudiants (num_etu, nom_etu, prenom_etu, date_naiss_etu, genre_etu, email_etu, promotion_etu) 
@@ -161,12 +157,6 @@ class Etudiant {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createCandidature($etudiant_id) {
-        $sql = "INSERT INTO candidature_soutenance (num_etu, date_candidature, statut_candidature) VALUES (?, NOW(), 'En attente')";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$etudiant_id]);
-    }
-
     public function getCompteRendu($etudiant_id) {
         $sql = "SELECT * FROM compte_rendu WHERE num_etu = ?";
         $stmt = $this->db->prepare($sql);
@@ -174,40 +164,12 @@ class Etudiant {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    
-
-
-    
-
-    public function verifierCandidature($numEtu) {
-        $resultats = [];
-        
-        // Vérifier les notes
-        $notes = $this->getNotesEtudiant($numEtu);
-        $resultats['notes'] = [
-            'status' => $notes['moyenne'] >= 10 ? 'success' : 'error',
-            'message' => $notes['moyenne'] >= 10 ? 
-                'Moyenne générale suffisante (' . number_format($notes['moyenne'], 2) . ')' : 
-                'Moyenne générale insuffisante (' . number_format($notes['moyenne'], 2) . ')'
-        ];
-
-        // Vérifier le stage
-        $stage = $this->getInfoStage($numEtu);
-        $resultats['stage'] = [
-            'status' => !empty($stage) ? 'success' : 'error',
-            'message' => !empty($stage) ? 
-                'Informations de stage complètes' : 
-                'Informations de stage manquantes'
-        ];
-
-        return $resultats;
-    }
-
-    public function traiterCandidature($numEtu, $decision, $commentaire = null) {
+    public function traiterCandidature($numEtu, $decision, $commentaire,$id_pers_admin) {
         try {
             $sql = "UPDATE candidature_soutenance 
                    SET statut_candidature = :decision, 
-                       commentaire = :commentaire,
+                       commentaire_admin = :commentaire,
+                       id_pers_admin = :id_pers_admin,
                        date_traitement = NOW()
                    WHERE num_etu = :num_etu";
             
@@ -215,6 +177,7 @@ class Etudiant {
             return $stmt->execute([
                 ':decision' => $decision,
                 ':commentaire' => $commentaire,
+                ':id_pers_admin' => $id_pers_admin,
                 ':num_etu' => $numEtu
             ]);
         } catch (PDOException $e) {
@@ -222,83 +185,146 @@ class Etudiant {
             return false;
         }
     }
-
-    public function ajouterHistoriqueCandidature($numEtu, $action, $commentaire = null) {
-        try {
-            $sql = "INSERT INTO historique_candidatures (num_etu, action, commentaire, date_action)
-                   VALUES (:num_etu, :action, :commentaire, NOW())";
-            
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                ':num_etu' => $numEtu,
-                ':action' => $action,
-                ':commentaire' => $commentaire
-            ]);
-        } catch (PDOException $e) {
-            error_log("Erreur lors de l'ajout dans l'historique: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getHistoriqueCandidature($numEtu = null) {
-        try {
-            $sql = "SELECT h.*, e.nom_etu, e.prenom_etu 
-                   FROM historique_candidatures h
-                   JOIN etudiants e ON h.num_etu = e.num_etu";
-            
-            if ($numEtu) {
-                $sql .= " WHERE h.num_etu = :num_etu";
-            }
-            
-            $sql .= " ORDER BY h.date_action DESC";
-            
-            $stmt = $this->db->prepare($sql);
-            
-            if ($numEtu) {
-                $stmt->bindParam(':num_etu', $numEtu);
-            }
-            
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération de l'historique: " . $e->getMessage());
-            return [];
-        }
-    }
+   
 
     public function getNotesEtudiant($numEtu) {
         try {
-            $sql = "SELECT AVG(note) as moyenne 
-                   FROM notes 
-                   WHERE num_etu = :num_etu";
+            // Récupérer la moyenne générale pour les UE du Master 2 uniquement
+            $sql = "SELECT AVG(n.moyenne) as moyenne 
+                   FROM notes n 
+                   JOIN ue u ON n.id_ue = u.id_ue
+                   WHERE n.num_etu = :num_etu 
+                   AND u.id_niveau_etude = 9"; // Master 2 uniquement
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':num_etu' => $numEtu]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
+            // Récupérer les informations sur les crédits du Master 2 uniquement
+            $sql_credits = "SELECT 
+                            SUM(u.credit) as total_credits,
+                            SUM(CASE WHEN n.moyenne >= 10 THEN u.credit ELSE 0 END) as credits_valides
+                          FROM ue u
+                          LEFT JOIN notes n ON u.id_ue = n.id_ue AND n.num_etu = :num_etu
+                          WHERE u.id_niveau_etude = 9 
+                          AND u.id_annee_academique = (SELECT MAX(id_annee_acad) FROM annee_academique)";
+            
+            $stmt_credits = $this->db->prepare($sql_credits);
+            $stmt_credits->execute([':num_etu' => $numEtu]);
+            $result_credits = $stmt_credits->fetch(PDO::FETCH_ASSOC);
+            
             return [
-                'moyenne' => $result['moyenne'] ?? 0
+                'moyenne' => $result['moyenne'] ?? 0,
+                'total_unites' => $result_credits['total_credits'] ?? 0,
+                'unites_validees' => $result_credits['credits_valides'] ?? 0
             ];
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des notes: " . $e->getMessage());
-            return ['moyenne' => 0];
+            return [
+                'moyenne' => 0,
+                'total_unites' => 0,
+                'unites_validees' => 0
+            ];
         }
     }
 
 
     public function getInfoStage($numEtu) {
         try {
-            $sql = "SELECT * FROM info_stage WHERE num_etu = :num_etu";
+            $sql = "SELECT infos_stage.*, e.lib_entreprise as nom_entreprise
+                   FROM informations_stage infos_stage
+                   JOIN entreprises e ON infos_stage.id_entreprise = e.id_entreprise
+                   WHERE infos_stage.num_etu = :num_etu";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':num_etu' => $numEtu]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return [
+                    'nom_entreprise' => $result['nom_entreprise'],
+                    'sujet_stage' => $result['sujet_stage'],
+                    'date_debut_stage' => $result['date_debut_stage'],
+                    'date_fin_stage' => $result['date_fin_stage'],
+                    'encadrant_entreprise' => $result['encadrant_entreprise']
+                ];
+            }
+            return null;
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des informations de stage: " . $e->getMessage());
             return null;
         }
     }
     
-   
+   public function getEtudiantByNumEtu($numEtu) {
+    $sql = "SELECT * FROM etudiants WHERE num_etu = :num_etu";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':num_etu' => $numEtu]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+   }
 
+   public function getSemestreActuel($numEtu) {
+        try {
+            $sql = "SELECT s.lib_semestre 
+                   FROM inscriptions i
+                   JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
+                   JOIN semestre s ON n.id_niv_etude = s.id_niv_etude
+                   WHERE i.id_etudiant = :num_etu
+                   AND i.id_annee_acad = (SELECT MAX(id_annee_acad) FROM annee_academique)
+                   ORDER BY s.lib_semestre DESC
+                   LIMIT 1";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':num_etu' => $numEtu]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération du semestre actuel: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function createCandidature($etudiant_id) {
+        $sql = "INSERT INTO candidature_soutenance (num_etu, date_candidature, statut_candidature) VALUES (?, NOW(), 'En attente')";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$etudiant_id]);
+    }
+
+    /**
+     * Enregistre ou met à jour le résumé de candidature pour un étudiant
+     */
+    public function saveResumeCandidature($num_etu, $resume, $decision) {
+        $sql = "INSERT INTO resume_candidature (num_etu, resume_json, decision, date_enregistrement)
+                VALUES (:num_etu, :resume_json, :decision, NOW())
+                ON DUPLICATE KEY UPDATE resume_json = :resume_json, decision = :decision, date_enregistrement = NOW()";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':num_etu' => $num_etu,
+            ':resume_json' => json_encode($resume),
+            ':decision' => $decision
+        ]);
+    }
+
+    /**
+     * Récupère le résumé de candidature pour un étudiant
+     */
+    public function getResumeCandidature($num_etu) {
+        $sql = "SELECT * FROM resume_candidature WHERE num_etu = ? ORDER BY date_enregistrement DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $row['resume_json'] = json_decode($row['resume_json'], true);
+        }
+        return $row;
+    }
+
+    /**
+     * Retourne toutes les candidatures d'un étudiant
+     */
+    public function getCandidatures($num_etu) {
+        $sql = "SELECT * FROM candidature_soutenance WHERE num_etu = ? ORDER BY date_candidature DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 } 
