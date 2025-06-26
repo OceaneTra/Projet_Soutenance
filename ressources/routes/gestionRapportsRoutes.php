@@ -1,5 +1,14 @@
 <?php
 
+require_once __DIR__ . '/../../app/models/CandidatureSoutenance.php';
+if (isset($_SESSION['num_etu'])) {
+    $statut = CandidatureSoutenance::getStatutByEtudiant($_SESSION['num_etu']);
+    if ($statut !== 'Validée') {
+        echo '<div style="margin:2em;text-align:center;color:#b91c1c;font-size:1.2em;"><i class="fa fa-lock fa-2x"></i><br>Accès à la gestion des rapports bloqué tant que votre candidature à la soutenance n\'est pas validée.</div>';
+        exit;
+    }
+}
+
 if ($_GET['page'] === 'gestion_rapports') {
     require_once __DIR__ . '/../../app/controllers/GestionRapportController.php';
     $controller = new GestionRapportController();
@@ -16,7 +25,8 @@ if ($_GET['page'] === 'gestion_rapports') {
                 $controller->creerRapport();
                 break;
             case 'suivi_rapport':
-                $controller->suiviRapport();
+                $num_etu = $_SESSION['num_etu'];
+                $controller->suiviRapport($num_etu);
                 break;
             case 'commentaire_rapport':
                 $controller->commentaireRapport();

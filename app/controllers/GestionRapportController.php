@@ -1,7 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
+<<<<<<< HEAD
 require_once __DIR__ . '/../models/Etudiant.php';
+=======
+require_once __DIR__ . '/../models/RapportEtudiants.php';
+require_once __DIR__ . '/../models/Approuver.php';
+>>>>>>> 3b358b0fb260be5d7f05f6f240c87350be72d35b
 
 class GestionRapportController {
 

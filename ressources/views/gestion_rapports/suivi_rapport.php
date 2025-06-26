@@ -254,118 +254,138 @@
 
             <!-- Liste des rapports -->
             <div class="reports-list">
-                <!-- Rapport 1 -->
-                <div class="report-item">
-                    <div class="report-header">
-                        <div>
-                            <h3 class="report-title">Rapport de Stage - Développement Web</h3>
-                            <p class="report-date">Soumis le 15 Mars 2024</p>
-                        </div>
-                        <span class="status en-revision">En révision</span>
-                    </div>
-
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-dot">
-                                <i class="fas fa-check"></i>
+                <?php foreach ($rapports as $rapport): ?>
+                    <div class="report-item">
+                        <div class="report-header">
+                            <div>
+                                <h3 class="report-title"><?= htmlspecialchars($rapport['nom_rapport']) ?></h3>
+                                <p class="report-date">Soumis le <?= date('d M Y', strtotime($rapport['date_rapport'])) ?></p>
                             </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Soumission du rapport</h4>
-                                <p class="timeline-date">15 Mars 2024 - 14:30</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-dot">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Vérification initiale</h4>
-                                <p class="timeline-date">16 Mars 2024 - 09:15</p>
-                                <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Document conforme aux normes
-                                </p>
-                            </div>
+                            <?php
+                                // Statut global
+                                $status_class = 'en-cours';
+                                $status_label = 'En cours';
+                                if ($rapport['statut_rapport'] === 'valide') {
+                                    $status_class = 'valide';
+                                    $status_label = 'Validé';
+                                } elseif ($rapport['statut_rapport'] === 'a_corriger' || $rapport['statut_rapport'] === 'desapprouve_commission' || $rapport['statut_rapport'] === 'desapprouve_communication') {
+                                    $status_class = 'a-corriger';
+                                    $status_label = 'À corriger';
+                                } elseif ($rapport['statut_rapport'] === 'en_revision') {
+                                    $status_class = 'en-revision';
+                                    $status_label = 'En révision';
+                                }
+                            ?> 
+                            <span class="status <?= $status_class ?>"><?= $status_label ?></span>
                         </div>
 
-                        <div class="timeline-item">
-                            <div class="timeline-dot">
-                                <i class="fas fa-clock"></i>
+                        <div class="timeline">
+                            <!-- Étape 1 : Soumission -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: #1976d2;">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4 class="timeline-title">Soumission du rapport</h4>
+                                    <p class="timeline-date"><?= date('d M Y - H:i', strtotime($rapport['date_rapport'])) ?></p>
+                                </div>
                             </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Évaluation par le jury</h4>
-                                <p class="timeline-date">En cours</p>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 60%"></div>
+
+                            <!-- Étape 2 : Vérification initiale (chargée de com) -->
+                            <?php
+                            $verif = null;
+                            foreach ($rapport['decisions'] as $decision) {
+                                if ($decision['lib_approb'] === 'Niveau 1') {
+                                    $verif = $decision;
+                                    break;
+                                }
+                            }
+                            $verifColor = '#9e9e9e';
+                            $verifIcon = 'fa-hourglass';
+                            if ($verif) {
+                                if ($verif['decision'] === 'approuve') {
+                                    $verifColor = '#1976d2';
+                                    $verifIcon = 'fa-check';
+                                } elseif ($verif['decision'] === 'desapprouve') {
+                                    $verifColor = '#d32f2f';
+                                    $verifIcon = 'fa-times';
+                                }
+                            }
+                            ?>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: <?= $verifColor ?>;">
+                                    <i class="fas <?= $verifIcon ?>"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4 class="timeline-title">Vérification initiale</h4>
+                                    <p class="timeline-date">
+                                        <?= $verif ? date('d M Y - H:i', strtotime($verif['date_approv'])) : 'En attente' ?>
+                                    </p>
+                                    <?php if ($verif): ?>
+                                        <p style="margin: 5px 0 0; font-size: 13px; color: <?= $verif['decision'] === 'approuve' ? '#666' : '#d32f2f' ?>;">
+                                            <?= htmlspecialchars($verif['commentaire_approv']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Étape 3 : Évaluation par la commission -->
+                            <?php
+                            $eval = null;
+                            foreach ($rapport['decisions'] as $decision) {
+                                if ($decision['lib_approb'] === 'Niveau 2') {
+                                    $eval = $decision;
+                                    break;
+                                }
+                            }
+                            $evalColor = '#9e9e9e';
+                            $evalIcon = 'fa-hourglass';
+                            if ($eval) {
+                                if ($eval['decision'] === 'approuve') {
+                                    $evalColor = '#1976d2';
+                                    $evalIcon = 'fa-check';
+                                } elseif ($eval['decision'] === 'desapprouve') {
+                                    $evalColor = '#d32f2f';
+                                    $evalIcon = 'fa-times';
+                                }
+                            }
+                            ?>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: <?= $evalColor ?>;">
+                                    <i class="fas <?= $evalIcon ?>"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4 class="timeline-title">Évaluation par la commission</h4>
+                                    <p class="timeline-date">
+                                        <?= $eval ? date('d M Y - H:i', strtotime($eval['date_approv'])) : 'En attente' ?>
+                                    </p>
+                                    <?php if ($eval): ?>
+                                        <p style="margin: 5px 0 0; font-size: 13px; color: <?= $eval['decision'] === 'approuve' ? '#666' : '#d32f2f' ?>;">
+                                            <?= htmlspecialchars($eval['commentaire_approv']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Étape 4 : Validation finale -->
+                            <?php
+                            $finalColor = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valide') ? '#388e3c' : '#9e9e9e';
+                            $finalLabel = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valide') ? 'Validé' : 'En attente';
+                            ?>
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="background: <?= $finalColor ?>;">
+                                    <i class="fas fa-hourglass"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4 class="timeline-title">Validation finale</h4>
+                                    <p class="timeline-date">
+                                        <?= $finalLabel ?>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-dot">
-                                <i class="fas fa-hourglass"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Validation finale</h4>
-                                <p class="timeline-date">En attente</p>
-                            </div>
-                        </div>
                     </div>
-                </div>
-
-                <!-- Rapport 2 -->
-                <div class="report-item">
-                    <div class="report-header">
-                        <div>
-                            <h3 class="report-title">Mémoire de Master - Intelligence Artificielle</h3>
-                            <p class="report-date">Soumis le 10 Mars 2024</p>
-                        </div>
-                        <span class="status a-corriger">À corriger</span>
-                    </div>
-
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-dot">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Soumission du rapport</h4>
-                                <p class="timeline-date">10 Mars 2024 - 11:20</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: #d32f2f;">
-                                <i class="fas fa-times"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Vérification initiale</h4>
-                                <p class="timeline-date">11 Mars 2024 - 15:45</p>
-                                <p style="margin: 5px 0 0; font-size: 13px; color: #d32f2f;">Corrections nécessaires :
-                                    formatage et bibliographie</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: #9e9e9e;">
-                                <i class="fas fa-hourglass"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Évaluation par le jury</h4>
-                                <p class="timeline-date">En attente</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: #9e9e9e;">
-                                <i class="fas fa-hourglass"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">Validation finale</h4>
-                                <p class="timeline-date">En attente</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
