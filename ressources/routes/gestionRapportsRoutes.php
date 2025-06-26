@@ -18,8 +18,8 @@ if ($_GET['page'] === 'gestion_rapports') {
             case 'suivi_rapport':
                 $controller->suiviRapport();
                 break;
-            case 'compte_rendu_rapport':
-                $controller->compteRenduRapport();
+            case 'commentaire_rapport':
+                $controller->commentaireRapport();
                 break;
             case 'delete_rapport':
                 $controller->deleteRapportAjax();

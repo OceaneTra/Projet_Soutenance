@@ -283,6 +283,7 @@ class GestionRapportController {
 
     private function exporterRapport()
     {
+        require_once __DIR__ . '/../../vendor/autoload.php';
         $contenu_rapport = $_POST['contenu_rapport'] ?? '';
         $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
 
@@ -317,10 +318,14 @@ class GestionRapportController {
         </body>
         </html>";
 
-        header('Content-Type: text/html; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . htmlspecialchars($nom_rapport) . '.html"');
-        header('Content-Length: ' . strlen($htmlContent));
-        echo $htmlContent;
+        // Utilisation de Dompdf
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($htmlContent);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $pdfName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_rapport) . '.pdf';
+        $dompdf->stream($pdfName, ["Attachment" => true]);
         exit;
     }
 
@@ -432,8 +437,8 @@ class GestionRapportController {
         return $stats;
     }
 
-    //=============================COMPTE RENDU RAPPORTS=============================
-    public function compteRenduRapport()
+    //=============================COMMENTAIRE RAPPORT=============================
+    public function commentaireRapport()
     {
         try {
             // Si un ID est spécifié, afficher le détail

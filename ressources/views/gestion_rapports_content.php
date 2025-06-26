@@ -135,7 +135,7 @@ if (isset($_SESSION['num_etu'])) {
                     <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-yellow-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        <a href="?page=gestion_rapports&action=compte_rendu_rapport"> Voir les retours</a>
+                        <a href="?page=gestion_rapports&action=commentaire_rapport"> Voir les retours</a>
                     </button>
                     <?php else: ?>
                     <button onclick="showCandidatureRequiredMessage()"
