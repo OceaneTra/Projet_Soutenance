@@ -8,210 +8,210 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.4.2/tinymce.min.js"></script>
     <style>
-        .loader {
-            border-top-color: #3498db;
-            animation: spinner 1.5s linear infinite;
+    .loader {
+        border-top-color: #3498db;
+        animation: spinner 1.5s linear infinite;
+    }
+
+    @keyframes spinner {
+        0% {
+            transform: rotate(0deg);
         }
 
-        @keyframes spinner {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+        100% {
+            transform: rotate(360deg);
         }
+    }
 
-        /* TinyMCE customizations */
-        .tox-tinymce {
-            border-radius: 0.5rem !important;
-            border: 1px solid #e2e8f0 !important;
-        }
+    /* TinyMCE customizations */
+    .tox-tinymce {
+        border-radius: 0.5rem !important;
+        border: 1px solid #e2e8f0 !important;
+    }
 
-        .document-loaded {
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
-        }
+    .document-loaded {
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+    }
 
-        .document-loading {
-            opacity: 0.6;
-        }
+    .document-loading {
+        opacity: 0.6;
+    }
     </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">Éditeur de Rapport de Stage</h1>
-            <p class="text-gray-600 mt-2">Créez et modifiez votre rapport facilement</p>
-        </div>
-        <div class="flex space-x-3 mt-4 md:mt-0">
-            <a href="?page=gestion_rapports"
-               class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Retour
-            </a>
-            <button id="saveBtn"
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Éditeur de Rapport de Stage</h1>
+                <p class="text-gray-600 mt-2">Créez et modifiez votre rapport facilement</p>
+            </div>
+            <div class="flex space-x-3 mt-4 md:mt-0">
+                <a href="?page=gestion_rapports"
+                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Retour
+                </a>
+                <button id="saveBtn"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                </svg>
-                Enregistrer
-            </button>
-            <button id="exportBtn"
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                        </path>
+                    </svg>
+                    Enregistrer
+                </button>
+                <button id="exportBtn"
                     class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Exporter
-            </button>
-            <button id="deposerBtn"
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Exporter
+                </button>
+                <button id="deposerBtn"
                     class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Déposer
-            </button>
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Déposer
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <?php if (isset($erreurs) && !empty($erreurs)): ?>
+        <!-- Main Content -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <?php if (isset($erreurs) && !empty($erreurs)): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
                 <strong>Erreurs de validation :</strong>
                 <ul class="mt-2 list-disc list-inside">
                     <?php foreach ($erreurs as $erreur): ?>
-                        <li><?= htmlspecialchars($erreur) ?></li>
+                    <li><?= htmlspecialchars($erreur) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
-        <?php endif; ?>
-
-        <!-- Formulaire principal -->
-        <form id="rapportForm" method="POST" onsubmit="return false;">
-            <input type="hidden" name="action" value="save_rapport">
-            <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
-                <input type="hidden" name="edit_id" value="<?= $rapport['id_rapport'] ?>">
             <?php endif; ?>
-            <!-- Toolbar -->
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations du rapport</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="nom_rapport" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nom du rapport <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text"
-                               id="nom_rapport"
-                               name="nom_rapport"
-                               value="<?= isset($rapport) ? htmlspecialchars($rapport['nom_rapport']) : '' ?>"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="Ex: Rapport de stage - Développement Web"
-                               required>
-                    </div>
-                    <div>
-                        <label for="theme_rapport" class="block text-sm font-medium text-gray-700 mb-2">
-                            Thème du rapport <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text"
-                               id="theme_rapport"
-                               name="theme_rapport"
-                               value="<?= isset($rapport) ? htmlspecialchars($rapport['theme_rapport']) : '' ?>"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="Ex: Intégration d'un système CRM"
-                               required>
+
+            <!-- Formulaire principal -->
+            <form id="rapportForm" method="POST" onsubmit="return false;">
+                <input type="hidden" name="action" value="save_rapport">
+                <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
+                <input type="hidden" name="edit_id" value="<?= $rapport['id_rapport'] ?>">
+                <?php endif; ?>
+                <!-- Toolbar -->
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations du rapport</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="nom_rapport" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nom du rapport <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nom_rapport" name="nom_rapport"
+                                value="<?= isset($rapport) ? htmlspecialchars($rapport['nom_rapport']) : '' ?>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Ex: Rapport de stage - Développement Web" required>
+                        </div>
+                        <div>
+                            <label for="theme_rapport" class="block text-sm font-medium text-gray-700 mb-2">
+                                Thème du rapport <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="theme_rapport" name="theme_rapport"
+                                value="<?= isset($rapport) ? htmlspecialchars($rapport['theme_rapport']) : '' ?>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Ex: Intégration d'un système CRM" required>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-gray-50 border-b border-gray-200 p-4 flex flex-wrap justify-between items-center">
-                <div class="flex items-center space-x-4 mb-3 md:mb-0">
-                    <button id="loadTemplateBtn"
+                <div class="bg-gray-50 border-b border-gray-200 p-4 flex flex-wrap justify-between items-center">
+                    <div class="flex items-center space-x-4 mb-3 md:mb-0">
+                        <button id="loadTemplateBtn"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                             xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
-                        Charger le Modèle
-                    </button>
-                    <span id="loadingIndicator" class="hidden">
-                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6"></div>
-                        <span class="ml-2 text-gray-600">Chargement...</span>
-                    </span>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="relative">
-                        <select id="fontSelector"
-                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Arial, sans-serif">Arial</option>
-                            <option value="Times New Roman, serif">Times New Roman</option>
-                            <option value="Calibri, sans-serif">Calibri</option>
-                            <option value="Georgia, serif">Georgia</option>
-                            <option value="Verdana, sans-serif">Verdana</option>
-                        </select>
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Charger le Modèle
+                        </button>
+                        <span id="loadingIndicator" class="hidden">
+                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6">
+                            </div>
+                            <span class="ml-2 text-gray-600">Chargement...</span>
+                        </span>
                     </div>
-                    <div class="relative">
-                        <select id="fontSize"
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <select id="fontSelector"
                                 class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="12pt">12pt</option>
-                            <option value="14pt">14pt</option>
-                            <option value="16pt">16pt</option>
-                            <option value="18pt">18pt</option>
-                            <option value="20pt">20pt</option>
-                            <option value="24pt">24pt</option>
-                        </select>
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="Times New Roman, serif">Times New Roman</option>
+                                <option value="Calibri, sans-serif">Calibri</option>
+                                <option value="Georgia, serif">Georgia</option>
+                                <option value="Verdana, sans-serif">Verdana</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <select id="fontSize"
+                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="12pt">12pt</option>
+                                <option value="14pt">14pt</option>
+                                <option value="16pt">16pt</option>
+                                <option value="18pt">18pt</option>
+                                <option value="20pt">20pt</option>
+                                <option value="24pt">24pt</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Editor Area -->
-            <div id="editorContainer" class="p-6 document-loading">
-                <div id="documentStatusMessage" class="text-center py-8 text-gray-500">
-                    Veuillez charger le modèle pour commencer l'édition
+                <!-- Editor Area -->
+                <div id="editorContainer" class="p-6 document-loading">
+                    <div id="documentStatusMessage" class="text-center py-8 text-gray-500">
+                        Veuillez charger le modèle pour commencer l'édition
+                    </div>
+                    <textarea id="editor" name="contenu_rapport" class="hidden"></textarea>
                 </div>
-                <textarea id="editor" name="contenu_rapport" class="hidden"></textarea>
-            </div>
-    </div>
-    </form>
-
-    <!-- Footer -->
-    <div class="mt-6 text-center text-gray-600 text-sm">
-        <p>© 2025 - Éditeur de Rapport de Stage | Développé pour faciliter la création de rapports professionnels
-        </p>
-    </div>
-</div>
-
-<!-- Notifications -->
-<div id="notification"
-     class="fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto hidden overflow-hidden transform transition-all duration-300">
-    <div class="p-4 flex">
-        <div id="notificationIcon" class="flex-shrink-0">
-            <!-- Icon will be inserted here -->
         </div>
-        <div class="ml-3 w-0 flex-1">
-            <p id="notificationMessage" class="text-sm font-medium text-gray-900">
-                <!-- Message will be inserted here -->
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-6 text-center text-gray-600 text-sm">
+            <p>© 2025 - Éditeur de Rapport de Stage | Développé pour faciliter la création de rapports professionnels
             </p>
         </div>
-        <div class="ml-4 flex-shrink-0 flex">
-            <button id="closeNotification" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notification"
+        class="fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto hidden overflow-hidden transform transition-all duration-300">
+        <div class="p-4 flex">
+            <div id="notificationIcon" class="flex-shrink-0">
+                <!-- Icon will be inserted here -->
+            </div>
+            <div class="ml-3 w-0 flex-1">
+                <p id="notificationMessage" class="text-sm font-medium text-gray-900">
+                    <!-- Message will be inserted here -->
+                </p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button id="closeNotification" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const loadTemplateBtn = document.getElementById('loadTemplateBtn');
         const saveBtn = document.getElementById('saveBtn');
@@ -416,7 +416,8 @@
                 return false;
             }
 
-            if (!content || content.trim() === '' || content.replace(/<[^>]*>/g, '').trim().length < 50) {
+            if (!content || content.trim() === '' || content.replace(/<[^>]*>/g, '').trim().length <
+                50) {
                 showNotification('error', 'Le contenu du rapport doit contenir au moins 50 caractères');
                 return false;
             }
@@ -436,15 +437,16 @@
 
             // Afficher indicateur de chargement
             saveBtn.disabled = true;
-            saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>Enregistrement...';
+            saveBtn.innerHTML =
+                '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>Enregistrement...';
 
             fetch(window.location.href, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Important pour identifier AJAX côté serveur
-                }
-            })
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest' // Important pour identifier AJAX côté serveur
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erreur réseau');
@@ -471,7 +473,8 @@
                 .finally(() => {
                     // Restaurer le bouton
                     saveBtn.disabled = false;
-                    saveBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>Enregistrer';
+                    saveBtn.innerHTML =
+                        '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>Enregistrer';
                 });
 
             return false;
@@ -548,7 +551,7 @@
             document.getElementById('rapportForm').submit();
         });
     });
-</script>
+    </script>
 </body>
 
 </html>
