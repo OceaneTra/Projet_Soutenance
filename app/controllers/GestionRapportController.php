@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
+require_once __DIR__ . '/../models/RapportEtudiants.php';
+require_once __DIR__ . '/../models/Approuver.php';
 
 class GestionRapportController {
 
@@ -318,62 +320,15 @@ class GestionRapportController {
     }
 
     //=============================SUIVI RAPPORTS=============================
-    public function suiviRapport()
+    public function suiviRapport($num_etu)
     {
-        try {
-            global $rapports, $statistiques, $totalPages, $page, $totalRapports, $filtresActuels;
+        global $rapports;
+        // Récupérer les rapports de l'étudiant
+        $rapports = RapportEtudiants::getByEtudiant($num_etu);
 
-            $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-            $limit = 10;
-            $offset = ($page - 1) * $limit;
-
-            // Filtres
-            $filtres = [];
-            if (isset($_GET['search']) && !empty($_GET['search'])) {
-                $filtres['recherche'] = $_GET['search'];
-            }
-
-            // Récupérer les rapports selon le type d'utilisateur
-            if ($this->isEtudiant()) {
-                $tousRapports = $this->rapportModel->getRapportsByEtudiant($_SESSION['num_etu']);
-
-                if (isset($filtres['recherche'])) {
-                    $tousRapports = array_filter($tousRapports, function($rapport) use ($filtres) {
-                        $termeRecherche = strtolower($filtres['recherche']);
-                        return (strpos(strtolower($rapport->nom_rapport), $termeRecherche) !== false ||
-                            strpos(strtolower($rapport->theme_rapport), $termeRecherche) !== false);
-                    });
-                }
-
-                $totalRapports = count($tousRapports);
-                $rapports = array_map(function($rapport) {
-                    return (array) $rapport;
-                }, array_slice($tousRapports, $offset, $limit));
-
-            } else {
-                if (isset($filtres['recherche'])) {
-                    $tousRapports = $this->rapportModel->searchRapports($filtres['recherche']);
-                    $rapports = array_map(function($rapport) {
-                        return (array) $rapport;
-                    }, array_slice($tousRapports, $offset, $limit));
-                    $totalRapports = count($tousRapports);
-                } else {
-                    $rapports = array_map(function($rapport) {
-                        return (array) $rapport;
-                    }, $this->rapportModel->getAllRapports());
-                    $totalRapports = count($rapports);
-                    $rapports = array_slice($rapports, $offset, $limit);
-                }
-            }
-
-            $totalPages = ceil($totalRapports / $limit);
-            $statistiques = $this->calculerStatistiques();
-            $filtresActuels = $_GET;
-
-            // Les données sont maintenant disponibles globalement pour la vue
-
-        } catch (Exception $e) {
-            $this->afficherErreur("Erreur lors du chargement du suivi : " . $e->getMessage());
+        // Pour chaque rapport, récupérer l'historique des décisions
+        foreach ($rapports as &$rapport) {
+            $rapport['decisions'] = Approuver::getByRapport($rapport['id_rapport']);
         }
     }
 

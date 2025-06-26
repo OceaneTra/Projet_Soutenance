@@ -16,7 +16,8 @@ if ($_GET['page'] === 'gestion_rapports') {
                 $controller->creerRapport();
                 break;
             case 'suivi_rapport':
-                $controller->suiviRapport();
+                $num_etu = $_SESSION['num_etu'];
+                $controller->suiviRapport($num_etu);
                 break;
             case 'compte_rendu_rapport':
                 $controller->compteRenduRapport();

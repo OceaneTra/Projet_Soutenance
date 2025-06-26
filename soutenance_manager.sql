@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mer. 25 juin 2025 à 11:05
+-- Généré le : jeu. 26 juin 2025 à 09:39
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -151,8 +151,10 @@ VALUES (
 CREATE TABLE `approuver` (
     `id_pers_admin` int NOT NULL,
     `id_rapport` int NOT NULL,
+    `decision` enum('approuve', 'desapprouve') COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `date_approv` datetime NOT NULL,
-    `commentaire_approv` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
+    `commentaire_approv` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `id_approb` int NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 -- --------------------------------------------------------
@@ -271,6 +273,22 @@ CREATE TABLE `deposer` (
     `id_rapport` int NOT NULL,
     `date_depot` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+--
+-- Déchargement des données de la table `deposer`
+--
+
+INSERT INTO
+    `deposer` (
+        `num_etu`,
+        `id_rapport`,
+        `date_depot`
+    )
+VALUES (
+        2003003,
+        2,
+        '2025-06-25 14:49:28'
+    );
 
 -- --------------------------------------------------------
 
@@ -3613,7 +3631,19 @@ CREATE TABLE `rapport_etudiants` (
     ) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'en_cours',
     `date_modification` datetime DEFAULT NULL,
     `taille_fichier` int DEFAULT NULL COMMENT 'Taille du fichier en octets',
-    `version` int NOT NULL DEFAULT '1' COMMENT 'Version du rapport'
+    `version` int NOT NULL DEFAULT '1' COMMENT 'Version du rapport',
+    `etape_validation` enum(
+        'en_cours',
+        'en_attente_communication',
+        'desapprouve_communication',
+        'approuve_communication',
+        'en_attente_commission',
+        'desapprouve_commission',
+        'approuve_commission',
+        'valide',
+        'rejete'
+    ) COLLATE utf8mb3_general_mysql500_ci DEFAULT 'en_cours',
+    `modifiable` tinyint(1) DEFAULT '1'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 --
@@ -3631,7 +3661,9 @@ INSERT INTO
         `statut_rapport`,
         `date_modification`,
         `taille_fichier`,
-        `version`
+        `version`,
+        `etape_validation`,
+        `modifiable`
     )
 VALUES (
         1,
@@ -3643,6 +3675,22 @@ VALUES (
         'en_cours',
         '2025-06-16 16:31:50',
         9892,
+        1,
+        'en_cours',
+        1
+    ),
+    (
+        2,
+        2003003,
+        'nom teste de rapports',
+        '2025-06-25 11:20:16',
+        'theme testes de rapport',
+        'rapport_2.html',
+        'en_cours',
+        '2025-06-25 11:20:16',
+        1137,
+        1,
+        'en_cours',
         1
     );
 
@@ -3785,6 +3833,62 @@ VALUES (
         NULL,
         '2025-06-16 13:13:39',
         '2025-06-16 13:13:39',
+        NULL
+    ),
+    (
+        2,
+        2003003,
+        NULL,
+        'Mes notes on été echangerdeded',
+        'Bonjour,Je souhaite déposer une réclamation concernant un article reçu le [date] qui ne correspond pas à ma commande. Le produit est défectueux et ne remplit pas les critères annoncés. Je vous prie de bien vouloir procéder à un échange ou à un remboursement dans les plus brefs délais.Cordialement, [Votre nom]',
+        'Académique',
+        'Moyenne',
+        'En attente',
+        NULL,
+        '2025-06-25 15:24:46',
+        '2025-06-25 15:24:46',
+        NULL
+    ),
+    (
+        3,
+        2003003,
+        NULL,
+        'je sais pas tchai',
+        'Bonjour,Je souhaite déposer une réclamation concernant un article reçu le [date] qui ne correspond pas à ma commande. Le produit est défectueux et ne remplit pas les critères annoncés. Je vous prie de bien vouloir procéder à un échange ou à un remboursement dans les plus brefs délais.Cordialement, [Votre nom]',
+        'Administrative',
+        'Moyenne',
+        'En attente',
+        'rec_2025-06-25_15-28-29_685c159dad237.jpg',
+        '2025-06-25 15:28:29',
+        '2025-06-25 15:28:29',
+        NULL
+    ),
+    (
+        4,
+        2003003,
+        NULL,
+        'je sais pas tchai',
+        '&nbsp;Réclamation soumise avec succès. Numéro de référence : REC-3',
+        'Technique',
+        'Moyenne',
+        'En attente',
+        NULL,
+        '2025-06-25 15:30:36',
+        '2025-06-25 15:30:36',
+        NULL
+    ),
+    (
+        5,
+        2003003,
+        NULL,
+        'y\'a plus d\'argent pour la JI',
+        'Bonjour,Je souhaite déposer une réclamation concernant un article reçu le [date] qui ne correspond pas à ma commande. Le produit est défectueux et ne remplit pas les critères annoncés. Je vous prie de bien vouloir procéder à un échange ou à un remboursement dans les plus brefs délais.Cordialement, [Votre nom]',
+        'Financière',
+        'Moyenne',
+        'En attente',
+        NULL,
+        '2025-06-25 15:32:47',
+        '2025-06-25 15:32:47',
         NULL
     );
 
@@ -5344,7 +5448,8 @@ ALTER TABLE `annee_academique` ADD PRIMARY KEY (`id_annee_acad`);
 --
 ALTER TABLE `approuver`
 ADD KEY `Key_approver_enseignant` (`id_pers_admin`),
-ADD KEY `Key_approver_rapport` (`id_rapport`);
+ADD KEY `Key_approver_rapport` (`id_rapport`),
+ADD KEY `fk_approuver_niveau` (`id_approb`);
 
 --
 -- Index pour la table `avoir`
@@ -5372,6 +5477,7 @@ ADD KEY `fk_etudiant` (`num_etu`);
 -- Index pour la table `deposer`
 --
 ALTER TABLE `deposer`
+ADD PRIMARY KEY (`num_etu`, `id_rapport`),
 ADD KEY `Key_deposer_etudiant` (`num_etu`),
 ADD KEY `Key_deposer_rapport_etud` (`id_rapport`);
 
@@ -5720,6 +5826,12 @@ MODIFY `id_GU` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 19;
 
 --
+-- AUTO_INCREMENT pour la table `historique_reclamations`
+--
+ALTER TABLE `historique_reclamations`
+MODIFY `id_historique` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `informations_stage`
 --
 ALTER TABLE `informations_stage`
@@ -5772,6 +5884,20 @@ ALTER TABLE `notes` MODIFY `id` int NOT NULL AUTO_INCREMENT;
 ALTER TABLE `personnel_admin`
 MODIFY `id_pers_admin` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 9;
+
+--
+-- AUTO_INCREMENT pour la table `rapport_etudiants`
+--
+ALTER TABLE `rapport_etudiants`
+MODIFY `id_rapport` int NOT NULL AUTO_INCREMENT,
+AUTO_INCREMENT = 3;
+
+--
+-- AUTO_INCREMENT pour la table `reclamations`
+--
+ALTER TABLE `reclamations`
+MODIFY `id_reclamation` int NOT NULL AUTO_INCREMENT,
+AUTO_INCREMENT = 6;
 
 --
 -- AUTO_INCREMENT pour la table `resume_candidature`
@@ -5852,6 +5978,7 @@ ADD CONSTRAINT `fk_affecter_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapp
 -- Contraintes pour la table `approuver`
 --
 ALTER TABLE `approuver`
+ADD CONSTRAINT `fk_approuver_niveau` FOREIGN KEY (`id_approb`) REFERENCES `niveau_approbation` (`id_approb`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_approuver_pers_admin` FOREIGN KEY (`id_pers_admin`) REFERENCES `personnel_admin` (`id_pers_admin`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_approuver_rapport` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
 
