@@ -43,6 +43,9 @@ if ($_GET['page'] === 'gestion_rapports') {
             case 'get_rapport':
                 $controller->getRapportAjax();
                 break;
+            case 'get_commentaires':
+                $controller->getCommentairesAjax();
+                break;
             case 'exporter_rapports':
                 $controller->exporterRapports();
                 break;

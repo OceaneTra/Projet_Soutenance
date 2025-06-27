@@ -111,10 +111,10 @@
                     <div class="mt-4">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Actions :</h4>
                         <div class="flex space-x-2">
-                            <a href="?page=gestion_rapports&action=commentaire_rapport&id=<?= $rapport['id_rapport'] ?>"
-                                class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
-                                <i class="fas fa-eye"></i> Voir détails
-                            </a>
+                            <button onclick="voirDetailsRapport(<?= $rapport['id_rapport'] ?>)"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                <i class="fas fa-eye mr-1"></i> Voir détails
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -126,6 +126,25 @@
                     <p class="text-sm">Aucun rapport disponible pour le moment.</p>
                 </div>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour les détails des commentaires -->
+    <div id="detailsModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="fas fa-comments mr-2 text-blue-500"></i>
+                    Commentaires des évaluateurs
+                </h2>
+                <button onclick="fermerModalDetails()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div id="modalContent">
+                <!-- Le contenu sera chargé dynamiquement -->
             </div>
         </div>
     </div>
@@ -162,6 +181,51 @@
                 search
             });
         }
+    });
+
+    function voirDetailsRapport(rapportId) {
+        // Afficher la modal
+        document.getElementById('detailsModal').classList.remove('hidden');
+        document.getElementById('detailsModal').classList.add('flex');
+
+        // Afficher un loader
+        document.getElementById('modalContent').innerHTML = `
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span class="ml-2 text-gray-600">Chargement des commentaires...</span>
+            </div>
+        `;
+
+        // Charger les commentaires via AJAX
+        fetch(`?page=gestion_rapports&action=get_commentaires&id=${rapportId}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalContent').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>Erreur lors du chargement des commentaires</p>
+                    </div>
+                `;
+            });
+    }
+
+    function fermerModalDetails() {
+        document.getElementById('detailsModal').classList.add('hidden');
+        document.getElementById('detailsModal').classList.remove('flex');
+    }
+
+    // Fermer la modal en cliquant à l'extérieur
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('detailsModal');
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                fermerModalDetails();
+            }
+        });
     });
     </script>
 </body>

@@ -124,13 +124,23 @@ switch ($currentMenuSlug) {
         include __DIR__ . '/../ressources/routes/gestionRapportsRoutes.php';
         
         $allowedActions = ['creer_rapport', 'suivi_rapport', 'commentaire_rapport'];
+        $ajaxActions = ['get_commentaires', 'get_rapport'];
         
-        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        if (isset($_GET['action'])) {
+            if (in_array($_GET['action'], $ajaxActions)) {
+                // Les actions AJAX sont déjà traitées dans les routes, pas besoin de fichier de vue
+                exit;
+            } elseif (in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            } else {
+                // Si aucune action valide n'est spécifiée, affichez la page par défaut
+                $contentFile = $partialsBasePath . 'gestion_rapports_content.php';
+                $currentPageLabel = 'Gestion des rapports';
+            }
         } else {
-            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            // Si aucune action n'est spécifiée, affichez la page par défaut
             $contentFile = $partialsBasePath . 'gestion_rapports_content.php';
             $currentPageLabel = 'Gestion des rapports';
         }
