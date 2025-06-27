@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
-<<<<<<< HEAD
+
 require_once __DIR__ . '/../models/Etudiant.php';
-=======
+
 require_once __DIR__ . '/../models/RapportEtudiants.php';
 require_once __DIR__ . '/../models/Approuver.php';
->>>>>>> 3b358b0fb260be5d7f05f6f240c87350be72d35b
+
 
 class GestionRapportController {
 
@@ -147,7 +147,7 @@ class GestionRapportController {
                     header('Location: ?page=gestion_rapports&message=depot_fail');
                     exit;
                 }
-            } elseif ($action === 'export_rapport') {
+            } elseif ($action === 'export_pdf') {
                 $this->exporterRapport();
             } else {
                 throw new Exception("Action non reconnue.");
@@ -288,50 +288,310 @@ class GestionRapportController {
 
     private function exporterRapport()
     {
-        require_once __DIR__ . '/../../vendor/autoload.php';
-        $contenu_rapport = $_POST['contenu_rapport'] ?? '';
-        $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
+        try {
+            // Vérifier que DOMPDF est disponible
+            if (!class_exists('\Dompdf\Dompdf')) {
+                require_once __DIR__ . '/../../vendor/autoload.php';
+            }
+            
+            if (!class_exists('\Dompdf\Dompdf')) {
+                throw new Exception('DOMPDF n\'est pas installé ou accessible.');
+            }
+            
+            $contenu_rapport = $_POST['contenu_rapport'] ?? '';
+            $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
 
-        if (empty($contenu_rapport)) {
-            throw new Exception('Le contenu du rapport est vide.');
+            if (empty($contenu_rapport)) {
+                throw new Exception('Le contenu du rapport est vide.');
+            }
+
+            // Style CSS amélioré pour préserver exactement la mise en page TinyMCE
+            $css = "
+                <style>
+                    /* Styles de base */
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 2cm; 
+                        line-height: 1.6; 
+                        font-size: 12pt;
+                        color: #333;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver tous les styles inline */
+                    * {
+                        box-sizing: border-box;
+                    }
+                    
+                    /* Préserver les tailles de police exactes */
+                    h1, h2, h3, h4, h5, h6 {
+                        margin: 0;
+                        padding: 0;
+                        text-align: center;
+                    }
+                    
+                    /* Préserver les dispositions flexbox */
+                    div[style*='display: flex'] {
+                        display: flex !important;
+                    }
+                    
+                    div[style*='justify-content'] {
+                        justify-content: inherit !important;
+                    }
+                    
+                    div[style*='align-items'] {
+                        align-items: inherit !important;
+                    }
+                    
+                    div[style*='flex-direction'] {
+                        flex-direction: inherit !important;
+                    }
+                    
+                    /* Préserver les marges et paddings */
+                    div[style*='margin'] {
+                        margin: inherit !important;
+                    }
+                    
+                    div[style*='padding'] {
+                        padding: inherit !important;
+                    }
+                    
+                    /* Préserver les tailles de police */
+                    span[style*='font-size'], p[style*='font-size'], div[style*='font-size'] {
+                        font-size: inherit !important;
+                    }
+                    
+                    /* Préserver les couleurs */
+                    span[style*='color'], p[style*='color'], div[style*='color'] {
+                        color: inherit !important;
+                    }
+                    
+                    /* Préserver les alignements de texte */
+                    div[style*='text-align'] {
+                        text-align: inherit !important;
+                    }
+                    
+                    /* Alignement par défaut pour les paragraphes - JUSTIFIÉ */
+                    p {
+                        text-align: justify !important;
+                        margin: 0 0 10px 0;
+                    }
+                    
+                    /* Préserver l'alignement centré pour les éléments spécifiques */
+                    div[style*='text-align: center'] {
+                        text-align: center !important;
+                    }
+                    
+                    /* Préserver les bordures et backgrounds */
+                    div[style*='border'] {
+                        border: inherit !important;
+                    }
+                    
+                    div[style*='background'] {
+                        background: inherit !important;
+                    }
+                    
+                    /* Préserver les largeurs et hauteurs */
+                    div[style*='width'] {
+                        width: inherit !important;
+                    }
+                    
+                    div[style*='height'] {
+                        height: inherit !important;
+                    }
+                    
+                    /* Préserver les positions */
+                    div[style*='position'] {
+                        position: inherit !important;
+                    }
+                    
+                    /* Assurer que les images ne dépassent pas */
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                    }
+                    
+                    /* Assurer que les tableaux s'affichent correctement */
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                    }
+                    
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver les listes */
+                    ul, ol {
+                        margin: 0;
+                        padding-left: 20px;
+                        text-align: left;
+                    }
+                    
+                    li {
+                        margin-bottom: 5px;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver les espaces entre les éléments */
+                    div {
+                        margin-bottom: 0;
+                    }
+                    
+                    /* Assurer que les éléments flex s'affichent correctement */
+                    .flex-container {
+                        display: flex !important;
+                    }
+                    
+                    /* Préserver les styles spécifiques du template */
+                    div[style*='display: flex'][style*='justify-content: space-between'] {
+                        display: flex !important;
+                        justify-content: space-between !important;
+                    }
+                    
+                    div[style*='margin-bottom'] {
+                        margin-bottom: inherit !important;
+                    }
+                    
+                    /* Règles spécifiques pour le contenu du rapport */
+                    /* S'assurer que les sections principales du corps sont justifiées */
+                    div[style*='margin-bottom: 40px'] p {
+                        text-align: justify !important;
+                    }
+                    
+                    /* S'assurer que les paragraphes dans les sections sont justifiés */
+                    div[style*='margin-bottom: 40px'] {
+                        text-align: justify !important;
+                    }
+                    
+                    /* Préserver l'alignement des titres de sections à gauche */
+                    h1[style*='border-bottom'] {
+                        text-align: left !important;
+                    }
+                    
+                    /* S'assurer que tous les paragraphes de contenu sont justifiés */
+                    div:not([style*='text-align: center']) p {
+                        text-align: justify !important;
+                    }
+                    
+                    /* Exception pour les paragraphes centrés */
+                    div[style*='text-align: center'] p {
+                        text-align: center !important;
+                    }
+                    
+                    /* Centrer spécifiquement le contenu de la div theme_rapport */
+                    #theme_rapport {
+                        text-align: center !important;
+                        margin-botton:20px;
+                    }
+                    
+                    #theme_rapport p {
+                        text-align: center !important;
+                    }
+                    
+                    #theme_rapport h2 {
+                        text-align: center !important;
+                    }
+                    
+                    /* S'assurer que header_rapport utilise flexbox */
+                    #header_rapport {
+                        display: flex !important;
+                        justify-content: space-between !important;
+                        align-items: flex-start !important;
+                        width: 100% !important;
+                        margin : 0;
+                        text-align: left;
+                    }
+                    
+                    /* S'assurer que les éléments enfants de header_rapport s'affichent correctement */
+                    #header_rapport1, #header_rapport2 {
+                        flex: 1 !important;
+                        margin: 0 !important;
+                    }
+                    
+                    #header_rapport1 {
+                        text-align: center !important;
+                    }
+                    
+                    #header_rapport2 {
+                        text-align: center !important;
+                    }
+                </style>
+            ";
+
+            // Utiliser directement le contenu HTML de l'éditeur
+            $htmlContent = "<!DOCTYPE html>
+            <html lang='fr'>
+            <head>
+                <meta charset='UTF-8'>
+                <title>" . htmlspecialchars($nom_rapport) . "</title>
+                {$css}
+            </head>
+            <body>
+                {$contenu_rapport}
+            </body>
+            </html>";
+
+            // Debug: logger le contenu HTML
+            error_log("HTML Content length: " . strlen($htmlContent));
+
+            // Configuration DOMPDF optimisée pour préserver les styles
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isPhpEnabled', false);
+            $options->set('isRemoteEnabled', false);
+            $options->set('defaultFont', 'Arial');
+            $options->set('defaultPaperSize', 'A4');
+            $options->set('defaultPaperOrientation', 'portrait');
+            $options->set('isFontSubsettingEnabled', true);
+            $options->set('isCssFloatEnabled', true);
+            $options->set('isJavascriptEnabled', false);
+
+            $dompdf = new \Dompdf\Dompdf($options);
+            
+            // Debug: vérifier que DOMPDF est bien instancié
+            if (!$dompdf) {
+                throw new Exception('Impossible d\'instancier DOMPDF.');
+            }
+            
+            $dompdf->loadHtml($htmlContent);
+            $dompdf->setPaper('A4', 'portrait');
+            
+            // Debug: logger avant le rendu
+            error_log("Starting PDF rendering...");
+            
+            $dompdf->render();
+            
+            // Debug: logger après le rendu
+            error_log("PDF rendering completed.");
+
+            // Nettoyer le nom du fichier
+            $pdfName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_rapport) . '.pdf';
+            
+            // Définir les headers pour le téléchargement
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $pdfName . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . strlen($dompdf->output()));
+            
+            echo $dompdf->output();
+            exit;
+
+        } catch (Exception $e) {
+            error_log("Erreur lors de l'export PDF: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            // Retourner une réponse JSON en cas d'erreur
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur lors de la génération du PDF: ' . $e->getMessage()
+            ]);
+            exit;
         }
-
-        $htmlContent = "<!DOCTYPE html>
-        <html lang='fr'>
-        <head>
-            <meta charset='UTF-8'>
-            <title>" . htmlspecialchars($nom_rapport) . "</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                h1, h2, h3 { color: #333; margin-top: 20px; }
-                p { margin-bottom: 15px; text-align: justify; }
-                ul, ol { margin-bottom: 15px; padding-left: 30px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
-            </style>
-        </head>
-        <body>
-            <div class='header'>
-                <h1>" . htmlspecialchars($nom_rapport) . "</h1>
-                <p>Généré le " . date('d/m/Y à H:i') . "</p>
-                <p>Par : " . htmlspecialchars($_SESSION['nom_utilisateur']) . "</p>
-            </div>
-            {$contenu_rapport}
-            <div class='footer'>
-                <p>Document généré par le système de gestion des rapports</p>
-            </div>
-        </body>
-        </html>";
-
-        // Utilisation de Dompdf
-        $dompdf = new \Dompdf\Dompdf();
-        $dompdf->loadHtml($htmlContent);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        $pdfName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_rapport) . '.pdf';
-        $dompdf->stream($pdfName, ["Attachment" => true]);
-        exit;
     }
 
     //=============================SUIVI RAPPORTS=============================
