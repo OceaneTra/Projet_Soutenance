@@ -363,7 +363,7 @@
         const templateContent = `
         <div style="display: flex; justify-content: space-between " id="header_rapport">
             <div style="text-align: center; margin-bottom: 40px;" id="header_rapport1">
-                
+
                 <div style="margin: 16px 0;">
                     <p style="font-size: 14px; color: #666;">[LOGO DE L'UNIVERSITÉ]</p>
                 </div>
@@ -672,7 +672,7 @@
                 return;
             }
 
-            const content = editor.getContent();
+                const content = editor.getContent();
             const nomRapport = document.getElementById('nom_rapport').value.trim();
             const themeRapport = document.getElementById('theme_rapport').value.trim();
 

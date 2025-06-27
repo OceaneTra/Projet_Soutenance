@@ -66,12 +66,15 @@ class GestionRapportController {
     public function index()
     {
         try {
-            global $statistiquesRapports, $rapportsRecents;
+            global $statistiquesRapports, $rapportsRecents, $infosDepot;
 
             if ($this->isEtudiant()) {
                 $statistiquesRapports = $this->rapportModel->getStatsEtudiant($_SESSION['num_etu']);
                 $rapportsRecents = $this->rapportModel->getRapportsByEtudiant($_SESSION['num_etu']);
                 $rapportsRecents = array_slice($rapportsRecents, 0, 5); // Limiter à 5 pour le dashboard
+                
+                // Récupérer les informations de dépôt pour chaque rapport
+                $infosDepot = $this->getInfosDepotRapports($_SESSION['num_etu']);
             } else {
                 $rapportsRecents = $this->rapportModel->getRecentRapports(5);
                 $statistiquesRapports = $this->calculerStatistiquesGlobales();
@@ -80,6 +83,72 @@ class GestionRapportController {
         } catch (Exception $e) {
             $this->afficherErreur("Erreur lors du chargement du dashboard : " . $e->getMessage());
         }
+    }
+
+    /**
+     * Récupère les informations de dépôt pour tous les rapports d'un étudiant
+     */
+    private function getInfosDepotRapports($num_etu)
+    {
+        $infos = [];
+        
+        // Récupérer tous les rapports de l'étudiant
+        $rapports = $this->rapportModel->getRapportsByEtudiant($num_etu);
+        
+        foreach ($rapports as $rapport) {
+            $rapportId = $rapport->id_rapport;
+            
+            // Vérifier si ce rapport est déjà déposé
+            $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+            $stmt->execute([$num_etu, $rapportId]);
+            $dejaDepose = $stmt->fetchColumn() > 0;
+            
+            $peutDeposer = true;
+            $messageDepot = '';
+            
+            if ($dejaDepose) {
+                $peutDeposer = false;
+                $messageDepot = 'Déjà déposé';
+            } else {
+                // Vérifier si l'étudiant a un autre rapport en cours d'évaluation
+                $stmt = $this->rapportModel->pdo->prepare("
+                    SELECT d.id_rapport, d.date_depot 
+                    FROM deposer d 
+                    WHERE d.num_etu = ? 
+                    ORDER BY d.date_depot DESC 
+                    LIMIT 1
+                ");
+                $stmt->execute([$num_etu]);
+                $dernierDepot = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($dernierDepot && $dernierDepot['id_rapport'] != $rapportId) {
+                    // Vérifier le statut d'approbation du dernier rapport déposé
+                    $stmt = $this->rapportModel->pdo->prepare("
+                        SELECT a.*, n.lib_approb 
+                        FROM approuver a
+                        JOIN niveau_approbation n ON a.id_approb = n.id_approb
+                        WHERE a.id_rapport = ?
+                        ORDER BY a.date_approv DESC
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$dernierDepot['id_rapport']]);
+                    $derniereApprobation = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if (!$derniereApprobation || strtolower($derniereApprobation['lib_approb']) !== 'rejeté') {
+                        $peutDeposer = false;
+                        $messageDepot = 'Vous avez déjà un rapport en cours d\'évaluation';
+                    }
+                }
+            }
+            
+            $infos[$rapportId] = [
+                'peutDeposer' => $peutDeposer,
+                'messageDepot' => $messageDepot,
+                'dejaDepose' => $dejaDepose
+            ];
+        }
+        
+        return $infos;
     }
 
     //=============================CREER UN RAPPORT=============================
@@ -144,8 +213,14 @@ class GestionRapportController {
                     header('Location: ?page=gestion_rapports&message=depot_ok');
                     exit;
                 } else {
-                    header('Location: ?page=gestion_rapports&message=depot_fail');
-                    exit;
+                    // Vérifier la raison de l'échec
+                    if ($this->aUnRapportEnCours($_SESSION['num_etu'])) {
+                        header('Location: ?page=gestion_rapports&message=depot_en_cours');
+                        exit;
+                    } else {
+                        header('Location: ?page=gestion_rapports&message=depot_fail');
+                        exit;
+                    }
                 }
             } elseif ($action === 'export_pdf') {
                 $this->exporterRapport();
@@ -815,7 +890,7 @@ class GestionRapportController {
     private function afficherErreur($message)
     {
         $this->afficherMessage($message, 'error');
-        include $this->baseViewPath . 'erreur.php';
+      
     }
 
     private function verifierDroitsAdmin()
@@ -870,21 +945,16 @@ class GestionRapportController {
         }
     }
 
-    private function verifierDroitsAcces($rapport)
-    {
-        if ($this->isEtudiant()) {
-            // Un étudiant ne peut voir que ses propres rapports
-            return $rapport['num_etu'] == $_SESSION['num_etu'];
-        } else {
-            // Le personnel administratif peut voir tous les rapports
-            return true;
-        }
-    }
 
     public function enregistrerDepotRapport($id_rapport)
     {
         $num_etu = $_SESSION['num_etu'];
         $date_depot = date('Y-m-d H:i:s');
+
+        // Vérifier si l'étudiant a déjà un rapport en cours d'évaluation
+        if ($this->aUnRapportEnCours($num_etu)) {
+            return false;
+        }
 
         // Vérifier si le dépôt existe déjà (éviter les doublons)
         $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
@@ -898,6 +968,108 @@ class GestionRapportController {
         $stmt = $this->rapportModel->pdo->prepare("INSERT INTO deposer (num_etu, id_rapport, date_depot) VALUES (?, ?, ?)");
         return $stmt->execute([$num_etu, $id_rapport, $date_depot]);
     }
+
+    /**
+     * Vérifie si l'étudiant a un rapport en cours d'évaluation (non rejeté)
+     */
+    private function aUnRapportEnCours($num_etu)
+    {
+        // Récupérer le dernier rapport déposé par l'étudiant
+        $stmt = $this->rapportModel->pdo->prepare("
+            SELECT d.id_rapport, d.date_depot 
+            FROM deposer d 
+            WHERE d.num_etu = ? 
+            ORDER BY d.date_depot DESC 
+            LIMIT 1
+        ");
+        $stmt->execute([$num_etu]);
+        $dernierDepot = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dernierDepot) {
+            // Aucun rapport déposé, peut déposer
+            return false;
+        }
+
+        // Vérifier le statut d'approbation du dernier rapport déposé
+        $stmt = $this->rapportModel->pdo->prepare("
+            SELECT a.*, n.lib_approb 
+            FROM approuver a
+            JOIN niveau_approbation n ON a.id_approb = n.id_approb
+            WHERE a.id_rapport = ?
+            ORDER BY a.date_approv DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$dernierDepot['id_rapport']]);
+        $derniereApprobation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Si pas d'approbation ou si le statut n'est pas "rejeté", l'étudiant ne peut pas déposer
+        if (!$derniereApprobation || strtolower($derniereApprobation['lib_approb']) !== 'rejeté') {
+            return true; // A un rapport en cours
+        }
+
+        return false; // Peut déposer un nouveau rapport
+    }
+
+    /**
+     * Supprime un rapport (appelé via formulaire POST)
+     */
+    public function supprimer_rapport()
+    {
+        // Vérifier que c'est bien un POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return; // Ne rien faire si ce n'est pas un POST
+        }
+
+        try {
+            // Vérifier que l'utilisateur est connecté
+            if (!$this->isEtudiant()) {
+                $this->afficherErreur('Accès non autorisé');
+                return;
+            }
+
+            // Vérifier que l'ID du rapport est fourni
+            if (!isset($_POST['rapport_id']) || empty($_POST['rapport_id'])) {
+                $this->afficherErreur('ID du rapport manquant');
+                return;
+            }
+
+            $rapportId = (int)$_POST['rapport_id'];
+            $numEtu = $_SESSION['num_etu'];
+
+            // Vérifier que le rapport appartient à l'étudiant
+            $rapport = $this->rapportModel->getRapportById($rapportId);
+            if (!$rapport || $rapport->num_etu != $numEtu) {
+                $this->afficherErreur('Rapport non trouvé ou accès non autorisé');
+                return;
+            }
+
+            // Vérifier que le rapport n'est pas déjà déposé
+            $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+            $stmt->execute([$numEtu, $rapportId]);
+            if ($stmt->fetchColumn() > 0) {
+                $this->afficherErreur('Impossible de supprimer un rapport déjà déposé');
+                return;
+            }
+
+            // Supprimer le rapport
+            $success = $this->rapportModel->deleteRapport($rapportId, $numEtu);
+
+            if ($success) {
+                // Rediriger avec un message de succès
+                header('Location: ?page=gestion_rapports&message=suppression_ok');
+                exit;
+            } else {
+                $this->afficherErreur('Erreur lors de la suppression du rapport');
+            }
+
+        } catch (Exception $e) {
+            $this->afficherErreur('Erreur lors de la suppression : ' . $e->getMessage());
+        }
+    }
+
+
+
+  
 
 }
 ?>

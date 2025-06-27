@@ -19,6 +19,12 @@ if ($_GET['page'] === 'gestion_rapports') {
         exit;
     }
 
+    // Gestion du POST pour la suppression de rapport
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'supprimer_rapport') {
+        $controller->supprimer_rapport();
+        exit;
+    }
+
     if(isset($_GET['action'])){
         switch ($_GET['action']){
             case 'creer_rapport':
@@ -31,8 +37,8 @@ if ($_GET['page'] === 'gestion_rapports') {
             case 'commentaire_rapport':
                 $controller->commentaireRapport();
                 break;
-            case 'delete_rapport':
-                $controller->deleteRapportAjax();
+            case 'supprimer_rapport':
+                $controller->supprimer_rapport();
                 break;
             case 'get_rapport':
                 $controller->getRapportAjax();
