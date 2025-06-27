@@ -55,7 +55,7 @@
 
         <!-- Form Container -->
         <div class="p-6">
-            <form method="POST" enctype="multipart/form-data" id="reclamationForm">
+            <form method="POST" id="reclamationForm">
                 <!-- Type de réclamation -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Type de réclamation*</label>
@@ -98,25 +98,6 @@
                     <p class="mt-1 text-sm text-red-600"><?php echo htmlspecialchars($erreurs['description']); ?></p>
                     <?php endif; ?>
                     <p class="mt-1 text-sm text-gray-500">Minimum 60 caractères requis</p>
-                </div>
-
-                <!-- Pièces jointes -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Pièces jointes</label>
-                    <div class="flex items-center justify-center w-full">
-                        <label
-                            class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
-                            <div class="flex flex-col items-center justify-center pt-7">
-                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-500">Glissez-déposez vos fichiers ici ou cliquez pour
-                                    sélectionner</p>
-                                <p class="text-xs text-gray-400 mt-1">PDF, DOC, DOCX, JPG, PNG, TXT jusqu'à 5MB</p>
-                            </div>
-                            <input type="file" name="fichier_joint" class="hidden"
-                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
-                        </label>
-                    </div>
-                    <div id="fileList" class="mt-2 space-y-2"></div>
                 </div>
 
                 <!-- Informations importantes -->
@@ -171,27 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         },
         placeholder: 'Décrivez votre réclamation de manière détaillée...'
-    });
-
-    // Gestion des fichiers
-    const fileInput = document.querySelector('input[type="file"]');
-    const fileList = document.getElementById('fileList');
-
-    fileInput.addEventListener('change', function(e) {
-        fileList.innerHTML = '';
-        if (e.target.files.length > 0) {
-            const file = e.target.files[0];
-            const fileItem = document.createElement('div');
-            fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
-            fileItem.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-file-alt text-gray-500 mr-3"></i>
-                    <span class="text-sm text-gray-700 truncate max-w-xs">${file.name}</span>
-                    <span class="text-xs text-gray-500 ml-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                </div>
-            `;
-            fileList.appendChild(fileItem);
-        }
     });
 
     // Gestion de la soumission du formulaire

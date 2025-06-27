@@ -672,7 +672,7 @@
                 return;
             }
 
-                const content = editor.getContent();
+            const content = editor.getContent();
             const nomRapport = document.getElementById('nom_rapport').value.trim();
             const themeRapport = document.getElementById('theme_rapport').value.trim();
 

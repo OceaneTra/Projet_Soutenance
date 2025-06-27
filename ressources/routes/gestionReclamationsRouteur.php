@@ -13,22 +13,18 @@ if (isset($_GET['action'])) {
         case 'soumettre_reclamation':
             $controller->soumettreReclamations();
             break;
-        case 'suivi_reclamation':
-            $controller->suiviReclamations();
-            break;
-        case 'historique_reclamation':
-            $controller->historiqueReclamations();
+        case 'suivi_historique_reclamation':
+            $controller->suiviHistoriqueReclamations();
             break;
         case 'traiter':
             $controller->traiterReclamation();
             break;
-        case 'export':
+        case 'exporter_reclamations':
             $controller->exporterReclamations();
             break;
-        default:
-            // Action non reconnue, rediriger vers la page principale
-            header('Location: ?page=gestion_reclamations');
-            exit;
+        case 'get_reclamation_details':
+            $controller->getReclamationDetailsAjax();
+            break;
     }
 } else {
     // Aucune action spécifiée, afficher le dashboard

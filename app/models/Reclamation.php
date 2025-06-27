@@ -11,37 +11,27 @@ class Reclamation {
     public function creer($donnees) {
         try {
             $sql = "INSERT INTO reclamations (
-                        num_etu, 
-                        id_utilisateur, 
+                        num_etu,  
                         titre_reclamation, 
                         description_reclamation, 
                         type_reclamation, 
                         priorite_reclamation, 
-                        statut_reclamation, 
-                        fichier_joint, 
-                        date_creation, 
-                        date_mise_a_jour
+                        statut_reclamation
                     ) VALUES (
                         :num_etu, 
-                        :id_utilisateur, 
                         :titre, 
                         :description, 
                         :type, 
                         :priorite, 
-                        'En attente', 
-                        :fichier, 
-                        NOW(), 
-                        NOW()
+                        'En attente'
                     )";
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':num_etu', $donnees['num_etu']);
-            $stmt->bindParam(':id_utilisateur', $donnees['id_utilisateur']);
             $stmt->bindParam(':titre', $donnees['titre']);
             $stmt->bindParam(':description', $donnees['description']);
             $stmt->bindParam(':type', $donnees['type']);
             $stmt->bindParam(':priorite', $donnees['priorite']);
-            $stmt->bindParam(':fichier', $donnees['fichier']);
 
             if ($stmt->execute()) {
                 return $this->db->lastInsertId();
@@ -56,13 +46,9 @@ class Reclamation {
     public function getTous($limit = 10, $offset = 0, $filtres = []) {
         try {
             $sql = "SELECT r.*, 
-                           CONCAT(e.nom_etu, ' ', e.prenom_etu) as nom_etu,
-                           u.nom_utilisateur,
-                           ua.nom_utilisateur as nom_admin_assigne
+                           CONCAT(e.nom_etu, ' ', e.prenom_etu) as nom_etu
                     FROM reclamations r
                     LEFT JOIN etudiants e ON r.num_etu = e.num_etu
-                    LEFT JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
-                    LEFT JOIN utilisateur ua ON r.id_admin_assigne = ua.id_utilisateur
                     WHERE 1=1";
 
             $params = [];
@@ -106,47 +92,14 @@ class Reclamation {
         }
     }
 
-    public function getParUtilisateur($userId, $typeUtilisateur) {
-        try {
-            if ($typeUtilisateur === 'etudiant') {
-                $sql = "SELECT r.*, 
-                               CONCAT(e.nom_etu, ' ', e.prenom_etu) as nom_etu
-                        FROM reclamations r
-                        LEFT JOIN etudiants e ON r.num_etu = e.num_etu
-                        WHERE r.num_etu = :user_id
-                        ORDER BY r.date_creation DESC";
-            } else {
-                $sql = "SELECT r.*, 
-                               CONCAT(e.nom_etu, ' ', e.prenom_etu) as nom_etu,
-                               u.nom_utilisateur
-                        FROM reclamations r
-                        LEFT JOIN etudiants e ON r.num_etu = e.num_etu
-                        LEFT JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
-                        WHERE r.id_utilisateur = :user_id
-                        ORDER BY r.date_creation DESC";
-            }
-
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération des réclamations utilisateur : " . $e->getMessage());
-            return [];
-        }
-    }
 
     public function getParId($id) {
         try {
             $sql = "SELECT r.*, 
                            CONCAT(e.nom_etu, ' ', e.prenom_etu) as nom_etu,
-                           e.email_etu,
-                           u.nom_utilisateur,
-                           ua.nom_utilisateur as nom_admin_assigne
+                           e.email_etu
                     FROM reclamations r
                     LEFT JOIN etudiants e ON r.num_etu = e.num_etu
-                    LEFT JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
-                    LEFT JOIN utilisateur ua ON r.id_admin_assigne = ua.id_utilisateur
                     WHERE r.id_reclamation = :id";
 
             $stmt = $this->db->prepare($sql);
@@ -212,22 +165,20 @@ class Reclamation {
         }
     }
 
-    public function mettreAJourStatut($id, $statut, $commentaire, $idAdmin) {
+    public function mettreAJourStatut($id, $statut, $commentaire, $numEtu) {
         try {
             $sql = "UPDATE reclamations 
                     SET statut_reclamation = :statut,
-                        id_admin_assigne = :id_admin,
                         date_mise_a_jour = NOW()
                     WHERE id_reclamation = :id";
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':statut', $statut);
-            $stmt->bindParam(':id_admin', $idAdmin);
             $stmt->bindParam(':id', $id);
 
             if ($stmt->execute()) {
                 // Ajouter l'historique
-                return $this->ajouterHistorique($id, $statut, $commentaire, $idAdmin);
+                return $this->ajouterHistorique($id, $statut, $commentaire, $numEtu);
             }
             return false;
         } catch (PDOException $e) {
@@ -236,17 +187,17 @@ class Reclamation {
         }
     }
 
-    public function ajouterHistorique($idReclamation, $action, $commentaire, $idUtilisateur) {
+    public function ajouterHistorique($idReclamation, $action, $commentaire, $numEtu) {
         try {
             $sql = "INSERT INTO historique_reclamations 
-                    (id_reclamation, action, commentaire, id_utilisateur, date_action) 
-                    VALUES (:id_rec, :action, :commentaire, :id_user, NOW())";
+                    (id_reclamation, action, commentaire, num_etu, date_action) 
+                    VALUES (:id_rec, :action, :commentaire, :num_etu, NOW())";
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':id_rec', $idReclamation);
             $stmt->bindParam(':action', $action);
             $stmt->bindParam(':commentaire', $commentaire);
-            $stmt->bindParam(':id_user', $idUtilisateur);
+            $stmt->bindParam(':num_etu', $numEtu);
 
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -255,16 +206,17 @@ class Reclamation {
         }
     }
 
-    public function getHistorique($idReclamation) {
+    public function getHistorique($idReclamation, $numEtu) {
         try {
-            $sql = "SELECT h.*, u.nom_utilisateur 
+            $sql = "SELECT h.*, e.nom_etu, e.prenom_etu
                     FROM historique_reclamations h
-                    LEFT JOIN utilisateur u ON h.id_utilisateur = u.id_utilisateur
+                    LEFT JOIN etudiants e ON h.num_etu = e.num_etu
                     WHERE h.id_reclamation = :id
                     ORDER BY h.date_action DESC";
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':id', $idReclamation);
+            $stmt->bindParam(':num_etu', $numEtu);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

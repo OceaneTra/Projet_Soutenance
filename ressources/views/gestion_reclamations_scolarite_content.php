@@ -230,10 +230,6 @@ function showReclamationDetails(rec) {
     html += `<div><b>Message :</b> ${rec.message}</div>`;
     html += `<div><b>Date :</b> ${rec.date ? rec.date : (rec.date_reclamation ? rec.date_reclamation : '')}</div>`;
     html += `<div><b>Statut :</b> ${rec.statut}</div>`;
-    if (rec.piece_jointe) {
-        html +=
-            `<div><b>Pièce jointe :</b> <a href="${rec.piece_jointe}" target="_blank" class="text-green-700 underline">Voir le fichier</a></div>`;
-    }
     document.getElementById('detailsContent').innerHTML = html;
     document.getElementById('detailsModal').classList.remove('hidden');
 }
