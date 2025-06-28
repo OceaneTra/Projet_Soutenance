@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : jeu. 26 juin 2025 à 09:39
+-- Généré le : sam. 28 juin 2025 à 16:04
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -157,6 +157,28 @@ CREATE TABLE `approuver` (
     `id_approb` int NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
+--
+-- Déchargement des données de la table `approuver`
+--
+
+INSERT INTO
+    `approuver` (
+        `id_pers_admin`,
+        `id_rapport`,
+        `decision`,
+        `date_approv`,
+        `commentaire_approv`,
+        `id_approb`
+    )
+VALUES (
+        7,
+        2,
+        'approuve',
+        '2025-06-27 00:41:07',
+        'tout es op',
+        4
+    );
+
 -- --------------------------------------------------------
 
 --
@@ -234,8 +256,8 @@ VALUES (
         6,
         2003003,
         '2025-06-23 10:23:24',
-        'Rejetée',
-        '2025-06-23 10:36:53',
+        'Validée',
+        '2025-06-26 23:11:22',
         6,
         'Évaluation complète terminée'
     ),
@@ -243,10 +265,10 @@ VALUES (
         7,
         2003003,
         '2025-06-23 11:55:25',
-        'En attente',
-        NULL,
-        NULL,
-        NULL
+        'Validée',
+        '2025-06-26 23:11:22',
+        6,
+        'Évaluation complète terminée'
     );
 
 -- --------------------------------------------------------
@@ -2977,17 +2999,8 @@ CREATE TABLE `evaluations_rapports` (
     `id_evaluation` int NOT NULL,
     `id_rapport` int NOT NULL,
     `id_evaluateur` int NOT NULL,
-    `type_evaluateur` enum(
-        'enseignant',
-        'personnel_admin'
-    ) NOT NULL,
-    `note` decimal(4, 2) DEFAULT NULL,
+    `decision_evaluation` enum('valider', 'rejeter') DEFAULT NULL,
     `commentaire` text,
-    `statut_evaluation` enum(
-        'en_attente',
-        'en_cours',
-        'terminee'
-    ) NOT NULL DEFAULT 'en_attente',
     `date_evaluation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `date_modification` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -3672,8 +3685,8 @@ VALUES (
         '2025-06-16 16:31:50',
         'je sais pas deh',
         'rapport_1.html',
-        'en_cours',
-        '2025-06-16 16:31:50',
+        'rejete',
+        '2025-06-26 10:19:47',
         9892,
         1,
         'en_cours',
@@ -3686,11 +3699,11 @@ VALUES (
         '2025-06-25 11:20:16',
         'theme testes de rapport',
         'rapport_2.html',
-        'en_cours',
-        '2025-06-25 11:20:16',
+        'valide',
+        '2025-06-26 10:13:13',
         1137,
         1,
-        'en_cours',
+        'valide',
         1
     );
 
@@ -3943,6 +3956,13 @@ VALUES (
         '{\"scolarite\":{\"statut\":\"En retard\",\"montant_total\":\"1 905 000 FCFA\",\"montant_paye\":\"670 000 FCFA\",\"dernier_paiement\":\"16\\/06\\/2025\",\"validation\":\"rejet\\u00e9\"},\"stage\":{\"entreprise\":\"Tuzzo C\\u00f4te d\'Ivoire\",\"sujet\":\"D\\u00e9veloppement d\'application mobile\",\"periode\":\"04\\/05\\/2024 - 05\\/11\\/2024\",\"encadrant\":\"Tra Bi Herv\\u00e9\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Non renseign\\u00e9\",\"moyenne\":\"0.00\\/20\",\"unites\":\"0\\/30 cr\\u00e9dits du Master 2 valid\\u00e9s\",\"validation\":\"rejet\\u00e9\"}}',
         'Rejetée',
         '2025-06-23 11:37:54'
+    ),
+    (
+        3,
+        2003003,
+        '{\"scolarite\":{\"statut\":\"En retard\",\"montant_total\":\"1 905 000 FCFA\",\"montant_paye\":\"670 000 FCFA\",\"dernier_paiement\":\"01\\/06\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"QuanTech C\\u00f4te d\'Ivoire\",\"sujet\":\"D\\u00e9veloppement d\'application mobile\",\"periode\":\"28\\/02\\/2025 - 15\\/06\\/2025\",\"encadrant\":\"Yao Ferdinand\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Non renseign\\u00e9\",\"moyenne\":\"0.00\\/20\",\"unites\":\"0\\/30 cr\\u00e9dits du Master 2 valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
+        'Validée',
+        '2025-06-26 23:11:22'
     );
 
 -- --------------------------------------------------------
@@ -5253,7 +5273,8 @@ CREATE TABLE `valider` (
     `id_enseignant` int NOT NULL,
     `id_rapport` int NOT NULL,
     `date_validation` datetime NOT NULL,
-    `commentaire_validation` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
+    `commentaire_validation` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `decision_validation` enum('valider', 'rejeter') COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'valider'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 -- --------------------------------------------------------
@@ -5447,6 +5468,7 @@ ALTER TABLE `annee_academique` ADD PRIMARY KEY (`id_annee_acad`);
 -- Index pour la table `approuver`
 --
 ALTER TABLE `approuver`
+ADD PRIMARY KEY (`id_pers_admin`, `id_rapport`),
 ADD KEY `Key_approver_enseignant` (`id_pers_admin`),
 ADD KEY `Key_approver_rapport` (`id_rapport`),
 ADD KEY `fk_approuver_niveau` (`id_approb`);
@@ -5521,6 +5543,14 @@ ADD UNIQUE KEY `lib_entreprise` (`lib_entreprise`);
 -- Index pour la table `etudiants`
 --
 ALTER TABLE `etudiants` ADD PRIMARY KEY (`num_etu`);
+
+--
+-- Index pour la table `evaluations_rapports`
+--
+ALTER TABLE `evaluations_rapports`
+ADD PRIMARY KEY (`id_evaluation`),
+ADD KEY `id_evaluateur` (`id_evaluateur`),
+ADD KEY `id_rapport` (`id_rapport`);
 
 --
 -- Index pour la table `evaluer`
@@ -5721,6 +5751,7 @@ ADD KEY `id_type_utilisateur` (`id_type_utilisateur`);
 -- Index pour la table `valider`
 --
 ALTER TABLE `valider`
+ADD PRIMARY KEY (`id_enseignant`, `id_rapport`),
 ADD KEY `Key_valider_enseignant` (`id_enseignant`),
 ADD KEY `Key_valider_rapport` (`id_rapport`);
 
@@ -5803,6 +5834,12 @@ AUTO_INCREMENT = 9;
 ALTER TABLE `etudiants`
 MODIFY `num_etu` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 20250003;
+
+--
+-- AUTO_INCREMENT pour la table `evaluations_rapports`
+--
+ALTER TABLE `evaluations_rapports`
+MODIFY `id_evaluation` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`
@@ -5904,7 +5941,7 @@ AUTO_INCREMENT = 6;
 --
 ALTER TABLE `resume_candidature`
 MODIFY `id` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 3;
+AUTO_INCREMENT = 4;
 
 --
 -- AUTO_INCREMENT pour la table `semestre`
@@ -6033,6 +6070,13 @@ ADD CONSTRAINT `fk_enseignant_responsable` FOREIGN KEY (`id_enseignant`) REFEREN
 --
 ALTER TABLE `enseignants`
 ADD CONSTRAINT `fk_enseignants_specialite` FOREIGN KEY (`id_specialite`) REFERENCES `specialite` (`id_specialite`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `evaluations_rapports`
+--
+ALTER TABLE `evaluations_rapports`
+ADD CONSTRAINT `evaluations_rapports_ibfk_1` FOREIGN KEY (`id_evaluateur`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `evaluations_rapports_ibfk_2` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `evaluer`

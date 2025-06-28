@@ -19,6 +19,7 @@ include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsRoutes.php';
 include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
 include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
+include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 
 
 
@@ -245,6 +246,19 @@ switch ($currentMenuSlug) {
             // Afficher directement la page de vérification
             $contentFile = $partialsBasePath . 'verification_candidatures_soutenance_content.php';
             $currentPageLabel = 'Vérification des candidatures soutenance';
+            break;
+        
+        case 'evaluations_dossiers_soutenance':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page d'évaluation des dossiers
+            $contentFile = $partialsBasePath . 'evaluations_dossiers_soutenance_content.php';
+            $currentPageLabel = 'Évaluations des dossiers de soutenance';
+            break;
+        
+        case 'test_debug':
+            // Page de test pour le débogage
+            $contentFile = __DIR__ . '/../ressources/views/test_debug_content.php';
+            $currentPageLabel = 'Test de débogage';
             break;
         
         default:
