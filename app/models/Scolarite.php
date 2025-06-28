@@ -318,9 +318,8 @@ class Scolarite {
 
     // Récupérer les informations de scolarité d'un étudiant
     public function getScolariteEtudiant($num_etu) {
-        $query = "SELECT i.*, n.montant_scolarite, n.montant_inscription,
-                        (SELECT MAX(v.date_versement) FROM versements v WHERE v.id_inscription = i.id_inscription) as dernier_paiement,
-                        (n.montant_scolarite + n.montant_inscription) as montant_total
+        $query = "SELECT i.*, n.montant_scolarite as montant_total, n.montant_inscription,
+                        (SELECT MAX(v.date_versement) FROM versements v WHERE v.id_inscription = i.id_inscription) as dernier_paiement
                  FROM inscriptions i 
                  JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude 
                  WHERE i.id_etudiant = ?

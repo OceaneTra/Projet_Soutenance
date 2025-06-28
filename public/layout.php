@@ -19,6 +19,8 @@ include __DIR__ . '/../ressources/routes/gestionCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsRoutes.php';
 include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
 include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php';
+include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 
 
@@ -49,10 +51,18 @@ if (isset($_GET['page'])) {
             break;
         }
     }
-}else{
-  $currentMenuSlug = $traitements[0]['lib_traitement'];
-  $currentPageLabel = $traitements[0]['label_traitement'];
-  
+}
+
+// Si aucune page valide n'a été trouvée, utiliser la première page autorisée
+if (empty($currentMenuSlug) && !empty($traitements)) {
+    $currentMenuSlug = $traitements[0]['lib_traitement'];
+    $currentPageLabel = $traitements[0]['label_traitement'];
+
+    // Rediriger vers la première page avec le paramètre page pour éviter les problèmes de rechargement
+    if (!isset($_GET['page'])) {
+        header('Location: layout.php?page=' . urlencode($currentMenuSlug));
+        exit;
+    }
 }
 
 // Générer le HTML du menu
@@ -94,12 +104,22 @@ switch ($currentMenuSlug) {
     case 'gestion_reclamations':
         include __DIR__ . '/../ressources/routes/gestionReclamationsRouteur.php'; // Ajustez le chemin si nécessaire
         
-        $allowedActions = ['soumettre_reclamation', 'suivi_reclamation', 'historique_reclamation'];
+        $allowedActions = ['soumettre_reclamation', 'suivi_historique_reclamation'];
+        $ajaxActions = ['get_reclamation_details'];
         
-        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath. 'gestion_reclamations/' . $currentAction . '.php';
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        if (isset($_GET['action'])) {
+            if (in_array($_GET['action'], $ajaxActions)) {
+                // Les actions AJAX sont déjà traitées dans les routes, pas besoin de fichier de vue
+                exit;
+            } elseif (in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePath. 'gestion_reclamations/' . $currentAction . '.php';
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            } else {
+                // Si aucune action valide n'est spécifiée, affichez la page par défaut
+                $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
+                $currentPageLabel = 'Gestion des réclamations';
+            }
         } else {
             // Si aucune action valide n'est spécifiée, affichez la page par défaut
             $contentFile = $partialsBasePath . 'gestion_reclamations_content.php';
@@ -112,14 +132,24 @@ switch ($currentMenuSlug) {
         // Ajustez le chemin si nécessaire
         include __DIR__ . '/../ressources/routes/gestionRapportsRoutes.php';
         
-        $allowedActions = ['creer_rapport', 'suivi_rapport', 'compte_rendu_rapport'];
+        $allowedActions = ['creer_rapport', 'suivi_rapport', 'commentaire_rapport'];
+        $ajaxActions = ['get_commentaires', 'get_rapport'];
         
-        if (isset($_GET['action']) && in_array($_GET['action'], $allowedActions)) {
-            $currentAction = $_GET['action'];
-            $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
-            $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+        if (isset($_GET['action'])) {
+            if (in_array($_GET['action'], $ajaxActions)) {
+                // Les actions AJAX sont déjà traitées dans les routes, pas besoin de fichier de vue
+                exit;
+            } elseif (in_array($_GET['action'], $allowedActions)) {
+                $currentAction = $_GET['action'];
+                $contentFile = $partialsBasePath . 'gestion_rapports/' . $currentAction . '.php';
+                $currentPageLabel = ucfirst(str_replace('_', ' ', $currentAction));
+            } else {
+                // Si aucune action valide n'est spécifiée, affichez la page par défaut
+                $contentFile = $partialsBasePath . 'gestion_rapports_content.php';
+                $currentPageLabel = 'Gestion des rapports';
+            }
         } else {
-            // Si aucune action valide n'est spécifiée, affichez la page par défaut
+            // Si aucune action n'est spécifiée, affichez la page par défaut
             $contentFile = $partialsBasePath . 'gestion_rapports_content.php';
             $currentPageLabel = 'Gestion des rapports';
         }
@@ -239,28 +269,71 @@ switch ($currentMenuSlug) {
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
             }
+                // Afficher la vue par défaut
+                $contentFile = $partialsBasePath . 'gestion_scolarite_content.php';
+                $currentPageLabel = 'Gestion de la scolarité';
+
             break;
-            
-        case 'verification_candidatures_soutenance':
-            // Le fichier de routes est déjà inclus au début
-            // Afficher directement la page de vérification
-            $contentFile = $partialsBasePath . 'verification_candidatures_soutenance_content.php';
-            $currentPageLabel = 'Vérification des candidatures soutenance';
+
+            case 'gestion_notes_evaluations':
+             // Gérer l'action d'impression de reçu PDF
+            if (isset($_GET['action']) && $_GET['action'] === 'imprimer_releve' && isset($_GET['student']) && isset($_GET['niveau'])) {
+                // Inclure l'autoloader de Composer pour Dompdf
+                require_once __DIR__ . '/../vendor/autoload.php'; // Assurez-vous que ce chemin est correct
+
+                $id_etudiant = $_GET['student'];
+                $niveau = $_GET['niveau'];
+
+                // Démarrer la mise en mémoire tampon de sortie
+                ob_start();
+
+                // Inclure le fichier du modèle de reçu
+                include __DIR__ . '../../ressources/views/releve_notes.php';
+
+                // Capturer le contenu de la mémoire tampon et le stocker dans $html
+                $html = ob_get_clean();
+
+                // Instancier Dompdf
+                $dompdf = new Dompdf\Dompdf();
+
+                // Définir le répertoire de base pour les ressources (images, css)
+                $dompdf->setBasePath(__DIR__ . '../public/images/');
+
+                // Charger le HTML
+
+                $dompdf->loadHtml($html);
+
+                // (Optionnel) Définir la taille et l\'orientation du papier
+                $dompdf->setPaper('A4', 'portrait');
+
+                // Rendre le PDF
+                $dompdf->render();
+
+                // Envoyer le PDF au navigateur
+                // Le paramètre Attachment => false permet d\'afficher le PDF directement
+                $dompdf->stream("releve_notes_" . $id_etudiant . "_" . $niveau . ".pdf", array("Attachment" => false));
+
+                exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
+            }
+                // Afficher la vue par défaut
+                $contentFile = $partialsBasePath . 'gestion_notes_evaluations_content.php';
+                $currentPageLabel = 'Gestion des notes et évaluations';
+
             break;
-        
+
         case 'evaluations_dossiers_soutenance':
             // Le fichier de routes est déjà inclus au début
             // Afficher directement la page d'évaluation des dossiers
             $contentFile = $partialsBasePath . 'evaluations_dossiers_soutenance_content.php';
             $currentPageLabel = 'Évaluations des dossiers de soutenance';
             break;
-        
+
         case 'test_debug':
             // Page de test pour le débogage
             $contentFile = __DIR__ . '/../ressources/views/test_debug_content.php';
             $currentPageLabel = 'Test de débogage';
             break;
-        
+
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];
@@ -400,23 +473,15 @@ $cardReclamation = [
         'text_color' => 'text-blue-500'
     ],
     [
-        'title' => 'Suivre mes Réclamations',
-        'description' => 'Consultez l\'état actuel de vos réclamations en cours.',
-        'link' => '?page=gestion_reclamations&action=suivi_reclamation',
+        'title' => 'Suivi et historique des réclamations',
+        'description' => 'Consultez l\'état actuel de vos réclamations en cours et accédez à l\'historique complet de vos réclamations passées.',
+        'link' => '?page=gestion_reclamations&action=suivi_historique_reclamation',
         'icon' => 'fa-solid fa-eye ',
-        'title_link' => 'Suivre',
+        'title_link' => 'Suivi et historique',
         'bg_color' =>'bg-yellow-500 ',
         'text_color' =>'text-yellow-600'
-    ],
-    [
-        'title' => 'Historique des Réclamations',
-        'description' => 'Accédez à l\'historique complet de vos réclamations passées.',
-        'link' => '?page=gestion_reclamations&action=historique_reclamation',
-        'icon' => 'fa-solid fa-clock-rotate-left ',
-        'title_link' => 'Consulter',
-        'bg_color' =>'bg-purple-300 ',
-        'text_color' =>'text-purple-600'
     ]
+
 ];
 
 

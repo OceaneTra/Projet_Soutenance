@@ -393,15 +393,16 @@ class ParametreController
             $lib_niveau = $_POST['lib_niv_etude'];
             $montant_scolarite = $_POST['montant_scolarite'];
             $montant_inscription = $_POST['montant_inscription'];
+            $id_enseignant = isset($_POST['id_enseignant']) ? $_POST['id_enseignant'] : null;
 
             if (!empty($_POST['id_niv_etude'])) {
-                if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau,$montant_scolarite,$montant_inscription)) {
+                if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau, $montant_scolarite, $montant_inscription, $id_enseignant)) {
                     $messageSuccess = "Niveau d'étude modifié avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'étude.";
                 }
             } else {
-                if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau, $montant_scolarite, $montant_inscription)) {
+                if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau, $montant_scolarite, $montant_inscription, $id_enseignant)) {
                     $messageSuccess = "Niveau d'étude ajouté avec succès.";
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'étude.";
@@ -431,6 +432,7 @@ class ParametreController
 
         $GLOBALS['niveau_a_modifier'] = $niveau_a_modifier;
         $GLOBALS['listeNiveaux'] = $this->niveauEtude->getAllNiveauxEtudes();
+        $GLOBALS['listeEnseignants'] = $this->enseignant->getAllEnseignants();
         $GLOBALS['messageErreur'] = $messageErreur;
         $GLOBALS['messageSuccess'] = $messageSuccess;
     }

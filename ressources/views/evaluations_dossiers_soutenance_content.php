@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,46 +8,70 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .sidebar-hover:hover {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
+    .sidebar-hover:hover {
+        background-color: #fef3c7;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .stat-card {
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .trend-up { color: #10b981; }
-        .trend-down { color: #ef4444; }
-        .trend-stable { color: #6b7280; }
-        .evaluation-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
+    }
+
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .trend-up {
+        color: #10b981;
+    }
+
+    .trend-down {
+        color: #ef4444;
+    }
+
+    .trend-stable {
+        color: #6b7280;
+    }
+
+    .evaluation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
     </style>
 </head>
+
 <body class="font-sans antialiased bg-gray-50">
 <div class="flex h-screen overflow-hidden">
     <!-- Main content area -->
@@ -119,7 +144,7 @@
                         </h3>
                         <form id="decisionForm" class="space-y-4">
                             <input type="hidden" name="id_rapport" value="<?= $detail['rapport']['id_rapport'] ?>">
-                            
+
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" name="decision" value="valider" class="mr-2 text-yellow-600 focus:ring-yellow-500">
@@ -136,15 +161,15 @@
                                     </span>
                                 </label>
                             </div>
-                            
+
                             <div id="commentaireSection">
                                 <label for="commentaire" class="block text-sm font-medium text-gray-700 mb-2">
                                     Commentaires :
                                 </label>
-                                <textarea 
-                                    id="commentaire" 
-                                    name="commentaire" 
-                                    rows="4" 
+                                <textarea
+                                    id="commentaire"
+                                    name="commentaire"
+                                    rows="4"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                                     placeholder="Ajoutez un commentaire pour expliquer votre décision..."
                                 ></textarea>
@@ -152,18 +177,18 @@
                                     <span id="commentaireHint">Commentaire optionnel pour expliquer votre décision</span>
                                 </p>
                             </div>
-                            
+
                             <div class="flex space-x-3">
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     class="px-6 py-2 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
                                 >
                                     <i class="fas fa-paper-plane mr-2"></i>
                                     Soumettre la décision
                                 </button>
-                                <button 
-                                    type="button" 
-                                    onclick="window.location.href='?page=evaluations_dossiers_soutenance'" 
+                                <button
+                                    type="button"
+                                    onclick="window.location.href='?page=evaluations_dossiers_soutenance'"
                                     class="px-6 py-2 bg-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                                 >
                                     <i class="fas fa-times mr-2"></i>
@@ -205,14 +230,14 @@
                                 <span>${message}</span>
                             </div>
                         `;
-                        
+
                         document.body.appendChild(notification);
-                        
+
                         // Animer l'entrée
                         setTimeout(() => {
                             notification.classList.remove('translate-x-full');
                         }, 100);
-                        
+
                         // Supprimer après 3 secondes
                         setTimeout(() => {
                             notification.classList.add('translate-x-full');
@@ -227,7 +252,7 @@
                         radio.addEventListener('change', function() {
                             const commentaireField = document.getElementById('commentaire');
                             const commentaireHint = document.getElementById('commentaireHint');
-                            
+
                             if (this.value === 'rejeter') {
                                 commentaireField.placeholder = "Détaillez les corrections à apporter au rapport...";
                                 commentaireHint.textContent = "Commentaire recommandé pour expliquer les corrections demandées";
@@ -243,34 +268,34 @@
                     // Gestion de la soumission du formulaire
                     decisionForm.addEventListener('submit', function(e) {
                         e.preventDefault();
-                        
+
                         const formData = new FormData(this);
                         const decision = formData.get('decision');
                         const commentaire = formData.get('commentaire');
-                        
+
                         // Validation
                         if (!decision) {
                             showNotification('Veuillez sélectionner une décision.', 'error');
                             return;
                         }
-                        
+
                         // Le commentaire est maintenant optionnel pour toutes les décisions
-                        
+
                         // Confirmation
                         const action = decision === 'valider' ? 'valider' : 'rejeter';
                         if (!confirm(`Êtes-vous sûr de vouloir ${action} ce rapport ?`)) {
                             return;
                         }
-                        
+
                         // Ajouter l'action au FormData
                         formData.append('action', 'traiter_decision');
-                        
+
                         // Désactiver le bouton pendant le traitement
                         const submitButton = this.querySelector('button[type="submit"]');
                         const originalText = submitButton.innerHTML;
                         submitButton.disabled = true;
                         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Traitement...';
-                        
+
                         // Envoi de la requête AJAX
                         fetch('?page=evaluations_dossiers_soutenance&action=traiter_decision', {
                             method: 'POST',
@@ -846,4 +871,5 @@
     }
 </script>
 </body>
+
 </html>

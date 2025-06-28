@@ -30,6 +30,7 @@ class GestionCandidaturesController {
     // Méthode pour gérer l'examen d'une candidature
     public function examinerCandidature() {
         $examiner = $_GET['examiner'] ?? null;
+        $id_candidature = $_GET['id_candidature'] ?? null;
         $etape = intval($_GET['etape'] ?? 1);
         $action = $_GET['action'] ?? '';
 
@@ -157,11 +158,15 @@ class GestionCandidaturesController {
 
         $pers_admin = $this->pers_admin->getPersAdminByLogin($_SESSION['login_utilisateur']);
 
+        // Récupérer la dernière candidature de l'étudiant
+        $candidature = $this->etudiant->getLastCandidatureByNumEtu($examiner);
+        $id_candidature = $candidature['id_candidature'] ?? null;
+
         // Mettre à jour le statut de la candidature
-        $this->etudiant->traiterCandidature($examiner, $decision, 'Évaluation complète terminée',$pers_admin->id_pers_admin);
+        $this->etudiant->traiterCandidature($id_candidature, $decision, 'Évaluation complète terminée', $pers_admin->id_pers_admin);
 
         // Enregistrer le résumé dans la table resume_candidature
-        $this->etudiant->saveResumeCandidature($examiner, $resume, $decision);
+        $this->etudiant->saveResumeCandidature($id_candidature, $examiner, $resume, $decision);
 
         // Envoyer l'email à l'étudiant avec le résumé complet
         $this->envoyerEmailResultat($examiner, $resume, $decision);
@@ -239,6 +244,13 @@ class GestionCandidaturesController {
     // Nouvelle méthode pour récupérer le résumé de candidature
     public function afficherResumeCandidature($num_etu) {
         return $this->etudiant->getResumeCandidature($num_etu);
+    }
+
+    public function getLastCandidatureByNumEtu($num_etu) {
+        $sql = "SELECT * FROM candidature_soutenance WHERE num_etu = ? ORDER BY date_candidature DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
    

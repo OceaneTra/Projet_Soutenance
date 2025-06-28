@@ -112,4 +112,32 @@ class Ecue
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Récupérer tous les ECUE d'un enseignant
+     */
+    public function getEcuesByEnseignant($enseignantId): array
+    {
+        try {
+            $sql = "SELECT DISTINCT e.*, u.lib_ue, s.lib_semestre, n.lib_niv_etude
+                    FROM ecue e
+                    JOIN ue u ON e.id_ue = u.id_ue
+                    JOIN semestre s ON u.id_semestre = s.id_semestre
+                    JOIN niveau_etude n ON u.id_niveau_etude = n.id_niv_etude
+                    WHERE e.id_enseignant = :enseignant_id
+                    ORDER BY u.lib_ue, e.lib_ecue";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':enseignant_id' => $enseignantId]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des ECUE de l'enseignant: " . $e->getMessage());
+            return [];
+        }
+    }
+
+ 
+   
+
+   
 }

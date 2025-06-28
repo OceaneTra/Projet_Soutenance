@@ -26,14 +26,14 @@ class Note {
         try {
             if ($ecueId) {
                 $query = "UPDATE notes 
-                         SET moyenne = ?, commentaire = ?, date_modification = NOW() 
+                         SET moyenne = ?, commentaire = ?
                          WHERE num_etu = ? AND id_ecue = ? AND id_ue = ?";
                 
                 $stmt = $this->db->prepare($query);
                 return $stmt->execute([$moyenne, $commentaire, $etudiantId, $ecueId, $ueId]);
             } else {
                 $query = "UPDATE notes 
-                         SET moyenne = ?, commentaire = ?, date_modification = NOW() 
+                         SET moyenne = ?, commentaire = ?
                          WHERE num_etu = ? AND id_ue = ?";
                 
                 $stmt = $this->db->prepare($query);
@@ -45,17 +45,17 @@ class Note {
         }
     }
 
-    public function createNote($etudiantId, $ueId, $moyenne, $commentaire = null, $ecueId = null) {
+    public function createNote($etudiantId, $ueId, $moyenne, $commentaire, $ecueId) {
         try {
             if ($ecueId) {
-                $query = "INSERT INTO notes (num_etu, id_ecue,id_ue, moyenne, commentaire, date_evaluation) 
-                         VALUES (?, ?, ?, ?, ?, NOW())";
+                $query = "INSERT INTO notes (num_etu, id_ecue,id_ue, moyenne, commentaire) 
+                         VALUES (?, ?, ?, ?, ?)";
                 
                 $stmt = $this->db->prepare($query);
                 return $stmt->execute([$etudiantId, $ecueId, $ueId, $moyenne, $commentaire]);
             } else {
-                $query = "INSERT INTO notes (num_etu, id_ue, moyenne, commentaire, date_evaluation) 
-                         VALUES (?, ?, ?, ?, NOW())";
+                $query = "INSERT INTO notes (num_etu, id_ue, moyenne, commentaire) 
+                         VALUES (?, ?, ?, ?)";
                 
                 $stmt = $this->db->prepare($query);
                 return $stmt->execute([$etudiantId, $ueId, $moyenne, $commentaire]);

@@ -1,3 +1,27 @@
+<?php
+// Initialiser les variables globales
+$infosDepot = isset($GLOBALS['infosDepot']) ? $GLOBALS['infosDepot'] : [];
+
+// Vérifier si l'étudiant a une candidature validée
+$candidature_validee = false;
+$message_candidature = '';
+
+if (isset($_SESSION['num_etu'])) {
+    // Récupérer le statut de candidature de l'étudiant
+    $candidatures_etudiant = isset($GLOBALS['candidatures_etudiant']) ? $GLOBALS['candidatures_etudiant'] : [];
+    
+    foreach ($candidatures_etudiant as $candidature) {
+        if ($candidature['statut_candidature'] === 'Validée') {
+            $candidature_validee = true;
+            break;
+        }
+    }
+    
+    if (!$candidature_validee) {
+        $message_candidature = "Vous devez avoir une candidature validée pour accéder aux fonctionnalités de gestion des rapports.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -5,22 +29,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des rapports</title>
+    <style>
+    .notification {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        padding: 16px 20px;
+        min-width: 320px;
+        max-width: 480px;
+        border-left: 4px solid;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
 
+    .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .notification.hide {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    .notification.success {
+        border-left-color: #10b981;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    }
+
+    .notification.error {
+        border-left-color: #ef4444;
+        background: linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%);
+    }
+
+    .notification.info {
+        border-left-color: #3b82f6;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    .notification.warning {
+        border-left-color: #f59e0b;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+
+    .notification-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+        color: #1f2937;
+    }
+
+    .notification-message {
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .notification-close {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+        opacity: 0.6;
+    }
+
+    .notification-close:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 12px 12px;
+        transition: width linear;
+    }
+
+    .notification.success .notification-progress {
+        background: #10b981;
+    }
+
+    .notification.error .notification-progress {
+        background: #ef4444;
+    }
+
+    .notification.info .notification-progress {
+        background: #3b82f6;
+    }
+
+    .notification.warning .notification-progress {
+        background: #f59e0b;
+    }
+    </style>
 </head>
 
 <body class="min-h-screen">
 
-    <?php if (isset($_GET['message'])): ?>
-        <?php if ($_GET['message'] === 'depot_ok'): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-center">
-                <strong class="font-bold">Succès !</strong> Le rapport a bien été déposé.
+    <!-- Notifications -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-3">
+        <!-- Les notifications seront ajoutées ici dynamiquement -->
+    </div>
+
+    <!-- Modal de confirmation pour suppression -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex items-center mb-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
+                    <p class="text-sm text-gray-600">Cette action est irréversible</p>
+                </div>
             </div>
-        <?php elseif ($_GET['message'] === 'depot_fail'): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-center">
-                <strong class="font-bold">Erreur !</strong> Impossible de déposer le rapport (déjà déposé ou erreur technique).
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
+
+            <p class="text-gray-700 mb-6">
+                Êtes-vous sûr de vouloir supprimer le rapport
+                <span id="rapportNom" class="font-semibold text-gray-900"></span>
+                ?
+            </p>
+            <p class="text-sm text-gray-600 mb-6">
+                Cette action ne peut pas être annulée et supprimera définitivement le rapport et toutes ses données
+                associées.
+            </p>
+
+            <form method="POST" action="?page=gestion_rapports">
+                <input type="hidden" name="action" value="supprimer_rapport">
+                <input type="hidden" name="rapport_id" id="rapportIdToDelete">
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="fermerModalSuppression()"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        <i class="fas fa-trash mr-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Carte 1: Créer un rapport -->
@@ -37,10 +212,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Rédigez et soumettez votre rapport de
                     master directement via notre plateforme sécurisée.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-indigo-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
                         <a href="?page=gestion_rapports&action=creer_rapport">Commencer</a>
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Commencer
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -66,10 +249,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Surveillez l'état de votre soumission en
                     temps réel à chaque étape du processus de validation.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-green-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 floating">
                         <a href="?page=gestion_rapports&action=suivi_rapport">Consulter</a>
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Consulter
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -95,11 +286,18 @@
                 <p class="text-white text-opacity-80 mb-6 text-center">Accédez aux retours détaillés des
                     évaluateurs pour améliorer votre travail académique.</p>
                 <div class="mt-auto">
+                    <?php if ($candidature_validee): ?>
                     <button
                         class="bg-white text-yellow-700 font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition duration-300 pulse">
-                        <a href="?page=gestion_rapports&action=compte_rendu_rapport"> Voir les retours</a>
-
+                        <a href="?page=gestion_rapports&action=commentaire_rapport"> Voir les retours</a>
                     </button>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg cursor-not-allowed transition duration-300"
+                        disabled>
+                        Voir les retours
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="bg-gradient-to-r from-white to-transparent bg-opacity-10 h-1"></div>
@@ -118,68 +316,96 @@
                 <div class="flex justify-between items-center">
                     <h3 class="text-2xl font-bold text-gray-800">Mes Rapports</h3>
                     <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                    <?= isset($statistiquesRapports) ? ($statistiquesRapports->total_rapports ?? 0) : 0 ?> rapport(s)
-                </span>
+                        <?= isset($statistiquesRapports) ? ($statistiquesRapports->total_rapports ?? 0) : 0 ?>
+                        rapport(s)
+                    </span>
                 </div>
             </div>
 
             <div class="p-6">
                 <?php if (isset($rapportsRecents) && !empty($rapportsRecents)): ?>
-                    <div class="space-y-4">
-                        <?php foreach ($rapportsRecents as $rapport): ?>
-                            <div id="rapport-<?= $rapport->id_rapport ?>" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <h4 class="text-lg font-semibold text-gray-800 mb-2">
-                                            <?= htmlspecialchars($rapport->nom_rapport) ?>
-                                        </h4>
-                                        <p class="text-gray-600 mb-2">
-                                            <strong>Thème:</strong> <?= htmlspecialchars($rapport->theme_rapport) ?>
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            Créé le <?= date('d/m/Y à H:i', strtotime($rapport->date_rapport)) ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex space-x-2 ml-4">
-                                    <form method="POST" action="?page=gestion_rapports" style="display:inline;" id="deposerForm-<?= $rapport->id_rapport ?>">
-                                        <input type="hidden" name="id_rapport" value="<?= $rapport->id_rapport ?>">
-                                        <input type="hidden" name="action" value="deposer_rapport">
-                                        <button type="submit"
-                                            class="bg-blue-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-upload mr-1"></i> Déposer
-                                        </button>
-                                    </form>
-                                        <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
-                                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-eye mr-1"></i> Voir
-                                        </button>
-                                        <button onclick="supprimerRapport(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars($rapport->nom_rapport) ?>')"
-                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                            <i class="fas fa-trash mr-1"></i> Supprimer
-                                        </button>
-                                    </div>
-                                </div>
+                <div class="space-y-4">
+                    <?php foreach ($rapportsRecents as $rapport): ?>
+                    <div id="rapport-<?= $rapport->id_rapport ?>"
+                        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-2">
+                                    <?= htmlspecialchars($rapport->nom_rapport) ?>
+                                </h4>
+                                <p class="text-gray-600 mb-2">
+                                    <strong>Thème:</strong> <?= htmlspecialchars($rapport->theme_rapport) ?>
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Créé le <?= date('d/m/Y à H:i', strtotime($rapport->date_rapport)) ?>
+                                </p>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <div class="flex space-x-2 ml-4">
+                                <?php 
+                                // Utiliser les informations de dépôt passées par le contrôleur
+                                $infoDepot = $infosDepot[$rapport->id_rapport] ?? ['peutDeposer' => true, 'messageDepot' => '', 'dejaDepose' => false];
+                                $peutDeposer = $infoDepot['peutDeposer'];
+                                $messageDepot = $infoDepot['messageDepot'];
+                                ?>
 
-                    <?php if (count($rapportsRecents) >= 5): ?>
-                        <div class="mt-6 text-center">
-                            <a href="?page=gestion_rapports&action=suivi_rapport"
-                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center">
-                                <i class="fas fa-list mr-2"></i> Voir tous mes rapports
-                            </a>
+                                <?php if ($peutDeposer): ?>
+                                <form method="POST" action="?page=gestion_rapports" style="display:inline;"
+                                    id="deposerForm-<?= $rapport->id_rapport ?>">
+                                    <input type="hidden" name="id_rapport" value="<?= $rapport->id_rapport ?>">
+                                    <input type="hidden" name="action" value="deposer_rapport">
+                                    <button type="submit"
+                                        class="bg-blue-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                        <i class="fas fa-upload mr-1"></i> Déposer
+                                    </button>
+                                </form>
+                                <?php else: ?>
+                                <button disabled
+                                    class="bg-gray-400 text-gray-600 px-3 py-1 rounded text-sm cursor-not-allowed"
+                                    title="<?= htmlspecialchars($messageDepot) ?>">
+                                    <i class="fas fa-upload mr-1"></i> <?= htmlspecialchars($messageDepot) ?>
+                                </button>
+                                <?php endif; ?>
+
+                                <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> Voir
+                                </button>
+                                <button
+                                    onclick="confirmerSuppression(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars(addslashes($rapport->nom_rapport)) ?>')"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-trash mr-1"></i> Supprimer
+                                </button>
+                            </div>
                         </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <div class="text-center py-8">
-                        <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
-                        <a href="?page=gestion_rapports&action=creer_rapport"
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
-                            <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
-                        </a>
                     </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if (count($rapportsRecents) >= 5): ?>
+                <div class="mt-6 text-center">
+                    <a href="?page=gestion_rapports&action=suivi_rapport"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-flex items-center">
+                        <i class="fas fa-list mr-2"></i> Voir tous mes rapports
+                    </a>
+                </div>
+                <?php endif; ?>
+                <?php else: ?>
+                <div class="text-center py-8">
+                    <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg mb-4">Aucun rapport créé pour le moment</p>
+                    <?php if ($candidature_validee): ?>
+                    <a href="?page=gestion_rapports&action=creer_rapport"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
+                    </a>
+                    <?php else: ?>
+                    <button onclick="showCandidatureRequiredMessage()"
+                        class="bg-gray-400 text-gray-600 px-6 py-2 rounded-lg inline-flex items-center cursor-not-allowed"
+                        disabled>
+                        <i class="fas fa-plus mr-2"></i> Créer mon premier rapport
+                    </button>
+                    <?php endif; ?>
+                </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -236,59 +462,22 @@
         </div>
     </section>
 
-
-
-
-
-
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-
-        // Animation au survol des boutons
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                gsap.to(button, {
-                    scale: 1.05,
-                    duration: 0.3
-                });
-            });
-
-            button.addEventListener('mouseleave', () => {
-                gsap.to(button, {
-                    scale: 1,
-                    duration: 0.3
-                });
-            });
-        });
-
-        // Simulation de clic sur les cartes
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.addEventListener('click', function() {
-                const title = this.querySelector('h3').textContent;
-                const button = this.querySelector('button');
-
-                // Animation de clic
-                gsap.to(this, {
-                    scale: 0.95,
-                    duration: 0.1,
-                    onComplete: () => {
-                        gsap.to(this, {
-                            scale: 1,
-                            duration: 0.3
-                        });
-
-                        // Simulation de navigation ou d'ouverture de modal
-                        alert(
-                            `Section "${title}" - Cette fonctionnalité sera bientôt disponible`
-                        );
-                    }
-                });
-            });
-        });
+        // Afficher les messages PHP au chargement de la page
+        <?php if (isset($_GET['message'])): ?>
+        <?php if ($_GET['message'] === 'depot_ok'): ?>
+        showNotification('success', 'Le rapport a bien été déposé.');
+        <?php elseif ($_GET['message'] === 'depot_fail'): ?>
+        showNotification('error', 'Impossible de déposer le rapport (déjà déposé ou erreur technique).');
+        <?php elseif ($_GET['message'] === 'depot_en_cours'): ?>
+        showNotification('warning',
+            'Vous ne pouvez pas déposer ce rapport car vous avez déjà un rapport en cours d\'évaluation. Attendez que votre rapport précédent soit approuvé ou rejeté.'
+        );
+        <?php elseif ($_GET['message'] === 'suppression_ok'): ?>
+        showNotification('success', 'Le rapport a été supprimé avec succès.');
+        <?php endif; ?>
+        <?php endif; ?>
     });
 
     function voirRapport(rapportId) {
@@ -299,100 +488,108 @@
         window.location.href = `?page=gestion_rapports&action=creer_rapport&edit=${rapportId}`;
     }
 
-    function supprimerRapport(rapportId, nomRapport) {
-        if (!confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${nomRapport}" ?\n\nCette action est irréversible.`)) {
-            return;
+    function showNotification(type, message, title = null) {
+        const notificationContainer = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+
+        // Définir les icônes selon le type
+        let iconPath = '';
+        let displayTitle = title || type.charAt(0).toUpperCase() + type.slice(1);
+
+        switch (type) {
+            case 'success':
+                iconPath = 'M5 13l4 4L19 7';
+                break;
+            case 'error':
+                iconPath = 'M6 18L18 6M6 6l12 12';
+                break;
+            case 'info':
+                iconPath = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+                break;
+            case 'warning':
+                iconPath =
+                    'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z';
+                break;
+            default:
+                iconPath = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
         }
 
-        // Afficher un indicateur de chargement
-        const loadingDiv = document.createElement('div');
-        loadingDiv.innerHTML = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white p-6 rounded-lg">
-                <div class="flex items-center">
-                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-                    <span>Suppression en cours...</span>
-                </div>
-            </div>
+        notification.innerHTML = `
+            <div class="notification-icon">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path>
+                </svg>
         </div>
-    `;
-        document.body.appendChild(loadingDiv);
+            <div class="notification-content">
+                <div class="notification-title">${displayTitle}</div>
+                <div class="notification-message">${message}</div>
+        </div>
+            <button class="notification-close">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div class="notification-progress"></div>
+`;
 
-        // Envoyer la requête de suppression
-        const formData = new FormData();
-        formData.append('rapport_id', rapportId);
+        const closeButton = notification.querySelector('.notification-close');
+        const progressBar = notification.querySelector('.notification-progress');
 
-        fetch('?page=gestion_rapports&action=delete_rapport', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                // Si le statut HTTP n'est pas OK (e.g. 500 Internal Server Error)
-                // On lit la réponse comme du texte et on la lance comme une erreur
-                return response.text().then(text => { throw new Error(text || 'Réponse invalide du serveur') });
-            }
-            return response.json(); // On tente de parser le JSON si la réponse est OK
-        })
-        .then(data => {
-            document.body.removeChild(loadingDiv);
-
-            if (data.success) {
-                // Supprimer visuellement le rapport de la liste
-                const rapportElement = document.getElementById('rapport-' + rapportId);
-                if (rapportElement) {
-                    rapportElement.remove();
-                }
-
-                // Afficher un message de succès
-                showNotification('success', data.message);
-            } else {
-                showNotification('error', data.message || 'Erreur lors de la suppression');
-            }
-        })
-        .catch(error => {
-            document.body.removeChild(loadingDiv);
-            console.error('Erreur brut:', error);
-            showNotification('error', 'Erreur inattendue: ' + error.message);
+        // Gestion de la fermeture manuelle
+        closeButton.addEventListener('click', function() {
+            hideNotification(notification);
         });
+
+        // Animation de la barre de progression
+        let progress = 100;
+        const progressInterval = setInterval(() => {
+            progress -= 1;
+            progressBar.style.width = progress + '%';
+            if (progress <= 0) {
+                clearInterval(progressInterval);
+            }
+        }, 30); // 3000ms / 100 = 30ms par étape
+
+        notificationContainer.appendChild(notification);
+
+        // Animation d'entrée
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+
+        // Auto-fermeture après 3 secondes
+        setTimeout(() => {
+            hideNotification(notification);
+            clearInterval(progressInterval);
+        }, 3000);
+
+        function hideNotification(notification) {
+            notification.classList.remove('show');
+            notification.classList.add('hide');
+            setTimeout(() => {
+                if (notificationContainer.contains(notification)) {
+                    notificationContainer.removeChild(notification);
+                }
+            }, 300);
+        }
     }
 
-    function showNotification(type, message) {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg pointer-events-auto overflow-hidden transform transition-all duration-300 z-50`;
+    function showCandidatureRequiredMessage() {
+        showNotification('error', 'Vous devez avoir une candidature validée pour accéder à cette fonctionnalité.');
+    }
 
-        let iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
-        let bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
-        let icon = type === 'success' ? 'check' : 'times';
+    // Fonctions pour la modal de suppression
+    function confirmerSuppression(rapportId, rapportNom) {
+        document.getElementById('rapportIdToDelete').value = rapportId;
+        document.getElementById('rapportNom').textContent = '"' + rapportNom + '"';
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deleteModal').classList.add('flex');
+    }
 
-        notification.innerHTML = `
-        <div class="${bgColor} p-4 flex">
-            <div class="flex-shrink-0">
-                <i class="fas fa-${icon} ${iconColor}"></i>
-            </div>
-            <div class="ml-3 w-0 flex-1">
-                <p class="text-sm font-medium text-gray-900">${message}</p>
-            </div>
-            <div class="ml-4 flex-shrink-0 flex">
-                <button onclick="this.parentElement.parentElement.parentElement.remove()"
-                        class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    `;
-
-        document.body.appendChild(notification);
-
-        // Supprimer automatiquement après 3 secondes
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 3000);
+    function fermerModalSuppression() {
+        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').classList.remove('flex');
     }
     </script>
 </body>

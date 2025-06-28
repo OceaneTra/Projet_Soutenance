@@ -11,15 +11,15 @@
 
     <div class="container mx-auto py-10">
         <?php if (isset($_SESSION['message'])): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-center">
-                <strong class="font-bold">
-                    <?php if ($_SESSION['message']['type'] === 'success'): ?>Succès !<?php else: ?>Erreur !<?php endif; ?>
-                </strong> <?= htmlspecialchars($_SESSION['message']['text']) ?>
-            </div>
-            <?php unset($_SESSION['message']); ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-center">
+            <strong class="font-bold">
+                <?php if ($_SESSION['message']['type'] === 'success'): ?>Succès !<?php else: ?>Erreur !<?php endif; ?>
+            </strong> <?= htmlspecialchars($_SESSION['message']['text']) ?>
+        </div>
+        <?php unset($_SESSION['message']); ?>
         <?php endif; ?>
         <h1 class="text-3xl font-bold text-center text-green-800 mb-10">Gestion des Réclamations</h1>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <?php foreach ($cardReclamation as $card): ?>
             <div
                 class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-75 transform hover:-translate-y-2 card">

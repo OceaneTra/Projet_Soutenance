@@ -1,18 +1,26 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
+
+require_once __DIR__ . '/../models/Etudiant.php';
+
 require_once __DIR__ . '/../models/RapportEtudiants.php';
 require_once __DIR__ . '/../models/Approuver.php';
+
 
 class GestionRapportController {
 
     private $baseViewPath;
     private $rapportModel;
 
+    private $etudiant;
+
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_rapports/';
         $this->rapportModel = new RapportEtudiant(Database::getConnection());
+        $this->etudiant = new Etudiant(Database::getConnection());
+
 
         // Vérifier que l'utilisateur est connecté
         if (!isset($_SESSION['id_utilisateur'])) {
@@ -27,6 +35,8 @@ class GestionRapportController {
 
     private function verifierVariablesSession()
     {
+
+        $GLOBALS['candidatures_etudiant'] = $this->etudiant->getCandidatures($_SESSION['num_etu']);
         // Vérifier que les variables nécessaires sont présentes
         if (!isset($_SESSION['type_utilisateur'])) {
             throw new Exception("Variables de session manquantes. Veuillez vous reconnecter.");
@@ -56,12 +66,15 @@ class GestionRapportController {
     public function index()
     {
         try {
-            global $statistiquesRapports, $rapportsRecents;
+            global $statistiquesRapports, $rapportsRecents, $infosDepot;
 
             if ($this->isEtudiant()) {
                 $statistiquesRapports = $this->rapportModel->getStatsEtudiant($_SESSION['num_etu']);
                 $rapportsRecents = $this->rapportModel->getRapportsByEtudiant($_SESSION['num_etu']);
                 $rapportsRecents = array_slice($rapportsRecents, 0, 5); // Limiter à 5 pour le dashboard
+                
+                // Récupérer les informations de dépôt pour chaque rapport
+                $infosDepot = $this->getInfosDepotRapports($_SESSION['num_etu']);
             } else {
                 $rapportsRecents = $this->rapportModel->getRecentRapports(5);
                 $statistiquesRapports = $this->calculerStatistiquesGlobales();
@@ -70,6 +83,72 @@ class GestionRapportController {
         } catch (Exception $e) {
             $this->afficherErreur("Erreur lors du chargement du dashboard : " . $e->getMessage());
         }
+    }
+
+    /**
+     * Récupère les informations de dépôt pour tous les rapports d'un étudiant
+     */
+    private function getInfosDepotRapports($num_etu)
+    {
+        $infos = [];
+        
+        // Récupérer tous les rapports de l'étudiant
+        $rapports = $this->rapportModel->getRapportsByEtudiant($num_etu);
+        
+        foreach ($rapports as $rapport) {
+            $rapportId = $rapport->id_rapport;
+            
+            // Vérifier si ce rapport est déjà déposé
+            $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+            $stmt->execute([$num_etu, $rapportId]);
+            $dejaDepose = $stmt->fetchColumn() > 0;
+            
+            $peutDeposer = true;
+            $messageDepot = '';
+            
+            if ($dejaDepose) {
+                $peutDeposer = false;
+                $messageDepot = 'Déjà déposé';
+            } else {
+                // Vérifier si l'étudiant a un autre rapport en cours d'évaluation
+                $stmt = $this->rapportModel->pdo->prepare("
+                    SELECT d.id_rapport, d.date_depot 
+                    FROM deposer d 
+                    WHERE d.num_etu = ? 
+                    ORDER BY d.date_depot DESC 
+                    LIMIT 1
+                ");
+                $stmt->execute([$num_etu]);
+                $dernierDepot = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($dernierDepot && $dernierDepot['id_rapport'] != $rapportId) {
+                    // Vérifier le statut d'approbation du dernier rapport déposé
+                    $stmt = $this->rapportModel->pdo->prepare("
+                        SELECT a.*, n.lib_approb 
+                        FROM approuver a
+                        JOIN niveau_approbation n ON a.id_approb = n.id_approb
+                        WHERE a.id_rapport = ?
+                        ORDER BY a.date_approv DESC
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$dernierDepot['id_rapport']]);
+                    $derniereApprobation = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if (!$derniereApprobation || strtolower($derniereApprobation['lib_approb']) !== 'rejeté') {
+                        $peutDeposer = false;
+                        $messageDepot = 'Vous avez déjà un rapport en cours d\'évaluation';
+                    }
+                }
+            }
+            
+            $infos[$rapportId] = [
+                'peutDeposer' => $peutDeposer,
+                'messageDepot' => $messageDepot,
+                'dejaDepose' => $dejaDepose
+            ];
+        }
+        
+        return $infos;
     }
 
     //=============================CREER UN RAPPORT=============================
@@ -134,10 +213,16 @@ class GestionRapportController {
                     header('Location: ?page=gestion_rapports&message=depot_ok');
                     exit;
                 } else {
-                    header('Location: ?page=gestion_rapports&message=depot_fail');
-                    exit;
+                    // Vérifier la raison de l'échec
+                    if ($this->aUnRapportEnCours($_SESSION['num_etu'])) {
+                        header('Location: ?page=gestion_rapports&message=depot_en_cours');
+                        exit;
+                    } else {
+                        header('Location: ?page=gestion_rapports&message=depot_fail');
+                        exit;
+                    }
                 }
-            } elseif ($action === 'export_rapport') {
+            } elseif ($action === 'export_pdf') {
                 $this->exporterRapport();
             } else {
                 throw new Exception("Action non reconnue.");
@@ -278,45 +363,310 @@ class GestionRapportController {
 
     private function exporterRapport()
     {
-        $contenu_rapport = $_POST['contenu_rapport'] ?? '';
-        $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
+        try {
+            // Vérifier que DOMPDF est disponible
+            if (!class_exists('\Dompdf\Dompdf')) {
+                require_once __DIR__ . '/../../vendor/autoload.php';
+            }
+            
+            if (!class_exists('\Dompdf\Dompdf')) {
+                throw new Exception('DOMPDF n\'est pas installé ou accessible.');
+            }
+            
+            $contenu_rapport = $_POST['contenu_rapport'] ?? '';
+            $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
 
-        if (empty($contenu_rapport)) {
-            throw new Exception('Le contenu du rapport est vide.');
+            if (empty($contenu_rapport)) {
+                throw new Exception('Le contenu du rapport est vide.');
+            }
+
+            // Style CSS amélioré pour préserver exactement la mise en page TinyMCE
+            $css = "
+                <style>
+                    /* Styles de base */
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 2cm; 
+                        line-height: 1.6; 
+                        font-size: 12pt;
+                        color: #333;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver tous les styles inline */
+                    * {
+                        box-sizing: border-box;
+                    }
+                    
+                    /* Préserver les tailles de police exactes */
+                    h1, h2, h3, h4, h5, h6 {
+                        margin: 0;
+                        padding: 0;
+                        text-align: center;
+                    }
+                    
+                    /* Préserver les dispositions flexbox */
+                    div[style*='display: flex'] {
+                        display: flex !important;
+                    }
+                    
+                    div[style*='justify-content'] {
+                        justify-content: inherit !important;
+                    }
+                    
+                    div[style*='align-items'] {
+                        align-items: inherit !important;
+                    }
+                    
+                    div[style*='flex-direction'] {
+                        flex-direction: inherit !important;
+                    }
+                    
+                    /* Préserver les marges et paddings */
+                    div[style*='margin'] {
+                        margin: inherit !important;
+                    }
+                    
+                    div[style*='padding'] {
+                        padding: inherit !important;
+                    }
+                    
+                    /* Préserver les tailles de police */
+                    span[style*='font-size'], p[style*='font-size'], div[style*='font-size'] {
+                        font-size: inherit !important;
+                    }
+                    
+                    /* Préserver les couleurs */
+                    span[style*='color'], p[style*='color'], div[style*='color'] {
+                        color: inherit !important;
+                    }
+                    
+                    /* Préserver les alignements de texte */
+                    div[style*='text-align'] {
+                        text-align: inherit !important;
+                    }
+                    
+                    /* Alignement par défaut pour les paragraphes - JUSTIFIÉ */
+                    p {
+                        text-align: justify !important;
+                        margin: 0 0 10px 0;
+                    }
+                    
+                    /* Préserver l'alignement centré pour les éléments spécifiques */
+                    div[style*='text-align: center'] {
+                        text-align: center !important;
+                    }
+                    
+                    /* Préserver les bordures et backgrounds */
+                    div[style*='border'] {
+                        border: inherit !important;
+                    }
+                    
+                    div[style*='background'] {
+                        background: inherit !important;
+                    }
+                    
+                    /* Préserver les largeurs et hauteurs */
+                    div[style*='width'] {
+                        width: inherit !important;
+                    }
+                    
+                    div[style*='height'] {
+                        height: inherit !important;
+                    }
+                    
+                    /* Préserver les positions */
+                    div[style*='position'] {
+                        position: inherit !important;
+                    }
+                    
+                    /* Assurer que les images ne dépassent pas */
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                    }
+                    
+                    /* Assurer que les tableaux s'affichent correctement */
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                    }
+                    
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver les listes */
+                    ul, ol {
+                        margin: 0;
+                        padding-left: 20px;
+                        text-align: left;
+                    }
+                    
+                    li {
+                        margin-bottom: 5px;
+                        text-align: left;
+                    }
+                    
+                    /* Préserver les espaces entre les éléments */
+                    div {
+                        margin-bottom: 0;
+                    }
+                    
+                    /* Assurer que les éléments flex s'affichent correctement */
+                    .flex-container {
+                        display: flex !important;
+                    }
+                    
+                    /* Préserver les styles spécifiques du template */
+                    div[style*='display: flex'][style*='justify-content: space-between'] {
+                        display: flex !important;
+                        justify-content: space-between !important;
+                    }
+                    
+                    div[style*='margin-bottom'] {
+                        margin-bottom: inherit !important;
+                    }
+                    
+                    /* Règles spécifiques pour le contenu du rapport */
+                    /* S'assurer que les sections principales du corps sont justifiées */
+                    div[style*='margin-bottom: 40px'] p {
+                        text-align: justify !important;
+                    }
+                    
+                    /* S'assurer que les paragraphes dans les sections sont justifiés */
+                    div[style*='margin-bottom: 40px'] {
+                        text-align: justify !important;
+                    }
+                    
+                    /* Préserver l'alignement des titres de sections à gauche */
+                    h1[style*='border-bottom'] {
+                        text-align: left !important;
+                    }
+                    
+                    /* S'assurer que tous les paragraphes de contenu sont justifiés */
+                    div:not([style*='text-align: center']) p {
+                        text-align: justify !important;
+                    }
+                    
+                    /* Exception pour les paragraphes centrés */
+                    div[style*='text-align: center'] p {
+                        text-align: center !important;
+                    }
+                    
+                    /* Centrer spécifiquement le contenu de la div theme_rapport */
+                    #theme_rapport {
+                        text-align: center !important;
+                        margin-botton:20px;
+                    }
+                    
+                    #theme_rapport p {
+                        text-align: center !important;
+                    }
+                    
+                    #theme_rapport h2 {
+                        text-align: center !important;
+                    }
+                    
+                    /* S'assurer que header_rapport utilise flexbox */
+                    #header_rapport {
+                        display: flex !important;
+                        justify-content: space-between !important;
+                        align-items: flex-start !important;
+                        width: 100% !important;
+                        margin : 0;
+                        text-align: left;
+                    }
+                    
+                    /* S'assurer que les éléments enfants de header_rapport s'affichent correctement */
+                    #header_rapport1, #header_rapport2 {
+                        flex: 1 !important;
+                        margin: 0 !important;
+                    }
+                    
+                    #header_rapport1 {
+                        text-align: center !important;
+                    }
+                    
+                    #header_rapport2 {
+                        text-align: center !important;
+                    }
+                </style>
+            ";
+
+            // Utiliser directement le contenu HTML de l'éditeur
+            $htmlContent = "<!DOCTYPE html>
+            <html lang='fr'>
+            <head>
+                <meta charset='UTF-8'>
+                <title>" . htmlspecialchars($nom_rapport) . "</title>
+                {$css}
+            </head>
+            <body>
+                {$contenu_rapport}
+            </body>
+            </html>";
+
+            // Debug: logger le contenu HTML
+            error_log("HTML Content length: " . strlen($htmlContent));
+
+            // Configuration DOMPDF optimisée pour préserver les styles
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isPhpEnabled', false);
+            $options->set('isRemoteEnabled', false);
+            $options->set('defaultFont', 'Arial');
+            $options->set('defaultPaperSize', 'A4');
+            $options->set('defaultPaperOrientation', 'portrait');
+            $options->set('isFontSubsettingEnabled', true);
+            $options->set('isCssFloatEnabled', true);
+            $options->set('isJavascriptEnabled', false);
+
+            $dompdf = new \Dompdf\Dompdf($options);
+            
+            // Debug: vérifier que DOMPDF est bien instancié
+            if (!$dompdf) {
+                throw new Exception('Impossible d\'instancier DOMPDF.');
+            }
+            
+            $dompdf->loadHtml($htmlContent);
+            $dompdf->setPaper('A4', 'portrait');
+            
+            // Debug: logger avant le rendu
+            error_log("Starting PDF rendering...");
+            
+            $dompdf->render();
+            
+            // Debug: logger après le rendu
+            error_log("PDF rendering completed.");
+
+            // Nettoyer le nom du fichier
+            $pdfName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_rapport) . '.pdf';
+            
+            // Définir les headers pour le téléchargement
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $pdfName . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . strlen($dompdf->output()));
+            
+            echo $dompdf->output();
+            exit;
+
+        } catch (Exception $e) {
+            error_log("Erreur lors de l'export PDF: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            // Retourner une réponse JSON en cas d'erreur
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur lors de la génération du PDF: ' . $e->getMessage()
+            ]);
+            exit;
         }
-
-        $htmlContent = "<!DOCTYPE html>
-        <html lang='fr'>
-        <head>
-            <meta charset='UTF-8'>
-            <title>" . htmlspecialchars($nom_rapport) . "</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                h1, h2, h3 { color: #333; margin-top: 20px; }
-                p { margin-bottom: 15px; text-align: justify; }
-                ul, ol { margin-bottom: 15px; padding-left: 30px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
-            </style>
-        </head>
-        <body>
-            <div class='header'>
-                <h1>" . htmlspecialchars($nom_rapport) . "</h1>
-                <p>Généré le " . date('d/m/Y à H:i') . "</p>
-                <p>Par : " . htmlspecialchars($_SESSION['nom_utilisateur']) . "</p>
-            </div>
-            {$contenu_rapport}
-            <div class='footer'>
-                <p>Document généré par le système de gestion des rapports</p>
-            </div>
-        </body>
-        </html>";
-
-        header('Content-Type: text/html; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . htmlspecialchars($nom_rapport) . '.html"');
-        header('Content-Length: ' . strlen($htmlContent));
-        echo $htmlContent;
-        exit;
     }
 
     //=============================SUIVI RAPPORTS=============================
@@ -380,8 +730,8 @@ class GestionRapportController {
         return $stats;
     }
 
-    //=============================COMPTE RENDU RAPPORTS=============================
-    public function compteRenduRapport()
+    //=============================COMMENTAIRE RAPPORT=============================
+    public function commentaireRapport()
     {
         try {
             // Si un ID est spécifié, afficher le détail
@@ -413,14 +763,14 @@ class GestionRapportController {
 
     private function afficherDetailRapport($id)
     {
-        global $rapport, $contenuRapport;
+        global $rapport, $commentaires;
 
         // Debug
         error_log("AfficherDetailRapport - ID: $id");
         error_log("Type utilisateur: " . ($_SESSION['type_utilisateur'] ?? 'non défini'));
         error_log("Num étudiant: " . ($_SESSION['num_etu'] ?? 'non défini'));
 
-        // Temporairement, permettre à tous les utilisateurs de voir les rapports
+        // Récupérer le rapport
         $rapport = $this->rapportModel->getRapportById($id);
         error_log("Rapport trouvé: " . ($rapport ? 'oui' : 'non'));
 
@@ -429,16 +779,8 @@ class GestionRapportController {
             return;
         }
 
-        // Lire le contenu du rapport - Correction du chemin
-        $fichierContenu = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$id}.html";
-        error_log("Chemin du fichier: $fichierContenu");
-        error_log("Fichier existe: " . (file_exists($fichierContenu) ? 'oui' : 'non'));
-        
-        $contenuRapport = '';
-        if (file_exists($fichierContenu)) {
-            $contenuRapport = file_get_contents($fichierContenu);
-            error_log("Taille du contenu: " . strlen($contenuRapport));
-        }
+        // Récupérer les commentaires des évaluateurs
+        $commentaires = $this->getCommentairesEvaluateurs($id);
 
         // Convertir l'objet en tableau pour la vue
         $rapport = (array) $rapport;
@@ -451,6 +793,63 @@ class GestionRapportController {
             $this->afficherErreur("Vue de détail non trouvée.");
         }
         exit; // Empêcher l'affichage de la vue normale
+    }
+
+    /**
+     * Récupère les commentaires des évaluateurs pour un rapport
+     */
+    private function getCommentairesEvaluateurs($rapportId)
+    {
+        $commentaires = [];
+        
+        try {
+            // Récupérer les commentaires du chargé de communication (table approuver)
+            $stmt = $this->rapportModel->pdo->prepare("
+                SELECT 
+                    a.commentaire,
+                    a.date_approuver,
+                    u.nom,
+                    u.prenom,
+                    'Chargé de communication' as fonction
+                FROM approuver a
+                JOIN utilisateur u ON a.id_utilisateur = u.id_utilisateur
+                WHERE a.id_rapport = ? AND a.commentaire IS NOT NULL AND a.commentaire != ''
+                ORDER BY a.date_approuver DESC
+            ");
+            $stmt->execute([$rapportId]);
+            $commentairesApprouver = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Récupérer les commentaires des membres de la commission (table valider)
+            $stmt = $this->rapportModel->pdo->prepare("
+                SELECT 
+                    v.commentaire,
+                    v.date_valider,
+                    u.nom,
+                    u.prenom,
+                    'Membre de la commission' as fonction
+                FROM valider v
+                JOIN utilisateur u ON v.id_utilisateur = u.id_utilisateur
+                WHERE v.id_rapport = ? AND v.commentaire IS NOT NULL AND v.commentaire != ''
+                ORDER BY v.date_valider DESC
+            ");
+            $stmt->execute([$rapportId]);
+            $commentairesValider = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Combiner les commentaires
+            $commentaires = array_merge($commentairesApprouver, $commentairesValider);
+            
+            // Trier par date (le plus récent en premier)
+            usort($commentaires, function($a, $b) {
+                $dateA = $a['date_approuver'] ?? $a['date_valider'];
+                $dateB = $b['date_approuver'] ?? $b['date_valider'];
+                return strtotime($dateB) - strtotime($dateA);
+            });
+            
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la récupération des commentaires: " . $e->getMessage());
+        }
+        
+        return $commentaires;
     }
 
     //=============================ACTIONS AJAX=============================
@@ -540,7 +939,7 @@ class GestionRapportController {
     private function afficherErreur($message)
     {
         $this->afficherMessage($message, 'error');
-        include $this->baseViewPath . 'erreur.php';
+      
     }
 
     private function verifierDroitsAdmin()
@@ -595,21 +994,16 @@ class GestionRapportController {
         }
     }
 
-    private function verifierDroitsAcces($rapport)
-    {
-        if ($this->isEtudiant()) {
-            // Un étudiant ne peut voir que ses propres rapports
-            return $rapport['num_etu'] == $_SESSION['num_etu'];
-        } else {
-            // Le personnel administratif peut voir tous les rapports
-            return true;
-        }
-    }
 
     public function enregistrerDepotRapport($id_rapport)
     {
         $num_etu = $_SESSION['num_etu'];
         $date_depot = date('Y-m-d H:i:s');
+
+        // Vérifier si l'étudiant a déjà un rapport en cours d'évaluation
+        if ($this->aUnRapportEnCours($num_etu)) {
+            return false;
+        }
 
         // Vérifier si le dépôt existe déjà (éviter les doublons)
         $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
@@ -622,6 +1016,159 @@ class GestionRapportController {
         // Insérer le dépôt
         $stmt = $this->rapportModel->pdo->prepare("INSERT INTO deposer (num_etu, id_rapport, date_depot) VALUES (?, ?, ?)");
         return $stmt->execute([$num_etu, $id_rapport, $date_depot]);
+    }
+
+    /**
+     * Vérifie si l'étudiant a un rapport en cours d'évaluation (non rejeté)
+     */
+    private function aUnRapportEnCours($num_etu)
+    {
+        // Récupérer le dernier rapport déposé par l'étudiant
+        $stmt = $this->rapportModel->pdo->prepare("
+            SELECT d.id_rapport, d.date_depot 
+            FROM deposer d 
+            WHERE d.num_etu = ? 
+            ORDER BY d.date_depot DESC 
+            LIMIT 1
+        ");
+        $stmt->execute([$num_etu]);
+        $dernierDepot = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dernierDepot) {
+            // Aucun rapport déposé, peut déposer
+            return false;
+        }
+
+        // Vérifier le statut d'approbation du dernier rapport déposé
+        $stmt = $this->rapportModel->pdo->prepare("
+            SELECT a.*, n.lib_approb 
+            FROM approuver a
+            JOIN niveau_approbation n ON a.id_approb = n.id_approb
+            WHERE a.id_rapport = ?
+            ORDER BY a.date_approv DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$dernierDepot['id_rapport']]);
+        $derniereApprobation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Si pas d'approbation ou si le statut n'est pas "rejeté", l'étudiant ne peut pas déposer
+        if (!$derniereApprobation || strtolower($derniereApprobation['lib_approb']) !== 'rejeté') {
+            return true; // A un rapport en cours
+        }
+
+        return false; // Peut déposer un nouveau rapport
+    }
+
+    /**
+     * Supprime un rapport (appelé via formulaire POST)
+     */
+    public function supprimer_rapport()
+    {
+        // Vérifier que c'est bien un POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return; // Ne rien faire si ce n'est pas un POST
+        }
+
+        try {
+            // Vérifier que l'utilisateur est connecté
+            if (!$this->isEtudiant()) {
+                $this->afficherErreur('Accès non autorisé');
+                return;
+            }
+
+            // Vérifier que l'ID du rapport est fourni
+            if (!isset($_POST['rapport_id']) || empty($_POST['rapport_id'])) {
+                $this->afficherErreur('ID du rapport manquant');
+                return;
+            }
+
+            $rapportId = (int)$_POST['rapport_id'];
+            $numEtu = $_SESSION['num_etu'];
+
+            // Vérifier que le rapport appartient à l'étudiant
+            $rapport = $this->rapportModel->getRapportById($rapportId);
+            if (!$rapport || $rapport->num_etu != $numEtu) {
+                $this->afficherErreur('Rapport non trouvé ou accès non autorisé');
+                return;
+            }
+
+            // Vérifier que le rapport n'est pas déjà déposé
+            $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+            $stmt->execute([$numEtu, $rapportId]);
+            if ($stmt->fetchColumn() > 0) {
+                $this->afficherErreur('Impossible de supprimer un rapport déjà déposé');
+                return;
+            }
+
+            // Supprimer le rapport
+            $success = $this->rapportModel->deleteRapport($rapportId, $numEtu);
+
+            if ($success) {
+                // Rediriger avec un message de succès
+                header('Location: ?page=gestion_rapports&message=suppression_ok');
+                exit;
+            } else {
+                $this->afficherErreur('Erreur lors de la suppression du rapport');
+            }
+
+        } catch (Exception $e) {
+            $this->afficherErreur('Erreur lors de la suppression : ' . $e->getMessage());
+        }
+    }
+
+    public function getCommentairesAjax()
+    {
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo "ID du rapport manquant";
+            return;
+        }
+
+        $rapportId = $_GET['id'];
+        
+        // Récupérer les commentaires
+        $commentaires = $this->getCommentairesEvaluateurs($rapportId);
+        
+        // Afficher le HTML des commentaires
+        if (!empty($commentaires)) {
+            echo '<div class="space-y-6">';
+            foreach ($commentaires as $commentaire) {
+                echo '<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">';
+                echo '<div class="flex items-center justify-between mb-3">';
+                echo '<div class="flex items-center space-x-3">';
+                echo '<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">';
+                echo '<i class="fas fa-user-tie text-blue-600"></i>';
+                echo '</div>';
+                echo '<div>';
+                echo '<h4 class="font-semibold text-gray-800">';
+                echo htmlspecialchars($commentaire['prenom'] . ' ' . $commentaire['nom']);
+                echo '</h4>';
+                echo '<p class="text-sm text-gray-600">';
+                echo '<i class="fas fa-briefcase mr-1"></i>';
+                echo htmlspecialchars($commentaire['fonction']);
+                echo '</p>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="text-sm text-gray-500">';
+                echo '<i class="fas fa-calendar mr-1"></i>';
+                $date = isset($commentaire['date_approuver']) ? $commentaire['date_approuver'] : $commentaire['date_valider'];
+                echo date('d M Y - H:i', strtotime($date));
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="bg-gray-50 rounded-lg p-3">';
+                echo '<p class="text-gray-700 leading-relaxed">';
+                echo nl2br(htmlspecialchars($commentaire['commentaire']));
+                echo '</p>';
+                echo '</div>';
+                echo '</div>';
+            }
+            echo '</div>';
+        } else {
+            echo '<div class="text-center py-8 text-gray-500">';
+            echo '<i class="fas fa-comment-slash text-4xl mb-4"></i>';
+            echo '<p>Aucun commentaire disponible pour ce rapport</p>';
+            echo '</div>';
+        }
     }
 
 }

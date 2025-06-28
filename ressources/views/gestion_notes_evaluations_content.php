@@ -335,7 +335,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                                 $note_ecue = null;
                                                 if (!empty($GLOBALS['studentGrades'])) {
                                                     foreach ($GLOBALS['studentGrades'] as $grade) {
-                                                        if ($grade->ecue_id == $ecue->id_ecue) {
+                                                        if ($grade->id_ecue == $ecue->id_ecue) {
                                                             $note_ecue = $grade->moyenne;
                                                             break;
                                                         }
@@ -349,7 +349,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                                 $commentaire_ecue = null;
                                                 if (!empty($GLOBALS['studentGrades'])) {
                                                     foreach ($GLOBALS['studentGrades'] as $grade) {
-                                                        if ($grade->ecue_id == $ecue->id_ecue) {
+                                                        if ($grade->id_ecue == $ecue->id_ecue) {
                                                             $commentaire_ecue = $grade->commentaire;
                                                             break;
                                                         }
@@ -361,6 +361,22 @@ $studentGrades = $GLOBALS['studentGrades'];
                                                 echo '</div>';
                                             }
                                             echo '</div>';
+                                            // Affichage de la moyenne de l'UE (lecture seule)
+                                            $moyenne_ue = null;
+                                            $nb_ecue = 0;
+                                            $somme = 0;
+                                            foreach ($ecues as $ecue) {
+                                                foreach ($GLOBALS['studentGrades'] as $grade) {
+                                                    if ($grade->id_ecue == $ecue->id_ecue && $grade->moyenne !== null) {
+                                                        $somme += $grade->moyenne;
+                                                        $nb_ecue++;
+                                                    }
+                                                }
+                                            }
+                                            if ($nb_ecue > 0) {
+                                                $moyenne_ue = round($somme / $nb_ecue, 2);
+                                            }
+                                            echo '<div class="mt-4 text-right"><span class="text-sm text-blue-700 font-semibold">Moyenne UE : ' . ($moyenne_ue !== null ? $moyenne_ue : '-') . '</span></div>';
                                             echo '</div>';
                                         } else {
                                             // Affichage sans ECUE - tout sur une ligne
@@ -373,7 +389,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                             $note = null;
                                             if (!empty($GLOBALS['studentGrades'])) {
                                                 foreach ($GLOBALS['studentGrades'] as $grade) {
-                                                    if ($grade->ue_id == $ue->id_ue) {
+                                                    if ($grade->id_ue == $ue->id_ue) {
                                                         $note = $grade->moyenne;
                                                         break;
                                                     }
@@ -387,7 +403,7 @@ $studentGrades = $GLOBALS['studentGrades'];
                                             $commentaire = null;
                                             if (!empty($GLOBALS['studentGrades'])) {
                                                 foreach ($GLOBALS['studentGrades'] as $grade) {
-                                                    if ($grade->ue_id == $ue->id_ue) {
+                                                    if ($grade->id_ue == $ue->id_ue) {
                                                         $commentaire = $grade->commentaire;
                                                         break;
                                                     }
@@ -440,56 +456,75 @@ $studentGrades = $GLOBALS['studentGrades'];
                                 </p>
                             </div>
                             <div class="bg-white rounded-lg p-4 shadow-sm">
-                                <h3 class="text-sm font-medium text-gray-500 mb-1">Crédits Validés</h3>
-                                <p class="text-2xl font-bold text-green-600">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Moyenne UE majeures</h3>
+                                <p class="text-2xl font-bold text-blue-600">
                                     <?php
-                                    $creditsValides = 0;
+                                    $sumMaj = $credMaj = 0;
                                     foreach ($GLOBALS['studentGrades'] as $grade) {
-                                        if ($grade->moyenne >= 10) {
-                                            $creditsValides += $grade->credit;
+                                        if ($grade->credit > 3) {
+                                            $sumMaj += $grade->moyenne * $grade->credit;
+                                            $credMaj += $grade->credit;
                                         }
                                     }
-                                    echo $creditsValides;
+                                    $moyMaj = $credMaj ? round($sumMaj / $credMaj, 2) : '-';
+                                    echo $moyMaj;
                                     ?>
                                 </p>
                             </div>
                             <div class="bg-white rounded-lg p-4 shadow-sm">
-                                <h3 class="text-sm font-medium text-gray-500 mb-1">UE Validées</h3>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Moyenne UE mineures</h3>
+                                <p class="text-2xl font-bold text-blue-600">
+                                    <?php
+                                    $sumMin = $credMin = 0;
+                                    foreach ($GLOBALS['studentGrades'] as $grade) {
+                                        if ($grade->credit <= 3) {
+                                            $sumMin += $grade->moyenne * $grade->credit;
+                                            $credMin += $grade->credit;
+                                        }
+                                    }
+                                    $moyMin = $credMin ? round($sumMin / $credMin, 2) : '-';
+                                    echo $moyMin;
+                                    ?>
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Crédits Attribués</h3>
                                 <p class="text-2xl font-bold text-green-600">
                                     <?php
-                                    $uesValidees = 0;
-                                    $uesTraitees = [];
-                                    foreach ($GLOBALS['studentGrades'] as $grade) {
-                                        if (!in_array($grade->ue_id, $uesTraitees)) {
+                                    // Validation du semestre selon les moyennes majeures/mineures
+                                    $semestreValide = ($moyMaj !== '-' && $moyMin !== '-' && $moyMaj >= 10 && $moyMin >= 10);
+                                    if ($semestreValide) {
+                                        echo $totalCredits;
+                                    } else {
+                                        // Sinon, somme des crédits des UE validées individuellement
+                                        $creditsValides = 0;
+                                        foreach ($GLOBALS['studentGrades'] as $grade) {
                                             if ($grade->moyenne >= 10) {
-                                                $uesValidees++;
+                                                $creditsValides += $grade->credit;
                                             }
-                                            $uesTraitees[] = $grade->ue_id;
                                         }
+                                        echo $creditsValides;
                                     }
-                                    echo $uesValidees;
                                     ?>
                                 </p>
                             </div>
                             <div class="bg-white rounded-lg p-4 shadow-sm">
-                                <h3 class="text-sm font-medium text-gray-500 mb-1">UE en Échec</h3>
-                                <p class="text-2xl font-bold text-red-600">
-                                    <?php
-                                    $uesEchec = 0;
-                                    $uesTraitees = [];
-                                    foreach ($GLOBALS['studentGrades'] as $grade) {
-                                        if (!in_array($grade->ue_id, $uesTraitees)) {
-                                            if ($grade->moyenne < 10) {
-                                                $uesEchec++;
-                                            }
-                                            $uesTraitees[] = $grade->ue_id;
-                                        }
-                                    }
-                                    echo $uesEchec;
-                                    ?>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Validation Semestre</h3>
+                                <p
+                                    class="text-2xl font-bold <?php echo $semestreValide ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <?php echo $semestreValide ? 'Validé' : 'Non validé'; ?>
                                 </p>
                             </div>
                         </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($GLOBALS['selectedStudent'])): ?>
+                    <div class="flex justify-end mb-4 no-print">
+                        <a href="?page=gestion_notes_evaluations&action=imprimer_releve&student=<?= urlencode($GLOBALS['selectedStudent']->num_etu) ?>&niveau=<?= urlencode($GLOBALS['selectedNiveau']) ?>"
+                            target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            <i class="fa fa-file-pdf mr-2"></i> Imprimer le relevé de notes (PDF)
+                        </a>
                     </div>
                     <?php endif; ?>
                 </div>

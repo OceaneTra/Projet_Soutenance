@@ -1,9 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../../app/config/database.php';
-require_once __DIR__ . '/../../app/controllers/GestionScolariteController.php';
 
-$controller = new GestionScolariteController();
+if (isset($_GET['page']) && $_GET['page'] == 'gestion_scolarite') {
+
+    require_once __DIR__ . '/../../app/config/database.php';
+    require_once __DIR__ . '/../../app/controllers/GestionScolariteController.php';
+
+    $controller = new GestionScolariteController();
 
 
-$controller->index();
+    $controller->index();
+}

@@ -135,10 +135,10 @@ class NotesController {
                             
                             if ($noteExists) {
    
-                                $result = $this->noteModel->updateNote($studentId, null, $note, $commentaire, $ecueId);
+                                $result = $this->noteModel->updateNote($studentId, $ueId, $note, $commentaire, $ecueId);
                             } else {
               
-                                $result = $this->noteModel->createNote($studentId, null, $note, $commentaire, $ecueId);
+                                $result = $this->noteModel->createNote($studentId, $ueId, $note, $commentaire, $ecueId);
                             }
                             
                         

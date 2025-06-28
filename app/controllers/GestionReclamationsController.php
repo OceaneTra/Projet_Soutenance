@@ -12,46 +12,11 @@ class GestionReclamationsController {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_reclamations/';
         $this->reclamationModel = new Reclamation();
 
-        // Vérifier que l'utilisateur est connecté
-        if (!isset($_SESSION['id_utilisateur'])) {
+        // Vérifier que l'utilisateur est connecté et est un étudiant
+        if (!isset($_SESSION['num_etu'])) {
             header('Location: page_connexion.php');
             exit;
         }
-
-        // Adapter les variables selon votre système d'authentification existant
-        $_SESSION['user_id'] = $this->determinerUserId();
-        $_SESSION['user_type'] = $this->determinerTypeUtilisateur();
-        $_SESSION['groupe_utilisateur'] = $_SESSION['id_GU'] ?? 13;
-    }
-
-    private function determinerUserId() {
-        // Pour les étudiants, utiliser num_etu, sinon id_utilisateur
-        if (isset($_SESSION['num_etu'])) {
-            return $_SESSION['num_etu'];
-        }
-        return $_SESSION['id_utilisateur'];
-    }
-
-    private function determinerTypeUtilisateur()
-    {
-        // Utiliser le type d'utilisateur déjà déterminé par votre AuthController
-        $typeUtilisateur = $_SESSION['type_utilisateur'] ?? '';
-
-        // Mapper vers les types utilisés dans le système de réclamations
-        if ($typeUtilisateur === 'Etudiant') {
-            return 'etudiant';
-        }
-
-        // Tous les autres types sont considérés comme administratifs
-        if (in_array($typeUtilisateur, [
-            'Personnel administratif',
-            'Enseignant simple',
-            'Enseignant administratif'
-        ])) {
-            return 'admin';
-        }
-
-        return 'etudiant'; // Par défaut
     }
 
     // Afficher le dashboard des réclamations
@@ -115,45 +80,23 @@ class GestionReclamationsController {
                 exit;
             }
 
-            // Gestion du fichier joint (si présent)
-            $fichierJoint = null;
-            if (isset($_FILES['fichier_joint']) && $_FILES['fichier_joint']['error'] === UPLOAD_ERR_OK) {
-                $fichierJoint = $this->gererUploadFichier($_FILES['fichier_joint']);
-            }
+            // Préparer les données pour la base
+            if (!isset($_SESSION['num_etu'])) {
+                // Tentative de récupération via l'email si pas trouvé
+                $this->recupererNumEtu();
 
-            // Préparer les données pour la base selon le type d'utilisateur
-            if ($_SESSION['user_type'] === 'etudiant') {
-                // Pour les étudiants, utiliser num_etu
                 if (!isset($_SESSION['num_etu'])) {
-                    // Tentative de récupération via l'email si pas trouvé
-                    $this->recupererNumEtu();
-
-                    if (!isset($_SESSION['num_etu'])) {
-                        throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
-                    }
+                    throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
                 }
-
-                $donnees = [
-                    'num_etu' => $_SESSION['num_etu'],
-                    'id_utilisateur' => null,
-                    'titre' => trim($donneesReclamation['titre']),
-                    'description' => strip_tags(trim($donneesReclamation['description'])),
-                    'type' => $donneesReclamation['type'],
-                    'priorite' => $donneesReclamation['priorite'],
-                    'fichier' => $fichierJoint
-                ];
-            } else {
-                // Pour le personnel/enseignants, utiliser id_utilisateur
-                $donnees = [
-                    'num_etu' => null,
-                    'id_utilisateur' => $_SESSION['id_utilisateur'],
-                    'titre' => trim($donneesReclamation['titre']),
-                    'description' => strip_tags(trim($donneesReclamation['description'])),
-                    'type' => $donneesReclamation['type'],
-                    'priorite' => $donneesReclamation['priorite'],
-                    'fichier' => $fichierJoint
-                ];
             }
+
+            $donnees = [
+                'num_etu' => $_SESSION['num_etu'],
+                'titre' => trim($donneesReclamation['titre']),
+                'description' => strip_tags(trim($donneesReclamation['description'])),
+                'type' => $donneesReclamation['type'],
+                'priorite' => $donneesReclamation['priorite']
+            ];
 
             // Debug : afficher les données préparées
             error_log("Données pour insertion: " . print_r($donnees, true));
@@ -233,47 +176,8 @@ class GestionReclamationsController {
         return $erreurs;
     }
 
-    private function gererUploadFichier($fichier)
-    {
-        $dossierUpload = __DIR__ . '/../../ressources/uploads/reclamations/';
-
-        // Créer le dossier s'il n'existe pas
-        if (!is_dir($dossierUpload)) {
-            if (!mkdir($dossierUpload, 0755, true)) {
-                throw new Exception('Impossible de créer le dossier d\'upload.');
-            }
-        }
-
-        // Vérifier que le dossier est accessible en écriture
-        if (!is_writable($dossierUpload)) {
-            throw new Exception('Le dossier d\'upload n\'est pas accessible en écriture.');
-        }
-
-        // Générer un nom unique
-        $extension = pathinfo($fichier['name'], PATHINFO_EXTENSION);
-        $nomFichier = 'rec_' . date('Y-m-d_H-i-s') . '_' . uniqid() . '.' . $extension;
-        $cheminComplet = $dossierUpload . $nomFichier;
-
-        // Vérifier le type de fichier
-        $typesAutorises = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt'];
-        if (!in_array(strtolower($extension), $typesAutorises)) {
-            throw new Exception('Type de fichier non autorisé. Types acceptés : ' . implode(', ', $typesAutorises));
-        }
-
-        // Vérifier la taille (5MB max)
-        if ($fichier['size'] > 5 * 1024 * 1024) {
-            throw new Exception('Le fichier est trop volumineux (5MB maximum).');
-        }
-
-        if (move_uploaded_file($fichier['tmp_name'], $cheminComplet)) {
-            return $nomFichier;
-        } else {
-            throw new Exception('Erreur lors du téléchargement du fichier.');
-        }
-    }
-
     //=============================SUIVI RECLAMATION=============================
-    public function suiviReclamations()
+    public function suiviHistoriqueReclamations()
     {
         try {
             global $reclamations, $statistiques, $totalPages, $page, $totalReclamations, $filtresActuels;
@@ -308,31 +212,27 @@ class GestionReclamationsController {
                 }
             }
 
-            // Récupérer les réclamations selon le type d'utilisateur
-            if ($_SESSION['user_type'] === 'etudiant') {
-                // Pour les étudiants, filtrer par num_etu
-                $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
-                $totalReclamations = count($reclamations);
+            // Récupérer les réclamations de l'étudiant connecté
+            $reclamations = $this->reclamationModel->getTous(1000, 0); // Grande limite
+            $reclamations = array_filter($reclamations, function($rec) {
+                return $rec['num_etu'] == $_SESSION['num_etu'];
+            });
+            $totalReclamations = count($reclamations);
 
-                // Appliquer les filtres manuellement pour les étudiants
-                if (!empty($filtres)) {
-                    $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
-                        if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
-                            return false;
-                        }
-                        if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-
-                $reclamations = array_slice($reclamations, $offset, $limit);
-            } else {
-                // Pour les administrateurs/enseignants, voir toutes les réclamations
-                $reclamations = $this->reclamationModel->getTous($limit, $offset, $filtres);
-                $totalReclamations = $this->reclamationModel->compterTotal($filtres);
+            // Appliquer les filtres manuellement
+            if (!empty($filtres)) {
+                $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
+                    if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
+                        return false;
+                    }
+                    if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
+                        return false;
+                    }
+                    return true;
+                });
             }
+
+            $reclamations = array_slice($reclamations, $offset, $limit);
 
             $totalPages = ceil($totalReclamations / $limit);
 
@@ -349,11 +249,13 @@ class GestionReclamationsController {
 
     private function calculerStatistiques()
     {
-        if ($_SESSION['user_type'] === 'etudiant') {
-            $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
-        } else {
-            $reclamations = $this->reclamationModel->getTous(1000, 0); // Grande limite
-        }
+        // Récupérer les réclamations de l'étudiant connecté
+        $reclamations = $this->reclamationModel->getTous(1000, 0); // Grande limite pour avoir toutes les réclamations
+        
+        // Filtrer pour ne garder que celles de l'étudiant connecté
+        $reclamations = array_filter($reclamations, function($rec) {
+            return $rec['num_etu'] == $_SESSION['num_etu'];
+        });
 
         $stats = [
             'total' => count($reclamations),
@@ -379,143 +281,6 @@ class GestionReclamationsController {
         return $stats;
     }
 
-    //=============================HISTORIQUE RECLAMATION=============================
-    public function historiqueReclamations()
-    {
-        try {
-            // Si un ID est spécifié, afficher le détail
-            if (isset($_GET['id'])) {
-                $this->afficherDetailReclamation($_GET['id']);
-                return;
-            }
-
-            global $reclamations, $statistiquesHistorique, $totalPages, $page, $totalReclamations, $filtresActuels;
-
-            $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-            $limit = 10;
-            $offset = ($page - 1) * $limit;
-
-            // Filtres
-            $filtres = [];
-            if (isset($_GET['status']) && $_GET['status'] !== 'all') {
-                $statusMap = [
-                    'en-cours' => ['En attente', 'En cours'],
-                    'resolue' => 'Résolue',
-                    'sans-suite' => 'Rejetée'
-                ];
-
-                if (isset($statusMap[$_GET['status']])) {
-                    if (is_array($statusMap[$_GET['status']])) {
-                        // Pour 'en-cours', on cherche soit 'En attente' soit 'En cours'
-                        $filtres['statut_multiple'] = $statusMap[$_GET['status']];
-                    } else {
-                        $filtres['statut'] = $statusMap[$_GET['status']];
-                    }
-                }
-            }
-
-            // Récupérer les données selon le type d'utilisateur
-            if ($_SESSION['user_type'] === 'etudiant') {
-                $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
-                $totalReclamations = count($reclamations);
-
-                // Appliquer les filtres manuellement
-                if (!empty($filtres)) {
-                    $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
-                        if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
-                            return false;
-                        }
-                        if (isset($filtres['statut_multiple']) && !in_array($rec['statut_reclamation'], $filtres['statut_multiple'])) {
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-
-                // Trier par date (plus récentes en premier)
-                usort($reclamations, function($a, $b) {
-                    return strtotime($b['date_creation']) - strtotime($a['date_creation']);
-                });
-
-                $reclamations = array_slice($reclamations, $offset, $limit);
-            } else {
-                $reclamations = $this->reclamationModel->getTous($limit, $offset, $filtres);
-                $totalReclamations = $this->reclamationModel->compterTotal($filtres);
-            }
-
-            $totalPages = ceil($totalReclamations / $limit);
-
-            // Calculer les statistiques pour l'historique
-            $statistiquesHistorique = $this->calculerStatistiquesHistorique();
-
-            // Données pour la vue
-            $filtresActuels = $_GET;
-
-        } catch (Exception $e) {
-            $this->afficherErreur("Erreur lors du chargement de l'historique : " . $e->getMessage());
-        }
-    }
-
-    private function calculerStatistiquesHistorique()
-    {
-        if ($_SESSION['user_type'] === 'etudiant') {
-            $reclamations = $this->reclamationModel->getParUtilisateur($_SESSION['num_etu'], 'etudiant');
-        } else {
-            $reclamations = $this->reclamationModel->getTous(1000, 0);
-        }
-
-        $stats = [
-            'en_cours' => 0,
-            'resolues' => 0,
-            'sans_suite' => 0
-        ];
-
-        foreach ($reclamations as $rec) {
-            switch ($rec['statut_reclamation']) {
-                case 'En attente':
-                case 'En cours':
-                    $stats['en_cours']++;
-                    break;
-                case 'Résolue':
-                    $stats['resolues']++;
-                    break;
-                case 'Rejetée':
-                    $stats['sans_suite']++;
-                    break;
-            }
-        }
-
-        return $stats;
-    }
-
-    private function afficherDetailReclamation($id)
-    {
-        global $reclamation, $historique;
-
-        $reclamation = $this->reclamationModel->getParId($id);
-
-        if (!$reclamation) {
-            $this->afficherErreur("Réclamation non trouvée.");
-            return;
-        }
-
-        // Vérifier les droits d'accès
-        if ($_SESSION['user_type'] === 'etudiant' && $reclamation['num_etu'] != $_SESSION['num_etu']) {
-            $this->afficherErreur("Accès non autorisé.");
-            return;
-        }
-
-        $historique = $this->reclamationModel->getHistorique($id);
-
-        // Forcer l'inclusion de la vue de détail
-        $contentFile = $this->baseViewPath . 'detail_reclamation.php';
-        if (file_exists($contentFile)) {
-            include $contentFile;
-        } else {
-            $this->afficherErreur("Vue de détail non trouvée.");
-        }
-        exit; // Empêcher l'affichage de la vue normale
-    }
 
     //=============================ACTIONS ADMINISTRATIVES=============================
     public function traiterReclamation()
@@ -587,7 +352,7 @@ class GestionReclamationsController {
     private function afficherErreur($message)
     {
         $this->afficherMessage($message, 'error');
-        include $this->baseViewPath . 'erreur.php';
+        
     }
 
     private function verifierDroitsAdmin()
@@ -637,14 +402,100 @@ class GestionReclamationsController {
         }
     }
 
-    private function verifierDroitsAcces($reclamation)
+    public function getReclamationDetailsAjax()
     {
-        if ($_SESSION['user_type'] === 'etudiant') {
-            // Un étudiant ne peut voir que ses propres réclamations
-            return $reclamation['num_etu'] == $_SESSION['num_etu'];
-        } else {
-            // Le personnel administratif peut voir toutes les réclamations
-            return true;
+        // Empêcher le chargement du layout pour les actions AJAX
+        if (!isset($_GET['id'])) {
+            http_response_code(400);
+            echo "ID de la réclamation manquant";
+            return;
         }
+
+        $reclamationId = $_GET['id'];
+
+        // Récupérer la réclamation
+        $reclamation = $this->reclamationModel->getParId($reclamationId);
+
+        if (!$reclamation) {
+            http_response_code(404);
+            echo "Réclamation non trouvée";
+            return;
+        }
+
+        // Vérifier que l'étudiant est propriétaire de la réclamation
+        if ($reclamation['num_etu'] != $_SESSION['num_etu']) {
+            http_response_code(403);
+            echo "Accès non autorisé";
+            return;
+        }
+
+        // Récupérer l'historique des actions
+        $historique = $this->reclamationModel->getHistorique($reclamationId, $_SESSION['num_etu']);
+
+        // Générer le HTML pur sans layout
+        ob_start();
+        ?>
+<div class="space-y-6">
+    <!-- Informations principales -->
+    <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Informations de la réclamation</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><strong>Numéro :</strong> REC-<?php echo $reclamation['id_reclamation']; ?></div>
+            <div><strong>Date de création :</strong>
+                <?php echo date('d/m/Y à H:i', strtotime($reclamation['date_creation'])); ?></div>
+            <div><strong>Type :</strong> <?php echo htmlspecialchars($reclamation['type_reclamation']); ?></div>
+            <div><strong>Statut :</strong> <?php echo htmlspecialchars($reclamation['statut_reclamation']); ?></div>
+            <div><strong>Priorité :</strong> <?php echo htmlspecialchars($reclamation['priorite_reclamation']); ?></div>
+            <?php if ($reclamation['date_mise_a_jour']): ?>
+            <div><strong>Dernière mise à jour :</strong>
+                <?php echo date('d/m/Y à H:i', strtotime($reclamation['date_mise_a_jour'])); ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Titre et description -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Détails de la réclamation</h3>
+        <div class="mb-4">
+            <strong class="block text-sm font-medium text-gray-700 mb-1">Titre :</strong>
+            <p class="text-gray-900"><?php echo htmlspecialchars($reclamation['titre_reclamation']); ?></p>
+        </div>
+        <div>
+            <strong class="block text-sm font-medium text-gray-700 mb-1">Description :</strong>
+            <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">
+                <?php echo nl2br(htmlspecialchars($reclamation['description_reclamation'])); ?></div>
+        </div>
+    </div>
+
+    <!-- Historique des actions -->
+    <?php if (!empty($historique)): ?>
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Historique des actions</h3>
+        <div class="space-y-3">
+            <?php foreach ($historique as $action): ?>
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <strong class="text-gray-800"><?php echo htmlspecialchars($action['action']); ?></strong>
+                        <p class="text-sm text-gray-600">
+                            Par <?php echo htmlspecialchars($action['nom_etu'] . ' ' . $action['prenom_etu']); ?>
+                        </p>
+                        <?php if (!empty($action['commentaire'])): ?>
+                        <p class="text-gray-700 mt-1"><?php echo nl2br(htmlspecialchars($action['commentaire'])); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <span
+                        class="text-xs text-gray-500"><?php echo date('d/m/Y H:i', strtotime($action['date_action'])); ?></span>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+<?php
+        $html = ob_get_clean();
+        echo $html;
     }
+ 
 }
