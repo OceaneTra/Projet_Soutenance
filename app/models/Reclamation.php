@@ -146,7 +146,6 @@ class Reclamation {
             $sql = "SELECT 
                         COUNT(*) as total,
                         SUM(CASE WHEN statut_reclamation = 'En attente' THEN 1 ELSE 0 END) as en_attente,
-                        SUM(CASE WHEN statut_reclamation = 'En cours' THEN 1 ELSE 0 END) as en_cours,
                         SUM(CASE WHEN statut_reclamation = 'Résolue' THEN 1 ELSE 0 END) as resolues,
                         SUM(CASE WHEN statut_reclamation = 'Rejetée' THEN 1 ELSE 0 END) as rejetees
                     FROM reclamations";
@@ -158,7 +157,6 @@ class Reclamation {
             return [
                 'total' => 0,
                 'en_attente' => 0,
-                'en_cours' => 0,
                 'resolues' => 0,
                 'rejetees' => 0
             ];
@@ -236,7 +234,7 @@ class Reclamation {
     }
 
     public function updateStatut($id, $statut) {
-        $sql = "UPDATE reclamations SET statut = ? WHERE id_reclamation = ?";
+        $sql = "UPDATE reclamations SET statut_reclamation = ? WHERE id_reclamation = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$statut, $id]);
     }
