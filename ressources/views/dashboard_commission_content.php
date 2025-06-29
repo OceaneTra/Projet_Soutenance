@@ -47,7 +47,7 @@ foreach ($evolutionData as $data) {
 
 $statusLabels = [];
 $statusData = [];
-$statusColors = ['#10b981', '#ef4444', '#f59e0b', '#6b7280'];
+$statusColors = ['#ef4444','#10b981', '#f59e0b', '#6b7280'];
 
 foreach ($repartitionData as $data) {
     $statusLabels[] = ucfirst($data['statut']);
