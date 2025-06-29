@@ -11,12 +11,12 @@ function getStatutClass($statut) {
             return 'text-green-500 ';
         case 'rejete':
             return 'text-red-500 ';
-        case 'en_revision':
-            return 'text-orange-500 ';
-        case 'a_corriger':
-            return ' text-yelow-500 ';
+        case 'en_cours':
+            return 'text-blue-500 ';
+        case 'en_attente':
+            return 'text-yellow-500 ';
         default:
-            return ' text-blue-500 ';
+            return 'text-gray-500 ';
     }
 }
 
@@ -27,12 +27,10 @@ function traduireStatut($statut) {
             return 'Validé';
         case 'rejete':
             return 'Rejeté';
-        case 'en_revision':
-            return 'En révision';
-        case 'a_corriger':
-            return 'À corriger';
         case 'en_cours':
             return 'En cours';
+        case 'en_attente':
+            return 'En attente';
         default:
             return ucfirst($statut);
     }
@@ -80,11 +78,21 @@ function traduireStatut($statut) {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
 
+    .stat-card.yellow {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    }
+
+    .stat-card.green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .stat-card.red {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
     .stat-card.orange {
         background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     }
-
-
 
     .search-container {
         position: relative;
@@ -185,6 +193,10 @@ function traduireStatut($statut) {
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin: 0 0.2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 100px;
     }
 
     .action-btn:hover {
@@ -197,14 +209,34 @@ function traduireStatut($statut) {
         color: white;
     }
 
+    .btn-validate:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
     .btn-reject {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
+    .btn-reject:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
     .btn-detail {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
+    }
+
+    .btn-detail:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
     }
 
     .empty-state {
@@ -228,6 +260,11 @@ function traduireStatut($statut) {
         background: white;
         border-radius: 20px;
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Désactiver le scroll quand les modals sont ouvertes */
+    body.modal-open {
+        overflow: hidden;
     }
 
     @keyframes fadeIn {
@@ -257,7 +294,13 @@ function traduireStatut($statut) {
 
         .action-buttons {
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.3rem;
+        }
+
+        .action-btn {
+            min-width: 80px;
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
         }
     }
     </style>
@@ -295,33 +338,43 @@ function traduireStatut($statut) {
                     </div>
 
                     <?php if (!empty($statsRapports)): ?>
+                    <div class="stat-card yellow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">En attente</p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['en_attente'] ?? 0 ?></p>
+                            </div>
+                            <i class="fas fa-clock text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+
                     <div class="stat-card blue">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm opacity-90">En cours</p>
                                 <p class="text-2xl font-bold"><?= $statsRapports['en_cours'] ?? 0 ?></p>
                             </div>
-                            <i class="fas fa-clock text-2xl opacity-80"></i>
+                            <i class="fas fa-spinner text-2xl opacity-80"></i>
                         </div>
                     </div>
 
-                    <div class="stat-card orange">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">En révision</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['en_revision'] ?? 0 ?></p>
-                            </div>
-                            <i class="fas fa-search text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-
-                    <div class="stat-card blue">
+                    <div class="stat-card green">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm opacity-90">Validés</p>
                                 <p class="text-2xl font-bold"><?= $statsRapports['valide'] ?? 0 ?></p>
                             </div>
                             <i class="fas fa-check-circle text-2xl opacity-80"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card red">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Rejetés</p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['rejete'] ?? 0 ?></p>
+                            </div>
+                            <i class="fas fa-times-circle text-2xl opacity-80"></i>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -352,7 +405,7 @@ function traduireStatut($statut) {
                             <th><i class="fas fa-user-graduate mr-2"></i>Étudiant</th>
                             <th><i class="fas fa-file-lines mr-2"></i>Rapport</th>
                             <th><i class="fas fa-lightbulb mr-2"></i>Thème</th>
-                            <th><i class="fas fa-calendar-day mr-2"></i>Date</th>
+                            <th><i class="fas fa-calendar-day mr-2"></i>Date de dépôt</th>
                             <th><i class="fas fa-info-circle mr-2"></i>Statut</th>
                             <th class="text-center"><i class="fas fa-cogs mr-2"></i>Actions</th>
                         </tr>
@@ -395,7 +448,7 @@ function traduireStatut($statut) {
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-clock text-orange-500"></i>
                                     <span
-                                        class="font-semibold text-gray-700"><?= date('d/m/Y', strtotime($rapport->date_rapport)) ?></span>
+                                        class="font-semibold text-gray-700"><?= date('d/m/Y', strtotime($rapport->date_depot)) ?></span>
                                 </div>
                             </td>
                             <td>
@@ -405,19 +458,9 @@ function traduireStatut($statut) {
                             </td>
                             <td class="text-center">
                                 <div class="flex items-center justify-center gap-2 action-buttons">
-                                    <?php if ($rapport->statut_rapport !== 'valide' && $rapport->statut_rapport !== 'rejete'): ?>
-                                    <button onclick="validerRapport(<?= $rapport->id_rapport ?>)"
-                                        class="action-btn btn-validate">
-                                        <i class="fas fa-check mr-1"></i> Valider
-                                    </button>
-                                    <button onclick="rejeterRapport(<?= $rapport->id_rapport ?>)"
-                                        class="action-btn btn-reject">
-                                        <i class="fas fa-times mr-1"></i> Rejeter
-                                    </button>
-                                    <?php endif; ?>
                                     <button onclick="voirDetail(<?= $rapport->id_rapport ?>)"
                                         class="action-btn btn-detail">
-                                        <i class="fas fa-eye mr-1"></i> Détail
+                                        <i class="fas fa-eye mr-1"></i> Voir détail
                                     </button>
                                 </div>
                             </td>
@@ -431,26 +474,29 @@ function traduireStatut($statut) {
     </div>
 
     <!-- Modal pour les détails du rapport -->
-    <div id="detailModal" class="modal fixed inset-0 hidden z-50 flex items-center justify-center p-4">
-        <div class="modal-content max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-2xl">
-            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-blue-600 text-white">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">Détails du rapport</h3>
-                    <button onclick="fermerModal()" class="text-white hover:text-gray-200 transition-colors">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
+    <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="fas fa-file-alt mr-2 text-blue-500"></i>
+                    Détails du rapport
+                </h2>
+                <button onclick="fermerModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
-            <div id="modalContent" class="p-6">
+
+            <div id="modalContent">
                 <!-- Le contenu sera chargé dynamiquement -->
             </div>
         </div>
     </div>
 
     <!-- Modal de confirmation validation/rejet -->
-    <div id="confirmModal" class="modal fixed inset-0 hidden z-50 flex items-center justify-center p-4 bg-opacity-40">
-        <div class="modal-content bg-white max-w-md w-full rounded-xl shadow-2xl p-6">
-            <h3 id="confirmModalTitle" class="text-xl font-bold mb-4 text-center"></h3>
+    <div id="confirmModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 ">
+        <div class="modal-content bg-white max-w-md w-full rounded-xl shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0"
+            id="confirmModalContent">
+            <h3 id="confirmModalTitle" class="text-xl font-bold mb-4 text-center text-gray-800"></h3>
             <form id="confirmForm">
                 <input type="hidden" id="confirmAction" name="action">
                 <input type="hidden" id="confirmRapportId" name="id_rapport">
@@ -458,14 +504,18 @@ function traduireStatut($statut) {
                     <label for="confirmComment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire
                         (obligatoire)</label>
                     <textarea id="confirmComment" name="commentaire" rows="3"
-                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        required></textarea>
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                        placeholder="Entrez votre commentaire..." required></textarea>
                 </div>
-                <div class="flex justify-end gap-2 mt-4">
+                <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeConfirmModal()"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Annuler</button>
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                        Annuler
+                    </button>
                     <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Confirmer</button>
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        Confirmer
+                    </button>
                 </div>
             </form>
         </div>
@@ -499,28 +549,66 @@ function traduireStatut($statut) {
         pendingAction = action;
         pendingRapportId = idRapport;
         document.getElementById('confirmModalTitle').textContent = (action === 'valider') ?
-            'Confirmer la validation du rapport ?' : 'Confirmer le rejet du rapport ?';
+            'Confirmer l\'approbation du rapport ?' : 'Confirmer la désapprobation du rapport ?';
         document.getElementById('confirmAction').value = action;
         document.getElementById('confirmRapportId').value = idRapport;
         document.getElementById('confirmComment').value = '';
-        document.getElementById('confirmModal').classList.remove('hidden');
+
+        const modal = document.getElementById('confirmModal');
+        const modalContent = document.getElementById('confirmModalContent');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Désactiver le scroll de la page
+        document.body.classList.add('modal-open');
+
+        // Animation d'ouverture
+        setTimeout(() => {
+            modalContent.style.transform = 'scale(1)';
+            modalContent.style.opacity = '1';
+        }, 10);
     }
 
     function closeConfirmModal() {
-        document.getElementById('confirmModal').classList.add('hidden');
+        const modal = document.getElementById('confirmModal');
+        const modalContent = document.getElementById('confirmModalContent');
+
+        // Animation de fermeture
+        modalContent.style.transform = 'scale(0.95)';
+        modalContent.style.opacity = '0';
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Réactiver le scroll de la page
+            document.body.classList.remove('modal-open');
+        }, 300);
     }
+
+    // Gestion du formulaire de confirmation
     document.getElementById('confirmForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const action = document.getElementById('confirmAction').value;
         const idRapport = document.getElementById('confirmRapportId').value;
         const commentaire = document.getElementById('confirmComment').value.trim();
+
         if (!commentaire) {
             alert('Le commentaire est obligatoire.');
             return;
         }
+
+        // Afficher un indicateur de chargement
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Traitement...';
+        submitBtn.disabled = true;
+
         const url = '?page=verification_candidatures_soutenance&action=' + action;
         const params = 'id_rapport=' + encodeURIComponent(idRapport) + '&commentaire=' + encodeURIComponent(
             commentaire);
+
         fetch(url, {
                 method: 'POST',
                 headers: {
@@ -531,44 +619,135 @@ function traduireStatut($statut) {
             .then(response => response.json())
             .then(data => {
                 closeConfirmModal();
+                // Fermer aussi le modal de détails
+                fermerModal();
+
                 if (data.success) {
-                    alert(data.message);
-                    location.reload();
+                    // Afficher un message de succès
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert('Erreur: ' + data.message);
+                    showNotification('Erreur: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 closeConfirmModal();
-                alert('Erreur lors du traitement');
+                showNotification('Erreur lors du traitement', 'error');
+                console.error('Erreur:', error);
+            })
+            .finally(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             });
     });
 
     // Fonction pour voir les détails d'un rapport
     function voirDetail(idRapport) {
+        // Afficher la modal avec overlay
+        const modal = document.getElementById('detailModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Désactiver le scroll de la page
+        document.body.classList.add('modal-open');
+
+        // Afficher un loader
+        document.getElementById('modalContent').innerHTML = `
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span class="ml-2 text-gray-600">Chargement des détails...</span>
+            </div>
+        `;
+
+        // Charger les détails via AJAX
         fetch('?page=verification_candidatures_soutenance&action=detail&id=' + idRapport)
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement');
+                }
+                return response.text();
+            })
             .then(html => {
                 document.getElementById('modalContent').innerHTML = html;
-                document.getElementById('detailModal').classList.remove('hidden');
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert('Erreur lors du chargement des détails');
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>Erreur lors du chargement des détails</p>
+                    </div>
+                `;
             });
     }
 
     // Fonction pour fermer le modal
     function fermerModal() {
-        document.getElementById('detailModal').classList.add('hidden');
+        const modal = document.getElementById('detailModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        // Réactiver le scroll de la page
+        document.body.classList.remove('modal-open');
     }
 
-    // Fermer le modal en cliquant à l'extérieur
-    document.getElementById('detailModal').addEventListener('click', function(e) {
-        if (e.target === this) {
+    // Fermer les modals en cliquant à l'extérieur
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('detailModal');
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                fermerModal();
+            }
+        });
+
+        const confirmModal = document.getElementById('confirmModal');
+        confirmModal.addEventListener('click', function(e) {
+            if (e.target === confirmModal) {
+                closeConfirmModal();
+            }
+        });
+    });
+
+    // Fermer les modals avec la touche Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
             fermerModal();
+            closeConfirmModal();
         }
     });
+
+    // Fonction pour afficher des notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animation d'entrée
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+
+        // Auto-suppression après 3 secondes
+        setTimeout(() => {
+            notification.style.transform = 'translateX(full)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
     </script>
 </body>
 

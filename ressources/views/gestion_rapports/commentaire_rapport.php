@@ -61,23 +61,39 @@
             <div class="p-4 border-b border-gray-200 bg-gray-50">
                 <form method="GET" class="flex flex-wrap gap-4">
                     <input type="hidden" name="page" value="gestion_rapports">
-                    <input type="hidden" name="action" value="compte_rendu_rapport">
+                    <input type="hidden" name="action" value="commentaire_rapport">
 
                     <select name="statut"
                         class="px-4 py-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Tous les statuts</option>
-                        <option value="en_cours">En cours</option>
-                        <option value="en_revision">En révision</option>
-                        <option value="valide">Validé</option>
-                        <option value="a_corriger">À corriger</option>
+                        <option value="en_attente"
+                            <?= (isset($_GET['statut']) && $_GET['statut'] === 'en_attente') ? 'selected' : '' ?>>En
+                            attente</option>
+                        <option value="en_cours"
+                            <?= (isset($_GET['statut']) && $_GET['statut'] === 'en_cours') ? 'selected' : '' ?>>En cours
+                        </option>
+                        <option value="valider"
+                            <?= (isset($_GET['statut']) && $_GET['statut'] === 'valider') ? 'selected' : '' ?>>Validé
+                        </option>
+                        <option value="rejeter"
+                            <?= (isset($_GET['statut']) && $_GET['statut'] === 'rejeter') ? 'selected' : '' ?>>Rejeté
+                        </option>
                     </select>
 
                     <input type="text" name="search" placeholder="Rechercher un rapport..."
+                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
                         class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
 
                     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                         <i class="fas fa-search mr-2"></i>Filtrer
                     </button>
+
+                    <?php if (!empty($_GET['statut']) || !empty($_GET['search'])): ?>
+                    <a href="?page=gestion_rapports&action=commentaire_rapport"
+                        class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        <i class="fas fa-times mr-2"></i>Effacer
+                    </a>
+                    <?php endif; ?>
                 </form>
             </div>
 
@@ -104,15 +120,25 @@
                             <?php endif; ?>
                         </div>
                         <span class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            En cours
+                            <?php if ($rapport['statut_rapport'] == 'en_attente') {
+                            echo 'En attente';
+                        } else if ($rapport['statut_rapport'] == 'en_cours') {
+                            echo 'En cours';
+                        } else if ($rapport['statut_rapport'] == 'valider') {
+                            echo 'Validé';
+                        } else if ($rapport['statut_rapport'] == 'rejeter') {
+                            echo 'Rejeté';
+                        }
+                    
+                        ?>
                         </span>
                     </div>
 
                     <div class="mt-4">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Actions :</h4>
                         <div class="flex space-x-2">
-                            <button onclick="voirDetailsRapport(<?= $rapport['id_rapport'] ?>)"
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            <button onclick="voirDetailsRapport(<?= $rapport['id_rapport'] ?>)" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm
+                            transition-colors">
                                 <i class="fas fa-eye mr-1"></i> Voir détails
                             </button>
                         </div>
@@ -163,24 +189,6 @@
                 card.style.transform = 'translateY(0)';
             });
         });
-
-        // Gestion des filtres
-        const filterSelect = document.querySelector('select');
-        const searchInput = document.querySelector('input[type="text"]');
-
-        filterSelect.addEventListener('change', filterReports);
-        searchInput.addEventListener('input', filterReports);
-
-        function filterReports() {
-            const status = filterSelect.value;
-            const search = searchInput.value.toLowerCase();
-
-            // Logique de filtrage à implémenter
-            console.log('Filtrage par:', {
-                status,
-                search
-            });
-        }
     });
 
     function voirDetailsRapport(rapportId) {

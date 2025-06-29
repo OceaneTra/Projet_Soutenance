@@ -190,10 +190,10 @@ class GestionReclamationsController {
             $filtres = [];
             if (isset($_GET['status']) && $_GET['status'] !== 'all') {
                 $statusMap = [
-                    'pending' => 'En attente',
-                    'in_progress' => 'En cours',
-                    'resolved' => 'Résolue',
-                    'rejected' => 'Rejetée'
+                    'en_attente' => 'En attente',
+                    'en_cours' => 'En cours',
+                    'resolue' => 'Résolue',
+                    'rejetee' => 'Rejetée'
                 ];
                 if (isset($statusMap[$_GET['status']])) {
                     $filtres['statut'] = $statusMap[$_GET['status']];
@@ -259,21 +259,25 @@ class GestionReclamationsController {
 
         $stats = [
             'total' => count($reclamations),
-            'pending' => 0,
-            'in_progress' => 0,
-            'resolved' => 0
+            'en_attente' => 0,
+            'en_cours' => 0,
+            'resolue' => 0,
+            'rejetee' => 0
         ];
 
         foreach ($reclamations as $rec) {
             switch ($rec['statut_reclamation']) {
                 case 'En attente':
-                    $stats['pending']++;
+                    $stats['en_attente']++;
                     break;
                 case 'En cours':
-                    $stats['in_progress']++;
+                    $stats['en_cours']++;
                     break;
                 case 'Résolue':
-                    $stats['resolved']++;
+                    $stats['resolue']++;
+                    break;
+                case 'Rejetée':
+                    $stats['rejetee']++;
                     break;
             }
         }

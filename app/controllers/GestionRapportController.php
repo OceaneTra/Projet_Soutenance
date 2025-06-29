@@ -53,14 +53,7 @@ class GestionRapportController {
         return $_SESSION['type_utilisateur'] === 'Etudiant';
     }
 
-    private function isAdmin()
-    {
-        return in_array($_SESSION['type_utilisateur'], [
-            'Personnel administratif',
-            'Enseignant simple',
-            'Enseignant administratif'
-        ]);
-    }
+
 
     // Afficher le dashboard des rapports
     public function index()
@@ -742,6 +735,10 @@ class GestionRapportController {
 
             global $rapports, $statistiquesCompteRendu;
 
+            // Récupérer les paramètres de filtrage
+            $statut = $_GET['statut'] ?? '';
+            $search = $_GET['search'] ?? '';
+
             if ($this->isEtudiant()) {
                 $rapports = array_map(function($rapport) {
                     return (array) $rapport;
@@ -750,6 +747,19 @@ class GestionRapportController {
                 $rapports = array_map(function($rapport) {
                     return (array) $rapport;
                 }, $this->rapportModel->getAllRapports());
+            }
+
+            // Appliquer les filtres
+            if (!empty($statut) || !empty($search)) {
+                $rapports = array_filter($rapports, function($rapport) use ($statut, $search) {
+                    $matchStatut = empty($statut) || $rapport['statut_rapport'] === $statut;
+                    $matchSearch = empty($search) || 
+                        stripos($rapport['nom_rapport'], $search) !== false ||
+                        stripos($rapport['theme_rapport'], $search) !== false ||
+                        stripos($rapport['nom_etu'] . ' ' . $rapport['prenom_etu'], $search) !== false;
+                    
+                    return $matchStatut && $matchSearch;
+                });
             }
 
             $statistiquesCompteRendu = $this->calculerStatistiques();
@@ -803,47 +813,32 @@ class GestionRapportController {
         $commentaires = [];
         
         try {
-            // Récupérer les commentaires du chargé de communication (table approuver)
+            // Récupérer les commentaires depuis la table evaluations_rapports
             $stmt = $this->rapportModel->pdo->prepare("
                 SELECT 
-                    a.commentaire,
-                    a.date_approuver,
-                    u.nom,
-                    u.prenom,
-                    'Chargé de communication' as fonction
-                FROM approuver a
-                JOIN utilisateur u ON a.id_utilisateur = u.id_utilisateur
-                WHERE a.id_rapport = ? AND a.commentaire IS NOT NULL AND a.commentaire != ''
-                ORDER BY a.date_approuver DESC
+                    e.commentaire,
+                    e.date_evaluation,
+                    e.note,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN ens.nom_enseignant
+                        ELSE pa.nom_pers_admin 
+                    END as nom_evaluateur,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN ens.prenom_enseignant
+                        ELSE pa.prenom_pers_admin 
+                    END as prenom_evaluateur,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN 'Enseignant'
+                        ELSE 'Personnel administratif'
+                    END as fonction_evaluateur
+                FROM evaluations_rapports e
+                LEFT JOIN enseignants ens ON e.id_evaluateur = ens.id_enseignant AND e.type_evaluateur = 'enseignant'
+                LEFT JOIN personnel_admin pa ON e.id_evaluateur = pa.id_pers_admin AND e.type_evaluateur = 'personnel_admin'
+                WHERE e.id_rapport = ? AND e.commentaire IS NOT NULL AND e.commentaire != '' AND e.statut_evaluation = 'terminee'
+                ORDER BY e.date_evaluation DESC
             ");
             $stmt->execute([$rapportId]);
-            $commentairesApprouver = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Récupérer les commentaires des membres de la commission (table valider)
-            $stmt = $this->rapportModel->pdo->prepare("
-                SELECT 
-                    v.commentaire,
-                    v.date_valider,
-                    u.nom,
-                    u.prenom,
-                    'Membre de la commission' as fonction
-                FROM valider v
-                JOIN utilisateur u ON v.id_utilisateur = u.id_utilisateur
-                WHERE v.id_rapport = ? AND v.commentaire IS NOT NULL AND v.commentaire != ''
-                ORDER BY v.date_valider DESC
-            ");
-            $stmt->execute([$rapportId]);
-            $commentairesValider = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Combiner les commentaires
-            $commentaires = array_merge($commentairesApprouver, $commentairesValider);
-            
-            // Trier par date (le plus récent en premier)
-            usort($commentaires, function($a, $b) {
-                $dateA = $a['date_approuver'] ?? $a['date_valider'];
-                $dateB = $b['date_approuver'] ?? $b['date_valider'];
-                return strtotime($dateB) - strtotime($dateA);
-            });
+            $commentaires = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des commentaires: " . $e->getMessage());
@@ -1015,7 +1010,14 @@ class GestionRapportController {
 
         // Insérer le dépôt
         $stmt = $this->rapportModel->pdo->prepare("INSERT INTO deposer (num_etu, id_rapport, date_depot) VALUES (?, ?, ?)");
-        return $stmt->execute([$num_etu, $id_rapport, $date_depot]);
+        $depotSuccess = $stmt->execute([$num_etu, $id_rapport, $date_depot]);
+        
+        // Si le dépôt est réussi, mettre à jour le statut du rapport en 'en_cours'
+        if ($depotSuccess) {
+            $this->rapportModel->setRapportEnCours($id_rapport);
+        }
+        
+        return $depotSuccess;
     }
 
     /**
@@ -1141,24 +1143,28 @@ class GestionRapportController {
                 echo '</div>';
                 echo '<div>';
                 echo '<h4 class="font-semibold text-gray-800">';
-                echo htmlspecialchars($commentaire['prenom'] . ' ' . $commentaire['nom']);
+                echo htmlspecialchars($commentaire['prenom_evaluateur'] . ' ' . $commentaire['nom_evaluateur']);
                 echo '</h4>';
                 echo '<p class="text-sm text-gray-600">';
                 echo '<i class="fas fa-briefcase mr-1"></i>';
-                echo htmlspecialchars($commentaire['fonction']);
+                echo htmlspecialchars($commentaire['fonction_evaluateur']);
                 echo '</p>';
                 echo '</div>';
                 echo '</div>';
                 echo '<div class="text-sm text-gray-500">';
                 echo '<i class="fas fa-calendar mr-1"></i>';
-                $date = isset($commentaire['date_approuver']) ? $commentaire['date_approuver'] : $commentaire['date_valider'];
-                echo date('d M Y - H:i', strtotime($date));
+                echo date('d M Y - H:i', strtotime($commentaire['date_evaluation']));
                 echo '</div>';
                 echo '</div>';
                 echo '<div class="bg-gray-50 rounded-lg p-3">';
                 echo '<p class="text-gray-700 leading-relaxed">';
                 echo nl2br(htmlspecialchars($commentaire['commentaire']));
                 echo '</p>';
+                if (!empty($commentaire['note'])) {
+                    echo '<div class="mt-3 pt-3 border-t border-gray-200">';
+                    echo '<p class="text-sm text-gray-600"><strong>Note:</strong> ' . $commentaire['note'] . '/20</p>';
+                    echo '</div>';
+                }
                 echo '</div>';
                 echo '</div>';
             }

@@ -465,21 +465,24 @@
     new Chart(rapportsCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Validés', 'En cours', 'Rejetés'],
+            labels: ['En attente', 'En cours', 'Validés', 'Rejetés'],
             datasets: [{
                 data: [
-                    <?php echo $GLOBALS['stats_rapports']['rapports_valides'] ?? 0; ?>,
+                    <?php echo $GLOBALS['stats_rapports']['rapports_en_attente'] ?? 0; ?>,
                     <?php echo $GLOBALS['stats_rapports']['rapports_en_cours'] ?? 0; ?>,
+                    <?php echo $GLOBALS['stats_rapports']['rapports_valides'] ?? 0; ?>,
                     <?php echo $GLOBALS['stats_rapports']['rapports_rejetes'] ?? 0; ?>
                 ],
                 backgroundColor: [
-                    'rgba(34, 197, 94, 0.8)',
                     'rgba(251, 191, 36, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
                     'rgba(239, 68, 68, 0.8)'
                 ],
                 borderColor: [
-                    'rgb(34, 197, 94)',
                     'rgb(251, 191, 36)',
+                    'rgb(59, 130, 246)',
+                    'rgb(34, 197, 94)',
                     'rgb(239, 68, 68)'
                 ],
                 borderWidth: 2
