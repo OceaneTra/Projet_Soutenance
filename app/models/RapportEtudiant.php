@@ -358,24 +358,17 @@ class RapportEtudiant {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
-                    e.*,
-                    CASE 
-                        WHEN e.type_evaluateur = 'enseignant' THEN ens.nom_enseignant
-                        ELSE pa.nom_pers_admin 
-                    END as nom_evaluateur,
-                    CASE 
-                        WHEN e.type_evaluateur = 'enseignant' THEN ens.prenom_enseignant
-                        ELSE pa.prenom_pers_admin 
-                    END as prenom_evaluateur,
-                    CASE 
-                        WHEN e.type_evaluateur = 'enseignant' THEN 'Enseignant'
-                        ELSE 'Personnel administratif'
-                    END as fonction_evaluateur
-                FROM evaluations_rapports e
-                LEFT JOIN enseignants ens ON e.id_evaluateur = ens.id_enseignant AND e.type_evaluateur = 'enseignant'
-                LEFT JOIN personnel_admin pa ON e.id_evaluateur = pa.id_pers_admin AND e.type_evaluateur = 'personnel_admin'
-                WHERE e.id_rapport = ? AND e.statut_evaluation = 'terminee'
-                ORDER BY e.date_evaluation DESC
+                    a.*,
+                    pa.nom_pers_admin as nom_evaluateur,
+                    pa.prenom_pers_admin as prenom_evaluateur,
+                    'Personnel administratif' as fonction_evaluateur,
+                    a.date_approv as date_evaluation,
+                    a.commentaire_approv as commentaire,
+                    a.decision as decision_evaluation
+                FROM approuver a
+                JOIN personnel_admin pa ON a.id_pers_admin = pa.id_pers_admin
+                WHERE a.id_rapport = ?
+                ORDER BY a.date_approv DESC
             ");
             $stmt->execute([$id_rapport]);
             return $stmt->fetchAll(PDO::FETCH_OBJ);

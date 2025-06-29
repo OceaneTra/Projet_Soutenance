@@ -82,24 +82,44 @@ class VerificationRapportsController {
      */
     public function validerRapport() {
         try {
+            error_log("DEBUG: Début validerRapport");
+            
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
             $id_admin = $_SESSION['id_utilisateur'] ?? 0;
             
+            error_log("DEBUG: id_rapport = $id_rapport, commentaire = $commentaire, id_admin = $id_admin");
+            
             if (!$id_rapport || !$commentaire || !$id_admin) {
+                error_log("DEBUG: Paramètres manquants");
                 return ['success' => false, 'message' => 'Paramètres manquants'];
             }
             
-            // Insérer l'évaluation dans la table evaluations_rapports
-            $stmt = $this->pdo->prepare("
-                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
-                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
-            ");
+            // Récupérer l'ID du personnel admin
+            $persAdmin = $this->persAdminModel->getByUserId($id_admin);
+            error_log("DEBUG: persAdmin = " . print_r($persAdmin, true));
             
-            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
+            if (!$persAdmin) {
+                error_log("DEBUG: Personnel administratif non trouvé");
+                return ['success' => false, 'message' => 'Personnel administratif non trouvé'];
+            }
+            
+            // Insérer l'approbation dans la table approuver
+            error_log("DEBUG: Tentative d'insertion d'approbation");
+            $result = $this->approbationModel->insererApprobation(
+                $persAdmin['id_pers_admin'],
+                $id_rapport,
+                'Approuvé',
+                $commentaire
+            );
+            
+            error_log("DEBUG: Résultat insertion = " . ($result ? 'true' : 'false'));
+            
+            if ($result) {
                 // Mettre à jour le statut du rapport
                 $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valide' WHERE id_rapport = ?");
-                $updateStmt->execute([$id_rapport]);
+                $updateResult = $updateStmt->execute([$id_rapport]);
+                error_log("DEBUG: Mise à jour statut = " . ($updateResult ? 'true' : 'false'));
                 
                 return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
             } else {
@@ -108,7 +128,8 @@ class VerificationRapportsController {
             
         } catch (Exception $e) {
             error_log("Erreur approbation rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
+            error_log("DEBUG: Stack trace: " . $e->getTraceAsString());
+            return ['success' => false, 'message' => 'Erreur lors de l\'approbation: ' . $e->getMessage()];
         }
     }
     
@@ -117,24 +138,44 @@ class VerificationRapportsController {
      */
     public function rejeterRapport() {
         try {
+            error_log("DEBUG: Début rejeterRapport");
+            
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
             $id_admin = $_SESSION['id_utilisateur'] ?? 0;
             
+            error_log("DEBUG: id_rapport = $id_rapport, commentaire = $commentaire, id_admin = $id_admin");
+            
             if (!$id_rapport || !$commentaire || !$id_admin) {
+                error_log("DEBUG: Paramètres manquants");
                 return ['success' => false, 'message' => 'Paramètres manquants'];
             }
             
-            // Insérer l'évaluation dans la table evaluations_rapports
-            $stmt = $this->pdo->prepare("
-                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
-                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
-            ");
+            // Récupérer l'ID du personnel admin
+            $persAdmin = $this->persAdminModel->getByUserId($id_admin);
+            error_log("DEBUG: persAdmin = " . print_r($persAdmin, true));
             
-            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
+            if (!$persAdmin) {
+                error_log("DEBUG: Personnel administratif non trouvé");
+                return ['success' => false, 'message' => 'Personnel administratif non trouvé'];
+            }
+            
+            // Insérer l'approbation dans la table approuver
+            error_log("DEBUG: Tentative d'insertion d'approbation");
+            $result = $this->approbationModel->insererApprobation(
+                $persAdmin['id_pers_admin'],
+                $id_rapport,
+                'Rejeté',
+                $commentaire
+            );
+            
+            error_log("DEBUG: Résultat insertion = " . ($result ? 'true' : 'false'));
+            
+            if ($result) {
                 // Mettre à jour le statut du rapport
                 $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejete' WHERE id_rapport = ?");
-                $updateStmt->execute([$id_rapport]);
+                $updateResult = $updateStmt->execute([$id_rapport]);
+                error_log("DEBUG: Mise à jour statut = " . ($updateResult ? 'true' : 'false'));
                 
                 return ['success' => true, 'message' => 'Rapport rejeté avec succès'];
             } else {
@@ -142,7 +183,8 @@ class VerificationRapportsController {
             }
         } catch (Exception $e) {
             error_log("Erreur désapprobation rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la désapprobation'];
+            error_log("DEBUG: Stack trace: " . $e->getTraceAsString());
+            return ['success' => false, 'message' => 'Erreur lors de la désapprobation: ' . $e->getMessage()];
         }
     }
     

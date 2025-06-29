@@ -462,6 +462,7 @@ function traduireStatut($statut) {
                                         class="action-btn btn-detail">
                                         <i class="fas fa-eye mr-1"></i> Voir détail
                                     </button>
+
                                 </div>
                             </td>
                         </tr>
@@ -493,7 +494,7 @@ function traduireStatut($statut) {
     </div>
 
     <!-- Modal de confirmation validation/rejet -->
-    <div id="confirmModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 ">
+    <div id="confirmModal" class="fixed inset-0 hidden z-50 items-center justify-center p-4">
         <div class="modal-content bg-white max-w-md w-full rounded-xl shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0"
             id="confirmModalContent">
             <h3 id="confirmModalTitle" class="text-xl font-bold mb-4 text-center text-gray-800"></h3>
@@ -546,27 +547,42 @@ function traduireStatut($statut) {
     }
 
     function openConfirmModal(action, idRapport) {
+        console.log('Ouverture modal pour action:', action, 'ID:', idRapport); // Debug
+
+        // Stocke l'action et l'ID du rapport
         pendingAction = action;
         pendingRapportId = idRapport;
+
+        // Change le titre selon l'action
         document.getElementById('confirmModalTitle').textContent = (action === 'valider') ?
             'Confirmer l\'approbation du rapport ?' : 'Confirmer la désapprobation du rapport ?';
+
+        // Remplit les champs cachés du formulaire
         document.getElementById('confirmAction').value = action;
         document.getElementById('confirmRapportId').value = idRapport;
         document.getElementById('confirmComment').value = '';
 
+        // Affiche la modal
         const modal = document.getElementById('confirmModal');
         const modalContent = document.getElementById('confirmModalContent');
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        // S'assurer que la modal est bien cachée au début
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
 
-        // Désactiver le scroll de la page
-        document.body.classList.add('modal-open');
-
-        // Animation d'ouverture
+        // Attendre un peu avant d'afficher
         setTimeout(() => {
-            modalContent.style.transform = 'scale(1)';
-            modalContent.style.opacity = '1';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Désactiver le scroll de la page
+            document.body.classList.add('modal-open');
+
+            // Animation d'ouverture avec un délai plus long
+            setTimeout(() => {
+                modalContent.style.transform = 'scale(1)';
+                modalContent.style.opacity = '1';
+            }, 50);
         }, 10);
     }
 
@@ -582,6 +598,10 @@ function traduireStatut($statut) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
 
+            // Réinitialiser les styles
+            modalContent.style.transform = 'scale(0.95)';
+            modalContent.style.opacity = '0';
+
             // Réactiver le scroll de la page
             document.body.classList.remove('modal-open');
         }, 300);
@@ -590,56 +610,45 @@ function traduireStatut($statut) {
     // Gestion du formulaire de confirmation
     document.getElementById('confirmForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const action = document.getElementById('confirmAction').value;
-        const idRapport = document.getElementById('confirmRapportId').value;
-        const commentaire = document.getElementById('confirmComment').value.trim();
+        e.stopPropagation(); // Empêcher la propagation
 
-        if (!commentaire) {
-            alert('Le commentaire est obligatoire.');
-            return;
-        }
+        console.log('Formulaire soumis'); // Debug
 
-        // Afficher un indicateur de chargement
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Traitement...';
-        submitBtn.disabled = true;
+        const formData = new FormData();
+        formData.append('action', document.getElementById('confirmAction').value);
+        formData.append('id_rapport', document.getElementById('confirmRapportId').value);
+        formData.append('commentaire', document.getElementById('confirmComment').value);
 
-        const url = '?page=verification_candidatures_soutenance&action=' + action;
-        const params = 'id_rapport=' + encodeURIComponent(idRapport) + '&commentaire=' + encodeURIComponent(
-            commentaire);
+        console.log('Action:', document.getElementById('confirmAction').value); // Debug
+        console.log('ID Rapport:', document.getElementById('confirmRapportId').value); // Debug
+        console.log('Commentaire:', document.getElementById('confirmComment').value); // Debug
 
-        fetch(url, {
+        // Envoi AJAX vers la route
+        fetch(window.location.href, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status); // Debug
+                return response.json();
+            })
             .then(data => {
-                closeConfirmModal();
-                // Fermer aussi le modal de détails
-                fermerModal();
-
+                console.log('Response data:', data); // Debug
                 if (data.success) {
-                    // Afficher un message de succès
-                    showNotification(data.message, 'success');
+                    showNotification('success', data.message);
+                    closeConfirmModal();
+                    fermerModal(); // Ferme la modal de détails
+                    // Recharge la page pour mettre à jour les données
                     setTimeout(() => {
-                        location.reload();
+                        window.location.reload();
                     }, 1500);
                 } else {
-                    showNotification('Erreur: ' + data.message, 'error');
+                    showNotification('error', data.message);
                 }
             })
             .catch(error => {
-                closeConfirmModal();
-                showNotification('Erreur lors du traitement', 'error');
-                console.error('Erreur:', error);
-            })
-            .finally(() => {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+                console.error('Erreur AJAX:', error); // Debug
+                showNotification('error', 'Erreur lors de la communication avec le serveur');
             });
     });
 
@@ -703,8 +712,30 @@ function traduireStatut($statut) {
         });
 
         const confirmModal = document.getElementById('confirmModal');
+        const confirmModalContent = document.getElementById('confirmModalContent');
+
+        // Empêcher la propagation des clics à l'intérieur de la modal
+        confirmModalContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Empêcher la propagation des clics sur les boutons
+        const confirmButtons = confirmModalContent.querySelectorAll('button');
+        confirmButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Empêcher la propagation des clics sur le formulaire
+        const confirmForm = document.getElementById('confirmForm');
+        confirmForm.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
         confirmModal.addEventListener('click', function(e) {
-            if (e.target === confirmModal) {
+            // Ne fermer que si on clique sur l'overlay (pas sur le contenu de la modal)
+            if (e.target === confirmModal && !confirmModalContent.contains(e.target)) {
                 closeConfirmModal();
             }
         });
@@ -719,7 +750,7 @@ function traduireStatut($statut) {
     });
 
     // Fonction pour afficher des notifications
-    function showNotification(message, type = 'info') {
+    function showNotification(type, message) {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
             type === 'success' ? 'bg-green-500 text-white' : 
