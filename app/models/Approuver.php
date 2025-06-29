@@ -30,8 +30,8 @@ class Approuver {
             error_log("DEBUG: decision convertie: $decision_db");
             
             $stmt = $this->pdo->prepare("
-                INSERT INTO approuver (id_pers_admin, id_rapport, decision, date_approv, commentaire_approv) 
-                VALUES (?, ?, ?, NOW(), ?)
+                INSERT INTO approuver (id_approb, id_pers_admin, id_rapport, decision, date_approv, commentaire_approv) 
+                VALUES (3,?, ?, ?, NOW(), ?)
             ");
             
             $result = $stmt->execute([$id_pers_admin, $id_rapport, $decision_db, $commentaire]);

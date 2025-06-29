@@ -307,6 +307,41 @@ function traduireStatut($statut) {
 </head>
 
 <body class="min-h-screen p-4 md:p-8">
+    <?php
+    // Afficher les messages de session
+    if (isset($_SESSION['message']) && !empty($_SESSION['message'])) {
+        $message = $_SESSION['message'];
+        $messageType = $_SESSION['message_type'] ?? 'info';
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+        
+        echo '<div id="notification" class="fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ' . 
+             (($messageType === 'success') ? 'bg-green-500 text-white' : 
+              (($messageType === 'error') ? 'bg-red-500 text-white' : 
+              'bg-blue-500 text-white')) . '">';
+        echo '<div class="flex items-center">';
+        echo '<i class="fas ' . (($messageType === 'success') ? 'fa-check-circle' : 
+                               (($messageType === 'error') ? 'fa-exclamation-circle' : 
+                               'fa-info-circle')) . ' mr-2"></i>';
+        echo '<span>' . htmlspecialchars($message) . '</span>';
+        echo '</div>';
+        echo '</div>';
+        
+        echo '<script>
+            setTimeout(function() {
+                const notification = document.getElementById("notification");
+                if (notification) {
+                    notification.style.transform = "translateX(full)";
+                    setTimeout(function() {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        </script>';
+    }
+    ?>
     <div class="max-w-7xl mx-auto">
         <!-- Header Section -->
         <div class="glass-card rounded-2xl p-6 md:p-8 mb-8 fade-in">
@@ -326,7 +361,7 @@ function traduireStatut($statut) {
                 </div>
 
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="stat-card">
                         <div class="flex items-center justify-between">
                             <div>
@@ -338,31 +373,11 @@ function traduireStatut($statut) {
                     </div>
 
                     <?php if (!empty($statsRapports)): ?>
-                    <div class="stat-card yellow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">En attente</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['en_attente'] ?? 0 ?></p>
-                            </div>
-                            <i class="fas fa-clock text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-
-                    <div class="stat-card blue">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">En cours</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['en_cours'] ?? 0 ?></p>
-                            </div>
-                            <i class="fas fa-spinner text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-
                     <div class="stat-card green">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm opacity-90">Validés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['valide'] ?? 0 ?></p>
+                                <p class="text-sm opacity-90">Rapports approuvés</p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['approuve'] ?? 0 ?></p>
                             </div>
                             <i class="fas fa-check-circle text-2xl opacity-80"></i>
                         </div>
@@ -371,8 +386,8 @@ function traduireStatut($statut) {
                     <div class="stat-card red">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm opacity-90">Rejetés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['rejete'] ?? 0 ?></p>
+                                <p class="text-sm opacity-90">Rapports désapprouvés</p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['desapprouve'] ?? 0 ?></p>
                             </div>
                             <i class="fas fa-times-circle text-2xl opacity-80"></i>
                         </div>
@@ -406,7 +421,6 @@ function traduireStatut($statut) {
                             <th><i class="fas fa-file-lines mr-2"></i>Rapport</th>
                             <th><i class="fas fa-lightbulb mr-2"></i>Thème</th>
                             <th><i class="fas fa-calendar-day mr-2"></i>Date de dépôt</th>
-                            <th><i class="fas fa-info-circle mr-2"></i>Statut</th>
                             <th class="text-center"><i class="fas fa-cogs mr-2"></i>Actions</th>
                         </tr>
                     </thead>
@@ -451,11 +465,6 @@ function traduireStatut($statut) {
                                         class="font-semibold text-gray-700"><?= date('d/m/Y', strtotime($rapport->date_depot)) ?></span>
                                 </div>
                             </td>
-                            <td>
-                                <span class=" <?= getStatutClass($rapport->statut_rapport) ?>">
-                                    <?= traduireStatut($rapport->statut_rapport) ?>
-                                </span>
-                            </td>
                             <td class="text-center">
                                 <div class="flex items-center justify-center gap-2 action-buttons">
                                     <button onclick="voirDetail(<?= $rapport->id_rapport ?>)"
@@ -498,13 +507,16 @@ function traduireStatut($statut) {
         <div class="modal-content bg-white max-w-md w-full rounded-xl shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0"
             id="confirmModalContent">
             <h3 id="confirmModalTitle" class="text-xl font-bold mb-4 text-center text-gray-800"></h3>
-            <form id="confirmForm">
-                <input type="hidden" id="confirmAction" name="action">
-                <input type="hidden" id="confirmRapportId" name="id_rapport">
+
+            <!-- Formulaire PHP pour valider -->
+            <form id="validerForm" method="POST" action="?page=verification_candidatures_soutenance"
+                style="display: none;">
+                <input type="hidden" name="valider" value="1">
+                <input type="hidden" id="validerRapportId" name="id_rapport">
                 <div class="mb-4">
-                    <label for="confirmComment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire
+                    <label for="validerComment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire
                         (obligatoire)</label>
-                    <textarea id="confirmComment" name="commentaire" rows="3"
+                    <textarea id="validerComment" name="commentaire" rows="3"
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
                         placeholder="Entrez votre commentaire..." required></textarea>
                 </div>
@@ -515,7 +527,31 @@ function traduireStatut($statut) {
                     </button>
                     <button type="submit"
                         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                        Confirmer
+                        Confirmer l'approbation
+                    </button>
+                </div>
+            </form>
+
+            <!-- Formulaire PHP pour rejeter -->
+            <form id="rejeterForm" method="POST" action="?page=verification_candidatures_soutenance"
+                style="display: none;">
+                <input type="hidden" name="rejeter" value="1">
+                <input type="hidden" id="rejeterRapportId" name="id_rapport">
+                <div class="mb-4">
+                    <label for="rejeterComment" class="block text-sm font-medium text-gray-700 mb-2">Commentaire
+                        (obligatoire)</label>
+                    <textarea id="rejeterComment" name="commentaire" rows="3"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                        placeholder="Entrez votre commentaire..." required></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeConfirmModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                        Confirmer le rejet
                     </button>
                 </div>
             </form>
@@ -557,10 +593,21 @@ function traduireStatut($statut) {
         document.getElementById('confirmModalTitle').textContent = (action === 'valider') ?
             'Confirmer l\'approbation du rapport ?' : 'Confirmer la désapprobation du rapport ?';
 
-        // Remplit les champs cachés du formulaire
-        document.getElementById('confirmAction').value = action;
-        document.getElementById('confirmRapportId').value = idRapport;
-        document.getElementById('confirmComment').value = '';
+        // Afficher le bon formulaire selon l'action
+        const validerForm = document.getElementById('validerForm');
+        const rejeterForm = document.getElementById('rejeterForm');
+
+        if (action === 'valider') {
+            validerForm.style.display = 'block';
+            rejeterForm.style.display = 'none';
+            document.getElementById('validerRapportId').value = idRapport;
+            document.getElementById('validerComment').value = '';
+        } else {
+            validerForm.style.display = 'none';
+            rejeterForm.style.display = 'block';
+            document.getElementById('rejeterRapportId').value = idRapport;
+            document.getElementById('rejeterComment').value = '';
+        }
 
         // Affiche la modal
         const modal = document.getElementById('confirmModal');
@@ -607,49 +654,15 @@ function traduireStatut($statut) {
         }, 300);
     }
 
-    // Gestion du formulaire de confirmation
-    document.getElementById('confirmForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        e.stopPropagation(); // Empêcher la propagation
+    // Gestion des formulaires PHP
+    document.getElementById('validerForm').addEventListener('submit', function(e) {
+        console.log('Formulaire de validation soumis');
+        // Le formulaire sera soumis normalement via POST
+    });
 
-        console.log('Formulaire soumis'); // Debug
-
-        const formData = new FormData();
-        formData.append('action', document.getElementById('confirmAction').value);
-        formData.append('id_rapport', document.getElementById('confirmRapportId').value);
-        formData.append('commentaire', document.getElementById('confirmComment').value);
-
-        console.log('Action:', document.getElementById('confirmAction').value); // Debug
-        console.log('ID Rapport:', document.getElementById('confirmRapportId').value); // Debug
-        console.log('Commentaire:', document.getElementById('confirmComment').value); // Debug
-
-        // Envoi AJAX vers la route
-        fetch(window.location.href, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                console.log('Response status:', response.status); // Debug
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data); // Debug
-                if (data.success) {
-                    showNotification('success', data.message);
-                    closeConfirmModal();
-                    fermerModal(); // Ferme la modal de détails
-                    // Recharge la page pour mettre à jour les données
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showNotification('error', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erreur AJAX:', error); // Debug
-                showNotification('error', 'Erreur lors de la communication avec le serveur');
-            });
+    document.getElementById('rejeterForm').addEventListener('submit', function(e) {
+        console.log('Formulaire de rejet soumis');
+        // Le formulaire sera soumis normalement via POST
     });
 
     // Fonction pour voir les détails d'un rapport
@@ -728,7 +741,7 @@ function traduireStatut($statut) {
         });
 
         // Empêcher la propagation des clics sur le formulaire
-        const confirmForm = document.getElementById('confirmForm');
+        const confirmForm = document.getElementById('validerForm');
         confirmForm.addEventListener('click', function(e) {
             e.stopPropagation();
         });

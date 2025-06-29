@@ -1,10 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
-
 require_once __DIR__ . '/../models/Etudiant.php';
-
-require_once __DIR__ . '/../models/RapportEtudiants.php';
 require_once __DIR__ . '/../models/Approuver.php';
 
 
@@ -667,7 +664,7 @@ class GestionRapportController {
     {
         global $rapports;
         // Récupérer les rapports de l'étudiant
-        $rapports = RapportEtudiants::getByEtudiant($num_etu);
+        $rapports = RapportEtudiant::getByEtudiant($num_etu);
 
         // Pour chaque rapport, récupérer l'historique des décisions
         foreach ($rapports as &$rapport) {

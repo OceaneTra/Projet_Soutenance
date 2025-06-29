@@ -81,20 +81,20 @@ class GestionReclamationsController {
             }
 
             // Préparer les données pour la base
-            if (!isset($_SESSION['num_etu'])) {
-                // Tentative de récupération via l'email si pas trouvé
-                $this->recupererNumEtu();
-
                 if (!isset($_SESSION['num_etu'])) {
-                    throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
-                }
-            }
+                    // Tentative de récupération via l'email si pas trouvé
+                    $this->recupererNumEtu();
 
-            $donnees = [
-                'num_etu' => $_SESSION['num_etu'],
-                'titre' => trim($donneesReclamation['titre']),
-                'description' => strip_tags(trim($donneesReclamation['description'])),
-                'type' => $donneesReclamation['type'],
+                    if (!isset($_SESSION['num_etu'])) {
+                        throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
+                    }
+                }
+
+                $donnees = [
+                    'num_etu' => $_SESSION['num_etu'],
+                    'titre' => trim($donneesReclamation['titre']),
+                    'description' => strip_tags(trim($donneesReclamation['description'])),
+                    'type' => $donneesReclamation['type'],
                 'priorite' => $donneesReclamation['priorite']
             ];
 
@@ -217,22 +217,22 @@ class GestionReclamationsController {
             $reclamations = array_filter($reclamations, function($rec) {
                 return $rec['num_etu'] == $_SESSION['num_etu'];
             });
-            $totalReclamations = count($reclamations);
+                $totalReclamations = count($reclamations);
 
             // Appliquer les filtres manuellement
-            if (!empty($filtres)) {
-                $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
-                    if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
-                        return false;
-                    }
-                    if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
-                        return false;
-                    }
-                    return true;
-                });
-            }
+                if (!empty($filtres)) {
+                    $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
+                        if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
+                            return false;
+                        }
+                        if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
+                            return false;
+                        }
+                        return true;
+                    });
+                }
 
-            $reclamations = array_slice($reclamations, $offset, $limit);
+                $reclamations = array_slice($reclamations, $offset, $limit);
 
             $totalPages = ceil($totalReclamations / $limit);
 

@@ -11,6 +11,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
             $_POST['id_rapport'] = (int)$_POST['id_rapport'];
             $result = $controller->validerRapport();
             $_SESSION['message'] = $result['message'] ?? '';
+            $_SESSION['message_type'] = $result['success'] ? 'success' : 'error';
             header('Location: ?page=verification_candidatures_soutenance');
             exit;
         }
@@ -19,6 +20,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
             $_POST['id_rapport'] = (int)$_POST['id_rapport'];
             $result = $controller->rejeterRapport();
             $_SESSION['message'] = $result['message'] ?? '';
+            $_SESSION['message_type'] = $result['success'] ? 'success' : 'error';
             header('Location: ?page=verification_candidatures_soutenance');
             exit;
         }

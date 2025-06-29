@@ -46,33 +46,39 @@ class VerificationRapportsController {
      */
     private function getStatsRapports() {
         try {
-            // Récupérer les rapports déposés
+            // Récupérer les rapports déposés pour le total
             $rapports = $this->rapportModel->getRapportsDeposes();
+            
+            // Compter les approbations et désapprobations dans la table approuver
+            $stmtApprouve = $this->pdo->prepare("
+                SELECT COUNT(DISTINCT id_rapport) as total_approuve 
+                FROM approuver 
+                WHERE decision = 'approuve'
+            ");
+            $stmtApprouve->execute();
+            $totalApprouve = $stmtApprouve->fetchColumn();
+            
+            $stmtDesapprouve = $this->pdo->prepare("
+                SELECT COUNT(DISTINCT id_rapport) as total_desapprouve 
+                FROM approuver 
+                WHERE decision = 'desapprouve'
+            ");
+            $stmtDesapprouve->execute();
+            $totalDesapprouve = $stmtDesapprouve->fetchColumn();
             
             $stats = [
                 'total' => count($rapports),
-                'en_attente' => 0,
-                'en_cours' => 0,
-                'valide' => 0,
-                'rejete' => 0
+                'approuve' => $totalApprouve,
+                'desapprouve' => $totalDesapprouve
             ];
-            
-            foreach ($rapports as $rapport) {
-                $statut = $rapport->statut_rapport ?? 'en_attente';
-                if (isset($stats[$statut])) {
-                    $stats[$statut]++;
-                }
-            }
             
             return $stats;
         } catch (Exception $e) {
             error_log("Erreur lors du calcul des statistiques: " . $e->getMessage());
             return [
                 'total' => 0,
-                'en_attente' => 0,
-                'en_cours' => 0,
-                'valide' => 0,
-                'rejete' => 0
+                'approuve' => 0,
+                'desapprouve' => 0
             ];
         }
     }
@@ -100,8 +106,18 @@ class VerificationRapportsController {
             error_log("DEBUG: persAdmin = " . print_r($persAdmin, true));
             
             if (!$persAdmin) {
+                // Essayer une approche alternative : récupérer par l'email de l'utilisateur connecté
+                error_log("DEBUG: Tentative de récupération alternative du personnel admin");
+                $email_utilisateur = $_SESSION['email_utilisateur'] ?? '';
+                if ($email_utilisateur) {
+                    $persAdmin = $this->persAdminModel->getPersAdminByLogin($email_utilisateur);
+                    error_log("DEBUG: persAdmin par email = " . print_r($persAdmin, true));
+                }
+            }
+            
+            if (!$persAdmin) {
                 error_log("DEBUG: Personnel administratif non trouvé");
-                return ['success' => false, 'message' => 'Personnel administratif non trouvé'];
+                return ['success' => false, 'message' => 'Personnel administratif non trouvé. Veuillez vérifier votre profil.'];
             }
             
             // Insérer l'approbation dans la table approuver
@@ -116,10 +132,10 @@ class VerificationRapportsController {
             error_log("DEBUG: Résultat insertion = " . ($result ? 'true' : 'false'));
             
             if ($result) {
-                // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valide' WHERE id_rapport = ?");
-                $updateResult = $updateStmt->execute([$id_rapport]);
-                error_log("DEBUG: Mise à jour statut = " . ($updateResult ? 'true' : 'false'));
+            
+                
+                // Envoyer un email à l'étudiant
+                $this->envoyerEmailNotification($id_rapport, 'approuve', $commentaire);
                 
                 return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
             } else {
@@ -156,8 +172,18 @@ class VerificationRapportsController {
             error_log("DEBUG: persAdmin = " . print_r($persAdmin, true));
             
             if (!$persAdmin) {
+                // Essayer une approche alternative : récupérer par l'email de l'utilisateur connecté
+                error_log("DEBUG: Tentative de récupération alternative du personnel admin");
+                $email_utilisateur = $_SESSION['email_utilisateur'] ?? '';
+                if ($email_utilisateur) {
+                    $persAdmin = $this->persAdminModel->getPersAdminByLogin($email_utilisateur);
+                    error_log("DEBUG: persAdmin par email = " . print_r($persAdmin, true));
+                }
+            }
+            
+            if (!$persAdmin) {
                 error_log("DEBUG: Personnel administratif non trouvé");
-                return ['success' => false, 'message' => 'Personnel administratif non trouvé'];
+                return ['success' => false, 'message' => 'Personnel administratif non trouvé. Veuillez vérifier votre profil.'];
             }
             
             // Insérer l'approbation dans la table approuver
@@ -173,9 +199,12 @@ class VerificationRapportsController {
             
             if ($result) {
                 // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejete' WHERE id_rapport = ?");
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejeter' WHERE id_rapport = ?");
                 $updateResult = $updateStmt->execute([$id_rapport]);
                 error_log("DEBUG: Mise à jour statut = " . ($updateResult ? 'true' : 'false'));
+                
+                // Envoyer un email à l'étudiant
+                $this->envoyerEmailNotification($id_rapport, 'desapprouve', $commentaire);
                 
                 return ['success' => true, 'message' => 'Rapport rejeté avec succès'];
             } else {
@@ -210,5 +239,155 @@ class VerificationRapportsController {
             error_log("Erreur récupération décisions évaluation: " . $e->getMessage());
             return [];
         }
+    }
+
+    /**
+     * Envoyer un email de notification à l'étudiant
+     */
+    private function envoyerEmailNotification($id_rapport, $decision, $commentaire) {
+        try {
+            // Récupérer les informations du rapport et de l'étudiant
+            $rapport = $this->rapportModel->getRapportDetail($id_rapport);
+            if (!$rapport) {
+                error_log("DEBUG: Rapport non trouvé pour l'envoi d'email");
+                return false;
+            }
+
+            // Initialiser le service d'email
+            $emailService = new EmailService();
+            
+            // Préparer le sujet et le message selon la décision
+            if ($decision === 'approuve') {
+                $sujet = "Votre rapport a été approuvé - Soutenance Manager";
+                $message = $this->genererMessageEmailApprobation($rapport, $commentaire);
+            } else {
+                $sujet = "Votre rapport nécessite des modifications - Soutenance Manager";
+                $message = $this->genererMessageEmailRejet($rapport, $commentaire);
+            }
+
+            // Envoyer l'email
+            $resultat = $emailService->sendEmail($rapport->email_etu, $sujet, $message, true);
+            
+            if ($resultat) {
+                error_log("DEBUG: Email envoyé avec succès à " . $rapport->email_etu);
+            } else {
+                error_log("DEBUG: Échec de l'envoi d'email à " . $rapport->email_etu);
+            }
+            
+            return $resultat;
+        } catch (Exception $e) {
+            error_log("Erreur envoi email notification: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Générer le message HTML pour l'approbation
+     */
+    private function genererMessageEmailApprobation($rapport, $commentaire) {
+        $nomComplet = $rapport->nom_etu . ' ' . $rapport->prenom_etu;
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #10B981; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+                .content { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+                .footer { text-align: center; color: #666; font-size: 14px; }
+                .success-icon { font-size: 48px; margin-bottom: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <div class='success-icon'>🎉</div>
+                    <h1>Rapport Approuvé !</h1>
+                </div>
+                
+                <div class='content'>
+                    <p>Bonjour <strong>{$nomComplet}</strong>,</p>
+                    
+                    <p>Nous avons le plaisir de vous informer que votre rapport de soutenance a été <strong>approuvé</strong> par le personnel administratif.</p>
+                    
+                    <h3>Détails du rapport :</h3>
+                    <ul>
+                        <li><strong>Titre :</strong> {$rapport->nom_rapport}</li>
+                        <li><strong>Thème :</strong> {$rapport->theme_rapport}</li>
+                        <li><strong>Date de dépôt :</strong> " . date('d/m/Y', strtotime($rapport->date_depot)) . "</li>
+                    </ul>
+                    
+                    <h3>Commentaire de l'évaluateur :</h3>
+                    <p><em>" . htmlspecialchars($commentaire) . "</em></p>
+                    
+                    <p>Votre rapport est maintenant approuvé et il va être examiné par la commission de validation.</p>
+                    
+                    <p>Pour toute question, n'hésitez pas à contacter le service pédagogique.</p>
+                </div>
+                
+                <div class='footer'>
+                    <p>Cordialement,<br>L'équipe Soutenance Manager</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+    }
+
+    /**
+     * Générer le message HTML pour le rejet
+     */
+    private function genererMessageEmailRejet($rapport, $commentaire) {
+        $nomComplet = $rapport->nom_etu . ' ' . $rapport->prenom_etu;
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #EF4444; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+                .content { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+                .footer { text-align: center; color: #666; font-size: 14px; }
+                .warning-icon { font-size: 48px; margin-bottom: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <div class='warning-icon'>⚠️</div>
+                    <h1>Rapport Nécessite des Modifications</h1>
+                </div>
+                
+                <div class='content'>
+                    <p>Bonjour <strong>{$nomComplet}</strong>,</p>
+                    
+                    <p>Nous vous informons que votre rapport de soutenance nécessite des modifications avant d'être approuvé.</p>
+                    
+                    <h3>Détails du rapport :</h3>
+                    <ul>
+                        <li><strong>Titre :</strong> {$rapport->nom_rapport}</li>
+                        <li><strong>Thème :</strong> {$rapport->theme_rapport}</li>
+                        <li><strong>Date de dépôt :</strong> " . date('d/m/Y', strtotime($rapport->date_depot)) . "</li>
+                    </ul>
+                    
+                    <h3>Commentaire de l'évaluateur :</h3>
+                    <p><em>" . htmlspecialchars($commentaire) . "</em></p>
+                    
+                    <p>Veuillez apporter les modifications demandées et soumettre une nouvelle version de votre rapport.</p>
+                    
+                    <p>Pour toute question ou clarification, n'hésitez pas à contacter le service pédagogique.</p>
+                </div>
+                
+                <div class='footer'>
+                    <p>Cordialement,<br>L'équipe Soutenance Manager</p>
+                </div>
+            </div>
+        </body>
+        </html>";
     }
 } 

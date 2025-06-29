@@ -161,30 +161,30 @@ if (isset($_SESSION['num_etu'])) {
     <!-- Modal de confirmation pour suppression -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
-                    <p class="text-sm text-gray-600">Cette action est irréversible</p>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
+                        <p class="text-sm text-gray-600">Cette action est irréversible</p>
                 </div>
             </div>
 
-            <p class="text-gray-700 mb-6">
-                Êtes-vous sûr de vouloir supprimer le rapport
+                <p class="text-gray-700 mb-6">
+                    Êtes-vous sûr de vouloir supprimer le rapport
                 <span id="rapportNom" class="font-semibold text-gray-900"></span>
-                ?
-            </p>
-            <p class="text-sm text-gray-600 mb-6">
-                Cette action ne peut pas être annulée et supprimera définitivement le rapport et toutes ses données
-                associées.
-            </p>
+                    ?
+                </p>
+                <p class="text-sm text-gray-600 mb-6">
+                    Cette action ne peut pas être annulée et supprimera définitivement le rapport et toutes ses données
+                    associées.
+                </p>
 
             <form method="POST" action="?page=gestion_rapports">
-                <input type="hidden" name="action" value="supprimer_rapport">
+                    <input type="hidden" name="action" value="supprimer_rapport">
                 <input type="hidden" name="rapport_id" id="rapportIdToDelete">
                 <div class="flex justify-end space-x-4">
                     <button type="button" onclick="fermerModalSuppression()"
@@ -193,7 +193,7 @@ if (isset($_SESSION['num_etu'])) {
                         <i class="fas fa-trash mr-2"></i>Supprimer définitivement
                     </button>
                 </div>
-            </form>
+                </form>
         </div>
     </div>
 

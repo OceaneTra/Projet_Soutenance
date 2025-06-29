@@ -182,5 +182,4 @@ class EvaluationRapport {
             return [];
         }
     }
-}
-?> 
+} 
