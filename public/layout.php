@@ -20,6 +20,7 @@ include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
+include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -313,6 +314,13 @@ switch ($currentMenuSlug) {
                 $contentFile = $partialsBasePath . 'gestion_notes_evaluations_content.php';
                 $currentPageLabel = 'Gestion des notes et évaluations';
 
+            break;
+
+        case 'gestion_dossiers_candidatures':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page de gestion des dossiers de candidatures vérifiés
+            $contentFile = $partialsBasePath . 'gestion_dossiers_candidatures_content.php';
+            $currentPageLabel = 'Gestion des dossiers de candidatures vérifiés';
             break;
 
         case 'evaluations_dossiers_soutenance':

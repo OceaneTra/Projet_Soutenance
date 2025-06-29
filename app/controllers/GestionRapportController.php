@@ -155,7 +155,13 @@ class GestionRapportController {
             $contenuRapport = '';
 
             if ($edit_id) {
-                // Temporairement, permettre à tous les utilisateurs de modifier les rapports
+                // Vérifier que l'utilisateur est un étudiant
+                if (!$this->isEtudiant()) {
+                    $this->afficherErreur("Accès non autorisé.");
+                    return;
+                }
+
+                // Récupérer le rapport
                 $rapport = $this->rapportModel->getRapportById($edit_id);
                 $isEditMode = true;
 
@@ -163,6 +169,20 @@ class GestionRapportController {
                     $this->afficherErreur("Rapport non trouvé.");
                     return;
                 }
+
+                // Vérifier que le rapport appartient à l'étudiant connecté
+                if ($rapport->num_etu != $_SESSION['num_etu']) {
+                    $this->afficherErreur("Accès non autorisé à ce rapport.");
+                    return;
+                }
+
+                // Vérifier si le rapport a déjà été déposé
+                $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+                $stmt->execute([$_SESSION['num_etu'], $edit_id]);
+                $dejaDepose = $stmt->fetchColumn() > 0;
+
+                // Passer l'information à la vue
+                $GLOBALS['rapportDejaDepose'] = $dejaDepose;
 
                 // Charger le contenu du rapport
                 $fichierContenu = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$edit_id}.html";
@@ -258,6 +278,16 @@ class GestionRapportController {
         error_log("Num étudiant: " . $_SESSION['num_etu']);
 
         if ($donneesRapport['edit_id']) {
+            // Mode modification - vérifier que le rapport n'est pas déjà déposé
+            $stmt = $this->rapportModel->pdo->prepare("SELECT COUNT(*) FROM deposer WHERE num_etu = ? AND id_rapport = ?");
+            $stmt->execute([$_SESSION['num_etu'], $donneesRapport['edit_id']]);
+            $dejaDepose = $stmt->fetchColumn() > 0;
+
+            if ($dejaDepose) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Ce rapport ne peut plus être modifié car il a déjà été déposé.']);
+                return;
+            }
+
             // Mode modification
             $result = $this->rapportModel->updateRapport(
                 $donneesRapport['edit_id'],

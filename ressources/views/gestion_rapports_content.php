@@ -161,30 +161,30 @@ if (isset($_SESSION['num_etu'])) {
     <!-- Modal de confirmation pour suppression -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
-                <div class="flex items-center mb-4">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
-                        </div>
+            <div class="flex items-center mb-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
-                        <p class="text-sm text-gray-600">Cette action est irréversible</p>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
+                    <p class="text-sm text-gray-600">Cette action est irréversible</p>
                 </div>
             </div>
 
-                <p class="text-gray-700 mb-6">
-                    Êtes-vous sûr de vouloir supprimer le rapport
+            <p class="text-gray-700 mb-6">
+                Êtes-vous sûr de vouloir supprimer le rapport
                 <span id="rapportNom" class="font-semibold text-gray-900"></span>
-                    ?
-                </p>
-                <p class="text-sm text-gray-600 mb-6">
-                    Cette action ne peut pas être annulée et supprimera définitivement le rapport et toutes ses données
-                    associées.
-                </p>
+                ?
+            </p>
+            <p class="text-sm text-gray-600 mb-6">
+                Cette action ne peut pas être annulée et supprimera définitivement le rapport et toutes ses données
+                associées.
+            </p>
 
             <form method="POST" action="?page=gestion_rapports">
-                    <input type="hidden" name="action" value="supprimer_rapport">
+                <input type="hidden" name="action" value="supprimer_rapport">
                 <input type="hidden" name="rapport_id" id="rapportIdToDelete">
                 <div class="flex justify-end space-x-4">
                     <button type="button" onclick="fermerModalSuppression()"
@@ -193,7 +193,7 @@ if (isset($_SESSION['num_etu'])) {
                         <i class="fas fa-trash mr-2"></i>Supprimer définitivement
                     </button>
                 </div>
-                </form>
+            </form>
         </div>
     </div>
 
@@ -346,6 +346,7 @@ if (isset($_SESSION['num_etu'])) {
                                 $infoDepot = $infosDepot[$rapport->id_rapport] ?? ['peutDeposer' => true, 'messageDepot' => '', 'dejaDepose' => false];
                                 $peutDeposer = $infoDepot['peutDeposer'];
                                 $messageDepot = $infoDepot['messageDepot'];
+                                $dejaDepose = $infoDepot['dejaDepose'];
                                 ?>
 
                                 <?php if ($peutDeposer): ?>
@@ -366,15 +367,32 @@ if (isset($_SESSION['num_etu'])) {
                                 </button>
                                 <?php endif; ?>
 
-                                <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    <i class="fas fa-eye mr-1"></i> Voir
+                                <?php if ($dejaDepose): ?>
+                                <!-- Rapport déjà déposé - bouton "Voir" seulement -->
+                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 shadow transition-colors"
+                                    title="">
+                                    <i class="fa-solid fa-eye"></i>
+                                    Voir
                                 </button>
+                                <?php else: ?>
+                                <!-- Rapport non déposé - bouton "Voir" -->
+                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 shadow transition-colors"
+                                    title="Voir le rapport">
+                                    <i class="fa-solid fa-eye"></i>
+                                    Voir
+                                </button>
+                                <?php endif; ?>
+
+                                <?php if (!$dejaDepose): ?>
+                                <!-- Bouton supprimer seulement si le rapport n'est pas déposé -->
                                 <button
                                     onclick="confirmerSuppression(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars(addslashes($rapport->nom_rapport)) ?>')"
                                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                     <i class="fas fa-trash mr-1"></i> Supprimer
                                 </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -481,10 +499,6 @@ if (isset($_SESSION['num_etu'])) {
     });
 
     function voirRapport(rapportId) {
-        window.location.href = `?page=gestion_rapports&action=compte_rendu_rapport&id=${rapportId}`;
-    }
-
-    function modifierRapport(rapportId) {
         window.location.href = `?page=gestion_rapports&action=creer_rapport&edit=${rapportId}`;
     }
 

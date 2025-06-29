@@ -132,7 +132,10 @@ class VerificationRapportsController {
             error_log("DEBUG: Résultat insertion = " . ($result ? 'true' : 'false'));
             
             if ($result) {
-            
+                // Mettre à jour le statut du rapport
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valide' WHERE id_rapport = ?");
+                $updateResult = $updateStmt->execute([$id_rapport]);
+                error_log("DEBUG: Mise à jour statut = " . ($updateResult ? 'true' : 'false'));
                 
                 // Envoyer un email à l'étudiant
                 $this->envoyerEmailNotification($id_rapport, 'approuve', $commentaire);

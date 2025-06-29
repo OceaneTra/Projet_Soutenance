@@ -43,5 +43,4 @@ if ($_GET['page'] === 'evaluations_dossiers_soutenance') {
     if (isset($_GET['detail'])) {
         $detail = $controller->detail($_GET['detail']);
     }
-}
-?> 
+} 
