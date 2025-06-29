@@ -2,20 +2,28 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
+require_once __DIR__ . '/../models/Approuver.php';
+require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../utils/EmailService.php';
 
 class VerificationRapportsController {
     
     private $rapportModel;
+    private $approbationModel;
+    private $persAdminModel;
+    private $pdo;
     
     public function __construct() {
-        $this->rapportModel = new RapportEtudiant(Database::getConnection());
+        $this->pdo = Database::getConnection();
+        $this->rapportModel = new RapportEtudiant($this->pdo);
+        $this->approbationModel = new Approuver($this->pdo);
+        $this->persAdminModel = new PersAdmin($this->pdo);
     }
     
     public function index() {
         try {
-            // Récupérer tous les rapports avec les informations des étudiants
-            $rapports = $this->rapportModel->getAllRapports();
+            // Récupérer les rapports déposés depuis la table deposer
+            $rapports = $this->rapportModel->getRapportsDeposes();
             
             // Passer les données à la vue via les variables globales
             $GLOBALS['rapports'] = $rapports;
@@ -38,19 +46,19 @@ class VerificationRapportsController {
      */
     private function getStatsRapports() {
         try {
-            $rapports = $this->rapportModel->getAllRapports();
+            // Récupérer les rapports déposés
+            $rapports = $this->rapportModel->getRapportsDeposes();
             
             $stats = [
                 'total' => count($rapports),
+                'en_attente' => 0,
                 'en_cours' => 0,
-                'en_revision' => 0,
                 'valide' => 0,
-                'a_corriger' => 0,
                 'rejete' => 0
             ];
             
             foreach ($rapports as $rapport) {
-                $statut = $rapport->statut_rapport ?? 'en_cours';
+                $statut = $rapport->statut_rapport ?? 'en_attente';
                 if (isset($stats[$statut])) {
                     $stats[$statut]++;
                 }
@@ -61,102 +69,80 @@ class VerificationRapportsController {
             error_log("Erreur lors du calcul des statistiques: " . $e->getMessage());
             return [
                 'total' => 0,
+                'en_attente' => 0,
                 'en_cours' => 0,
-                'en_revision' => 0,
                 'valide' => 0,
-                'a_corriger' => 0,
                 'rejete' => 0
             ];
         }
     }
     
     /**
-     * Valider un rapport
+     * Valider un rapport (approuver)
      */
     public function validerRapport() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return ['success' => false, 'message' => 'Méthode non autorisée'];
-        }
-        
         try {
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
-            $id_pers_admin = $_SESSION['id_pers_admin'] ?? null;
+            $id_admin = $_SESSION['id_utilisateur'] ?? 0;
             
-            if (!$id_rapport) {
-                return ['success' => false, 'message' => 'ID du rapport manquant'];
-            }
-            if (!$id_pers_admin) {
-                return ['success' => false, 'message' => 'Identifiant administrateur manquant'];
+            if (!$id_rapport || !$commentaire || !$id_admin) {
+                return ['success' => false, 'message' => 'Paramètres manquants'];
             }
             
-            $result = $this->rapportModel->updateStatutRapport($id_rapport, 'valide');
-            $approb = $this->rapportModel->ajouterApprobation($id_pers_admin, $id_rapport, $commentaire);
-            $rapport = $this->rapportModel->getRapportById($id_rapport);
-            $emailSent = false;
-            if ($rapport && !empty($rapport->email_etu)) {
-                $emailService = new EmailService();
-                $subject = "Votre rapport a été validé";
-                $message = "Bonjour " . htmlspecialchars($rapport->prenom_etu . ' ' . $rapport->nom_etu) . ",<br><br>Votre rapport intitulé <b>" . htmlspecialchars($rapport->nom_rapport) . "</b> a été <b>validé</b>.<br><br>Commentaire :<br>" . nl2br(htmlspecialchars($commentaire)) . "<br><br>Cordialement.";
-                $emailSent = $emailService->sendEmail($rapport->email_etu, $subject, $message, true);
-            }
+            // Insérer l'évaluation dans la table evaluations_rapports
+            $stmt = $this->pdo->prepare("
+                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
+                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
+            ");
             
-            if ($result && $approb) {
-                $msg = 'Rapport validé avec succès.';
-                if ($emailSent) $msg .= ' Un email a été envoyé à l\'étudiant.';
-                else $msg .= ' (Email non envoyé)';
-                return ['success' => true, 'message' => $msg];
+            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
+                // Mettre à jour le statut du rapport
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valide' WHERE id_rapport = ?");
+                $updateStmt->execute([$id_rapport]);
+                
+                return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors de la validation ou de l\'approbation.'];
+                return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
             }
+            
         } catch (Exception $e) {
-            error_log("Erreur validation rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la validation'];
+            error_log("Erreur approbation rapport: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
         }
     }
     
     /**
-     * Rejeter un rapport
+     * Rejeter un rapport (désapprouver)
      */
     public function rejeterRapport() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return ['success' => false, 'message' => 'Méthode non autorisée'];
-        }
-        
         try {
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
-            $id_pers_admin = $_SESSION['id_pers_admin'] ?? null;
+            $id_admin = $_SESSION['id_utilisateur'] ?? 0;
             
-            if (!$id_rapport) {
-                return ['success' => false, 'message' => 'ID du rapport manquant'];
-            }
-            if (!$id_pers_admin) {
-                return ['success' => false, 'message' => 'Identifiant administrateur manquant'];
+            if (!$id_rapport || !$commentaire || !$id_admin) {
+                return ['success' => false, 'message' => 'Paramètres manquants'];
             }
             
-            $result = $this->rapportModel->updateStatutRapport($id_rapport, 'rejete');
-            $approb = $this->rapportModel->ajouterApprobation($id_pers_admin, $id_rapport, $commentaire);
-            $rapport = $this->rapportModel->getRapportById($id_rapport);
-            $emailSent = false;
-            if ($rapport && !empty($rapport->email_etu)) {
-                $emailService = new EmailService();
-                $subject = "Votre rapport a été rejeté";
-                $message = "Bonjour " . htmlspecialchars($rapport->prenom_etu . ' ' . $rapport->nom_etu) . ",<br><br>Votre rapport intitulé <b>" . htmlspecialchars($rapport->nom_rapport) . "</b> a été <b>rejeté</b>.<br><br>Commentaire :<br>" . nl2br(htmlspecialchars($commentaire)) . "<br><br>Cordialement.";
-                $emailSent = $emailService->sendEmail($rapport->email_etu, $subject, $message, true);
-            }
+            // Insérer l'évaluation dans la table evaluations_rapports
+            $stmt = $this->pdo->prepare("
+                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
+                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
+            ");
             
-            if ($result && $approb) {
-                $msg = 'Rapport rejeté avec succès.';
-                if ($emailSent) $msg .= ' Un email a été envoyé à l\'étudiant.';
-                else $msg .= ' (Email non envoyé)';
-                return ['success' => true, 'message' => $msg];
+            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
+                // Mettre à jour le statut du rapport
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejete' WHERE id_rapport = ?");
+                $updateStmt->execute([$id_rapport]);
+                
+                return ['success' => true, 'message' => 'Rapport rejeté avec succès'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors du rejet ou de l\'approbation.'];
+                return ['success' => false, 'message' => 'Erreur lors de la désapprobation.'];
             }
         } catch (Exception $e) {
-            error_log("Erreur rejet rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors du rejet'];
+            error_log("Erreur désapprobation rapport: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la désapprobation'];
         }
     }
     
@@ -165,10 +151,22 @@ class VerificationRapportsController {
      */
     public function getRapportDetail($id_rapport) {
         try {
-            return $this->rapportModel->getRapportById($id_rapport);
+            return $this->rapportModel->getRapportDetail($id_rapport);
         } catch (Exception $e) {
             error_log("Erreur récupération détail rapport: " . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Récupérer les décisions d'évaluation d'un rapport
+     */
+    public function getDecisionsEvaluation($id_rapport) {
+        try {
+            return $this->rapportModel->getDecisionsEvaluation($id_rapport);
+        } catch (Exception $e) {
+            error_log("Erreur récupération décisions évaluation: " . $e->getMessage());
+            return [];
         }
     }
 } 

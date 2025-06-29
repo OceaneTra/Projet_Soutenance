@@ -240,10 +240,10 @@
                     <div class="filters">
                         <select class="border-2 border-gray-300 rounded-md p-2 outline-green-500">
                             <option value="">Tous les statuts</option>
+                            <option value="en_attente">En attente</option>
                             <option value="en_cours">En cours</option>
-                            <option value="en_revision">En révision</option>
+                            <option value="rejete">Rejeté</option>
                             <option value="valide">Validé</option>
-                            <option value="a_corriger">À corriger</option>
                         </select>
                         <div style="position: relative; flex: 1;">
                             <i class="fas fa-search search-icon"></i>
@@ -264,17 +264,17 @@
                                 </div>
                                 <?php
                                 // Statut global
-                                $status_class = 'en-cours';
-                                $status_label = 'En cours';
+                                $status_class = 'en-attente';
+                                $status_label = 'En attente';
                                 if ($rapport['statut_rapport'] === 'valide') {
                                     $status_class = 'valide';
                                     $status_label = 'Validé';
-                                } elseif ($rapport['statut_rapport'] === 'a_corriger' || $rapport['statut_rapport'] === 'desapprouve_commission' || $rapport['statut_rapport'] === 'desapprouve_communication') {
-                                    $status_class = 'a-corriger';
-                                    $status_label = 'À corriger';
-                                } elseif ($rapport['statut_rapport'] === 'en_revision') {
-                                    $status_class = 'en-revision';
-                                    $status_label = 'En révision';
+                                } elseif ($rapport['statut_rapport'] === 'rejete') {
+                                    $status_class = 'rejete';
+                                    $status_label = 'Rejeté';
+                                } elseif ($rapport['statut_rapport'] === 'en_cours') {
+                                    $status_class = 'en-cours';
+                                    $status_label = 'En cours';
                                 }
                             ?>
                                 <span class="status <?= $status_class ?>"><?= $status_label ?></span>
@@ -412,8 +412,8 @@
 
                                 <!-- Étape 5 : Validation finale -->
                                 <?php
-                            $finalColor = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valide') ? '#388e3c' : '#9e9e9e';
-                            $finalLabel = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valide') ? 'Validé' : 'En attente';
+                            $finalColor = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valider') ? '#388e3c' : '#9e9e9e';
+                            $finalLabel = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valider') ? 'Validé' : 'En attente';
                             ?>
                                 <div class="timeline-item">
                                     <div class="timeline-dot" style="background: <?= $finalColor ?>;">
@@ -458,10 +458,10 @@
                             const statusClass = statusElement.className;
                             let itemStatus = '';
 
-                            if (statusClass.includes('en-cours')) itemStatus = 'en_cours';
-                            else if (statusClass.includes('en-revision')) itemStatus = 'en_revision';
+                            if (statusClass.includes('en-attente')) itemStatus = 'en_attente';
+                            else if (statusClass.includes('en-cours')) itemStatus = 'en_cours';
+                            else if (statusClass.includes('rejete')) itemStatus = 'rejete';
                             else if (statusClass.includes('valide')) itemStatus = 'valide';
-                            else if (statusClass.includes('a-corriger')) itemStatus = 'a_corriger';
 
                             if (itemStatus !== status) {
                                 showItem = false;

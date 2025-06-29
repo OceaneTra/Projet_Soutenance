@@ -3,6 +3,12 @@ require_once __DIR__ . '/../config/database.php';
 
 class Approuver {
 
+    private $pdo;
+
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
+    }
+
     public static function getByRapport($id_rapport) {
         $pdo = Database::getConnection();
         $stmt = $pdo->prepare("SELECT a.*, n.lib_approb, p.nom_pers_admin, p.prenom_pers_admin

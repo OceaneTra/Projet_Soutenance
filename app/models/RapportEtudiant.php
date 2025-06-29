@@ -28,6 +28,18 @@ class RapportEtudiant {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
+    public function getRapportDetail($id_rapport) {
+        $stmt = $this->pdo->prepare("
+            SELECT r.*, e.nom_etu, e.prenom_etu, e.email_etu, d.date_depot
+            FROM rapport_etudiants r
+            JOIN etudiants e ON r.num_etu = e.num_etu
+            LEFT JOIN deposer d ON r.id_rapport = d.id_rapport
+            WHERE r.id_rapport = ?
+        ");
+        $stmt->execute([$id_rapport]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
     public function getRapportByIdAndEtudiant($id_rapport, $num_etu) {
         $stmt = $this->pdo->prepare("
             SELECT r.*, e.nom_etu, e.prenom_etu, e.email_etu 
@@ -60,7 +72,7 @@ class RapportEtudiant {
 
             $stmt = $this->pdo->prepare("
             INSERT INTO rapport_etudiants (num_etu, nom_rapport, theme_rapport, date_rapport, statut_rapport, version) 
-            VALUES (?, ?, ?, NOW(), 'en_cours', 1)
+            VALUES (?, ?, ?, NOW(), 'en_attente', 1)
         ");
 
             if ($stmt->execute([$num_etu, $nom_rapport, $theme_rapport])) {
@@ -250,6 +262,16 @@ class RapportEtudiant {
         }
     }
 
+    public function setRapportEnCours($id_rapport) {
+        try {
+            $stmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'en_cours', date_modification = NOW() WHERE id_rapport = ?");
+            return $stmt->execute([$id_rapport]);
+        } catch (PDOException $e) {
+            error_log("Erreur mise à jour statut rapport en cours: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function updateCheminFichier($id_rapport, $chemin_fichier, $taille_fichier = null) {
         try {
             $stmt = $this->pdo->prepare("UPDATE rapport_etudiants SET chemin_fichier = ?, taille_fichier = ?, date_modification = NOW() WHERE id_rapport = ?");
@@ -316,13 +338,50 @@ class RapportEtudiant {
         }
     }
 
-    public function ajouterApprobation($id_pers_admin, $id_rapport, $commentaire) {
+    public function getRapportsDeposes() {
         try {
-            $stmt = $this->pdo->prepare("INSERT INTO approuver (id_pers_admin, id_rapport, date_approv, commentaire_approv) VALUES (?, ?, NOW(), ?)");
-            return $stmt->execute([$id_pers_admin, $id_rapport, $commentaire]);
+            $stmt = $this->pdo->query("
+                SELECT r.*, e.nom_etu, e.prenom_etu, e.email_etu, d.date_depot
+                FROM deposer d
+                JOIN rapport_etudiants r ON d.id_rapport = r.id_rapport
+                JOIN etudiants e ON d.num_etu = e.num_etu
+                ORDER BY d.date_depot DESC
+            ");
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
-            error_log("Erreur ajout approbation: " . $e->getMessage());
-            return false;
+            error_log("Erreur récupération rapports déposés: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getDecisionsEvaluation($id_rapport) {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    e.*,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN ens.nom_enseignant
+                        ELSE pa.nom_pers_admin 
+                    END as nom_evaluateur,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN ens.prenom_enseignant
+                        ELSE pa.prenom_pers_admin 
+                    END as prenom_evaluateur,
+                    CASE 
+                        WHEN e.type_evaluateur = 'enseignant' THEN 'Enseignant'
+                        ELSE 'Personnel administratif'
+                    END as fonction_evaluateur
+                FROM evaluations_rapports e
+                LEFT JOIN enseignants ens ON e.id_evaluateur = ens.id_enseignant AND e.type_evaluateur = 'enseignant'
+                LEFT JOIN personnel_admin pa ON e.id_evaluateur = pa.id_pers_admin AND e.type_evaluateur = 'personnel_admin'
+                WHERE e.id_rapport = ? AND e.statut_evaluation = 'terminee'
+                ORDER BY e.date_evaluation DESC
+            ");
+            $stmt->execute([$id_rapport]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Erreur récupération décisions évaluation: " . $e->getMessage());
+            return [];
         }
     }
 }

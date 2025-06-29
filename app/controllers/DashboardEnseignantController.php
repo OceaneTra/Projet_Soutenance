@@ -558,6 +558,7 @@ class DashboardEnseignantController
             $stmt = Database::getConnection()->prepare("
                 SELECT 
                     COUNT(*) as total_rapports,
+                    COUNT(CASE WHEN r.statut_rapport = 'en_attente' THEN 1 END) as rapports_en_attente,
                     COUNT(CASE WHEN r.statut_rapport = 'en_cours' THEN 1 END) as rapports_en_cours,
                     COUNT(CASE WHEN r.statut_rapport = 'valide' THEN 1 END) as rapports_valides,
                     COUNT(CASE WHEN r.statut_rapport = 'rejete' THEN 1 END) as rapports_rejetes,
@@ -572,6 +573,7 @@ class DashboardEnseignantController
             error_log("Erreur récupération stats rapports: " . $e->getMessage());
             return [
                 'total_rapports' => 0,
+                'rapports_en_attente' => 0,
                 'rapports_en_cours' => 0,
                 'rapports_valides' => 0,
                 'rapports_rejetes' => 0,

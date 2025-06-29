@@ -16,7 +16,7 @@
     <h2 class="text-xl font-semibold mb-4 text-gray-700">Filtrer les réclamations</h2>
     <form method="GET" class="flex flex-wrap gap-4">
         <input type="hidden" name="page" value="gestion_reclamations">
-        <input type="hidden" name="action" value="suivi_reclamation">
+        <input type="hidden" name="action" value="suivi_historique_reclamation">
 
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
@@ -25,17 +25,17 @@
                 <option value="all"
                     <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'selected' : ''; ?>>Tous les
                     statuts</option>
-                <option value="pending"
-                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'pending') ? 'selected' : ''; ?>>En
+                <option value="en_attente"
+                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'en_attente') ? 'selected' : ''; ?>>En
                     attente</option>
-                <option value="in_progress"
-                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'in_progress') ? 'selected' : ''; ?>>En
-                    traitement</option>
-                <option value="resolved"
-                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'resolved') ? 'selected' : ''; ?>>Résolue
+                <option value="resolue"
+                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'resolue') ? 'selected' : ''; ?>>Résolue
                 </option>
-                <option value="rejected"
-                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'rejected') ? 'selected' : ''; ?>>Rejetée
+                <option value="en_cours"
+                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'en_cours') ? 'selected' : ''; ?>>En cours
+                </option>
+                <option value="rejetee"
+                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'rejetee') ? 'selected' : ''; ?>>Rejetée
                 </option>
             </select>
         </div>
@@ -70,7 +70,7 @@
         </div>
 
         <div class="flex items-end">
-            <a href="?page=gestion_reclamations&action=suivi_reclamation"
+            <a href="?page=gestion_reclamations&action=suivi_historique_reclamation"
                 class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md transition duration-200">
                 <i class="fas fa-undo mr-2"></i>
                 Réinitialiser
@@ -96,7 +96,8 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm">En attente</p>
-                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['pending'] : 0; ?></h3>
+                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['en_attente'] : 0; ?>
+                </h3>
             </div>
             <div class="bg-yellow-100 p-3 rounded-full">
                 <i class="fas fa-clock text-yellow-600"></i>
@@ -106,9 +107,19 @@
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">En traitement</p>
-                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['in_progress'] : 0; ?>
-                </h3>
+                <p class="text-gray-500 text-sm">Résolues</p>
+                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['resolue'] : 0; ?></h3>
+            </div>
+            <div class="bg-green-100 p-3 rounded-full">
+                <i class="fas fa-check-circle text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">En cours</p>
+                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['en_cours'] : 0; ?></h3>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
                 <i class="fas fa-spinner text-purple-600"></i>
@@ -118,11 +129,11 @@
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Résolues</p>
-                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['resolved'] : 0; ?></h3>
+                <p class="text-gray-500 text-sm">Rejetées</p>
+                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['rejetee'] : 0; ?></h3>
             </div>
-            <div class="bg-green-100 p-3 rounded-full">
-                <i class="fas fa-check-circle text-green-600"></i>
+            <div class="bg-red-100 p-3 rounded-full">
+                <i class="fas fa-times-circle text-red-600"></i>
             </div>
         </div>
     </div>
