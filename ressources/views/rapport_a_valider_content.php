@@ -190,7 +190,7 @@
                                                         <i class="fas fa-check-circle mr-1"></i>Approuvé par Miss Seri
                                                     </span>
                                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        Nouveau
+                                                        Vote en cours
                                                     </span>
                                                 </div>
                                             </div>
@@ -198,18 +198,24 @@
                                             <div class="mt-2 flex items-center text-xs text-gray-500">
                                                 <span>Approuvé le 20/05/2025</span>
                                                 <span class="mx-2">•</span>
-                                                <span>Évaluations: 2/5 membres</span>
+                                                <span class="text-green-600">2 validations</span>
                                                 <span class="mx-2">•</span>
-                                                <span class="text-blue-600">Votre évaluation: En attente</span>
+                                                <span class="text-red-600">0 rejets</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ml-4 flex space-x-2">
-                                        <button onclick="viewReport(1)" class="px-3 py-1 bg-green-50 text-green-700 text-sm rounded hover:bg-green-100 vote-button">
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="viewReport(1)" class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-eye mr-1"></i>Consulter
                                         </button>
-                                        <button onclick="openEvaluationModal(1)" class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded hover:bg-blue-100 vote-button">
-                                            <i class="fas fa-star mr-1"></i>Évaluer
+                                        <button onclick="openEvaluationModal(1)" class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-vote-yea mr-1"></i>Voter
+                                        </button>
+                                        <button onclick="viewEvaluations(1)" class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors">
+                                            <i class="fas fa-users mr-1"></i>Votes
+                                        </button>
+                                        <button onclick="makeFinalDecision(1)" class="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors" disabled>
+                                            <i class="fas fa-gavel mr-1"></i>Finaliser
                                         </button>
                                     </div>
                                 </div>
@@ -219,40 +225,40 @@
                             <div class="px-6 py-4 evaluation-card hover:bg-gray-50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center flex-1">
-                                        <div class="flex-shrink-0 bg-blue-100 p-3 rounded-lg">
-                                            <i class="fas fa-file-word text-blue-600"></i>
+                                        <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
+                                            <i class="fas fa-file-alt text-green-600"></i>
                                         </div>
                                         <div class="ml-4 flex-1">
                                             <div class="flex items-center justify-between">
-                                                <p class="text-sm font-medium text-gray-900">Blockchain et Sécurité des Données</p>
+                                                <p class="text-sm font-medium text-gray-900">Système de Gestion des Ressources Humaines</p>
                                                 <div class="flex items-center space-x-2">
                                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                                         <i class="fas fa-check-circle mr-1"></i>Approuvé par Miss Seri
                                                     </span>
                                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                        Mon évaluation faite
+                                                        Prêt à finaliser
                                                     </span>
                                                 </div>
                                             </div>
-                                            <p class="text-sm text-gray-500">Étudiant: Jean Dupont • Encadrant: Pr. Leroy</p>
+                                            <p class="text-sm text-gray-500">Étudiant: Jean Dupont • Encadrant: Dr. Dubois</p>
                                             <div class="mt-2 flex items-center text-xs text-gray-500">
                                                 <span>Approuvé le 18/05/2025</span>
                                                 <span class="mx-2">•</span>
-                                                <span>Évaluations: 4/5 membres</span>
+                                                <span class="text-green-600">4 validations</span>
                                                 <span class="mx-2">•</span>
-                                                <span class="text-green-600">Votre évaluation: Validé</span>
+                                                <span class="text-red-600">0 rejets</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ml-4 flex space-x-2">
-                                        <button onclick="viewReport(2)" class="px-3 py-1 bg-green-50 text-green-700 text-sm rounded hover:bg-green-100 vote-button">
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="viewReport(2)" class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-eye mr-1"></i>Consulter
                                         </button>
-                                        <button onclick="viewEvaluations(2)" class="px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded hover:bg-purple-100 vote-button">
-                                            <i class="fas fa-comments mr-1"></i>Voir évaluations
+                                        <button onclick="viewEvaluations(2)" class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors">
+                                            <i class="fas fa-users mr-1"></i>Votes
                                         </button>
-                                        <button onclick="makeFinalDecision(2)" class="px-3 py-1 bg-red-50 text-red-700 text-sm rounded hover:bg-red-100 vote-button">
-                                            <i class="fas fa-gavel mr-1"></i>Décision finale
+                                        <button onclick="makeFinalDecision(2)" class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-gavel mr-1"></i>Finaliser
                                         </button>
                                     </div>
                                 </div>
@@ -262,37 +268,42 @@
                             <div class="px-6 py-4 evaluation-card hover:bg-gray-50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center flex-1">
-                                        <div class="flex-shrink-0 bg-purple-100 p-3 rounded-lg">
-                                            <i class="fas fa-file-pdf text-purple-600"></i>
+                                        <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
+                                            <i class="fas fa-file-alt text-green-600"></i>
                                         </div>
                                         <div class="ml-4 flex-1">
                                             <div class="flex items-center justify-between">
-                                                <p class="text-sm font-medium text-gray-900">Réseaux de Neurones et Vision par Ordinateur</p>
+                                                <p class="text-sm font-medium text-gray-900">Application Mobile de Commerce Électronique</p>
                                                 <div class="flex items-center space-x-2">
                                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                                         <i class="fas fa-check-circle mr-1"></i>Approuvé par Miss Seri
                                                     </span>
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-                                                        Prioritaire
+                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                        Rejeté par commission
                                                     </span>
                                                 </div>
                                             </div>
-                                            <p class="text-sm text-gray-500">Étudiant: Thomas Moreau • Encadrant: Pr. Dubois</p>
+                                            <p class="text-sm text-gray-500">Étudiant: Sophie Martin • Encadrant: Dr. Bernard</p>
                                             <div class="mt-2 flex items-center text-xs text-gray-500">
-                                                <span>Approuvé le 22/05/2025</span>
+                                                <span>Approuvé le 15/05/2025</span>
                                                 <span class="mx-2">•</span>
-                                                <span>Évaluations: 1/5 membres</span>
+                                                <span>Votes: 4/4 membres</span>
                                                 <span class="mx-2">•</span>
-                                                <span class="text-blue-600">Votre évaluation: En attente</span>
+                                                <span class="text-green-600">2 validations</span>
+                                                <span class="mx-2">•</span>
+                                                <span class="text-red-600">2 rejets</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ml-4 flex space-x-2">
-                                        <button onclick="viewReport(3)" class="px-3 py-1 bg-green-50 text-green-700 text-sm rounded hover:bg-green-100 vote-button">
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="viewReport(3)" class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-eye mr-1"></i>Consulter
                                         </button>
-                                        <button onclick="openEvaluationModal(3)" class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded hover:bg-blue-100 vote-button">
-                                            <i class="fas fa-star mr-1"></i>Évaluer
+                                        <button onclick="viewEvaluations(3)" class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors">
+                                            <i class="fas fa-users mr-1"></i>Votes
+                                        </button>
+                                        <button onclick="makeFinalDecision(3)" class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
+                                            <i class="fas fa-gavel mr-1"></i>Finaliser
                                         </button>
                                     </div>
                                 </div>
@@ -708,54 +719,83 @@
                 return;
             }
 
-            // Simulation de soumission
-            const decisionText = decision.value === 'valider' ? 'validé' : 'rejeté';
-            alert(`Évaluation soumise avec succès!\nDécision: ${decisionText}\nCommentaire: ${comment.substring(0, 50)}...`);
-            
-            // Fermer la modale et réinitialiser le formulaire
-            closeEvaluationModal();
-            document.getElementById('evaluationComment').value = '';
-            document.querySelector('input[name="decision"]:checked').checked = false;
-            
-            // Simulation de mise à jour de l'interface
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+            // Créer le FormData pour l'envoi AJAX
+            const formData = new FormData();
+            formData.append('action', 'traiter_decision');
+            formData.append('id_rapport', currentReportId);
+            formData.append('decision', decision.value);
+            formData.append('commentaire', comment);
+
+            // Envoyer la requête AJAX
+            fetch('?page=evaluations_dossiers_soutenance', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Votre évaluation a été enregistrée avec succès!');
+                    
+                    // Fermer la modale et réinitialiser le formulaire
+                    closeEvaluationModal();
+                    document.getElementById('evaluationComment').value = '';
+                    document.querySelector('input[name="decision"]:checked').checked = false;
+                    
+                    // Recharger la page pour mettre à jour l'affichage
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi de l\'évaluation');
+            });
         }
 
         // Fonction pour soumettre la décision finale
         function submitFinalDecision() {
             const comment = document.getElementById('finalComment').value;
-            const decision = document.querySelector('input[name="finalDecision"]:checked');
             
             if (!comment.trim()) {
                 alert('Veuillez saisir un commentaire pour motiver votre décision finale.');
                 return;
             }
-            
-            if (!decision) {
-                alert('Veuillez sélectionner une décision finale.');
-                return;
-            }
 
-            // Confirmation de la décision
-            const decisionText = {
-                'accepter': 'accepter définitivement',
-                'rejeter': 'rejeter définitivement',
-                'revision': 'demander une révision'
-            }[decision.value];
+            if (confirm('Êtes-vous sûr de vouloir finaliser la décision de la commission?\nCette action est irréversible.')) {
+                // Créer le FormData pour l'envoi AJAX
+                const formData = new FormData();
+                formData.append('action', 'finaliser_decision');
+                formData.append('id_rapport', currentReportId);
+                formData.append('commentaire', comment);
 
-            if (confirm(`Êtes-vous sûr de vouloir ${decisionText} ce rapport?\nCette action est irréversible.`)) {
-                alert(`Décision finale prise: ${decisionText}\nCommentaire: ${comment.substring(0, 50)}...`);
-                
-                closeFinalDecisionModal();
-                document.getElementById('finalComment').value = '';
-                document.querySelector('input[name="finalDecision"]:checked').checked = false;
-                
-                // Simulation de mise à jour
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                // Envoyer la requête AJAX
+                fetch('?page=evaluations_dossiers_soutenance', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Décision finale enregistrée avec succès!');
+                        
+                        closeFinalDecisionModal();
+                        document.getElementById('finalComment').value = '';
+                        
+                        // Recharger la page pour mettre à jour l'affichage
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        alert('Erreur: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la finalisation de la décision');
+                });
             }
         }
 

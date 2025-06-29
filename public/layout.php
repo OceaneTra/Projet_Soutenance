@@ -21,8 +21,7 @@ include __DIR__ . '/../ressources/routes/dossierAcademiqueRoutes.php';
 include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
-
-
+include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 
 
 
@@ -58,7 +57,7 @@ if (isset($_GET['page'])) {
 if (empty($currentMenuSlug) && !empty($traitements)) {
     $currentMenuSlug = $traitements[0]['lib_traitement'];
     $currentPageLabel = $traitements[0]['label_traitement'];
-    
+
     // Rediriger vers la première page avec le paramètre page pour éviter les problèmes de rechargement
     if (!isset($_GET['page'])) {
         header('Location: layout.php?page=' . urlencode($currentMenuSlug));
@@ -269,11 +268,11 @@ switch ($currentMenuSlug) {
                 $dompdf->stream("recu_paiement_" . $id_versement . ".pdf", array("Attachment" => false));
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
-            } 
+            }
                 // Afficher la vue par défaut
                 $contentFile = $partialsBasePath . 'gestion_scolarite_content.php';
                 $currentPageLabel = 'Gestion de la scolarité';
-            
+
             break;
 
             case 'gestion_notes_evaluations':
@@ -301,7 +300,7 @@ switch ($currentMenuSlug) {
                 $dompdf->setBasePath(__DIR__ . '../public/images/');
 
                 // Charger le HTML
-                
+
                 $dompdf->loadHtml($html);
 
                 // (Optionnel) Définir la taille et l\'orientation du papier
@@ -315,15 +314,26 @@ switch ($currentMenuSlug) {
                 $dompdf->stream("releve_notes_" . $id_etudiant . "_" . $niveau . ".pdf", array("Attachment" => false));
 
                 exit; // Arrêter l\'exécution pour ne pas charger le reste de la page
-            } 
+            }
                 // Afficher la vue par défaut
                 $contentFile = $partialsBasePath . 'gestion_notes_evaluations_content.php';
                 $currentPageLabel = 'Gestion des notes et évaluations';
-            
+
             break;
 
-            
-        
+        case 'evaluations_dossiers_soutenance':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page d'évaluation des dossiers
+            $contentFile = $partialsBasePath . 'evaluations_dossiers_soutenance_content.php';
+            $currentPageLabel = 'Évaluations des dossiers de soutenance';
+            break;
+
+        case 'test_debug':
+            // Page de test pour le débogage
+            $contentFile = __DIR__ . '/../ressources/views/test_debug_content.php';
+            $currentPageLabel = 'Test de débogage';
+            break;
+
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];
@@ -471,7 +481,7 @@ $cardReclamation = [
         'bg_color' =>'bg-yellow-500 ',
         'text_color' =>'text-yellow-600'
     ]
-   
+
 ];
 
 

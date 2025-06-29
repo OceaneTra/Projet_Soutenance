@@ -1,10 +1,66 @@
+<?php
+// Récupérer les données du contrôleur
+global $stats;
+$dashboardData = $stats ?? [];
+
+// Données par défaut si pas de données
+$totalRapports = $dashboardData['total_rapports'] ?? 0;
+$tauxValidation = $dashboardData['taux_validation'] ?? 0;
+$tempsMoyen = $dashboardData['temps_moyen'] ?? 0;
+$enAttente = $dashboardData['en_attente'] ?? 0;
+
+// Données pour les graphiques
+$evolutionData = $dashboardData['evolution_mensuelle'] ?? [];
+$repartitionData = $dashboardData['repartition_statuts'] ?? [];
+$performanceData = $dashboardData['performance_categories'] ?? [];
+$activitesData = $dashboardData['activites_recentes'] ?? [];
+$rapportsDetails = $dashboardData['rapports_details'] ?? [];
+
+// Fonctions utilitaires
+function getTimeAgo($date) {
+    if (!$date) return 'N/A';
+    $time = time() - strtotime($date);
+    if ($time < 3600) return floor($time/60) . 'min';
+    if ($time < 86400) return floor($time/3600) . 'h';
+    return floor($time/86400) . 'j';
+}
+
+function getStatusClass($status) {
+    switch ($status) {
+        case 'valide': return 'bg-green-100 text-green-800';
+        case 'rejete': return 'bg-red-100 text-red-800';
+        case 'en_cours': return 'bg-orange-100 text-orange-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+// Préparer les données pour Chart.js
+$evolutionLabels = [];
+$evolutionFinalises = [];
+$evolutionRejetes = [];
+
+foreach ($evolutionData as $data) {
+    $evolutionLabels[] = date('M Y', strtotime($data['mois'] . '-01'));
+    $evolutionFinalises[] = $data['finalises'];
+    $evolutionRejetes[] = $data['rejetes'];
+}
+
+$statusLabels = [];
+$statusData = [];
+$statusColors = ['#10b981', '#ef4444', '#f59e0b', '#6b7280'];
+
+foreach ($repartitionData as $data) {
+    $statusLabels[] = ucfirst($data['statut']);
+    $statusData[] = $data['nombre'];
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistiques | Mr. Diarra</title>
+    <title>Statistiques | Commission de Validation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -73,8 +129,6 @@
 <body class="font-sans antialiased bg-gray-50">
     <div class="flex h-screen overflow-hidden">
 
-
-
         <!-- Main content area -->
         <div class="flex-1 overflow-y-auto bg-gray-50">
             <div class="max-w-7xl mx-auto p-6">
@@ -84,7 +138,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Total Comptes Rendus</p>
-                                <p class="metric-value">24</p>
+                                <p class="metric-value"><?php echo $totalRapports; ?></p>
                                 <div class="flex items-center mt-2">
                                     <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
                                     <span class="text-sm text-green-600">+12% ce mois</span>
@@ -100,7 +154,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Taux de Validation</p>
-                                <p class="metric-value">85%</p>
+                                <p class="metric-value"><?php echo $tauxValidation; ?>%</p>
                                 <div class="flex items-center mt-2">
                                     <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
                                     <span class="text-sm text-green-600">+3% ce mois</span>
@@ -116,7 +170,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Temps Moyen</p>
-                                <p class="metric-value">2.3j</p>
+                                <p class="metric-value"><?php echo $tempsMoyen; ?>j</p>
                                 <div class="flex items-center mt-2">
                                     <i class="fas fa-arrow-down text-sm trend-up mr-1"></i>
                                     <span class="text-sm text-green-600">-8% ce mois</span>
@@ -132,7 +186,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">En Attente</p>
-                                <p class="metric-value">5</p>
+                                <p class="metric-value"><?php echo $enAttente; ?></p>
                                 <div class="flex items-center mt-2">
                                     <i class="fas fa-minus text-sm trend-stable mr-1"></i>
                                     <span class="text-sm text-gray-600">Stable</span>
@@ -161,7 +215,7 @@
                                 </div>
                                 <div class="flex items-center">
                                     <div class="w-3 h-3 bg-yellow-600 rounded-full mr-1"></div>
-                                    <span>En cours</span>
+                                    <span>Rejetés</span>
                                 </div>
                             </div>
                         </div>
@@ -196,54 +250,27 @@
                             Performance par Catégorie
                         </h3>
                         <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
-                                    <span class="text-sm font-medium">Intelligence Artificielle</span>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-20 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 90%"></div>
+                            <?php if (!empty($performanceData)): ?>
+                                <?php foreach ($performanceData as $category): ?>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
+                                        <span class="text-sm font-medium"><?php echo ucfirst($category['categorie']); ?></span>
                                     </div>
-                                    <span class="text-sm font-semibold">90%</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-green-600 rounded-full mr-3"></div>
-                                    <span class="text-sm font-medium">Blockchain</span>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-20 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-20 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: <?php echo $category['taux']; ?>%"></div>
+                                        </div>
+                                        <span class="text-sm font-semibold"><?php echo $category['taux']; ?>%</span>
                                     </div>
-                                    <span class="text-sm font-semibold">75%</span>
                                 </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-purple-600 rounded-full mr-3"></div>
-                                    <span class="text-sm font-medium">Réseaux</span>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center text-gray-500 py-4">
+                                    <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                                    <p>Aucune donnée disponible</p>
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-20 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 85%"></div>
-                                    </div>
-                                    <span class="text-sm font-semibold">85%</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-orange-600 rounded-full mr-3"></div>
-                                    <span class="text-sm font-medium">Sécurité</span>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-20 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-orange-600 h-2 rounded-full" style="width: 80%"></div>
-                                    </div>
-                                    <span class="text-sm font-semibold">80%</span>
-                                </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -254,46 +281,30 @@
                             Activité Récente
                         </h3>
                         <div class="space-y-3">
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                                <div class="p-2 bg-green-100 rounded-full">
-                                    <i class="fas fa-check text-green-600 text-xs"></i>
+                            <?php if (!empty($activitesData)): ?>
+                                <?php foreach ($activitesData as $activite): ?>
+                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                                    <div class="p-2 <?php echo $activite['statut'] === 'valider' ? 'bg-green-100' : 'bg-red-100'; ?> rounded-full">
+                                        <i class="fas fa-<?php echo $activite['statut'] === 'valider' ? 'check' : 'times'; ?> text-<?php echo $activite['statut'] === 'valider' ? 'green' : 'red'; ?>-600 text-xs"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">Rapport <?php echo ucfirst($activite['statut']); ?></p>
+                                        <p class="text-xs text-gray-500">
+                                            <?php echo $activite['titre']; ?> - <?php echo $activite['prenom_etudiant'] . ' ' . $activite['nom_etudiant']; ?>
+                                        </p>
+                                        <p class="text-xs text-gray-400">
+                                            Par <?php echo $activite['prenom_enseignant'] . ' ' . $activite['nom_enseignant']; ?>
+                                        </p>
+                                    </div>
+                                    <span class="text-xs text-gray-400"><?php echo getTimeAgo($activite['date_validation']); ?></span>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">Rapport validé</p>
-                                    <p class="text-xs text-gray-500">IA Diagnostic - Marie L.</p>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center text-gray-500 py-4">
+                                    <i class="fas fa-history text-2xl mb-2"></i>
+                                    <p>Aucune activité récente</p>
                                 </div>
-                                <span class="text-xs text-gray-400">2h</span>
-                            </div>
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                                <div class="p-2 bg-blue-100 rounded-full">
-                                    <i class="fas fa-edit text-blue-600 text-xs"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">Brouillon sauvegardé</p>
-                                    <p class="text-xs text-gray-500">Blockchain - Jean D.</p>
-                                </div>
-                                <span class="text-xs text-gray-400">4h</span>
-                            </div>
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                                <div class="p-2 bg-orange-100 rounded-full">
-                                    <i class="fas fa-redo text-orange-600 text-xs"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">Révision demandée</p>
-                                    <p class="text-xs text-gray-500">Réseaux - Thomas M.</p>
-                                </div>
-                                <span class="text-xs text-gray-400">1j</span>
-                            </div>
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                                <div class="p-2 bg-purple-100 rounded-full">
-                                    <i class="fas fa-plus text-purple-600 text-xs"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">Nouveau rapport</p>
-                                    <p class="text-xs text-gray-500">Finance - Sophie D.</p>
-                                </div>
-                                <span class="text-xs text-gray-400">2j</span>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -347,105 +358,53 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Étudiant</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Sujet</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Statut</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Date</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Temps</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Étudiant</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enseignant</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temps de traitement</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Marie
-                                        Lambert</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">IA Diagnostic Médical
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Validé</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">23/05/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2.1j</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-2">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="text-green-600 hover:text-green-900">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Jean
-                                        Dupont</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Blockchain Sécurité
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejeté</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">22/05/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3.2j</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-2">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="text-green-600 hover:text-green-900">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Thomas
-                                        Moreau</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Réseaux Neurones</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Révision</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">21/05/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1.8j</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-2">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="text-green-600 hover:text-green-900">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sophie
-                                        Dubois</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ML Finance</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Validé</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20/05/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2.5j</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900 mr-2">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="text-green-600 hover:text-green-900">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <?php if (!empty($rapportsDetails)): ?>
+                                    <?php foreach ($rapportsDetails as $rapport): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 text-sm">
+                                            <span class="px-2 py-1 text-xs rounded-full <?php echo $rapport['statut'] === 'valider' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                                                <?php echo ucfirst($rapport['statut']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['titre']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['prenom_etudiant'] . ' ' . $rapport['nom_etudiant']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['prenom_enseignant'] . ' ' . $rapport['nom_enseignant']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['temps_traitement'] ?? 0; ?> jours
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                            <i class="fas fa-table text-2xl mb-2"></i>
+                                            <p>Aucun rapport disponible</p>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -459,20 +418,20 @@
     // Variables globales pour les graphiques
     let evolutionChart, statusChart;
 
-    // Données pour les graphiques
+    // Données pour les graphiques depuis PHP
     const evolutionData = {
-        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+        labels: <?php echo json_encode($evolutionLabels); ?>,
         datasets: [{
                 label: 'Finalisés',
-                data: [12, 15, 18, 22, 24, 20],
+                data: <?php echo json_encode($evolutionFinalises); ?>,
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 tension: 0.4,
                 fill: true
             },
             {
-                label: 'En cours',
-                data: [8, 12, 10, 15, 18, 16],
+                label: 'Rejetés',
+                data: <?php echo json_encode($evolutionRejetes); ?>,
                 borderColor: '#f59e0b',
                 backgroundColor: 'rgba(245, 158, 11, 0.1)',
                 tension: 0.4,
@@ -482,15 +441,10 @@
     };
 
     const statusData = {
-        labels: ['Validés', 'Rejetés', 'En révision', 'En attente'],
+        labels: <?php echo json_encode($statusLabels); ?>,
         datasets: [{
-            data: [65, 15, 12, 8],
-            backgroundColor: [
-                '#10b981',
-                '#ef4444',
-                '#f59e0b',
-                '#6b7280'
-            ],
+            data: <?php echo json_encode($statusData); ?>,
+            backgroundColor: <?php echo json_encode($statusColors); ?>,
             borderWidth: 0
         }]
     };
@@ -561,63 +515,20 @@
     // Fonctions d'action
     function refreshCharts() {
         showNotification('Actualisation des données...', 'info');
-
-        // Simuler le rechargement des données
         setTimeout(() => {
-            // Mettre à jour les données avec de nouvelles valeurs
-            const newEvolutionData = evolutionData.datasets[0].data.map(val => val + Math.floor(Math.random() *
-                3) - 1);
-            evolutionChart.data.datasets[0].data = newEvolutionData;
-            evolutionChart.update();
-
-            const newStatusData = [68, 12, 15, 5];
-            statusChart.data.datasets[0].data = newStatusData;
-            statusChart.update();
-
             showNotification('Données actualisées avec succès', 'success');
         }, 1500);
     }
 
-    function exportStats() {
-        showNotification('Export des statistiques en cours...', 'info');
-
-        setTimeout(() => {
-            // Simuler l'export
-            const data = {
-                period: document.getElementById('periodSelect').value + ' jours',
-                totalReports: 24,
-                validationRate: '85%',
-                averageTime: '2.3 jours',
-                pending: 5,
-                exportDate: new Date().toLocaleDateString('fr-FR')
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], {
-                type: 'application/json'
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `statistiques_${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showNotification('Statistiques exportées avec succès', 'success');
-        }, 2000);
-    }
-
     function generateReport() {
         showNotification('Génération du rapport mensuel...', 'info');
-
         setTimeout(() => {
             showNotification('Rapport mensuel généré avec succès', 'success');
-            // Simuler l'ouverture d'un nouveau rapport
         }, 3000);
     }
 
     function exportData() {
         showNotification('Export des données en cours...', 'info');
-
         setTimeout(() => {
             showNotification('Données exportées au format Excel', 'success');
         }, 2000);
@@ -626,24 +537,12 @@
     function viewArchives() {
         showNotification('Redirection vers les archives...', 'info');
         setTimeout(() => {
-            // Simuler la navigation
             showNotification('Ouverture de la section archives', 'success');
         }, 1000);
     }
 
     function settings() {
         showNotification('Ouverture des paramètres...', 'info');
-    }
-
-    // Fonction pour changer la période
-    function changePeriod() {
-        const period = document.getElementById('periodSelect').value;
-        showNotification(`Mise à jour des données pour les ${period} derniers jours`, 'info');
-
-        setTimeout(() => {
-            // Simuler la mise à jour des données
-            refreshCharts();
-        }, 1000);
     }
 
     // Système de notifications
@@ -701,16 +600,9 @@
 
     // Initialisation
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialiser les graphiques
         initCharts();
-
-        // Animer les métriques
         animateMetrics();
 
-        // Event listeners
-        document.getElementById('periodSelect').addEventListener('change', changePeriod);
-
-        // Animation d'entrée pour les cartes
         const cards = document.querySelectorAll('.fade-in');
         cards.forEach((card, index) => {
             setTimeout(() => {
@@ -719,20 +611,14 @@
             }, index * 100);
         });
 
-        // Raccourcis clavier
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'r') {
                 e.preventDefault();
                 refreshCharts();
             }
-            if (e.ctrlKey && e.key === 'e') {
-                e.preventDefault();
-                exportStats();
-            }
         });
     });
 
-    // Mise à jour automatique des données toutes les 5 minutes
     setInterval(() => {
         refreshCharts();
     }, 300000);
