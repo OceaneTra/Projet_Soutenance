@@ -18,7 +18,7 @@
                 Créez une sauvegarde manuelle de la base de données. Il est recommandé de le faire avant toute
                 modification majeure du système.
             </p>
-            <form id="createBackupForm">
+            <form id="createBackupForm" method="POST" action="/sauvegarde-restauration/create">
                 <div class="mb-4">
                     <label for="backup_name" class="block text-sm font-medium text-gray-700 mb-3">Nom de la sauvegarde
                         (optionnel)</label>
@@ -79,18 +79,27 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <button onclick="restoreBackup('<?php echo htmlspecialchars($backup['filename']); ?>')"
-                                    class="text-green-600 hover:text-green-900 mr-3" title="Restaurer">
-                                    <i class="fas fa-undo-alt"></i> Restaurer
-                                </button>
-                                <a href="#" download="<?php echo htmlspecialchars($backup['filename']); ?>"
+                                <form method="POST" action="/sauvegarde-restauration/restore" style="display:inline">
+                                    <input type="hidden" name="filename"
+                                        value="<?php echo htmlspecialchars($backup['filename']); ?>">
+                                    <button type="submit" class="text-green-600 hover:text-green-900 mr-3"
+                                        title="Restaurer"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir restaurer la base de données à partir de la sauvegarde &quot;<?php echo htmlspecialchars($backup['filename']); ?>&quot; ? CETTE ACTION EST IRRÉVERSIBLE ET ÉCRASERA LES DONNÉES ACTUELLES.')">
+                                        <i class="fas fa-undo-alt"></i> Restaurer
+                                    </button>
+                                </form>
+                                <a href="/sauvegarde-restauration/download?filename=<?php echo urlencode($backup['filename']); ?>"
                                     class="text-blue-600 hover:text-blue-900 mr-3" title="Télécharger">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <button onclick="deleteBackup('<?php echo htmlspecialchars($backup['filename']); ?>')"
-                                    class="text-red-600 hover:text-red-900" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <form method="POST" action="/sauvegarde-restauration/delete" style="display:inline">
+                                    <input type="hidden" name="filename"
+                                        value="<?php echo htmlspecialchars($backup['filename']); ?>">
+                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer la sauvegarde &quot;<?php echo htmlspecialchars($backup['filename']); ?>&quot; ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -109,7 +118,8 @@
                 données.
                 <strong class="text-red-600">Attention: Cette action écrasera les données actuelles.</strong>
             </p>
-            <form id="uploadRestoreForm" enctype="multipart/form-data">
+            <form id="uploadRestoreForm" enctype="multipart/form-data" method="POST"
+                action="/sauvegarde-restauration/upload-restore">
                 <div class="mb-4">
                     <label for="backup_file_upload" class="block text-sm font-medium text-gray-700 mb-3">Fichier de
                         sauvegarde (.sql, .sql.gz)</label>
@@ -128,48 +138,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-    document.getElementById('createBackupForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const backupName = document.getElementById('backup_name').value;
-        alert('Lancement de la sauvegarde manuelle simulée' + (backupName ? ' avec le nom: ' + backupName :
-            '') + '.');
-        // Add AJAX call to backend to trigger backup
-    });
-
-    function restoreBackup(filename) {
-        if (confirm(
-                `Êtes-vous sûr de vouloir restaurer la base de données à partir de la sauvegarde "${filename}" ?\nCETTE ACTION EST IRRÉVERSIBLE ET ÉCRASERA LES DONNÉES ACTUELLES.`
-            )) {
-            alert(`Restauration à partir de "${filename}" simulée.`);
-            // Add AJAX call to backend to trigger restore
-        }
-    }
-
-    function deleteBackup(filename) {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer la sauvegarde "${filename}" ?`)) {
-            alert(`Suppression de la sauvegarde "${filename}" simulée.`);
-            // Add AJAX call to backend to delete backup file and DB record
-        }
-    }
-
-    document.getElementById('uploadRestoreForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const fileInput = document.getElementById('backup_file_upload');
-        if (fileInput.files.length === 0) {
-            alert("Veuillez sélectionner un fichier de sauvegarde.");
-            return;
-        }
-        if (confirm(
-                `Êtes-vous sûr de vouloir restaurer la base de données à partir du fichier téléversé ?\nCETTE ACTION EST IRRÉVERSIBLE ET ÉCRASERA LES DONNÉES ACTUELLES.`
-            )) {
-            const fileName = fileInput.files[0].name;
-            alert(`Restauration à partir du fichier téléversé "${fileName}" simulée.`);
-            // Add AJAX call to backend to handle upload and restore
-        }
-    });
-    </script>
 
 </body>
 

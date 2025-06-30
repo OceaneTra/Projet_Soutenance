@@ -17,23 +17,41 @@ $enseignantModel = new Enseignant($pdo);
 $ecueModel = new Ecue($pdo);
 $ueModel = new Ue($pdo);
 
-// Récupération de l'ID de l'enseignant connecté (à adapter selon votre système d'authentification)
+// Récupération de l'ID de l'enseignant connecté
 $enseignant = $enseignantModel->getEnseignantByLogin($_SESSION['login_utilisateur']);
 $enseignantId = $enseignant->id_enseignant;
-
 if (!$enseignantId) {
     die("Enseignant non trouvé ou non connecté.");
 }
 
-// Récupération des ECUE et UE de l'enseignant
+// Récupération des UE et ECUE pris en charge par l'enseignant
+$uesEnseignant = $ueModel->getUesByEnseignant($enseignantId);
 $ecuesEnseignant = $ecueModel->getEcuesByEnseignant($enseignantId);
 
-// Récupération des UE uniques de l'enseignant
-$uesEnseignant = [];
-$ecuesEnseignantIds = [];
+// Construction de la liste des niveaux concernés (par UE ou ECUE)
+$niveauIds = [];
+foreach ($uesEnseignant as $ue) {
+    if (!in_array($ue->id_niveau_etude, $niveauIds)) {
+        $niveauIds[] = $ue->id_niveau_etude;
+    }
+}
 foreach ($ecuesEnseignant as $ecue) {
-    $uesEnseignant[$ecue->id_ue] = $ecue->lib_ue;
-    $ecuesEnseignantIds[] = $ecue->id_ecue;
+    if (!in_array($ecue->id_niveau_etude, $niveauIds)) {
+        $niveauIds[] = $ecue->id_niveau_etude;
+    }
+}
+
+// Indexer les UE et ECUE pour les filtres
+$uesEnseignantIndexed = [];
+foreach ($uesEnseignant as $ue) {
+    $uesEnseignantIndexed[$ue->id_ue] = $ue->lib_ue;
+}
+$ecuesEnseignantIndexed = [];
+foreach ($ecuesEnseignant as $ecue) {
+    $ecuesEnseignantIndexed[$ecue->id_ecue] = [
+        'lib_ecue' => $ecue->lib_ecue,
+        'lib_ue' => $ecue->lib_ue
+    ];
 }
 
 // Récupération de tous les étudiants
@@ -45,37 +63,42 @@ $promotion = isset($_GET['promotion']) ? $_GET['promotion'] : '';
 $ue = isset($_GET['ue']) ? $_GET['ue'] : '';
 $ecue = isset($_GET['ecue']) ? $_GET['ecue'] : '';
 
-// Filtrage des étudiants
-$filteredEtudiants = array_filter($etudiants, function($etudiant) use ($search, $promotion, $ue, $ecue, $ecuesEnseignant, $uesEnseignant) {
+// Filtrage des étudiants : uniquement ceux des niveaux concernés
+$filteredEtudiants = array_filter($etudiants, function($etudiant) use ($niveauIds, $search, $promotion, $ue, $ecue, $ecuesEnseignant, $uesEnseignant) {
+    if (!in_array($etudiant->id_niv_etude, $niveauIds)) {
+        return false;
+    }
     $matchesSearch = $search === '' ||
         strpos(strtolower($etudiant->nom_etu), $search) !== false ||
         strpos(strtolower($etudiant->prenom_etu), $search) !== false ||
         strpos(strtolower($etudiant->email_etu), $search) !== false;
-    
     $matchesPromotion = $promotion === '' || (isset($etudiant->id_annee_acad) && $etudiant->id_annee_acad == $promotion);
-    
     // Filtrage par UE
     $matchesUe = $ue === '';
     if ($ue !== '') {
         foreach ($ecuesEnseignant as $ecueEnseignant) {
-            if ($ecueEnseignant->id_ue == $ue) {
+            if ($ecueEnseignant->id_ue == $ue && $etudiant->id_niv_etude == $ecueEnseignant->id_niveau_etude) {
+                $matchesUe = true;
+                break;
+            }
+        }
+        foreach ($uesEnseignant as $ueEnseignant) {
+            if ($ueEnseignant->id_ue == $ue && $etudiant->id_niv_etude == $ueEnseignant->id_niveau_etude) {
                 $matchesUe = true;
                 break;
             }
         }
     }
-    
     // Filtrage par ECUE
     $matchesEcue = $ecue === '';
     if ($ecue !== '') {
         foreach ($ecuesEnseignant as $ecueEnseignant) {
-            if ($ecueEnseignant->id_ecue == $ecue) {
+            if ($ecueEnseignant->id_ecue == $ecue && $etudiant->id_niv_etude == $ecueEnseignant->id_niveau_etude) {
                 $matchesEcue = true;
                 break;
             }
         }
     }
-    
     return $matchesSearch && $matchesPromotion && $matchesUe && $matchesEcue;
 });
 
@@ -128,7 +151,7 @@ $etudiantsPage = array_slice($filteredEtudiants, $startIndex, $perPage);
             <select name="ue"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm">
                 <option value="">Toutes mes UE</option>
-                <?php foreach ($uesEnseignant as $idUe => $libUe): ?>
+                <?php foreach ($uesEnseignantIndexed as $idUe => $libUe): ?>
                 <option value="<?= htmlspecialchars($idUe) ?>" <?php if($ue == $idUe) echo 'selected'; ?>>
                     <?= htmlspecialchars($libUe) ?>
                 </option>
@@ -138,11 +161,10 @@ $etudiantsPage = array_slice($filteredEtudiants, $startIndex, $perPage);
             <select name="ecue"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm">
                 <option value="">Tous mes ECUE</option>
-                <?php foreach ($ecuesEnseignant as $ecueEnseignant): ?>
-                <option value="<?= htmlspecialchars($ecueEnseignant->id_ecue) ?>"
-                    <?php if($ecue == $ecueEnseignant->id_ecue) echo 'selected'; ?>>
-                    <?= htmlspecialchars($ecueEnseignant->lib_ecue) ?>
-                    (<?= htmlspecialchars($ecueEnseignant->lib_ue) ?>)
+                <?php foreach ($ecuesEnseignantIndexed as $idEcue => $ecueData): ?>
+                <option value="<?= htmlspecialchars($idEcue) ?>" <?php if($ecue == $idEcue) echo 'selected'; ?>>
+                    <?= htmlspecialchars($ecueData['lib_ecue']) ?>
+                    (<?= htmlspecialchars($ecueData['lib_ue']) ?>)
                 </option>
                 <?php endforeach; ?>
             </select>
