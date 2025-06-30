@@ -286,67 +286,6 @@ class GestionReclamationsController {
     }
 
 
-    //=============================ACTIONS ADMINISTRATIVES=============================
-    public function traiterReclamation()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->afficherErreur("Méthode non autorisée.");
-            return;
-        }
-
-        try {
-            $id = $_POST['id_reclamation'];
-            $action = $_POST['action'];
-            $commentaire = trim($_POST['commentaire'] ?? '');
-
-            switch ($action) {
-                case 'prendre_en_charge':
-                    $this->prendreEnCharge($id, $commentaire);
-                    break;
-                case 'resoudre':
-                    $this->resoudreReclamation($id, $commentaire);
-                    break;
-                case 'rejeter':
-                    $this->rejeterReclamation($id, $commentaire);
-                    break;
-                default:
-                    $this->afficherErreur("Action non reconnue.");
-                    return;
-            }
-
-            $this->afficherMessage("Action effectuée avec succès.", 'success');
-
-            // Rediriger vers la page de détail ou de suivi
-            header("Location: ?page=gestion_reclamations&action=historique_reclamation&id=" . $id);
-            exit;
-        } catch (Exception $e) {
-            $this->afficherMessage("Erreur lors du traitement : " . $e->getMessage(), 'error');
-            header("Location: ?page=gestion_reclamations&action=suivi_reclamation");
-            exit;
-        }
-    }
-
-    private function prendreEnCharge($id, $commentaire)
-    {
-        return $this->reclamationModel->mettreAJourStatut($id, 'En cours', $commentaire, $_SESSION['id_utilisateur']);
-    }
-
-    private function resoudreReclamation($id, $commentaire)
-    {
-        if (empty($commentaire)) {
-            throw new Exception("Un commentaire est requis pour résoudre une réclamation.");
-        }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Résolue', $commentaire, $_SESSION['id_utilisateur']);
-    }
-
-    private function rejeterReclamation($id, $commentaire)
-    {
-        if (empty($commentaire)) {
-            throw new Exception("Un commentaire est requis pour rejeter une réclamation.");
-        }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Rejetée', $commentaire, $_SESSION['id_utilisateur']);
-    }
-
     //=============================MÉTHODES UTILITAIRES=============================
     private function afficherMessage($message, $type = 'info')
     {
@@ -432,9 +371,6 @@ class GestionReclamationsController {
             echo "Accès non autorisé";
             return;
         }
-
-        // Récupérer l'historique des actions
-        $historique = $this->reclamationModel->getHistorique($reclamationId, $_SESSION['num_etu']);
 
         // Générer le HTML pur sans layout
         ob_start();

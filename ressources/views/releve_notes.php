@@ -21,7 +21,7 @@
             <strong>Date de naissance :</strong>
             <?= htmlspecialchars($GLOBALS['selectedStudent']->date_naiss_etu)?>
             <strong>Parcours :</strong> MIAGE<br>
-            <strong>Niveau :</strong> <?= htmlspecialchars($GLOBALS['selectedNiveau']->lib_niv_etude) ?><br>
+            <strong>Niveau :</strong> <?= htmlspecialchars($GLOBALS['niveau']->lib_niv_etude) ?><br>
             <strong>Numéro étudiant :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->num_etu) ?><br>
         </div>
         <hr class="my-4">

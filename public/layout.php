@@ -331,12 +331,6 @@ switch ($currentMenuSlug) {
             $currentPageLabel = 'Évaluations des dossiers de soutenance';
             break;
 
-        case 'test_debug':
-            // Page de test pour le débogage
-            $contentFile = __DIR__ . '/../ressources/views/test_debug_content.php';
-            $currentPageLabel = 'Test de débogage';
-            break;
-
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];

@@ -43,6 +43,7 @@ class NotesController {
         $GLOBALS['niveaux'] = $this->niveauModel->getAllNiveauxEtudes();
         $GLOBALS['etudiants'] = $selectedNiveau ? $this->etudiantModel->getEtudiantsByNiveau($selectedNiveau) : [];
         $GLOBALS['selectedNiveau'] = $selectedNiveau;
+        $GLOBALS['niveau'] = $this->niveauModel->getNiveauEtudeById($selectedNiveau);
         $GLOBALS['selectedStudent'] = $selectedStudent;
 
         $GLOBALS['listeEtudiants'] = $this->etudiantModel->getAllEtudiants();

@@ -3,38 +3,41 @@ require_once __DIR__ . '/../../app/controllers/SauvegardeRestaurationController.
 
 $controller = new SauvegardeRestaurationController();
 
-// Affichage de la page
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/sauvegarde-restauration$#', $_SERVER['REQUEST_URI'])) {
-    $controller->index();
-    exit;
-}
-
-// Création d'une sauvegarde
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^/sauvegarde-restauration/create$#', $_SERVER['REQUEST_URI'])) {
-    $controller->createBackup();
-    exit;
-}
-
-// Restauration depuis une sauvegarde existante
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^/sauvegarde-restauration/restore$#', $_SERVER['REQUEST_URI'])) {
-    $controller->restoreBackup();
-    exit;
-}
-
-// Restauration depuis un upload
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^/sauvegarde-restauration/upload-restore$#', $_SERVER['REQUEST_URI'])) {
-    $controller->uploadAndRestore();
-    exit;
-}
-
-// Suppression d'une sauvegarde
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && preg_match('#^/sauvegarde-restauration/delete$#', $_SERVER['REQUEST_URI'])) {
-    $controller->deleteBackup();
-    exit;
-}
-
-// Téléchargement d'une sauvegarde
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/sauvegarde-restauration/download$#', $_SERVER['REQUEST_URI'])) {
-    $controller->downloadBackup();
-    exit;
+// Vérifier si on est sur la page de sauvegarde/restauration
+if (isset($_GET['page']) && $_GET['page'] === 'sauvegarde_restauration') {
+    
+    // Gestion des actions
+    switch (isset($_GET['action']) ? $_GET['action'] : null) {
+        case 'create':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->createBackup();
+                exit;
+            }
+            break;
+            
+        case 'restore':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->restoreBackup();
+                exit;
+            }
+            break;
+        case 'delete':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->deleteBackup();
+                exit;
+            }
+            break;
+            
+        case 'download':
+            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                $controller->downloadBackup();
+                exit;
+            }
+            break;
+            
+        default:
+            // Afficher la page principale avec la liste des sauvegardes
+            $backups = $controller->index();
+            break;
+    }
 } 
