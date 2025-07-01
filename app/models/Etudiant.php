@@ -458,4 +458,11 @@ class Etudiant {
         ];
     }
 
+    public function getNiveauByEtudiant($num_etu) {
+        $query = "SELECT n.* FROM inscriptions i JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude WHERE i.id_etudiant = ? ORDER BY i.id_inscription DESC LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
 } 

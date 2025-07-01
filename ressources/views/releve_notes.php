@@ -1,126 +1,190 @@
 <?php if (!empty($GLOBALS['selectedStudent'])): ?>
-<div id="releve-notes">
-    <div class="bg-white rounded-lg shadow p-8 border border-gray-300 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <img src="public/images/ufhb_logo.png" alt="Logo UFHB" style="height:60px;">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Relevé de notes</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #000; }
+        .header-table { width: 100%; border: none; margin-bottom: 10px; }
+        .header-table td { vertical-align: top; }
+        .logo { height: 60px; }
+        .titre { font-size: 18px; font-weight: bold; text-align: center; }
+        .sous-titre { font-size: 12px; text-align: center; }
+        .filiere { font-size: 13px; font-weight: bold; text-align: right; }
+        .infos { font-size: 12px; }
+        .infos strong { display: inline-block; width: 120px; }
+        .table-notes { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .table-notes th, .table-notes td { border: 1px solid #000; padding: 3px 5px; text-align: left; }
+        .table-notes th { background: #f4f4f4; font-size: 12px; }
+        .table-notes .center { text-align: center; }
+        .table-notes .right { text-align: right; }
+        .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 2px; }
+        .total-row { font-weight: bold; background: #f4f4f4; }
+        .recap { margin-top: 10px; font-size: 12px; }
+        .recap strong { width: 180px; display: inline-block; }
+        .footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; }
+        .mention { font-size: 11px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<table class="header-table">
+    <tr>
+        <td style="width: 20%;"></td>
+        <td style="width: 60%; text-align: center;">
+            <div class="titre">REPUBLIQUE DE CÔTE D'IVOIRE</div>
+            <div class="sous-titre">MINISTERE DE L'ENSEIGNEMENT SUPERIEUR ET DE LA RECHERCHE SCIENTIFIQUE</div>
+            <div class="titre" style="margin-top: 8px;">RELEVE DE NOTES</div>
+            <div class="sous-titre">Année universitaire : 2023-2024</div>
+        </td>
+        <td style="width: 20%; text-align: right;"></td>
+    </tr>
+</table>
+
+
+
+<table style="width: 100%; margin-bottom: 8px;">
+    <tr>
+        <td style="width: 60%; vertical-align: top;">
+            <div class="infos">
+                <strong>NOM :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->nom_etu) ?><br>
+                <strong>PRENOMS :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->prenom_etu) ?><br>
+                <strong>DATE DE NAISSANCE :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->date_naiss_etu) ?><br>
+                <strong>PARCOURS :</strong> MIAGE<br>
+                <strong>NIVEAU :</strong> <?= htmlspecialchars($GLOBALS['niveau']->lib_niv_etude) ?><br>
+                <strong>N° CARTE ETUDIANT :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->num_etu) ?><br>
             </div>
-            <div class="text-center">
-                <h2 class="text-xl font-bold">REPUBLIQUE DE COTE D'IVOIRE</h2>
-                <div class="text-sm">MINISTERE CHARGE DE L'ENSEIGNEMENT SUPERIEUR<br>DE LA RECHERCHE SCIENTIFIQUE</div>
-                <div class="text-lg font-semibold mt-2">RELEVE DE NOTES</div>
-                <div class="text-sm">Année universitaire : 2023-2024</div>
+        </td>
+        <td style="width: 40%; vertical-align: top;">
+            <div class="filiere">
+                FILIERES PROFESSIONNALISEES (GI-MIAGE)<br>
+                2023-2024<br>
             </div>
-            <div>
-                <img src="public/images/miage_logo.png" alt="Logo MIAGE" style="height:60px;">
-            </div>
-        </div>
-        <div class="mb-4">
-            <strong>Nom :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->nom_etu) ?><br>
-            <strong>Prénoms :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->prenom_etu) ?><br>
-            <strong>Date de naissance :</strong>
-            <?= htmlspecialchars($GLOBALS['selectedStudent']->date_naiss_etu)?>
-            <strong>Parcours :</strong> MIAGE<br>
-            <strong>Niveau :</strong> <?= htmlspecialchars($GLOBALS['niveau']->lib_niv_etude) ?><br>
-            <strong>Numéro étudiant :</strong> <?= htmlspecialchars($GLOBALS['selectedStudent']->num_etu) ?><br>
-        </div>
-        <hr class="my-4">
-        <!-- Tableau des notes -->
-        <table class="w-full text-sm mb-6" border="1" cellspacing="0" cellpadding="4">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th>Code</th>
-                    <th>UE/ECUE</th>
-                    <th>Coef</th>
-                    <th>Moyenne</th>
-                    <th>Crédits</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-            $sumMaj = $sumMin = $credMaj = $credMin = 0;
-            foreach ($GLOBALS['studentGrades'] as $grade) {
-                $isMaj = $grade->credit > 3;
-                if ($isMaj) {
-                    $sumMaj += $grade->moyenne * $grade->credit;
-                    $credMaj += $grade->credit;
-                } else {
-                    $sumMin += $grade->moyenne * $grade->credit;
-                    $credMin += $grade->credit;
-                }
-                $code = isset($grade->code_ecue) && $grade->code_ecue ? $grade->code_ecue : (isset($grade->code_ue) && $grade->code_ue ? $grade->code_ue : '-');
-                echo '<tr>';
-                echo '<td>' . htmlspecialchars($code ?? '-') . '</td>';
-                echo '<td>' . htmlspecialchars($grade->lib_ue ?? $grade->lib_ecue ?? '-') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars(isset($grade->moyenne) ? number_format($grade->moyenne,2) : '-') . '</td>';
-                echo '<td class="text-center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
-                echo '</tr>';
-            }
-            $moyMaj = $credMaj ? round($sumMaj / $credMaj, 2) : '-';
-            $moyMin = $credMin ? round($sumMin / $credMin, 2) : '-';
-            ?>
-            </tbody>
-        </table>
-        <div class="mb-2">
-            <strong>Moyenne UE majeures :</strong> <?= $moyMaj ?>
-            &nbsp;|&nbsp;
-            <strong>Moyenne UE mineures :</strong> <?= $moyMin ?>
-        </div>
-        <div class="mb-2">
-            <strong>Moyenne générale :</strong> <?php
-                $totalNotes = 0; $totalCredits = 0;
-                foreach ($GLOBALS['studentGrades'] as $grade) {
-                    $totalNotes += $grade->moyenne * $grade->credit;
-                    $totalCredits += $grade->credit;
-                }
-                echo $totalCredits > 0 ? number_format($totalNotes / $totalCredits, 2) : '0.00';
-            ?>
-        </div>
-        <div class="mb-2">
-            <strong>Crédits validés :</strong> <?php
-                $creditsValides = 0;
-                foreach ($GLOBALS['studentGrades'] as $grade) {
-                    if ($grade->moyenne >= 10) {
-                        $creditsValides += $grade->credit;
-                    }
-                }
-                echo $creditsValides;
-            ?>
-        </div>
-        <div class="mt-6 flex justify-between">
-            <div>
-                <div class="text-xs">Fait à Abidjan, le <?= date('d/m/Y') ?></div>
-                <div class="text-xs mt-2">Signature du responsable</div>
-            </div>
-            <div class="text-xs text-right">
-                <div>Cachet de l'établissement</div>
-            </div>
-        </div>
+        </td>
+    </tr>
+</table>
+<?php
+// Regrouper les notes par semestre et par type (majeur/mineur)
+$semestres = [];
+foreach ($GLOBALS['studentGrades'] as $grade) {
+    $sem = $grade->lib_semestre ?? 'Semestre ?';
+    $type = ($grade->credit > 3) ? 'majeures' : 'mineures';
+    $semestres[$sem][$type][] = $grade;
+}
+$semIndex = 1;
+foreach ($semestres as $sem => $types) :
+    $totalCredits = 0; $totalMoy = 0; $totalCoef = 0;
+?>
+<div class="section-title">Semestre <?= $semIndex ?></div>
+<table class="table-notes">
+    <tr>
+        <th>Code</th>
+        <th>UE MAJEURES</th>
+        <th>Coef</th>
+        <th>Moyenne déff/20</th>
+        <th>Crédits</th>
+        <th>Session</th>
+    </tr>
+    <?php
+    $sumMaj = $credMaj = $moyMaj = 0;
+    if (!empty($types['majeures'])) :
+        foreach ($types['majeures'] as $grade) {
+            $sumMaj += $grade->moyenne * $grade->credit;
+            $credMaj += $grade->credit;
+            $totalCredits += $grade->credit;
+            $totalMoy += $grade->moyenne;
+            $totalCoef += $grade->credit;
+            $code = isset($grade->code_ecue) && $grade->code_ecue ? $grade->code_ecue : (isset($grade->code_ue) && $grade->code_ue ? $grade->code_ue : '-');
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($code ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($grade->lib_ue ?? $grade->lib_ecue ?? '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars(isset($grade->moyenne) ? number_format($grade->moyenne,2) : '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
+            echo '<td class="center">1</td>';
+            echo '</tr>';
+        }
+        $moyMaj = $credMaj ? round($sumMaj / $credMaj, 2) : '-';
+    endif;
+    ?>
+    <tr class="total-row">
+        <td colspan="2">Moyenne UE Majeures et crédits</td>
+        <td class="center"><?= $credMaj ?></td>
+        <td class="center"><?= $moyMaj ?></td>
+        <td class="center"><?= $credMaj ?></td>
+        <td></td>
+    </tr>
+</table>
+<table class="table-notes">
+    <tr>
+        <th>Code</th>
+        <th>UE MINEURES</th>
+        <th>Coef</th>
+        <th>Moyenne déff/20</th>
+        <th>Crédits</th>
+        <th>Session</th>
+    </tr>
+    <?php
+    $sumMin = $credMin = $moyMin = 0;
+    if (!empty($types['mineures'])) :
+        foreach ($types['mineures'] as $grade) {
+            $sumMin += $grade->moyenne * $grade->credit;
+            $credMin += $grade->credit;
+            $totalCredits += $grade->credit;
+            $totalMoy += $grade->moyenne;
+            $totalCoef += $grade->credit;
+            $code = isset($grade->code_ecue) && $grade->code_ecue ? $grade->code_ecue : (isset($grade->code_ue) && $grade->code_ue ? $grade->code_ue : '-');
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($code ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($grade->lib_ue ?? $grade->lib_ecue ?? '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars(isset($grade->moyenne) ? number_format($grade->moyenne,2) : '-') . '</td>';
+            echo '<td class="center">' . htmlspecialchars($grade->credit ?? '-') . '</td>';
+            echo '<td class="center">1</td>';
+            echo '</tr>';
+        }
+        $moyMin = $credMin ? round($sumMin / $credMin, 2) : '-';
+    endif;
+    ?>
+    <tr class="total-row">
+        <td colspan="2">Moyenne UE Mineures et crédits</td>
+        <td class="center"><?= $credMin ?></td>
+        <td class="center"><?= $moyMin ?></td>
+        <td class="center"><?= $credMin ?></td>
+        <td></td>
+    </tr>
+</table>
+<div class="recap">
+    <strong>Total crédits :</strong> <?= $credMaj + $credMin ?><br>
+    <strong>Résultat Semestre <?= $semIndex ?> :</strong> Admis<br>
+    <strong>Moyenne semestre <?= $semIndex ?> :</strong> <?= $totalCoef ? number_format(($sumMaj + $sumMin) / ($credMaj + $credMin), 2) : '-' ?><br>
+</div>
+<?php $semIndex++; endforeach; ?>
+<div class="recap">
+    <strong>RESULTAT GENERAL</strong><br>
+    Un Semestre n'est validé que si la moyenne des UE majeures et celle des UE mineures sont toutes >=10.<br>
+    La note plancher de chaque UE est de 05/20.<br>
+    L'étudiant n'est déclaré admis que s'il a obtenu 30 Crédits par semestre.<br>
+    <br>
+    <strong>Résultat (Délibération du jury) :</strong> Admis<br>
+    <strong>Moyenne générale :</strong> <?php
+        $totalNotes = 0; $totalCredits = 0;
+        foreach ($GLOBALS['studentGrades'] as $grade) {
+            $totalNotes += $grade->moyenne * $grade->credit;
+            $totalCredits += $grade->credit;
+        }
+        echo $totalCredits > 0 ? number_format($totalNotes / $totalCredits, 2) : '0.00';
+    ?><br>
+</div>
+<div class="footer">
+    <div>
+        Fait à Abidjan, le <?= date('d/m/Y') ?><br>
+        <span class="mention">Signature du responsable</span>
+    </div>
+    <div style="text-align: right;">
+        <span class="mention">Cachet de l'établissement</span>
     </div>
 </div>
+</body>
+</html>
 <?php endif; ?>
-<style>
-@media print {
-    body * {
-        visibility: hidden;
-    }
-
-    #releve-notes,
-    #releve-notes * {
-        visibility: visible;
-    }
-
-    #releve-notes {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: white;
-    }
-
-    .no-print {
-        display: none !important;
-    }
-}
-</style>

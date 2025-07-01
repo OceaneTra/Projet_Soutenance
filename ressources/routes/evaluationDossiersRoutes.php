@@ -1,5 +1,5 @@
 <?php
-if ($_GET['page'] === 'evaluations_dossiers_soutenance') {
+if (isset($_GET['page']) && $_GET['page'] === 'evaluations_dossiers_soutenance') {
     require_once __DIR__ . '/../../app/controllers/EvaluationDossiersController.php';
     $controller = new EvaluationDossiersController();
     
