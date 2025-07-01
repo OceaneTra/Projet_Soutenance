@@ -6,6 +6,9 @@ include '../app/controllers/AuthController.php';
 include '../app/controllers/MenuController.php';
 include 'menu.php';
 
+// Initialiser le middleware d'audit
+
+
 //inclusion des routes
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
@@ -22,6 +25,7 @@ include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
+include __DIR__ . '/../ressources/routes/auditRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
