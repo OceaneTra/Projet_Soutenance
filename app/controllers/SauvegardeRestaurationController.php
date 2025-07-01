@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 
 class SauvegardeRestaurationController {
     private $backupDir;
+    private $auditService;
 
     public function __construct() {
         // Utiliser un chemin absolu pour le dossier de sauvegarde
@@ -122,6 +123,9 @@ class SauvegardeRestaurationController {
         
         // Essayer d'abord avec la méthode PHP (plus fiable)
         if ($this->createBackupWithPHP($filepath, $this->getDbConfig())) {
+            // Enregistrer l'action d'audit
+            $this->auditService->logDatabaseBackup($filename);
+            
             header('Location: ?page=sauvegarde_restauration&success=1');
             exit;
         }
@@ -146,6 +150,9 @@ class SauvegardeRestaurationController {
                 
                 // Vérifier si le fichier a été créé et n'est pas vide
                 if ($retval === 0 && file_exists($filepath) && filesize($filepath) > 0) {
+                    // Enregistrer l'action d'audit
+                    $this->auditService->logDatabaseBackup($filename);
+                    
                     header('Location: ?page=sauvegarde_restauration&success=1');
                     exit;
                 }
@@ -197,6 +204,9 @@ class SauvegardeRestaurationController {
 
         // Essayer d'abord avec PHP PDO
         if ($this->restoreBackupWithPHP($filepath, $dbConfig)) {
+            // Enregistrer l'action d'audit
+            $this->auditService->logDatabaseRestore($filename);
+            
             header('Location: ?page=sauvegarde_restauration&restored=1');
             exit;
         }
@@ -220,6 +230,9 @@ class SauvegardeRestaurationController {
 
                 system($cmd, $retval);
                 if ($retval === 0) {
+                    // Enregistrer l'action d'audit
+                    $this->auditService->logDatabaseRestore($filename);
+                    
                     header('Location: ?page=sauvegarde_restauration&restored=1');
                     exit;
                 } else {

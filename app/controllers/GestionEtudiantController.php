@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . "/../models/Etudiant.php";
+require_once __DIR__ . '/../utils/AuditIntegration.php';
 
 class GestionEtudiantController
 {
@@ -17,6 +18,9 @@ class GestionEtudiantController
         $this->baseViewPath = __DIR__ . '/../../ressources/views/';
         $this->db = Database::getConnection();
         $this->etudiant = new Etudiant($this->db);
+        
+        // Initialiser le service d'audit
+        AuditIntegration::init($this->db);
     }
 
     private function genererNumeroEtudiant($promotion_etu) {
@@ -44,13 +48,20 @@ class GestionEtudiantController
             $modalAction = '';
             $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+            // Enregistrer la consultation de la liste des étudiants
+            AuditIntegration::logView('etudiants', null, 'Consultation de la liste des étudiants');
+
             // Gestion des actions GET pour les modales
             if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'edit' && isset($_GET['num_etu'])) {
                 $etudiant_a_modifier = $this->etudiant->getEtudiantById($_GET['num_etu']);
                 if (!$etudiant_a_modifier) {
                     $GLOBALS['messageErreur'] = "Étudiant non trouvé.";
+                    AuditIntegration::logUnauthorizedAccess('edit_etudiant', "Tentative de modification d'un étudiant inexistant: " . $_GET['num_etu']);
                 } else {
                     $modalAction = 'edit';
+                    // Enregistrer la consultation d'un étudiant spécifique
+                    AuditIntegration::logView('etudiants', $_GET['num_etu'], "Consultation de l'étudiant: {$etudiant_a_modifier->nom_etu} {$etudiant_a_modifier->prenom_etu}");
+                    
                     // Si c'est une requête AJAX, renvoyer les données en JSON
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                         header('Content-Type: application/json');
@@ -77,6 +88,7 @@ class GestionEtudiantController
                         empty($_POST['date_naiss_etu']) || empty($_POST['genre_etu']) || 
                         empty($_POST['email_etu']) || empty($_POST['promotion_etu'])) {
                         $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
+                        AuditIntegration::logUnauthorizedAccess('add_etudiant', 'Tentative d\'ajout d\'étudiant avec des champs manquants');
                         return;
                     }
 
@@ -91,13 +103,19 @@ class GestionEtudiantController
                     // Validation de l'email
                     if (!filter_var($email_etu, FILTER_VALIDATE_EMAIL)) {
                         $GLOBALS['messageErreur'] = "L'adresse email n'est pas valide.";
+                        AuditIntegration::logUnauthorizedAccess('add_etudiant', "Tentative d'ajout d'étudiant avec email invalide: $email_etu");
                         return;
                     }
 
                     if ($this->etudiant->ajouterEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $email_etu, $promotion_etu)) {
                         $GLOBALS['messageSuccess'] = "Étudiant ajouté avec succès. Numéro étudiant : " . $num_etu;
+                        
+                        // Enregistrer la création de l'étudiant
+                        $details = "Création de l'étudiant: $nom_etu $prenom_etu (Numéro: $num_etu, Email: $email_etu, Promotion: $promotion_etu)";
+                        AuditIntegration::logCreate('etudiants', $num_etu, $details);
                     } else {
                         $GLOBALS['messageErreur'] = "Erreur lors de l'ajout de l'étudiant.";
+                        AuditIntegration::logSystemError('Erreur lors de l\'ajout de l\'étudiant', 'ajouterEtudiant');
                     }
                 }
 
@@ -108,6 +126,7 @@ class GestionEtudiantController
                         empty($_POST['genre_etu']) || empty($_POST['email_etu']) || 
                         empty($_POST['promotion_etu'])) {
                         $GLOBALS['messageErreur'] = "Tous les champs sont obligatoires.";
+                        AuditIntegration::logUnauthorizedAccess('edit_etudiant', 'Tentative de modification d\'étudiant avec des champs manquants');
                         return;
                     }
 
@@ -122,29 +141,71 @@ class GestionEtudiantController
                     // Validation de l'email
                     if (!filter_var($email_etu, FILTER_VALIDATE_EMAIL)) {
                         $GLOBALS['messageErreur'] = "L'adresse email n'est pas valide.";
+                        AuditIntegration::logUnauthorizedAccess('edit_etudiant', "Tentative de modification d'étudiant avec email invalide: $email_etu");
                         return;
                     }
 
+                    // Récupérer les anciennes données pour l'audit
+                    $ancienEtudiant = $this->etudiant->getEtudiantById($num_etu);
+                    $anciennesDonnees = $ancienEtudiant ? [
+                        'nom_etu' => $ancienEtudiant->nom_etu,
+                        'prenom_etu' => $ancienEtudiant->prenom_etu,
+                        'date_naiss_etu' => $ancienEtudiant->date_naiss_etu,
+                        'genre_etu' => $ancienEtudiant->genre_etu,
+                        'email_etu' => $ancienEtudiant->email_etu,
+                        'promotion_etu' => $ancienEtudiant->promotion_etu
+                    ] : null;
+
+                    $nouvellesDonnees = [
+                        'nom_etu' => $nom_etu,
+                        'prenom_etu' => $prenom_etu,
+                        'date_naiss_etu' => $date_naiss_etu,
+                        'genre_etu' => $genre_etu,
+                        'email_etu' => $email_etu,
+                        'promotion_etu' => $promotion_etu
+                    ];
+
                     if ($this->etudiant->modifierEtudiant($num_etu, $nom_etu, $prenom_etu, $date_naiss_etu, $genre_etu, $email_etu, $promotion_etu)) {
                         $GLOBALS['messageSuccess'] = "Étudiant modifié avec succès.";
+                        
+                        // Enregistrer la modification de l'étudiant
+                        $details = AuditIntegration::createDetails($anciennesDonnees, $nouvellesDonnees, "Modification de l'étudiant: $nom_etu $prenom_etu");
+                        AuditIntegration::logUpdate('etudiants', $num_etu, $details);
                     } else {
                         $GLOBALS['messageErreur'] = "Erreur lors de la modification de l'étudiant.";
+                        AuditIntegration::logSystemError('Erreur lors de la modification de l\'étudiant', 'modifierEtudiant');
                     }
                 }
 
                 // Suppression d'étudiants
                 if (isset($_POST['selected_ids']) && !empty($_POST['selected_ids'])) {
                     $success = true;
+                    $etudiantsSupprimes = [];
+                    
                     foreach ($_POST['selected_ids'] as $num_etu) {
+                        // Récupérer les informations de l'étudiant avant suppression
+                        $etudiant = $this->etudiant->getEtudiantById($num_etu);
+                        if ($etudiant) {
+                            $etudiantsSupprimes[] = "{$etudiant->nom_etu} {$etudiant->prenom_etu} ($num_etu)";
+                        }
+                        
                         if (!$this->etudiant->supprimerEtudiant($num_etu)) {
                             $success = false;
                             break;
                         }
                     }
+                    
                     if ($success) {
                         $GLOBALS['messageSuccess'] = "Étudiants supprimés avec succès.";
+                        
+                        // Enregistrer la suppression des étudiants
+                        $details = "Suppression des étudiants: " . implode(', ', $etudiantsSupprimes);
+                        foreach ($_POST['selected_ids'] as $num_etu) {
+                            AuditIntegration::logDelete('etudiants', $num_etu, $details);
+                        }
                     } else {
                         $GLOBALS['messageErreur'] = "Erreur lors de la suppression des étudiants.";
+                        AuditIntegration::logSystemError('Erreur lors de la suppression des étudiants', 'supprimerEtudiant');
                     }
                 }
             }
@@ -159,6 +220,9 @@ class GestionEtudiantController
                     return strpos(strtolower($etudiant->nom_etu), $searchTerm) !== false ||
                            strpos(strtolower($etudiant->prenom_etu), $searchTerm) !== false;
                 });
+                
+                // Enregistrer la recherche
+                AuditIntegration::logView('etudiants', null, "Recherche d'étudiants avec le terme: $searchTerm");
             }
 
             // Convertir le résultat en tableau indexé
@@ -196,7 +260,7 @@ class GestionEtudiantController
         } catch (Exception $e) {
             error_log("Erreur dans GestionEtudiantController::index : " . $e->getMessage());
             $GLOBALS['messageErreur'] = "Une erreur est survenue. Veuillez réessayer.";
+            AuditIntegration::logSystemError($e->getMessage(), 'GestionEtudiantController::index');
         }
     }
-
 }
