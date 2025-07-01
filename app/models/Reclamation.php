@@ -146,7 +146,6 @@ class Reclamation {
             $sql = "SELECT 
                         COUNT(*) as total,
                         SUM(CASE WHEN statut_reclamation = 'En attente' THEN 1 ELSE 0 END) as en_attente,
-                        SUM(CASE WHEN statut_reclamation = 'En cours' THEN 1 ELSE 0 END) as en_cours,
                         SUM(CASE WHEN statut_reclamation = 'Résolue' THEN 1 ELSE 0 END) as resolues,
                         SUM(CASE WHEN statut_reclamation = 'Rejetée' THEN 1 ELSE 0 END) as rejetees
                     FROM reclamations";
@@ -158,70 +157,9 @@ class Reclamation {
             return [
                 'total' => 0,
                 'en_attente' => 0,
-                'en_cours' => 0,
                 'resolues' => 0,
                 'rejetees' => 0
             ];
-        }
-    }
-
-    public function mettreAJourStatut($id, $statut, $commentaire, $numEtu) {
-        try {
-            $sql = "UPDATE reclamations 
-                    SET statut_reclamation = :statut,
-                        date_mise_a_jour = NOW()
-                    WHERE id_reclamation = :id";
-
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':statut', $statut);
-            $stmt->bindParam(':id', $id);
-
-            if ($stmt->execute()) {
-                // Ajouter l'historique
-                return $this->ajouterHistorique($id, $statut, $commentaire, $numEtu);
-            }
-            return false;
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la mise à jour du statut : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function ajouterHistorique($idReclamation, $action, $commentaire, $numEtu) {
-        try {
-            $sql = "INSERT INTO historique_reclamations 
-                    (id_reclamation, action, commentaire, num_etu, date_action) 
-                    VALUES (:id_rec, :action, :commentaire, :num_etu, NOW())";
-
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':id_rec', $idReclamation);
-            $stmt->bindParam(':action', $action);
-            $stmt->bindParam(':commentaire', $commentaire);
-            $stmt->bindParam(':num_etu', $numEtu);
-
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("Erreur lors de l'ajout à l'historique : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getHistorique($idReclamation, $numEtu) {
-        try {
-            $sql = "SELECT h.*, e.nom_etu, e.prenom_etu
-                    FROM historique_reclamations h
-                    LEFT JOIN etudiants e ON h.num_etu = e.num_etu
-                    WHERE h.id_reclamation = :id
-                    ORDER BY h.date_action DESC";
-
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':id', $idReclamation);
-            $stmt->bindParam(':num_etu', $numEtu);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération de l'historique : " . $e->getMessage());
-            return [];
         }
     }
 
@@ -236,7 +174,7 @@ class Reclamation {
     }
 
     public function updateStatut($id, $statut) {
-        $sql = "UPDATE reclamations SET statut = ? WHERE id_reclamation = ?";
+        $sql = "UPDATE reclamations SET statut_reclamation = ? WHERE id_reclamation = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$statut, $id]);
     }

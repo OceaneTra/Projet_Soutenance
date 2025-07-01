@@ -7,7 +7,7 @@ $dashboardController = new DashboardScolariteController();
 $dashboardData = $dashboardController->getDashboardData();
 
 $stats = $dashboardData['stats'];
-$activites = $dashboardData['activites'];
+$inscriptionsParNiveau = $dashboardData['inscriptionsParNiveau'];
 ?>
 <html lang="fr">
 
@@ -94,13 +94,13 @@ $activites = $dashboardData['activites'];
                     <div class="bg-white p-4 rounded-lg shadow-sm hover-scale">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">Étudiants enregistrés</p>
+                                <p class="text-sm font-medium text-gray-500">Réclamations en attente</p>
                                 <p class="text-2xl font-bold text-gray-800">
-                                    <?php echo number_format($stats['nouvelles_inscriptions']); ?></p>
-                                <p class="text-xs text-gray-500">7 derniers jours</p>
+                                    <?php echo number_format($stats['reclamations_en_attente']); ?></p>
+                                <p class="text-xs text-gray-500">À traiter</p>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-500">
-                                <i class="fas fa-user-plus text-xl"></i>
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -110,11 +110,11 @@ $activites = $dashboardData['activites'];
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Paiements complets</p>
                                 <p class="text-2xl font-bold text-gray-800">
-                                    <?php echo number_format($stats['notes_a_valider']); ?></p>
-                                <p class="text-xs text-gray-500">En attente de validation</p>
+                                    <?php echo number_format($stats['paiements_complets']); ?></p>
+                                <p class="text-xs text-gray-500">Validés</p>
                             </div>
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
-                                <i class="fas fa-graduation-cap text-xl"></i>
+                            <div class="p-3 rounded-full bg-green-100 text-green-500">
+                                <i class="fas fa-check-circle text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -124,9 +124,9 @@ $activites = $dashboardData['activites'];
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Paiements partiels</p>
                                 <p class="text-2xl font-bold text-gray-800">
-                                    <?php echo number_format($stats['paiements_en_attente']); ?></p>
-                                <p class="text-xs text-gray-500">Total:
-                                    <?php echo number_format($stats['montant_total_paiements'], 2); ?>€</p>
+                                    <?php echo number_format($stats['paiements_partiels']); ?></p>
+                                <p class="text-xs text-gray-500">En attente:
+                                    <?php echo number_format($stats['montant_attente'], 0, ',', ' '); ?> FCFA</p>
                             </div>
                             <div class="p-3 rounded-full bg-red-100 text-red-500">
                                 <i class="fas fa-euro-sign text-xl"></i>
@@ -136,88 +136,59 @@ $activites = $dashboardData['activites'];
                 </div>
 
                 <!-- Graphiques et statistiques détaillées -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <!-- Graphique des inscriptions par niveau -->
-                    <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Inscriptions par niveau d'études</h2>
-                        <canvas id="inscriptionsChart" height="300"></canvas>
-                    </div>
-
-                    <!-- Activités récentes -->
-                    <div class="bg-white p-4 rounded-lg shadow-sm">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Activités récentes</h2>
-                        <div class="space-y-4">
-                            <?php foreach($activites as $activite): ?>
-                            <div class="flex items-start">
-                                <div
-                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-<?php echo $activite['couleur']; ?>-100 flex items-center justify-center text-<?php echo $activite['couleur']; ?>-500 mr-3">
-                                    <i class="fas <?php echo $activite['icone']; ?>"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">
-                                        <?php echo htmlspecialchars($activite['titre']); ?></p>
-                                    <p class="text-xs text-gray-500">
-                                        <?php echo htmlspecialchars($activite['description']); ?></p>
-                                    <p class="text-xs text-gray-400"><?php echo $activite['date_activite']; ?></p>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistiques supplémentaires -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <!-- Statistiques des paiements -->
+                    <!-- Graphique des inscriptions par niveau d'étude -->
                     <div class="bg-white p-4 rounded-lg shadow-sm">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Statistiques des paiements</h2>
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Inscriptions par niveau d'études</h2>
+                        <canvas id="inscriptionsChart" height="200"></canvas>
+                    </div>
+
+                    <!-- Statistiques des réclamations -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm ">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Statistiques des réclamations</h2>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-lg gradient-blue text-white">
-                                <p class="text-sm font-medium">Paiements validés</p>
+                            <div class="p-4 rounded-lg gradient-yellow text-white">
+                                <p class="text-sm font-medium">En attente</p>
                                 <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['paiements_valides'] ?? 0); ?></p>
+                                    <?php echo number_format($stats['reclamations_en_attente']); ?></p>
+                            </div>
+                            <div class="p-4 rounded-lg gradient-green text-white">
+                                <p class="text-sm font-medium">Résolues</p>
+                                <p class="text-2xl font-bold">
+                                    <?php echo number_format($stats['reclamations_resolues']); ?></p>
                             </div>
                             <div class="p-4 rounded-lg gradient-red text-white">
-                                <p class="text-sm font-medium">Paiements en retard</p>
+                                <p class="text-sm font-medium">Rejetées</p>
                                 <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['paiements_retard'] ?? 0); ?></p>
+                                    <?php echo number_format($stats['reclamations_rejetees']); ?></p>
+                            </div>
+                            <div class="p-4 rounded-lg gradient-blue text-white">
+                                <p class="text-sm font-medium">Total</p>
+                                <p class="text-2xl font-bold">
+                                    <?php echo number_format($stats['reclamations_total']); ?></p>
+                            </div>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4 mt-4">Statistiques des paiements</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="p-4 rounded-lg gradient-blue text-white">
+                                <p class="text-sm font-medium">Paiements complets</p>
+                                <p class="text-2xl font-bold">
+                                    <?php echo number_format($stats['paiements_complets']); ?></p>
+                            </div>
+                            <div class="p-4 rounded-lg gradient-red text-white">
+                                <p class="text-sm font-medium">Paiements partiels</p>
+                                <p class="text-2xl font-bold">
+                                    <?php echo number_format($stats['paiements_partiels']); ?></p>
                             </div>
                             <div class="p-4 rounded-lg gradient-green text-white">
                                 <p class="text-sm font-medium">Montant total perçu</p>
                                 <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['montant_percu'] ?? 0, 2); ?>€</p>
+                                    <?php echo number_format($stats['montant_percu'], 0, ',', ' '); ?> FCFA</p>
                             </div>
                             <div class="p-4 rounded-lg gradient-yellow text-white">
                                 <p class="text-sm font-medium">Montant en attente</p>
                                 <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['montant_attente'] ?? 0, 2); ?>€</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Statistiques des notes -->
-                    <div class="bg-white p-4 rounded-lg shadow-sm">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Statistiques des notes</h2>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-lg gradient-purple text-white">
-                                <p class="text-sm font-medium">Moyenne générale</p>
-                                <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['moyenne_generale'] ?? 0, 2); ?>/20</p>
-                            </div>
-                            <div class="p-4 rounded-lg gradient-orange text-white">
-                                <p class="text-sm font-medium">Taux de réussite</p>
-                                <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['taux_reussite'] ?? 0, 1); ?>%</p>
-                            </div>
-                            <div class="p-4 rounded-lg gradient-green text-white">
-                                <p class="text-sm font-medium">Notes validées</p>
-                                <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['notes_validees'] ?? 0); ?></p>
-                            </div>
-                            <div class="p-4 rounded-lg gradient-red text-white">
-                                <p class="text-sm font-medium">Notes en attente</p>
-                                <p class="text-2xl font-bold">
-                                    <?php echo number_format($stats['notes_en_attente'] ?? 0); ?></p>
+                                    <?php echo number_format($stats['montant_attente'], 0, ',', ' '); ?> FCFA</p>
                             </div>
                         </div>
                     </div>
@@ -227,15 +198,25 @@ $activites = $dashboardData['activites'];
     </div>
 
     <script>
-    // Configuration du graphique des inscriptions
+    // Configuration du graphique des inscriptions par niveau d'étude
     const ctx = document.getElementById('inscriptionsChart').getContext('2d');
+
+    // Préparer les données pour le graphique
+    const niveauLabels = [];
+    const inscriptionsData = [];
+
+    <?php foreach($inscriptionsParNiveau as $niveau): ?>
+    niveauLabels.push('<?php echo $niveau['niveau']; ?>');
+    inscriptionsData.push(<?php echo $niveau['total']; ?>);
+    <?php endforeach; ?>
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['L1', 'L2', 'L3', 'M1', 'M2'],
+            labels: niveauLabels,
             datasets: [{
                 label: 'Nombre d\'inscriptions',
-                data: [65, 59, 80, 81, 56],
+                data: inscriptionsData,
                 backgroundColor: [
                     'rgba(59, 130, 246, 0.5)',
                     'rgba(16, 185, 129, 0.5)',

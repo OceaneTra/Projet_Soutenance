@@ -127,11 +127,31 @@ class GestionCandidaturesController {
                         
                     case 3: // Semestre (anciennement étape 4)
                         $notes = $this->etudiant->getNotesEtudiant($examiner);
-                        $semestre = $this->etudiant->getSemestreActuel($examiner);
+                        $semestreInfo = $this->etudiant->getSemestreActuel($examiner);
+                        
+                        // Adapter à la nouvelle structure qui retourne tous les semestres du niveau
+                        $semestreText = 'Non renseigné';
+                        if ($semestreInfo && !empty($semestreInfo['semestres'])) {
+                            $semestres = array_map(function($s) {
+                                return $s['lib_semestre'];
+                            }, $semestreInfo['semestres']);
+                            $semestreText = implode(', ', $semestres);
+                        }
+                        
+                        // Vérifier si les résultats sont disponibles
+                        $moyenneText = 'Résultats pas encore disponibles';
+                        $unitesText = 'Résultats pas encore disponibles';
+                        
+                        if ($notes['resultats_disponibles']) {
+                            $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
+                            $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
+                        }
+                        
                         $etapeData = [
-                            'semestre' => $semestre ? $semestre['lib_semestre'] : 'Non renseigné',
-                            'moyenne' => number_format($notes['moyenne'] ?? 0, 2) . '/20',
-                            'unites' => ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits du Master 2 validés'
+                            'semestre' => $semestreText,
+                            'moyenne' => $moyenneText,
+                            'unites' => $unitesText,
+                            'resultats_disponibles' => $notes['resultats_disponibles'] ?? false
                         ];
                         break;
                         
@@ -203,12 +223,32 @@ class GestionCandidaturesController {
         ];
         
         // Étape 3 - Semestre
-        $semestre = $this->etudiant->getSemestreActuel($examiner);
+        $semestreInfo = $this->etudiant->getSemestreActuel($examiner);
+        
+        // Adapter à la nouvelle structure qui retourne tous les semestres du niveau
+        $semestreText = 'Non renseigné';
+        if ($semestreInfo && !empty($semestreInfo['semestres'])) {
+            $semestres = array_map(function($s) {
+                return $s['lib_semestre'];
+            }, $semestreInfo['semestres']);
+            $semestreText = implode(', ', $semestres);
+        }
+        
+        // Vérifier si les résultats sont disponibles
+        $moyenneText = 'Résultats pas encore disponibles';
+        $unitesText = 'Résultats pas encore disponibles';
+        
+        if ($notes['resultats_disponibles']) {
+            $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
+            $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
+        }
+        
         $resume['semestre'] = [
-            'semestre' => $semestre ? $semestre['lib_semestre'] : 'Non renseigné',
-            'moyenne' => number_format($notes['moyenne'] ?? 0, 2) . '/20',
-            'unites' => ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits du Master 2 validés',
-            'validation' => $_SESSION['etapes_validation'][$examiner][3] ?? 'Non évalué'
+            'semestre' => $semestreText,
+            'moyenne' => $moyenneText,
+            'unites' => $unitesText,
+            'validation' => $_SESSION['etapes_validation'][$examiner][3] ?? 'Non évalué',
+            'resultats_disponibles' => $notes['resultats_disponibles'] ?? false
         ];
         
         return $resume;

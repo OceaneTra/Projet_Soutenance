@@ -164,10 +164,24 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">Éditeur de Rapport de Stage</h1>
-                <p class="text-gray-600 mt-2">Créez et modifiez votre rapport facilement</p>
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <?php if (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']): ?>
+                    Consultation du Rapport de Stage
+                    <?php else: ?>
+                    Éditeur de Rapport de Stage
+                    <?php endif; ?>
+                </h1>
+                <p class="text-gray-600 mt-2">
+                    <?php if (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']): ?>
+                    Consultation en lecture seule - Rapport déjà déposé
+                    <?php else: ?>
+                    Créez et modifiez votre rapport facilement
+                    <?php endif; ?>
+                </p>
             </div>
             <div class="flex space-x-3 mt-4 md:mt-0">
+                <?php if (!isset($GLOBALS['rapportDejaDepose']) || !$GLOBALS['rapportDejaDepose']): ?>
+                <!-- Boutons actifs seulement si le rapport n'est pas déposé -->
                 <button id="saveBtn"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,6 +207,36 @@
                     </svg>
                     Déposer
                 </button>
+                <?php else: ?>
+                <!-- Boutons désactivés si le rapport est déjà déposé -->
+                <button disabled
+                    class="bg-blue-400 text-white font-semibold py-2 px-4 rounded-lg flex items-center cursor-not-allowed"
+                    title="Non disponible - Rapport déjà déposé">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                        </path>
+                    </svg>
+                    Enregistrer
+                </button>
+                <button id="exportBtn"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Exporter
+                </button>
+                <button disabled
+                    class="bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg flex items-center cursor-not-allowed"
+                    title="Non disponible - Rapport déjà déposé">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Déposer
+                </button>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -225,8 +269,9 @@
                             </label>
                             <input type="text" id="nom_rapport" name="nom_rapport"
                                 value="<?= isset($rapport) ? htmlspecialchars($rapport['nom_rapport']) : '' ?>"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Ex: Rapport de stage - Développement Web" required>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'bg-gray-100 cursor-not-allowed' : '' ?>"
+                                placeholder="Ex: Rapport de stage - Développement Web"
+                                <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'readonly' : 'required' ?>>
                         </div>
                         <div>
                             <label for="theme_rapport" class="block text-sm font-medium text-gray-700 mb-2">
@@ -234,13 +279,15 @@
                             </label>
                             <input type="text" id="theme_rapport" name="theme_rapport"
                                 value="<?= isset($rapport) ? htmlspecialchars($rapport['theme_rapport']) : '' ?>"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Ex: Intégration d'un système CRM" required>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'bg-gray-100 cursor-not-allowed' : '' ?>"
+                                placeholder="Ex: Intégration d'un système CRM"
+                                <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'readonly' : 'required' ?>>
                         </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 border-b border-gray-200 p-4 flex flex-wrap justify-between items-center">
                     <div class="flex items-center space-x-4 mb-3 md:mb-0">
+                        <?php if (!isset($GLOBALS['rapportDejaDepose']) || !$GLOBALS['rapportDejaDepose']): ?>
                         <button id="loadTemplateBtn"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -251,6 +298,18 @@
                             </svg>
                             Charger le Modèle
                         </button>
+                        <?php else: ?>
+                        <div
+                            class="bg-gray-400 text-gray-600 font-medium py-2 px-4 rounded-lg flex items-center cursor-not-allowed">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Charger le Modèle
+                        </div>
+                        <?php endif; ?>
                         <span id="loadingIndicator" class="hidden">
                             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6">
                             </div>
@@ -260,7 +319,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="relative">
                             <select id="fontSelector"
-                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'bg-gray-100 cursor-not-allowed' : '' ?>"
+                                <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'disabled' : '' ?>>
                                 <option value="Arial, sans-serif">Arial</option>
                                 <option value="Times New Roman, serif">Times New Roman</option>
                                 <option value="Calibri, sans-serif">Calibri</option>
@@ -270,7 +330,8 @@
                         </div>
                         <div class="relative">
                             <select id="fontSize"
-                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'bg-gray-100 cursor-not-allowed' : '' ?>"
+                                <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'disabled' : '' ?>>
                                 <option value="12pt">12pt</option>
                                 <option value="14pt">14pt</option>
                                 <option value="16pt">16pt</option>
@@ -316,6 +377,10 @@
         const fontSelector = document.getElementById('fontSelector');
         const fontSize = document.getElementById('fontSize');
 
+        // Variable pour gérer l'état de lecture seule
+        const isReadOnly =
+            <?= (isset($GLOBALS['rapportDejaDepose']) && $GLOBALS['rapportDejaDepose']) ? 'true' : 'false' ?>;
+
         let editor;
 
         // Initialize TinyMCE editor
@@ -333,6 +398,7 @@
                 'alignright alignjustify | bullist numlist outdent indent | ' +
                 'removeformat | help',
             content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            readonly: isReadOnly,
             setup: function(ed) {
                 editor = ed;
 
@@ -346,7 +412,14 @@
                         editorContainer.classList.remove('document-loading');
                         editorContainer.classList.add('document-loaded');
                         documentStatusMessage.classList.add('hidden');
-                        showNotification('info', 'Rapport chargé en mode édition');
+                        if (isReadOnly) {
+                            showNotification('info',
+                                'Rapport chargé en mode consultation (lecture seule)'
+                            );
+                        } else {
+                            showNotification('info',
+                                'Rapport chargé en mode édition');
+                        }
                     }, 500);
                     <?php else: ?>
                     // Mode création : ne rien charger, laisser l'éditeur vide
@@ -576,59 +649,57 @@
         });
 
         // Save button event
-        saveBtn.addEventListener('click', function(e) {
-            e.preventDefault(); // CRUCIAL
-            e.stopPropagation(); // Empêcher la propagation
+        saveBtn.addEventListener('click', function() {
+            if (isReadOnly) {
+                showNotification('warning',
+                    'Ce rapport ne peut plus être modifié car il a déjà été déposé');
+                return;
+            }
 
             if (!editor) {
                 showNotification('error', 'Éditeur non initialisé');
-                return false;
+                return;
             }
 
-            // Validation des champs requis
+            const content = editor.getContent();
             const nomRapport = document.getElementById('nom_rapport').value.trim();
             const themeRapport = document.getElementById('theme_rapport').value.trim();
-            const content = editor.getContent();
 
-            if (!nomRapport || nomRapport.length < 5) {
-                showNotification('error', 'Le nom du rapport doit contenir au moins 5 caractères');
-                return false;
+            if (!content || content.trim() === '') {
+                showNotification('error', 'Le contenu du rapport est vide');
+                return;
             }
 
-            if (!themeRapport || themeRapport.length < 10) {
-                showNotification('error', 'Le thème du rapport doit contenir au moins 10 caractères');
-                return false;
+            if (!nomRapport) {
+                showNotification('error', 'Le nom du rapport est requis');
+                return;
             }
 
-            if (!content || content.trim() === '' || content.replace(/<[^>]*>/g, '').trim().length <
-                50) {
-                showNotification('error', 'Le contenu du rapport doit contenir au moins 50 caractères');
-                return false;
+            if (!themeRapport) {
+                showNotification('error', 'Le thème du rapport est requis');
+                return;
             }
 
-            // Créer FormData manuellement
-            const formData = new FormData();
-            formData.append('action', 'save_rapport');
-            formData.append('nom_rapport', nomRapport);
-            formData.append('theme_rapport', themeRapport);
-            formData.append('contenu_rapport', content);
-
-            // Ajouter edit_id si existe
-            const editId = document.querySelector('input[name="edit_id"]');
-            if (editId) {
-                formData.append('edit_id', editId.value);
-            }
-
-            // Afficher indicateur de chargement
+            // Désactiver le bouton pendant la sauvegarde
             saveBtn.disabled = true;
             saveBtn.innerHTML =
                 '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>Enregistrement...';
+
+            // Créer FormData pour la sauvegarde
+            const formData = new FormData();
+            formData.append('action', 'save_rapport');
+            formData.append('contenu_rapport', content);
+            formData.append('nom_rapport', nomRapport);
+            formData.append('theme_rapport', themeRapport);
+            <?php if (isset($isEditMode) && $isEditMode && isset($rapport)): ?>
+            formData.append('edit_id', '<?= $rapport['id_rapport'] ?>');
+            <?php endif; ?>
 
             fetch(window.location.href, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest' // Important pour identifier AJAX côté serveur
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
                 .then(response => {
@@ -858,11 +929,18 @@
         }
 
         // Déposer button event
-        deposerBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector('input[name="action"]').value = 'deposer_rapport';
-            document.getElementById('rapportForm').submit();
-        });
+        if (deposerBtn) {
+            deposerBtn.addEventListener('click', function(e) {
+                if (isReadOnly) {
+                    showNotification('warning',
+                        'Ce rapport ne peut plus être déposé car il l\'est déjà');
+                    return;
+                }
+                e.preventDefault();
+                document.querySelector('input[name="action"]').value = 'deposer_rapport';
+                document.getElementById('rapportForm').submit();
+            });
+        }
     });
     </script>
 

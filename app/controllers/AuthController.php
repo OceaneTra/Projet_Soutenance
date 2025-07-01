@@ -8,25 +8,23 @@ require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../models/Grade.php';
 require_once __DIR__ . '/../models/Fonction.php';
 require_once __DIR__ . '/../models/Specialite.php';
+
 // Si nécessaire pour d'autres opérations
 
 class AuthController {
     private $db;
     private $enseignantModel;
     private $persAdminModel;
-
     private $etudiantModel;
-   
-
 
     public function __construct($db) {
         $this->db = $db;
         $this->enseignantModel = new Enseignant($db);
         $this->persAdminModel = new PersAdmin($db);
         $this->etudiantModel = new Etudiant($db);
+        
        
     }
-
 
     public function login($login, $password)
     {
@@ -34,6 +32,7 @@ class AuthController {
         $infoUtilisateur = $utilisateur->verifierConnexion($login, $password);
 
         if ($infoUtilisateur) {
+            
            
             // Stocker les infos de session
             $_SESSION['id_utilisateur'] = $infoUtilisateur['id_utilisateur'];
@@ -47,8 +46,6 @@ class AuthController {
             $_SESSION['niveau_acces'] = $utilisateur->getLibelleNivAcces($infoUtilisateur['id_utilisateur']);
 
             $type_utilisateur = $utilisateur->getLibelleTypeUtilisateur($infoUtilisateur['id_utilisateur']);
-
-            
 
             if ($type_utilisateur !== 'Etudiant') {
                 if ($type_utilisateur === 'Enseignant simple' || $type_utilisateur === 'Enseignant administratif') {
@@ -75,16 +72,17 @@ class AuthController {
                 $etudiant = $this->etudiantModel->getEtudiantByLogin($infoUtilisateur['login_utilisateur']);
                 if ($etudiant) {
                     $_SESSION['num_etu'] = $etudiant->num_etu;
-
                 }
-                
             }
             return true;
-        }
+        } 
         return false;
     }
+
     public function logout()
     {
+       
+
         // Détruire toutes les données de session
         $_SESSION = array();
 
@@ -111,6 +109,8 @@ class AuthController {
         if (!password_verify($currentPassword, $user->mdp_utilisateur)) {
             $messageErreur = 'Le mot de passe actuel est incorrect.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
+        
             return false;
         }
 
@@ -118,6 +118,7 @@ class AuthController {
         if ($newPassword !== $confirmPassword) {
             $messageErreur = 'Les mots de passe ne correspondent pas.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
             return false;
         }
 
@@ -125,6 +126,8 @@ class AuthController {
         if (password_verify($newPassword, $user->mdp_utilisateur)) {
             $messageErreur = 'Le nouveau mot de passe doit être différent de l\'ancien.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
+            
             return false;
         }
 
@@ -132,6 +135,8 @@ class AuthController {
         if (strlen($newPassword) < 8) {
             $messageErreur = 'Le mot de passe doit contenir au moins 8 caractères.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
+            
             return false;
         }
 
@@ -139,6 +144,7 @@ class AuthController {
         if (!preg_match('/[A-Z]/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins une majuscule.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
             return false;
         }
 
@@ -146,6 +152,8 @@ class AuthController {
         if (!preg_match('/[0-9]/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins un chiffre.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
+         
             return false;
         }
 
@@ -153,6 +161,8 @@ class AuthController {
         if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]+/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins un caractère spécial.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            
+          
             return false;
         }
 
@@ -163,6 +173,7 @@ class AuthController {
         if ($utilisateur->updatePassword($hashedPassword, $_SESSION['id_utilisateur'])) {
             $messageSuccess = 'Mot de passe mis à jour avec succès.';
             $GLOBALS['messageSuccess'] = $messageSuccess;
+      
             return true;
         }
 
@@ -172,5 +183,4 @@ class AuthController {
 
         return false;
     }
-
 }

@@ -4,102 +4,44 @@ require_once __DIR__ . '/../../app/models/AnneeAcademique.php';
 require_once __DIR__ . '/../../app/models/NiveauEtude.php';
 require_once __DIR__ . '/../../app/models/Etudiant.php';
 require_once __DIR__ . '/../../app/models/Enseignant.php';
-require_once __DIR__ . '/../../app/models/Ecue.php';
-require_once __DIR__ . '/../../app/models/Ue.php';
 
 $pdo = Database::getConnection();
 $anneeAcademiqueModel = new AnneeAcademique($pdo);
 $listeAnnees = $anneeAcademiqueModel->getAllAnneeAcademiques();
 $niveauEtudeModel = new NiveauEtude($pdo);
-$listeNiveaux = $niveauEtudeModel->getAllNiveauxEtudes();
 $etudiantModel = new Etudiant($pdo);
 $enseignantModel = new Enseignant($pdo);
-$ecueModel = new Ecue($pdo);
-$ueModel = new Ue($pdo);
 
-// Récupération de l'ID de l'enseignant connecté
+// Récupération de l'enseignant connecté
 $enseignant = $enseignantModel->getEnseignantByLogin($_SESSION['login_utilisateur']);
 $enseignantId = $enseignant->id_enseignant;
 if (!$enseignantId) {
     die("Enseignant non trouvé ou non connecté.");
 }
 
-// Récupération des UE et ECUE pris en charge par l'enseignant
-$uesEnseignant = $ueModel->getUesByEnseignant($enseignantId);
-$ecuesEnseignant = $ecueModel->getEcuesByEnseignant($enseignantId);
+// Récupérer les niveaux dont l'enseignant est responsable
+$niveauxResponsable = array_filter($niveauEtudeModel->getAllNiveauxEtudes(), function($niv) use ($enseignantId) {
+    return isset($niv->id_enseignant) && $niv->id_enseignant == $enseignantId;
+});
 
-// Construction de la liste des niveaux concernés (par UE ou ECUE)
-$niveauIds = [];
-foreach ($uesEnseignant as $ue) {
-    if (!in_array($ue->id_niveau_etude, $niveauIds)) {
-        $niveauIds[] = $ue->id_niveau_etude;
-    }
-}
-foreach ($ecuesEnseignant as $ecue) {
-    if (!in_array($ecue->id_niveau_etude, $niveauIds)) {
-        $niveauIds[] = $ecue->id_niveau_etude;
-    }
-}
-
-// Indexer les UE et ECUE pour les filtres
-$uesEnseignantIndexed = [];
-foreach ($uesEnseignant as $ue) {
-    $uesEnseignantIndexed[$ue->id_ue] = $ue->lib_ue;
-}
-$ecuesEnseignantIndexed = [];
-foreach ($ecuesEnseignant as $ecue) {
-    $ecuesEnseignantIndexed[$ecue->id_ecue] = [
-        'lib_ecue' => $ecue->lib_ecue,
-        'lib_ue' => $ecue->lib_ue
-    ];
-}
-
-// Récupération de tous les étudiants
+// Récupérer tous les étudiants
 $etudiants = $etudiantModel->getAllListeEtudiants();
 
 // Récupération des filtres
 $search = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
 $promotion = isset($_GET['promotion']) ? $_GET['promotion'] : '';
-$ue = isset($_GET['ue']) ? $_GET['ue'] : '';
-$ecue = isset($_GET['ecue']) ? $_GET['ecue'] : '';
+$niveau = isset($_GET['niveau']) ? $_GET['niveau'] : '';
 
-// Filtrage des étudiants : uniquement ceux des niveaux concernés
-$filteredEtudiants = array_filter($etudiants, function($etudiant) use ($niveauIds, $search, $promotion, $ue, $ecue, $ecuesEnseignant, $uesEnseignant) {
-    if (!in_array($etudiant->id_niv_etude, $niveauIds)) {
-        return false;
-    }
+// Filtrage des étudiants : uniquement ceux des niveaux dont l'enseignant est responsable
+$filteredEtudiants = array_filter($etudiants, function($etudiant) use ($search, $promotion, $niveau, $niveauxResponsable) {
     $matchesSearch = $search === '' ||
         strpos(strtolower($etudiant->nom_etu), $search) !== false ||
         strpos(strtolower($etudiant->prenom_etu), $search) !== false ||
         strpos(strtolower($etudiant->email_etu), $search) !== false;
     $matchesPromotion = $promotion === '' || (isset($etudiant->id_annee_acad) && $etudiant->id_annee_acad == $promotion);
-    // Filtrage par UE
-    $matchesUe = $ue === '';
-    if ($ue !== '') {
-        foreach ($ecuesEnseignant as $ecueEnseignant) {
-            if ($ecueEnseignant->id_ue == $ue && $etudiant->id_niv_etude == $ecueEnseignant->id_niveau_etude) {
-                $matchesUe = true;
-                break;
-            }
-        }
-        foreach ($uesEnseignant as $ueEnseignant) {
-            if ($ueEnseignant->id_ue == $ue && $etudiant->id_niv_etude == $ueEnseignant->id_niveau_etude) {
-                $matchesUe = true;
-                break;
-            }
-        }
-    }
-    // Filtrage par ECUE
-    $matchesEcue = $ecue === '';
-    if ($ecue !== '') {
-        foreach ($ecuesEnseignant as $ecueEnseignant) {
-            if ($ecueEnseignant->id_ecue == $ecue && $etudiant->id_niv_etude == $ecueEnseignant->id_niveau_etude) {
-                $matchesEcue = true;
-                break;
-            }
-        }
-    }
-    return $matchesSearch && $matchesPromotion && $matchesUe && $matchesEcue;
+    $niveauIds = array_map(function($niv) { return $niv->id_niv_etude; }, $niveauxResponsable);
+    $matchesNiveau = $niveau === '' ? in_array($etudiant->id_niv_etude, $niveauIds) : ($etudiant->id_niv_etude == $niveau);
+    return $matchesSearch && $matchesPromotion && $matchesNiveau;
 });
 
 // Pagination
@@ -117,26 +59,20 @@ $etudiantsPage = array_slice($filteredEtudiants, $startIndex, $perPage);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Étudiants -
-        <?= htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant) ?></title>
+    <title>Liste des Étudiants - Responsable Niveau</title>
 </head>
 
 <body class="p-4 sm:p-6 md:p-8">
     <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:p-8 p-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Liste des Étudiants -
-            <span
-                class="text-4xl text-green-500 font-bold"><?= htmlspecialchars($enseignant->nom_enseignant . ' ' . $enseignant->prenom_enseignant) ?></span>
-        </h1>
-
+        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Liste des Étudiants - <span
+                class="text-4xl text-green-500 font-bold">Responsable Niveau</span></h1>
         <form method="get" class="mb-6 flex flex-wrap gap-4 items-center">
             <?php if (isset($_GET['page'])): ?>
             <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page']) ?>">
             <?php endif; ?>
-
             <input type="text" name="search" placeholder="Rechercher par nom, prénom ou email..."
                 class="outline-green-500 flex-1 min-w-[200px] p-3 pl-4 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm"
                 value="<?= htmlspecialchars(isset($_GET['search']) ? $_GET['search'] : '') ?>">
-
             <select name="promotion"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm">
                 <option value="">Toutes les Années Académiques</option>
@@ -147,32 +83,19 @@ $etudiantsPage = array_slice($filteredEtudiants, $startIndex, $perPage);
                 </option>
                 <?php endforeach; ?>
             </select>
-
-            <select name="ue"
+            <select name="niveau"
                 class="p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm">
-                <option value="">Toutes mes UE</option>
-                <?php foreach ($uesEnseignantIndexed as $idUe => $libUe): ?>
-                <option value="<?= htmlspecialchars($idUe) ?>" <?php if($ue == $idUe) echo 'selected'; ?>>
-                    <?= htmlspecialchars($libUe) ?>
+                <option value="">Tous les Niveaux dont je suis responsable</option>
+                <?php foreach ($niveauxResponsable as $niv): ?>
+                <option value="<?= htmlspecialchars($niv->id_niv_etude) ?>"
+                    <?php if($niveau == $niv->id_niv_etude) echo 'selected'; ?>>
+                    <?= htmlspecialchars($niv->lib_niv_etude) ?>
                 </option>
                 <?php endforeach; ?>
             </select>
-
-            <select name="ecue"
-                class="p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 text-gray-700 shadow-sm md:text-base text-sm">
-                <option value="">Tous mes ECUE</option>
-                <?php foreach ($ecuesEnseignantIndexed as $idEcue => $ecueData): ?>
-                <option value="<?= htmlspecialchars($idEcue) ?>" <?php if($ecue == $idEcue) echo 'selected'; ?>>
-                    <?= htmlspecialchars($ecueData['lib_ecue']) ?>
-                    (<?= htmlspecialchars($ecueData['lib_ue']) ?>)
-                </option>
-                <?php endforeach; ?>
-            </select>
-
             <button type="submit"
                 class="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Filtrer</button>
         </form>
-
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">

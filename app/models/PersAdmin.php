@@ -67,6 +67,17 @@ class PersAdmin{
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
+    public function getByUserId($id_utilisateur) {
+        $query = "SELECT pa.*
+                 FROM personnel_admin pa 
+                 JOIN utilisateur u ON pa.email_pers_admin = u.login_utilisateur
+                 WHERE u.id_utilisateur = :id_utilisateur";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id_utilisateur', $id_utilisateur);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function ajouterPersAdmin($nom, $prenom, $email, $telephone, $poste, $date_embauche) {
         try {
             $query = "INSERT INTO personnel_admin (nom_pers_admin, prenom_pers_admin, email_pers_admin, tel_pers_admin, poste, date_embauche) 

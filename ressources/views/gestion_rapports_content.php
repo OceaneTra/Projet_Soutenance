@@ -346,6 +346,7 @@ if (isset($_SESSION['num_etu'])) {
                                 $infoDepot = $infosDepot[$rapport->id_rapport] ?? ['peutDeposer' => true, 'messageDepot' => '', 'dejaDepose' => false];
                                 $peutDeposer = $infoDepot['peutDeposer'];
                                 $messageDepot = $infoDepot['messageDepot'];
+                                $dejaDepose = $infoDepot['dejaDepose'];
                                 ?>
 
                                 <?php if ($peutDeposer): ?>
@@ -366,15 +367,32 @@ if (isset($_SESSION['num_etu'])) {
                                 </button>
                                 <?php endif; ?>
 
-                                <button onclick="modifierRapport(<?= $rapport->id_rapport ?>)"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    <i class="fas fa-eye mr-1"></i> Voir
+                                <?php if ($dejaDepose): ?>
+                                <!-- Rapport déjà déposé - bouton "Voir" seulement -->
+                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 shadow transition-colors"
+                                    title="">
+                                    <i class="fa-solid fa-eye"></i>
+                                    Voir
                                 </button>
+                                <?php else: ?>
+                                <!-- Rapport non déposé - bouton "Voir" -->
+                                <button onclick="voirRapport(<?= $rapport->id_rapport ?>)"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 shadow transition-colors"
+                                    title="Voir le rapport">
+                                    <i class="fa-solid fa-eye"></i>
+                                    Voir
+                                </button>
+                                <?php endif; ?>
+
+                                <?php if (!$dejaDepose): ?>
+                                <!-- Bouton supprimer seulement si le rapport n'est pas déposé -->
                                 <button
                                     onclick="confirmerSuppression(<?= $rapport->id_rapport ?>, '<?= htmlspecialchars(addslashes($rapport->nom_rapport)) ?>')"
                                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                     <i class="fas fa-trash mr-1"></i> Supprimer
                                 </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -481,10 +499,6 @@ if (isset($_SESSION['num_etu'])) {
     });
 
     function voirRapport(rapportId) {
-        window.location.href = `?page=gestion_rapports&action=compte_rendu_rapport&id=${rapportId}`;
-    }
-
-    function modifierRapport(rapportId) {
         window.location.href = `?page=gestion_rapports&action=creer_rapport&edit=${rapportId}`;
     }
 

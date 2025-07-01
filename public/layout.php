@@ -6,8 +6,6 @@ include '../app/controllers/AuthController.php';
 include '../app/controllers/MenuController.php';
 include 'menu.php';
 
-
-
 //inclusion des routes
 include __DIR__ . '/../ressources/routes/gestionUtilisateurRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionRhRoutes.php';
@@ -22,10 +20,9 @@ include __DIR__ . '/../ressources/routes/verificationRapportsRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php';
 include __DIR__ . '/../ressources/routes/listeEtudiantsEnseignantRoutes.php';
 include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
-
-
-
-
+include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
+include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
+include __DIR__ . '/../ressources/routes/notesResultatsRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -321,17 +318,18 @@ switch ($currentMenuSlug) {
 
             break;
 
+        case 'gestion_dossiers_candidatures':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page de gestion des dossiers de candidatures vérifiés
+            $contentFile = $partialsBasePath . 'gestion_dossiers_candidatures_content.php';
+            $currentPageLabel = 'Gestion des dossiers de candidatures vérifiés';
+            break;
+
         case 'evaluations_dossiers_soutenance':
             // Le fichier de routes est déjà inclus au début
             // Afficher directement la page d'évaluation des dossiers
             $contentFile = $partialsBasePath . 'evaluations_dossiers_soutenance_content.php';
             $currentPageLabel = 'Évaluations des dossiers de soutenance';
-            break;
-
-        case 'test_debug':
-            // Page de test pour le débogage
-            $contentFile = __DIR__ . '/../ressources/views/test_debug_content.php';
-            $currentPageLabel = 'Test de débogage';
             break;
 
         default:

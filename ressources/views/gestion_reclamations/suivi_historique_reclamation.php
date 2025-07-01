@@ -31,9 +31,6 @@
                 <option value="resolue"
                     <?php echo (isset($_GET['status']) && $_GET['status'] === 'resolue') ? 'selected' : ''; ?>>Résolue
                 </option>
-                <option value="en_cours"
-                    <?php echo (isset($_GET['status']) && $_GET['status'] === 'en_cours') ? 'selected' : ''; ?>>En cours
-                </option>
                 <option value="rejetee"
                     <?php echo (isset($_GET['status']) && $_GET['status'] === 'rejetee') ? 'selected' : ''; ?>>Rejetée
                 </option>
@@ -112,17 +109,6 @@
             </div>
             <div class="bg-green-100 p-3 rounded-full">
                 <i class="fas fa-check-circle text-green-600"></i>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm">En cours</p>
-                <h3 class="text-2xl font-bold"><?php echo isset($statistiques) ? $statistiques['en_cours'] : 0; ?></h3>
-            </div>
-            <div class="bg-purple-100 p-3 rounded-full">
-                <i class="fas fa-spinner text-purple-600"></i>
             </div>
         </div>
     </div>

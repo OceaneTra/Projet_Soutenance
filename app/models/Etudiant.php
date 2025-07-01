@@ -189,41 +189,105 @@ class Etudiant {
 
     public function getNotesEtudiant($numEtu) {
         try {
-            // Récupérer la moyenne générale pour les UE du Master 2 uniquement
-            $sql = "SELECT AVG(n.moyenne) as moyenne 
-                   FROM notes n 
-                   JOIN ue u ON n.id_ue = u.id_ue
-                   WHERE n.num_etu = :num_etu 
-                   AND u.id_niveau_etude = 9"; // Master 2 uniquement
+            // D'abord, récupérer le niveau d'étude de l'étudiant
+            $sql_niveau = "SELECT i.id_niveau 
+                          FROM inscriptions i 
+                          WHERE i.id_etudiant = :num_etu 
+                          AND i.id_annee_acad = (SELECT MAX(id_annee_acad) FROM annee_academique)";
             
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([':num_etu' => $numEtu]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt_niveau = $this->db->prepare($sql_niveau);
+            $stmt_niveau->execute([':num_etu' => $numEtu]);
+            $niveau_etudiant = $stmt_niveau->fetch(PDO::FETCH_ASSOC);
             
-            // Récupérer les informations sur les crédits du Master 2 uniquement
+            if (!$niveau_etudiant) {
+                return [
+                    'moyenne' => 0,
+                    'total_unites' => 0,
+                    'unites_validees' => 0,
+                    'resultats_disponibles' => false,
+                    'message' => 'Niveau d\'étude non trouvé'
+                ];
+            }
+            
+            $id_niveau = $niveau_etudiant['id_niveau'];
+            
+            // Compter le nombre total d'UE pour ce niveau
+            $sql_total_ue = "SELECT COUNT(*) as total_ue 
+                            FROM ue 
+                            WHERE id_niveau_etude = :id_niveau 
+                            AND id_annee_academique = (SELECT MAX(id_annee_acad) FROM annee_academique)";
+            
+            $stmt_total_ue = $this->db->prepare($sql_total_ue);
+            $stmt_total_ue->execute([':id_niveau' => $id_niveau]);
+            $total_ue = $stmt_total_ue->fetch(PDO::FETCH_ASSOC)['total_ue'];
+            
+            // Compter le nombre d'UE où l'étudiant a des notes
+            $sql_ue_avec_notes = "SELECT COUNT(DISTINCT u.id_ue) as ue_avec_notes 
+                                 FROM ue u 
+                                 JOIN notes n ON u.id_ue = n.id_ue 
+                                 WHERE u.id_niveau_etude = :id_niveau 
+                                 AND n.num_etu = :num_etu 
+                                 AND u.id_annee_academique = (SELECT MAX(id_annee_acad) FROM annee_academique)";
+            
+            $stmt_ue_avec_notes = $this->db->prepare($sql_ue_avec_notes);
+            $stmt_ue_avec_notes->execute([':id_niveau' => $id_niveau, ':num_etu' => $numEtu]);
+            $ue_avec_notes = $stmt_ue_avec_notes->fetch(PDO::FETCH_ASSOC)['ue_avec_notes'];
+            
+            // Vérifier si l'étudiant a des notes dans toutes les UE
+            $resultats_complets = ($ue_avec_notes == $total_ue && $total_ue > 0);
+            
+            if (!$resultats_complets) {
+                return [
+                    'moyenne' => 0,
+                    'total_unites' => 0,
+                    'unites_validees' => 0,
+                    'resultats_disponibles' => false,
+                    'message' => 'Résultats pas encore disponibles',
+                    'ue_avec_notes' => $ue_avec_notes,
+                    'total_ue' => $total_ue
+                ];
+            }
+            
+            // Si tous les résultats sont disponibles, calculer la moyenne
+            $sql_moyenne = "SELECT AVG(n.moyenne) as moyenne 
+                           FROM notes n 
+                           JOIN ue u ON n.id_ue = u.id_ue
+                           WHERE n.num_etu = :num_etu 
+                           AND u.id_niveau_etude = :id_niveau
+                           AND u.id_annee_academique = (SELECT MAX(id_annee_acad) FROM annee_academique)";
+            
+            $stmt_moyenne = $this->db->prepare($sql_moyenne);
+            $stmt_moyenne->execute([':num_etu' => $numEtu, ':id_niveau' => $id_niveau]);
+            $result = $stmt_moyenne->fetch(PDO::FETCH_ASSOC);
+            
+            // Récupérer les informations sur les crédits
             $sql_credits = "SELECT 
                             SUM(u.credit) as total_credits,
                             SUM(CASE WHEN n.moyenne >= 10 THEN u.credit ELSE 0 END) as credits_valides
                           FROM ue u
                           LEFT JOIN notes n ON u.id_ue = n.id_ue AND n.num_etu = :num_etu
-                          WHERE u.id_niveau_etude = 9 
+                          WHERE u.id_niveau_etude = :id_niveau 
                           AND u.id_annee_academique = (SELECT MAX(id_annee_acad) FROM annee_academique)";
             
             $stmt_credits = $this->db->prepare($sql_credits);
-            $stmt_credits->execute([':num_etu' => $numEtu]);
+            $stmt_credits->execute([':num_etu' => $numEtu, ':id_niveau' => $id_niveau]);
             $result_credits = $stmt_credits->fetch(PDO::FETCH_ASSOC);
             
             return [
                 'moyenne' => $result['moyenne'] ?? 0,
                 'total_unites' => $result_credits['total_credits'] ?? 0,
-                'unites_validees' => $result_credits['credits_valides'] ?? 0
+                'unites_validees' => $result_credits['credits_valides'] ?? 0,
+                'resultats_disponibles' => true,
+                'message' => 'Résultats disponibles'
             ];
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des notes: " . $e->getMessage());
             return [
                 'moyenne' => 0,
                 'total_unites' => 0,
-                'unites_validees' => 0
+                'unites_validees' => 0,
+                'resultats_disponibles' => false,
+                'message' => 'Erreur lors de la récupération des notes'
             ];
         }
     }
@@ -264,20 +328,29 @@ class Etudiant {
 
    public function getSemestreActuel($numEtu) {
         try {
-            $sql = "SELECT s.lib_semestre 
+            // Récupérer tous les semestres du niveau d'étude de l'étudiant
+            $sql = "SELECT s.id_semestre, s.lib_semestre, n.lib_niv_etude
                    FROM inscriptions i
                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
                    JOIN semestre s ON n.id_niv_etude = s.id_niv_etude
                    WHERE i.id_etudiant = :num_etu
                    AND i.id_annee_acad = (SELECT MAX(id_annee_acad) FROM annee_academique)
-                   ORDER BY s.lib_semestre DESC
-                   LIMIT 1";
+                   ORDER BY s.lib_semestre ASC";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':num_etu' => $numEtu]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return [
+                    'niveau' => $result[0]['lib_niv_etude'],
+                    'semestres' => $result
+                ];
+            }
+            
+            return null;
         } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération du semestre actuel: " . $e->getMessage());
+            error_log("Erreur lors de la récupération des semestres: " . $e->getMessage());
             return null;
         }
     }
@@ -383,6 +456,13 @@ class Etudiant {
             'semestre_valide' => $semestre_valide,
             'credits_attribues' => $credits
         ];
+    }
+
+    public function getNiveauByEtudiant($num_etu) {
+        $query = "SELECT n.* FROM inscriptions i JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude WHERE i.id_etudiant = ? ORDER BY i.id_inscription DESC LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$num_etu]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
 } 

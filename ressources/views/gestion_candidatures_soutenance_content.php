@@ -1202,11 +1202,24 @@ foreach ($candidatures as $c) {
                         </div>
                         <div class="info-item">
                             <strong>Moyenne générale:</strong>
-                            <span><?php echo htmlspecialchars($etapeData['moyenne']); ?></span>
+                            <span
+                                class="<?php echo $etapeData['resultats_disponibles'] ? 'text-success' : 'text-warning'; ?>">
+                                <?php echo htmlspecialchars($etapeData['moyenne']); ?>
+                            </span>
                         </div>
                         <div class="info-item">
                             <strong>Unités validées:</strong>
-                            <span><?php echo htmlspecialchars($etapeData['unites']); ?></span>
+                            <span
+                                class="<?php echo $etapeData['resultats_disponibles'] ? 'text-success' : 'text-warning'; ?>">
+                                <?php echo htmlspecialchars($etapeData['unites']); ?>
+                            </span>
+                        </div>
+                        <?php if (!$etapeData['resultats_disponibles']): ?>
+                        <div class="alert alert-warning mt-3"
+                            style="background-color: #FEF3C7; border: 1px solid #F59E0B; color: #92400E; padding: 12px; border-radius: 8px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Note :</strong> Les résultats ne sont pas encore disponibles car l'étudiant n'a pas
+                            de notes dans toutes les UE de son niveau.
                         </div>
                         <?php endif; ?>
                         <?php endif; ?>
@@ -1246,6 +1259,7 @@ foreach ($candidatures as $c) {
                                 <?php echo $etape == 3 ? 'Terminer l\'évaluation' : 'Valider'; ?>
                             </button>
                         </form>
+                        <?php endif; ?>
                         <?php elseif ($etape == 4): ?>
                         <?php if (isset($_GET['email_envoye']) && $_GET['email_envoye'] == '1'): ?>
                         <!-- Bouton masqué car email déjà envoyé -->

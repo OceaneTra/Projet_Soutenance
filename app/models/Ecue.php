@@ -119,7 +119,7 @@ class Ecue
     public function getEcuesByEnseignant($enseignantId): array
     {
         try {
-            $sql = "SELECT DISTINCT e.*, u.lib_ue, s.lib_semestre, n.lib_niv_etude
+            $sql = "SELECT e.*, u.lib_ue, s.lib_semestre, n.lib_niv_etude
                     FROM ecue e
                     JOIN ue u ON e.id_ue = u.id_ue
                     JOIN semestre s ON u.id_semestre = s.id_semestre

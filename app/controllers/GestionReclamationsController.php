@@ -81,20 +81,20 @@ class GestionReclamationsController {
             }
 
             // Préparer les données pour la base
-            if (!isset($_SESSION['num_etu'])) {
-                // Tentative de récupération via l'email si pas trouvé
-                $this->recupererNumEtu();
-
                 if (!isset($_SESSION['num_etu'])) {
-                    throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
-                }
-            }
+                    // Tentative de récupération via l'email si pas trouvé
+                    $this->recupererNumEtu();
 
-            $donnees = [
-                'num_etu' => $_SESSION['num_etu'],
-                'titre' => trim($donneesReclamation['titre']),
-                'description' => strip_tags(trim($donneesReclamation['description'])),
-                'type' => $donneesReclamation['type'],
+                    if (!isset($_SESSION['num_etu'])) {
+                        throw new Exception("Impossible de récupérer votre numéro d'étudiant. Veuillez vous reconnecter.");
+                    }
+                }
+
+                $donnees = [
+                    'num_etu' => $_SESSION['num_etu'],
+                    'titre' => trim($donneesReclamation['titre']),
+                    'description' => strip_tags(trim($donneesReclamation['description'])),
+                    'type' => $donneesReclamation['type'],
                 'priorite' => $donneesReclamation['priorite']
             ];
 
@@ -217,22 +217,22 @@ class GestionReclamationsController {
             $reclamations = array_filter($reclamations, function($rec) {
                 return $rec['num_etu'] == $_SESSION['num_etu'];
             });
-            $totalReclamations = count($reclamations);
+                $totalReclamations = count($reclamations);
 
             // Appliquer les filtres manuellement
-            if (!empty($filtres)) {
-                $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
-                    if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
-                        return false;
-                    }
-                    if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
-                        return false;
-                    }
-                    return true;
-                });
-            }
+                if (!empty($filtres)) {
+                    $reclamations = array_filter($reclamations, function($rec) use ($filtres) {
+                        if (isset($filtres['statut']) && $rec['statut_reclamation'] !== $filtres['statut']) {
+                            return false;
+                        }
+                        if (isset($filtres['type']) && $rec['type_reclamation'] !== $filtres['type']) {
+                            return false;
+                        }
+                        return true;
+                    });
+                }
 
-            $reclamations = array_slice($reclamations, $offset, $limit);
+                $reclamations = array_slice($reclamations, $offset, $limit);
 
             $totalPages = ceil($totalReclamations / $limit);
 
@@ -285,67 +285,6 @@ class GestionReclamationsController {
         return $stats;
     }
 
-
-    //=============================ACTIONS ADMINISTRATIVES=============================
-    public function traiterReclamation()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->afficherErreur("Méthode non autorisée.");
-            return;
-        }
-
-        try {
-            $id = $_POST['id_reclamation'];
-            $action = $_POST['action'];
-            $commentaire = trim($_POST['commentaire'] ?? '');
-
-            switch ($action) {
-                case 'prendre_en_charge':
-                    $this->prendreEnCharge($id, $commentaire);
-                    break;
-                case 'resoudre':
-                    $this->resoudreReclamation($id, $commentaire);
-                    break;
-                case 'rejeter':
-                    $this->rejeterReclamation($id, $commentaire);
-                    break;
-                default:
-                    $this->afficherErreur("Action non reconnue.");
-                    return;
-            }
-
-            $this->afficherMessage("Action effectuée avec succès.", 'success');
-
-            // Rediriger vers la page de détail ou de suivi
-            header("Location: ?page=gestion_reclamations&action=historique_reclamation&id=" . $id);
-            exit;
-        } catch (Exception $e) {
-            $this->afficherMessage("Erreur lors du traitement : " . $e->getMessage(), 'error');
-            header("Location: ?page=gestion_reclamations&action=suivi_reclamation");
-            exit;
-        }
-    }
-
-    private function prendreEnCharge($id, $commentaire)
-    {
-        return $this->reclamationModel->mettreAJourStatut($id, 'En cours', $commentaire, $_SESSION['id_utilisateur']);
-    }
-
-    private function resoudreReclamation($id, $commentaire)
-    {
-        if (empty($commentaire)) {
-            throw new Exception("Un commentaire est requis pour résoudre une réclamation.");
-        }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Résolue', $commentaire, $_SESSION['id_utilisateur']);
-    }
-
-    private function rejeterReclamation($id, $commentaire)
-    {
-        if (empty($commentaire)) {
-            throw new Exception("Un commentaire est requis pour rejeter une réclamation.");
-        }
-        return $this->reclamationModel->mettreAJourStatut($id, 'Rejetée', $commentaire, $_SESSION['id_utilisateur']);
-    }
 
     //=============================MÉTHODES UTILITAIRES=============================
     private function afficherMessage($message, $type = 'info')
@@ -432,9 +371,6 @@ class GestionReclamationsController {
             echo "Accès non autorisé";
             return;
         }
-
-        // Récupérer l'historique des actions
-        $historique = $this->reclamationModel->getHistorique($reclamationId, $_SESSION['num_etu']);
 
         // Générer le HTML pur sans layout
         ob_start();
