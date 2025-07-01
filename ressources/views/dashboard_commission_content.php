@@ -199,6 +199,69 @@ foreach ($repartitionData as $data) {
                     </div>
                 </div>
 
+                <!-- Détails des Performances : évaluations_rapports -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                    <h3 class="text-gray-900 text-lg font-semibold mb-4">
+                        <i class="fas fa-list-alt text-green-500 mr-2"></i>
+                        Détails des Performances (Évaluations des rapports)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rapport</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Évaluateur</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Étudiant</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Enseignant</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Temps de traitement</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <?php if (!empty($rapportsDetails)): ?>
+                                    <?php foreach ($rapportsDetails as $rapport): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 text-sm">
+                                            <span class="px-2 py-1 text-xs rounded-full <?php echo $rapport['statut'] === 'valider' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                                                <?php echo ucfirst($rapport['statut']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['titre']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['prenom_enseignant'] . ' ' . $rapport['nom_enseignant']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['prenom_etudiant'] . ' ' . $rapport['nom_etudiant']; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-600">
+                                            <?php echo $rapport['temps_traitement'] ?? 0; ?> jours
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-2">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                            <i class="fas fa-table text-2xl mb-2"></i>
+                                            <p>Aucun rapport disponible</p>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Charts Row -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <!-- Evolution Chart -->
@@ -359,33 +422,33 @@ foreach ($repartitionData as $data) {
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Étudiant</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enseignant</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temps de traitement</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rapport</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Évaluateur</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaire</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'évaluation</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <?php if (!empty($rapportsDetails)): ?>
-                                    <?php foreach ($rapportsDetails as $rapport): ?>
+                                <?php if (!empty($dashboardData['evaluations_rapports'])): ?>
+                                    <?php foreach ($dashboardData['evaluations_rapports'] as $eval): ?>
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-2 text-sm">
-                                            <span class="px-2 py-1 text-xs rounded-full <?php echo $rapport['statut'] === 'valider' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
-                                                <?php echo ucfirst($rapport['statut']); ?>
+                                            <span class="px-2 py-1 text-xs rounded-full <?php echo $eval['decision_evaluation'] === 'valider' ? 'bg-green-100 text-green-800' : ($eval['decision_evaluation'] === 'rejeter' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'); ?>">
+                                                <?php echo ucfirst($eval['decision_evaluation']); ?>
                                             </span>
                                         </td>
                                         <td class="px-4 py-2 text-sm text-gray-600">
-                                            <?php echo $rapport['titre']; ?>
+                                            <?php echo htmlspecialchars($eval['nom_rapport'] ?? $eval['id_rapport']); ?>
                                         </td>
                                         <td class="px-4 py-2 text-sm text-gray-600">
-                                            <?php echo $rapport['prenom_etudiant'] . ' ' . $rapport['nom_etudiant']; ?>
+                                            <?php echo htmlspecialchars(($eval['prenom_enseignant'] ?? '') . ' ' . ($eval['nom_enseignant'] ?? $eval['id_evaluateur'])); ?>
                                         </td>
                                         <td class="px-4 py-2 text-sm text-gray-600">
-                                            <?php echo $rapport['prenom_enseignant'] . ' ' . $rapport['nom_enseignant']; ?>
+                                            <?php echo htmlspecialchars($eval['commentaire']); ?>
                                         </td>
                                         <td class="px-4 py-2 text-sm text-gray-600">
-                                            <?php echo $rapport['temps_traitement'] ?? 0; ?> jours
+                                            <?php echo $eval['date_evaluation']; ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <button class="text-blue-600 hover:text-blue-900 mr-2">
@@ -401,7 +464,7 @@ foreach ($repartitionData as $data) {
                                     <tr>
                                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                             <i class="fas fa-table text-2xl mb-2"></i>
-                                            <p>Aucun rapport disponible</p>
+                                            <p>Aucune évaluation trouvée</p>
                                         </td>
                                     </tr>
                                 <?php endif; ?>

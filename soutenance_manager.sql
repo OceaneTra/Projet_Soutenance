@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : dim. 29 juin 2025 à 16:25
+-- Généré le : mar. 01 juil. 2025 à 21:58
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -151,7 +151,7 @@ VALUES (
 CREATE TABLE `approuver` (
     `id_pers_admin` int NOT NULL,
     `id_rapport` int NOT NULL,
-    `decision` enum('approuve', 'desapprouve') COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `decision` enum('approuve', 'desapprouve') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `date_approv` datetime NOT NULL,
     `commentaire_approv` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `id_approb` int NOT NULL
@@ -176,6 +176,14 @@ VALUES (
         'approuve',
         '2025-06-27 00:41:07',
         'tout es op',
+        4
+    ),
+    (
+        7,
+        5,
+        'approuve',
+        '2025-06-29 17:37:00',
+        'blablbalb',
         4
     );
 
@@ -210,7 +218,8 @@ VALUES (10, 2, '2023-06-05'),
     (15, 12, '2008-02-27'),
     (14, 13, '2024-06-24'),
     (7, 14, '2024-01-05'),
-    (7, 15, '2015-04-15');
+    (7, 15, '2015-04-15'),
+    (10, 16, '2019-02-12');
 
 -- --------------------------------------------------------
 
@@ -825,7 +834,7 @@ CREATE TABLE `enseignants` (
     `prenom_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `mail_enseignant` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `id_specialite` int NOT NULL,
-    `type_enseignant` enum('Simple', 'Administratif') COLLATE utf8mb3_general_mysql500_ci NOT NULL
+    `type_enseignant` enum('Simple', 'Administratif') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 --
@@ -920,6 +929,14 @@ VALUES (
         'kouaberatanoh11@yahoo.com',
         3,
         'Simple'
+    ),
+    (
+        16,
+        'Diarra',
+        'Mamadou',
+        'diarramamadou@gmail.com',
+        2,
+        'Administratif'
     );
 
 -- --------------------------------------------------------
@@ -3061,12 +3078,75 @@ INSERT INTO
         `date_modification`
     )
 VALUES (
-        1,
         2,
+        5,
+        16,
+        'rejeter',
+        'Moi j\'ai une idée ',
+        '2025-06-30 16:28:25',
+        NULL
+    ),
+    (
+        3,
+        5,
         2,
         'rejeter',
-        'le theme date d\'une epoque revolue ',
-        '2025-06-28 23:19:39',
+        'il n\'a pas une bonne idée',
+        '2025-06-30 16:29:54',
+        '2025-06-30 16:30:28'
+    ),
+    (
+        4,
+        2,
+        2,
+        'valider',
+        'ouiii',
+        '2025-06-30 16:53:31',
+        NULL
+    ),
+    (
+        5,
+        2,
+        7,
+        'valider',
+        'tout est bon',
+        '2025-07-01 14:23:23',
+        NULL
+    ),
+    (
+        6,
+        5,
+        7,
+        'rejeter',
+        'Gomez fait pas les bonnes chose',
+        '2025-07-01 14:24:14',
+        NULL
+    ),
+    (
+        7,
+        2,
+        12,
+        'valider',
+        'op',
+        '2025-07-01 14:26:23',
+        NULL
+    ),
+    (
+        8,
+        5,
+        12,
+        'valider',
+        'ah les gars',
+        '2025-07-01 14:27:33',
+        NULL
+    ),
+    (
+        9,
+        2,
+        16,
+        'valider',
+        'bien',
+        '2025-07-01 14:37:24',
         NULL
     );
 
@@ -3189,21 +3269,6 @@ VALUES (5, 'Administrateur'),
         'Enseignant sans responsabilité administrative'
     ),
     (13, 'Etudiant');
-
--- --------------------------------------------------------
-
---
--- Structure de la table `historique_reclamations`
---
-
-CREATE TABLE `historique_reclamations` (
-    `id_historique` int NOT NULL,
-    `id_reclamation` int NOT NULL,
-    `num_etu` int NOT NULL,
-    `action` varchar(100) NOT NULL,
-    `commentaire` text,
-    `date_action` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -3754,7 +3819,8 @@ VALUES (5, 2, '2011-02-02'),
     (5, 12, '1998-04-12'),
     (9, 13, '2023-09-25'),
     (9, 14, '2013-04-23'),
-    (9, 15, '2019-02-23');
+    (9, 15, '2019-02-23'),
+    (9, 16, '2016-05-24');
 
 -- --------------------------------------------------------
 
@@ -3767,8 +3833,8 @@ CREATE TABLE `personnel_admin` (
     `nom_pers_admin` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `prenom_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `email_pers_admin` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `tel_pers_admin` varchar(20) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `poste` varchar(30) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `tel_pers_admin` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `poste` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `date_embauche` date NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
@@ -3840,18 +3906,6 @@ CREATE TABLE `pister` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `posseder`
---
-
-CREATE TABLE `posseder` (
-    `id_utilisateur` int NOT NULL,
-    `id_GU` int NOT NULL,
-    `date_possed` datetime NOT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
-
--- --------------------------------------------------------
-
---
 -- Structure de la table `rapport_etudiants`
 --
 
@@ -3881,7 +3935,7 @@ CREATE TABLE `rapport_etudiants` (
         'approuve_commission',
         'valide',
         'rejete'
-    ) COLLATE utf8mb3_general_mysql500_ci DEFAULT 'en_cours'
+    ) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci DEFAULT 'en_cours'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
 --
@@ -3909,7 +3963,7 @@ VALUES (
         '2025-06-16 16:31:50',
         'je sais pas deh',
         'rapport_1.html',
-        'rejete',
+        '',
         '2025-06-26 10:19:47',
         9892,
         1,
@@ -3922,11 +3976,11 @@ VALUES (
         '2025-06-25 11:20:16',
         'theme testes de rapport',
         'rapport_2.html',
-        'valide',
+        'rejeter',
         '2025-06-26 10:13:13',
         1137,
         1,
-        'valide'
+        'approuve_communication'
     ),
     (
         5,
@@ -3935,11 +3989,11 @@ VALUES (
         '2025-06-27 02:24:49',
         'Intégration d\'une base intelligente',
         'rapport_5.html',
-        'en_cours',
+        'valider',
         '2025-06-27 02:24:49',
         11780,
         1,
-        'en_cours'
+        'approuve_communication'
     ),
     (
         8,
@@ -3991,14 +4045,6 @@ VALUES (13, 12),
     (13, 16),
     (13, 15),
     (13, 19),
-    (5, 5),
-    (5, 8),
-    (5, 7),
-    (5, 16),
-    (5, 11),
-    (5, 9),
-    (5, 19),
-    (5, 10),
     (12, 27),
     (12, 28),
     (12, 16),
@@ -4029,7 +4075,6 @@ VALUES (13, 12),
     (8, 24),
     (8, 16),
     (8, 19),
-    (11, 37),
     (11, 39),
     (11, 35),
     (11, 36),
@@ -4037,7 +4082,20 @@ VALUES (13, 12),
     (11, 40),
     (11, 38),
     (11, 19),
-    (11, 42);
+    (11, 42),
+    (5, 5),
+    (5, 35),
+    (5, 36),
+    (5, 8),
+    (5, 38),
+    (5, 7),
+    (5, 9),
+    (5, 16),
+    (5, 10),
+    (5, 39),
+    (5, 19),
+    (5, 11),
+    (5, 40);
 
 -- --------------------------------------------------------
 
@@ -4304,8 +4362,8 @@ VALUES (6, 'accepter'),
 CREATE TABLE `traitement` (
     `id_traitement` int NOT NULL,
     `lib_traitement` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `label_traitement` varchar(60) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `icone_traitement` varchar(30) COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `label_traitement` varchar(60) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `icone_traitement` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `ordre_traitement` int NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
 
@@ -4516,13 +4574,6 @@ VALUES (
         'Évaluation des dossiers de soutenance',
         'fa-file-contract',
         2
-    ),
-    (
-        37,
-        'analyse_rapports_etudiants',
-        'Analyse des rapports étudiants',
-        'fa-chart-line',
-        3
     ),
     (
         38,
@@ -5501,6 +5552,26 @@ VALUES (
         'Actif',
         'donald.kouadio@miage.edu',
         '$2y$10$2.Eg0s563GbxmHKklA7SjuPNj.2AgWk7KIInerEOKzOX7VEd3UP.W'
+    ),
+    (
+        89,
+        'Diarra Mamadou',
+        5,
+        11,
+        5,
+        'Actif',
+        'diarramamadou@gmail.com',
+        '$2y$10$okN994fkmPzZaGIH2hY0LutY5em6OtuZkrOt2m.IAqmQfuglUx0e.'
+    ),
+    (
+        90,
+        'Wah Médard',
+        5,
+        11,
+        5,
+        'Actif',
+        'wahmedard@gmail.com',
+        '$2y$10$S5rM7r6EGutGxCot0BVfneN7kNueWfWrUnU2U4vJDaej41aMEIF2e'
     );
 
 -- --------------------------------------------------------
@@ -5514,28 +5585,8 @@ CREATE TABLE `valider` (
     `id_rapport` int NOT NULL,
     `date_validation` datetime NOT NULL,
     `commentaire_validation` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `decision_validation` enum('valider', 'rejeter') COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'valider'
+    `decision_validation` enum('valider', 'rejeter') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'valider'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
-
---
--- Déchargement des données de la table `valider`
---
-
-INSERT INTO
-    `valider` (
-        `id_enseignant`,
-        `id_rapport`,
-        `date_validation`,
-        `commentaire_validation`,
-        `decision_validation`
-    )
-VALUES (
-        2,
-        2,
-        '2025-06-28 23:29:37',
-        'le theme date d\'une epoque revolue ',
-        'rejeter'
-    );
 
 -- --------------------------------------------------------
 
@@ -5846,16 +5897,6 @@ ADD UNIQUE KEY `lib_grade` (`lib_grade`);
 ALTER TABLE `groupe_utilisateur` ADD PRIMARY KEY (`id_GU`);
 
 --
--- Index pour la table `historique_reclamations`
---
-ALTER TABLE `historique_reclamations`
-ADD PRIMARY KEY (`id_historique`),
-ADD KEY `idx_id_reclamation` (`id_reclamation`),
-ADD KEY `idx_id_utilisateur` (`num_etu`),
-ADD KEY `idx_date_action` (`date_action`),
-ADD KEY `num_etu` (`num_etu`);
-
---
 -- Index pour la table `informations_stage`
 --
 ALTER TABLE `informations_stage`
@@ -5922,13 +5963,6 @@ ALTER TABLE `personnel_admin` ADD PRIMARY KEY (`id_pers_admin`);
 ALTER TABLE `pister`
 ADD KEY `Key_pister_traitement` (`id_traitement`),
 ADD KEY `Key_pister_utilisateur` (`id_utilisateur`);
-
---
--- Index pour la table `posseder`
---
-ALTER TABLE `posseder`
-ADD KEY `Key_posseder_utilisateur` (`id_GU`),
-ADD KEY `Key_posserder_utilisateur` (`id_utilisateur`);
 
 --
 -- Index pour la table `rapport_etudiants`
@@ -6056,7 +6090,7 @@ AUTO_INCREMENT = 29901;
 --
 ALTER TABLE `candidature_soutenance`
 MODIFY `id_candidature` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 8;
+AUTO_INCREMENT = 10;
 
 --
 -- AUTO_INCREMENT pour la table `compte_rendu`
@@ -6090,7 +6124,7 @@ AUTO_INCREMENT = 53;
 --
 ALTER TABLE `enseignants`
 MODIFY `id_enseignant` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 16;
+AUTO_INCREMENT = 18;
 
 --
 -- AUTO_INCREMENT pour la table `entreprises`
@@ -6111,7 +6145,7 @@ AUTO_INCREMENT = 20250003;
 --
 ALTER TABLE `evaluations_rapports`
 MODIFY `id_evaluation` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 2;
+AUTO_INCREMENT = 10;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`
@@ -6258,7 +6292,7 @@ AUTO_INCREMENT = 86;
 --
 ALTER TABLE `utilisateur`
 MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 89;
+AUTO_INCREMENT = 91;
 
 --
 -- AUTO_INCREMENT pour la table `versements`
@@ -6340,10 +6374,11 @@ ALTER TABLE `enseignants`
 ADD CONSTRAINT `fk_enseignants_specialite` FOREIGN KEY (`id_specialite`) REFERENCES `specialite` (`id_specialite`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Contraintes pour la table `historique_reclamations`
+-- Contraintes pour la table `evaluations_rapports`
 --
-ALTER TABLE `historique_reclamations`
-ADD CONSTRAINT `fk_historique` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `evaluations_rapports`
+ADD CONSTRAINT `evaluations_rapports_ibfk_1` FOREIGN KEY (`id_evaluateur`) REFERENCES `enseignants` (`id_enseignant`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `evaluations_rapports_ibfk_2` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `informations_stage`
@@ -6387,13 +6422,6 @@ ADD CONSTRAINT `fk_occuper_fonction` FOREIGN KEY (`id_fonction`) REFERENCES `fon
 ALTER TABLE `pister`
 ADD CONSTRAINT `fk_pister_traitement` FOREIGN KEY (`id_traitement`) REFERENCES `traitement` (`id_traitement`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_pister_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Contraintes pour la table `posseder`
---
-ALTER TABLE `posseder`
-ADD CONSTRAINT `fk_posseder_gu` FOREIGN KEY (`id_GU`) REFERENCES `groupe_utilisateur` (`id_GU`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `fk_posseder_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `rapport_etudiants`

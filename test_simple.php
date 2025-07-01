@@ -19,5 +19,4 @@ try {
     
 } catch (Exception $e) {
     echo "<p style='color: red;'>❌ Erreur : " . $e->getMessage() . "</p>";
-}
-?> 
+} 

@@ -29,7 +29,7 @@ include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
-    header('Location : page_connexion.php');
+    header('Location: page_connexion.php');
     exit;
 }
 else {

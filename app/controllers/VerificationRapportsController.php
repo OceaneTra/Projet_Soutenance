@@ -53,8 +53,8 @@ class VerificationRapportsController {
                 'total' => count($rapports),
                 'en_attente' => 0,
                 'en_cours' => 0,
-                'valide' => 0,
-                'rejete' => 0
+                'valider' => 0,
+                'rejeter' => 0
             ];
             
             foreach ($rapports as $rapport) {
@@ -71,8 +71,8 @@ class VerificationRapportsController {
                 'total' => 0,
                 'en_attente' => 0,
                 'en_cours' => 0,
-                'valide' => 0,
-                'rejete' => 0
+                'valider' => 0,
+                'rejeter' => 0
             ];
         }
     }
@@ -98,7 +98,7 @@ class VerificationRapportsController {
             
             if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
                 // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valide' WHERE id_rapport = ?");
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valider' WHERE id_rapport = ?");
                 $updateStmt->execute([$id_rapport]);
                 
                 return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
@@ -133,7 +133,7 @@ class VerificationRapportsController {
             
             if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
                 // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejete' WHERE id_rapport = ?");
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejeter' WHERE id_rapport = ?");
                 $updateStmt->execute([$id_rapport]);
                 
                 return ['success' => true, 'message' => 'Rapport rejeté avec succès'];

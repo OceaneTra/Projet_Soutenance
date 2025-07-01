@@ -560,8 +560,8 @@ class DashboardEnseignantController
                     COUNT(*) as total_rapports,
                     COUNT(CASE WHEN r.statut_rapport = 'en_attente' THEN 1 END) as rapports_en_attente,
                     COUNT(CASE WHEN r.statut_rapport = 'en_cours' THEN 1 END) as rapports_en_cours,
-                    COUNT(CASE WHEN r.statut_rapport = 'valide' THEN 1 END) as rapports_valides,
-                    COUNT(CASE WHEN r.statut_rapport = 'rejete' THEN 1 END) as rapports_rejetes,
+                    COUNT(CASE WHEN r.statut_rapport = 'valider' THEN 1 END) as rapports_valides,
+                    COUNT(CASE WHEN r.statut_rapport = 'rejeter' THEN 1 END) as rapports_rejetes,
                     AVG(CASE WHEN ev.note IS NOT NULL THEN ev.note END) as note_moyenne
                 FROM rapport_etudiants r
                 LEFT JOIN evaluations_rapports ev ON r.id_rapport = ev.id_rapport

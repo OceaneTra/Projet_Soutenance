@@ -129,5 +129,4 @@ try {
 } catch (Exception $e) {
     echo "<h3 style='color: red;'>❌ Erreur générale :</h3>";
     echo "<p>" . $e->getMessage() . "</p>";
-}
-?> 
+} 

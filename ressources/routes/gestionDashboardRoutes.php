@@ -15,8 +15,3 @@ if (isset($_GET['page'])) {
         $commissionController->index();
     }
 }
-
-
-
-
-?>

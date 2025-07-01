@@ -266,10 +266,10 @@
                                 // Statut global
                                 $status_class = 'en-attente';
                                 $status_label = 'En attente';
-                                if ($rapport['statut_rapport'] === 'valide') {
+                                if ($rapport['statut_rapport'] === 'valider') {
                                     $status_class = 'valide';
                                     $status_label = 'Validé';
-                                } elseif ($rapport['statut_rapport'] === 'rejete') {
+                                } elseif ($rapport['statut_rapport'] === 'rejeter') {
                                     $status_class = 'rejete';
                                     $status_label = 'Rejeté';
                                 } elseif ($rapport['statut_rapport'] === 'en_cours') {

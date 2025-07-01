@@ -1,3 +1,26 @@
+<?php
+require_once __DIR__ . '/../../app/controllers/ProcessusValidationController.php';
+
+$controller = new ProcessusValidationController();
+$donnees = $controller->getDonneesPage();
+
+$statistiques = $donnees['statistiques'];
+$rapports = $donnees['rapports'];
+$membresCommission = $donnees['membres_commission'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'finaliser') {
+    session_start();
+    $id_rapport = intval($_POST['id_rapport']);
+    $id_enseignant = isset($_SESSION['id_enseignant']) ? intval($_SESSION['id_enseignant']) : null;
+    if ($id_enseignant && $id_rapport) {
+        $controller->finaliserRapport($id_rapport, $id_enseignant);
+        // Redirection pour éviter le resoumission du formulaire
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,7 +29,6 @@
     <title>Processus de Validation | Commission de Validation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
@@ -14,16 +36,41 @@
         .filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .filter-grid select, .filter-grid input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .reports { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .report-item { padding: 20px; border-bottom: 1px solid #eee; }
+        .reports { background: transparent; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .report-item { 
+            padding: 20px; 
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 24px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            background: #fff;
+            transition: box-shadow 0.2s, background 0.2s;
+        }
         .report-item:last-child { border-bottom: none; }
+        .report-item:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            background: #f8fafc;
+        }
         .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .report-title { font-size: 18px; font-weight: bold; margin: 0; }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .status-en-cours { background: #fff3cd; color: #856404; }
         .status-valide { background: #d4edda; color: #155724; }
         .status-rejete { background: #f8d7da; color: #721c24; }
-        .evaluations { margin-top: 15px; }
+        .evaluations {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 2px solid #e0e7ef;
+            background: none;
+        }
+        .evaluations h4 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #3c9e5f;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
         .evaluation-item { background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 6px; }
         .evaluator { display: flex; align-items: center; margin-bottom: 8px; }
         .evaluator img { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
@@ -35,31 +82,32 @@
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #dc3545; color: white; }
+        .no-reports { text-align: center; padding: 40px; color: #6c757d; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-list-check"></i> Processus de Validation des Rapports</h1>
-            <p>Aperçu de tous les rapports et leurs évaluations par les membres de la commission</p>
+            <p>Aperçu de tous les rapports approuvés par la chargée de communication et leurs évaluations par les membres de la commission</p>
         </div>
 
         <div class="stats">
             <div class="stat-card">
-                <h3><i class="fas fa-file-alt"></i> Total rapports</h3>
-                <p style="font-size: 24px; font-weight: bold; color: #007bff;">12</p>
+                <h3><i class="fas fa-file-alt"></i> Total rapports approuvés</h3>
+                <p style="font-size: 24px; font-weight: bold; color: #007bff;"><?= $statistiques['total_rapports'] ?></p>
             </div>
             <div class="stat-card">
                 <h3><i class="fas fa-clock"></i> En cours d'évaluation</h3>
-                <p style="font-size: 24px; font-weight: bold; color: #ffc107;">5</p>
+                <p style="font-size: 24px; font-weight: bold; color: #ffc107;"><?= $statistiques['en_cours'] ?></p>
             </div>
             <div class="stat-card">
-                <h3><i class="fas fa-check"></i> Validés</h3>
-                <p style="font-size: 24px; font-weight: bold; color: #28a745;">4</p>
+                <h3><i class="fas fa-check"></i> Validés par la commission</h3>
+                <p style="font-size: 24px; font-weight: bold; color: #28a745;"><?= $statistiques['valides'] ?></p>
             </div>
             <div class="stat-card">
-                <h3><i class="fas fa-times"></i> Rejetés</h3>
-                <p style="font-size: 24px; font-weight: bold; color: #dc3545;">3</p>
+                <h3><i class="fas fa-times"></i> Rejetés par la commission</h3>
+                <p style="font-size: 24px; font-weight: bold; color: #dc3545;"><?= $statistiques['rejetes'] ?></p>
             </div>
         </div>
 
@@ -79,10 +127,11 @@
                     <label>Membre:</label>
                     <select id="memberFilter" onchange="filterReports()">
                         <option value="">Tous les membres</option>
-                        <option value="Dr. Kouassi">Dr. Kouassi</option>
-                        <option value="Dr. Koné">Dr. Koné</option>
-                        <option value="Pr. Assan">Pr. Assan</option>
-                        <option value="Dr. Bamba">Dr. Bamba</option>
+                        <?php foreach ($membresCommission as $membre): ?>
+                            <option value="<?= htmlspecialchars($membre['nom_enseignant'] . ' ' . $membre['prenom_enseignant']) ?>">
+                                <?= htmlspecialchars($membre['nom_enseignant'] . ' ' . $membre['prenom_enseignant']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
@@ -98,184 +147,97 @@
 
         <div class="reports">
             <div style="padding: 20px; border-bottom: 1px solid #eee;">
-                <h3><i class="fas fa-list-check"></i> Rapports en cours de validation</h3>
-                <p id="reportCount">12 rapports trouvés</p>
+                <h3><i class="fas fa-list-check"></i> Rapports approuvés en cours de validation</h3>
+                <p id="reportCount"><?= count($rapports) ?> rapports trouvés</p>
             </div>
 
-            <div class="report-item" data-status="en_cours">
-                <div class="report-header">
-                    <h3 class="report-title">Intelligence Artificielle dans le Diagnostic Médical</h3>
-                    <div>
-                        <span class="status-badge status-en-cours">En cours (2/4 votes)</span>
-                    </div>
+            <?php if (empty($rapports)): ?>
+                <div class="no-reports">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 20px;"></i>
+                    <h3>Aucun rapport approuvé</h3>
+                    <p>Aucun rapport n'a encore été approuvé par la chargée de communication.</p>
                 </div>
-                <p><strong>Étudiant:</strong> Marie Lambert • <strong>Encadrant:</strong> Dr. Martin • <strong>Date:</strong> 20/05/2025</p>
-                
-                <div class="evaluations">
-                    <h4>Évaluations des membres :</h4>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr. Kouassi">
-                            <strong>Dr. Kouassi</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
+            <?php else: ?>
+                <?php foreach ($rapports as $rapport): ?>
+                    <div class="report-item" data-status="<?= $rapport['statut_vote']['statut'] ?>">
+                        <div class="report-header">
+                            <h3 class="report-title"><?= htmlspecialchars($rapport['nom_rapport']) ?></h3>
+                            <div>
+                                <span class="status-badge status-<?= $rapport['statut_vote']['statut'] ?>">
+                                    <?= htmlspecialchars($rapport['statut_vote']['message']) ?>
+                                </span>
+                            </div>
                         </div>
-                        <p><em>"Excellent travail, méthodologie rigoureuse et résultats prometteurs. Le rapport démontre une bonne maîtrise des concepts d'IA."</em></p>
-                        <small>Évalué le 22/05/2025 à 14:30</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Dr. Koné">
-                            <strong>Dr. Koné</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
+                        <p>
+                            <strong>Étudiant:</strong> <?= htmlspecialchars($rapport['nom_etu'] . ' ' . $rapport['prenom_etu']) ?> • 
+                            <strong>Promotion:</strong> <?= htmlspecialchars($rapport['promotion_etu']) ?> • 
+                            <strong>Date d'approbation:</strong> <?= date('d/m/Y H:i', strtotime($rapport['date_approv'])) ?>
+                        </p>
+                        <p><strong>Thème:</strong> <?= htmlspecialchars($rapport['theme_rapport']) ?></p>
+                        <p><strong>Approuvé par:</strong> <?= htmlspecialchars($rapport['nom_pers_admin'] . ' ' . $rapport['prenom_pers_admin']) ?></p>
+                        
+                        <div class="evaluations">
+                            <h4>Évaluations des membres :</h4>
+                            
+                            <?php if (empty($rapport['evaluations'])): ?>
+                                <div class="evaluation-item">
+                                    <p><em>Aucune évaluation effectuée pour le moment.</em></p>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($rapport['evaluations'] as $evaluation): ?>
+                                    <div class="evaluation-item">
+                                        <div class="evaluator">
+                                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($evaluation['nom_enseignant'] . ' ' . $evaluation['prenom_enseignant']) ?>&background=random" 
+                                                 alt="<?= htmlspecialchars($evaluation['nom_enseignant']) ?>">
+                                            <strong><?= htmlspecialchars($evaluation['nom_enseignant'] . ' ' . $evaluation['prenom_enseignant']) ?></strong>
+                                            <span class="decision-<?= $evaluation['decision_evaluation'] === 'valider' ? 'valid' : 'reject' ?>" style="margin-left: auto;">
+                                                <?= $evaluation['decision_evaluation'] === 'valider' ? '✅ Validé' : '❌ Rejeté' ?>
+                                            </span>
+                                        </div>
+                                        <p><em>"<?= htmlspecialchars($evaluation['commentaire']) ?>"</em></p>
+                                        <small>Évalué le <?= date('d/m/Y à H:i', strtotime($evaluation['date_evaluation'])) ?></small>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            <!-- Afficher les membres qui n'ont pas encore évalué -->
+                            <?php 
+                            $evaluateursIds = array_column($rapport['evaluations'], 'id_evaluateur');
+                            foreach ($membresCommission as $membre):
+                                if (!in_array($membre['id_enseignant'], $evaluateursIds)):
+                            ?>
+                                <div class="evaluation-item">
+                                    <div class="evaluator">
+                                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($membre['nom_enseignant'] . ' ' . $membre['prenom_enseignant']) ?>&background=random" 
+                                             alt="<?= htmlspecialchars($membre['nom_enseignant']) ?>">
+                                        <strong><?= htmlspecialchars($membre['nom_enseignant'] . ' ' . $membre['prenom_enseignant']) ?></strong>
+                                        <span class="decision-pending" style="margin-left: auto;">⏳ En attente</span>
+                                    </div>
+                                    <p><em>Pas encore évalué</em></p>
+                                </div>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            ?>
                         </div>
-                        <p><em>"Innovation intéressante dans l'application de l'IA au diagnostic médical. Bien documenté et structuré."</em></p>
-                        <small>Évalué le 23/05/2025 à 09:15</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Pr. Assan">
-                            <strong>Pr. Assan</strong>
-                            <span class="decision-pending" style="margin-left: auto;">⏳ En attente</span>
+                        
+                        <div class="actions" style="margin-top: 15px;">
+                            <button onclick="viewReport(<?= $rapport['id_rapport'] ?>)" class="btn btn-primary"><i class="fas fa-file-lines"></i> Consulter</button>
+                            <?php if (!$rapport['statut_vote']['finalise']): ?>
+                                <form id="form-finaliser-<?= $rapport['id_rapport'] ?>" method="POST" style="display:inline;">
+                                    <input type="hidden" name="action" value="finaliser">
+                                    <input type="hidden" name="id_rapport" value="<?= $rapport['id_rapport'] ?>">
+                                    <button type="button" class="btn btn-success" onclick="confirmerFinalisation(<?= $rapport['id_rapport'] ?>)">Finaliser</button>
+                                </form>
+                            <?php else: ?>
+                                <button class="btn btn-<?= $rapport['statut_vote']['statut'] === 'valide' ? 'success' : 'danger' ?>" disabled>
+                                    ⚖️ Finalisé
+                                </button>
+                            <?php endif; ?>
                         </div>
-                        <p><em>Pas encore évalué</em></p>
                     </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="Dr. Bamba">
-                            <strong>Dr. Bamba</strong>
-                            <span class="decision-pending" style="margin-left: auto;">⏳ En attente</span>
-                        </div>
-                        <p><em>Pas encore évalué</em></p>
-                    </div>
-                </div>
-                
-                <div class="actions" style="margin-top: 15px;">
-                    <button onclick="viewReport(1)" class="btn btn-primary">👁️ Consulter</button>
-                    <button onclick="openEvaluationModal(1)" class="btn btn-success">🗳️ Voter</button>
-                </div>
-            </div>
-
-            <div class="report-item" data-status="valide">
-                <div class="report-header">
-                    <h3 class="report-title">Système de Gestion des Ressources Humaines</h3>
-                    <div>
-                        <span class="status-badge status-valide">Validé (4/4 votes)</span>
-                    </div>
-                </div>
-                <p><strong>Étudiant:</strong> Jean Dupont • <strong>Encadrant:</strong> Dr. Dubois • <strong>Date:</strong> 18/05/2025</p>
-                
-                <div class="evaluations">
-                    <h4>Évaluations des membres :</h4>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr. Kouassi">
-                            <strong>Dr. Kouassi</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Approche solide et bien structurée. L'analyse des besoins est complète et la solution proposée est pertinente."</em></p>
-                        <small>Évalué le 19/05/2025 à 16:45</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Dr. Koné">
-                            <strong>Dr. Koné</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Bonne maîtrise des concepts de gestion RH. L'interface utilisateur est intuitive et bien pensée."</em></p>
-                        <small>Évalué le 20/05/2025 à 11:20</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Pr. Assan">
-                            <strong>Pr. Assan</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Travail de qualité avec une architecture bien conçue. Les tests sont suffisants et la documentation est claire."</em></p>
-                        <small>Évalué le 21/05/2025 à 14:10</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="Dr. Bamba">
-                            <strong>Dr. Bamba</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Excellente implémentation des fonctionnalités demandées. Le code est propre et bien organisé."</em></p>
-                        <small>Évalué le 22/05/2025 à 09:30</small>
-                    </div>
-                </div>
-                
-                <div class="actions" style="margin-top: 15px;">
-                    <button onclick="viewReport(2)" class="btn btn-primary">👁️ Consulter</button>
-                    <button onclick="makeFinalDecision(2)" class="btn btn-success">⚖️ Finaliser</button>
-                </div>
-            </div>
-
-            <div class="report-item" data-status="rejete">
-                <div class="report-header">
-                    <h3 class="report-title">Application Mobile de Commerce Électronique</h3>
-                    <div>
-                        <span class="status-badge status-rejete">Rejeté (4/4 votes)</span>
-                    </div>
-                </div>
-                <p><strong>Étudiant:</strong> Sophie Martin • <strong>Encadrant:</strong> Dr. Bernard • <strong>Date:</strong> 15/05/2025</p>
-                
-                <div class="evaluations">
-                    <h4>Évaluations des membres :</h4>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr. Kouassi">
-                            <strong>Dr. Kouassi</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Interface utilisateur moderne et fonctionnelle. L'architecture est bien pensée."</em></p>
-                        <small>Évalué le 16/05/2025 à 15:20</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Dr. Koné">
-                            <strong>Dr. Koné</strong>
-                            <span class="decision-valid" style="margin-left: auto;">✅ Validé</span>
-                        </div>
-                        <p><em>"Bonne implémentation des fonctionnalités de base. Le design est attractif."</em></p>
-                        <small>Évalué le 17/05/2025 à 10:45</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Pr. Assan">
-                            <strong>Pr. Assan</strong>
-                            <span class="decision-reject" style="margin-left: auto;">❌ Rejeté</span>
-                        </div>
-                        <p><em>"L'analyse de sécurité est insuffisante. Les tests de pénétration ne sont pas assez approfondis."</em></p>
-                        <small>Évalué le 18/05/2025 à 13:15</small>
-                    </div>
-                    
-                    <div class="evaluation-item">
-                        <div class="evaluator">
-                            <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="Dr. Bamba">
-                            <strong>Dr. Bamba</strong>
-                            <span class="decision-reject" style="margin-left: auto;">❌ Rejeté</span>
-                        </div>
-                        <p><em>"Problèmes de performance identifiés. L'optimisation de la base de données n'est pas satisfaisante."</em></p>
-                        <small>Évalué le 19/05/2025 à 16:30</small>
-                    </div>
-                </div>
-                
-                <div class="actions" style="margin-top: 15px;">
-                    <button onclick="viewReport(3)" class="btn btn-primary">👁️ Consulter</button>
-                    <button onclick="makeFinalDecision(3)" class="btn btn-danger">⚖️ Finaliser</button>
-                </div>
-            </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -324,16 +286,12 @@
         }
         
         function viewReport(reportId) {
-            alert(`Ouverture du rapport ${reportId} en mode consultation...`);
+            window.location.href = '?page=rapport_a_valider&action=consulter&id=' + reportId;
         }
         
-        function openEvaluationModal(reportId) {
-            window.location.href = '?page=rapport_a_valider&action=vote&id=' + reportId;
-        }
-        
-        function makeFinalDecision(reportId) {
-            if (confirm('Êtes-vous sûr de vouloir finaliser la décision pour ce rapport ?')) {
-                window.location.href = '?page=rapport_a_valider&action=finaliser&id=' + reportId;
+        function confirmerFinalisation(reportId) {
+            if (confirm("Voulez-vous vraiment finaliser la décision finale concernant ce rapport ?")) {
+                document.getElementById('form-finaliser-' + reportId).submit();
             }
         }
     </script>

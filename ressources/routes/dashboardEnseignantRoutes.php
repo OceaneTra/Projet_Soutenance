@@ -12,5 +12,3 @@ if (isset($_GET['page']) && $_GET['page'] === 'dashboard_enseignant') {
 if (isset($_GET['action']) && $_GET['action'] === 'get_stats') {
     $controller->getStats();
 }
-
-?>

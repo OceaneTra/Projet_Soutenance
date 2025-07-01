@@ -10,10 +10,3 @@ if (isset($_GET['page']) && ( $_GET['page'] === 'gestion_notes_evaluations')) {
 
     $controller->index(); 
 }
-
-
-
-
-
-
-?>

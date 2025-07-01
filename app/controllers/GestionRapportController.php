@@ -1178,4 +1178,3 @@ class GestionRapportController {
     }
 
 }
-?>

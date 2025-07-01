@@ -46,5 +46,4 @@ try {
     echo "<p style='color: red;'>❌ Erreur PHP : " . $e->getMessage() . "</p>";
     echo "<p>Fichier : " . $e->getFile() . "</p>";
     echo "<p>Ligne : " . $e->getLine() . "</p>";
-}
-?> 
+} 

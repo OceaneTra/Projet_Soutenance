@@ -9,8 +9,6 @@ if ($_GET['page'] === 'evaluations_dossiers_soutenance') {
         $cheminFichier = __DIR__ . "/../uploads/rapports/rapport_{$id_rapport}.html";
         
         if (file_exists($cheminFichier)) {
-            header('Content-Type: text/html; charset=utf-8');
-            header('Content-Disposition: inline; filename="rapport_' . $id_rapport . '.html"');
             readfile($cheminFichier);
             exit;
         } else {
@@ -44,4 +42,9 @@ if ($_GET['page'] === 'evaluations_dossiers_soutenance') {
         $detail = $controller->detail($_GET['detail']);
     }
 }
-?> 
+
+// Route pour la page processus de validation
+if ($_GET['page'] === 'processus_validation') {
+    // La page utilise directement le contrôleur ProcessusValidationController
+    // et récupère les données dans la vue
+} 

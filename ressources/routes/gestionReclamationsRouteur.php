@@ -30,4 +30,3 @@ if (isset($_GET['action'])) {
     // Aucune action spécifiée, afficher le dashboard
     $controller->index();
 }
-?>

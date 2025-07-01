@@ -7,9 +7,9 @@ $statsRapports = $GLOBALS['statsRapports'] ?? [];
 // Fonction pour obtenir la classe CSS du statut
 function getStatutClass($statut) {
     switch ($statut) {
-        case 'valide':
+        case 'valider':
             return 'text-green-500 ';
-        case 'rejete':
+        case 'rejeter':
             return 'text-red-500 ';
         case 'en_cours':
             return 'text-blue-500 ';
@@ -23,9 +23,9 @@ function getStatutClass($statut) {
 // Fonction pour traduire le statut
 function traduireStatut($statut) {
     switch ($statut) {
-        case 'valide':
+        case 'valider':
             return 'Validé';
-        case 'rejete':
+        case 'rejeter':
             return 'Rejeté';
         case 'en_cours':
             return 'En cours';
@@ -362,7 +362,7 @@ function traduireStatut($statut) {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm opacity-90">Validés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['valide'] ?? 0 ?></p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['valider'] ?? 0 ?></p>
                             </div>
                             <i class="fas fa-check-circle text-2xl opacity-80"></i>
                         </div>
@@ -372,7 +372,7 @@ function traduireStatut($statut) {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm opacity-90">Rejetés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['rejete'] ?? 0 ?></p>
+                                <p class="text-2xl font-bold"><?= $statsRapports['rejeter'] ?? 0 ?></p>
                             </div>
                             <i class="fas fa-times-circle text-2xl opacity-80"></i>
                         </div>
