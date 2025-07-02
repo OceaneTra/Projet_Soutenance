@@ -51,7 +51,8 @@ class DashboardCommissionController
             'repartition_statuts' => [],
             'performance_categories' => [],
             'activites_recentes' => [],
-            'rapports_details' => []
+            'rapports_details' => [],
+            'evaluations_rapports' => []
         ];
 
         try {
@@ -64,6 +65,17 @@ class DashboardCommissionController
             $stats['performance_categories'] = $this->getPerformanceCategories();
             $stats['activites_recentes'] = $this->getActivitesRecentes();
             $stats['rapports_details'] = $this->getRapportsDetails();
+            $stmt = Database::getConnection()->query('
+                SELECT e.*, 
+                       r.nom_rapport, 
+                       ens.nom_enseignant, 
+                       ens.prenom_enseignant
+                FROM evaluations_rapports e
+                LEFT JOIN rapport_etudiants r ON e.id_rapport = r.id_rapport
+                LEFT JOIN enseignants ens ON e.id_evaluateur = ens.id_enseignant
+                ORDER BY e.date_evaluation DESC
+            ');
+            $stats['evaluations_rapports'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             error_log("Erreur dans getDashboardData: " . $e->getMessage());
         }
@@ -324,7 +336,8 @@ class DashboardCommissionController
                 'repartition_statuts' => [],
                 'performance_categories' => [],
                 'activites_recentes' => [],
-                'rapports_details' => []
+                'rapports_details' => [],
+                'evaluations_rapports' => []
             ];
         }
     }

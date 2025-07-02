@@ -95,10 +95,6 @@
                             <i class="fas fa-chevron-down text-xs"></i>
                         </div>
                     </div>
-                    <button class="px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700 flex items-center">
-                        <i class="fas fa-plus mr-2"></i>
-                        Nouvelle évaluation
-                    </button>
                 </div>
             </div>
 
@@ -334,10 +330,6 @@
                         <div>
                             <p class="text-sm font-medium text-gray-600">Dossiers à évaluer</p>
                             <p class="metric-value"><?= $stats['a_evaluer'] ?></p>
-                            <div class="flex items-center mt-2">
-                                <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
-                                <span class="text-sm text-green-600">+3 cette semaine</span>
-                            </div>
                         </div>
                         <div class="p-3 rounded-full bg-blue-100">
                             <i class="fas fa-inbox text-blue-600 text-2xl"></i>
@@ -350,10 +342,6 @@
                         <div>
                             <p class="text-sm font-medium text-gray-600">Dossiers validés</p>
                             <p class="metric-value"><?= $stats['valides'] ?></p>
-                            <div class="flex items-center mt-2">
-                                <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
-                                <span class="text-sm text-green-600">+5 cette semaine</span>
-                            </div>
                         </div>
                         <div class="p-3 rounded-full bg-green-100">
                             <i class="fas fa-check-circle text-green-600 text-2xl"></i>
@@ -366,10 +354,6 @@
                         <div>
                             <p class="text-sm font-medium text-gray-600">Dossiers à corriger</p>
                             <p class="metric-value"><?= $stats['a_corriger'] ?></p>
-                            <div class="flex items-center mt-2">
-                                <i class="fas fa-arrow-down text-sm trend-down mr-1"></i>
-                                <span class="text-sm text-red-600">-2 cette semaine</span>
-                            </div>
                         </div>
                         <div class="p-3 rounded-full bg-red-100">
                             <i class="fas fa-exclamation-circle text-red-600 text-2xl"></i>
@@ -377,21 +361,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card bg-white rounded-lg shadow p-6 fade-in">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Moyenne d'évaluation</p>
-                            <p class="metric-value"><?= $stats['moyenne'] ?></p>
-                            <div class="flex items-center mt-2">
-                                <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
-                                <span class="text-sm text-green-600">+0.8 ce mois</span>
-                            </div>
-                        </div>
-                        <div class="p-3 rounded-full bg-purple-100">
-                            <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
-                        </div>
-                    </div>
-                </div>
+            
             </div>
 
             <!-- Evaluation Grid -->
@@ -491,223 +461,7 @@
                 </div>
                 <?php endforeach; ?>
                 <?php endif; ?>
-            </div>
-
-            <!-- Detailed Table -->
-            <div class="bg-white rounded-lg shadow p-6 fade-in">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-table text-gray-600 mr-2"></i>
-                        Détails des évaluations
-                    </h3>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" placeholder="Rechercher un dossier..." class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <button class="px-3 py-1 text-sm bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-                            <i class="fas fa-filter"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Étudiant</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sujet</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Promotion</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <span class="text-blue-600 font-medium">ML</span>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">Marie Lambert</div>
-                                        <div class="text-sm text-gray-500">marie.lambert@edu.fr</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Système de recommandation IA</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">M2 IA 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Nouveau</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="text-green-600 hover:text-green-900">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                        <span class="text-green-600 font-medium">JD</span>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">Jean Dupont</div>
-                                        <div class="text-sm text-gray-500">jean.dupont@edu.fr</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Blockchain pour la santé</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">M2 Blockchain 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Validé</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">16.5/20</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-print"></i>
-                                </button>
-                                <button class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="text-purple-600 hover:text-purple-900">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
-                                        <span class="text-orange-600 font-medium">TM</span>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">Thomas Moreau</div>
-                                        <div class="text-sm text-gray-500">thomas.moreau@edu.fr</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Cybersécurité IoT</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">M2 Cybersécurité 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">À corriger</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-orange-600">10.5/20</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-redo"></i>
-                                </button>
-                                <button class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="text-red-600 hover:text-red-900">
-                                    <i class="fas fa-envelope"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                                        <span class="text-purple-600 font-medium">SD</span>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">Sophie Dubois</div>
-                                        <div class="text-sm text-gray-500">sophie.dubois@edu.fr</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Analyse de sentiment</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">M2 Data Science 2025</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">En cours</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                                <button class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="text-gray-600 hover:text-gray-900">
-                                    <i class="fas fa-comment"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="flex items-center justify-between mt-4">
-                    <div class="text-sm text-gray-500">
-                        Affichage de 1 à 4 sur 12 dossiers
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Précédent
-                        </button>
-                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700">
-                            1
-                        </button>
-                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            2
-                        </button>
-                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            3
-                        </button>
-                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Suivant
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statistics Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Notes Distribution -->
-                <div class="bg-white rounded-lg shadow p-6 fade-in">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
-                            Distribution des notes
-                        </h3>
-                        <div class="flex items-center space-x-2 text-sm">
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-blue-600 rounded-full mr-1"></div>
-                                <span>2025</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-gray-300 rounded-full mr-1"></div>
-                                <span>2024</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="gradesChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Status Evolution -->
-                <div class="bg-white rounded-lg shadow p-6 fade-in">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            <i class="fas fa-chart-line text-green-600 mr-2"></i>
-                            Évolution des évaluations
-                        </h3>
-                        <button onclick="refreshCharts()" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="statusEvolutionChart"></canvas>
-                    </div>
-                </div>
-            </div>
+            </div>           
         </div>
     </div>
 </div>

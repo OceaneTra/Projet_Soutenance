@@ -59,4 +59,3 @@ if ($_GET['page'] === 'gestion_rapports') {
         $controller->index();
     }
 }
-?>

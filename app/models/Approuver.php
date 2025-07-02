@@ -21,31 +21,34 @@ class Approuver {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function insererApprobation($id_pers_admin, $id_rapport, $decision, $commentaire) {
-        try {
-            error_log("DEBUG: insererApprobation - id_pers_admin: $id_pers_admin, id_rapport: $id_rapport, decision: $decision, commentaire: $commentaire");
-            
-            // Convertir la décision en format attendu par la base de données
-            $decision_db = ($decision === 'Approuvé') ? 'approuve' : 'desapprouve';
-            error_log("DEBUG: decision convertie: $decision_db");
-            
-            $stmt = $this->pdo->prepare("
-                INSERT INTO approuver (id_approb, id_pers_admin, id_rapport, decision, date_approv, commentaire_approv) 
-                VALUES (3,?, ?, ?, NOW(), ?)
-            ");
-            
-            $result = $stmt->execute([$id_pers_admin, $id_rapport, $decision_db, $commentaire]);
-            error_log("DEBUG: Résultat execute: " . ($result ? 'true' : 'false'));
-            
-            if (!$result) {
-                error_log("DEBUG: Erreur PDO: " . print_r($stmt->errorInfo(), true));
-            }
-            
-            return $result;
-        } catch (PDOException $e) {
-            error_log("Erreur insertion approbation: " . $e->getMessage());
-            error_log("DEBUG: Stack trace: " . $e->getTraceAsString());
-            return false;
-        }
+    /**
+     * Récupère tous les rapports ayant au moins un avis dans approuver
+     */
+    public static function getRapportsAvecAvis() {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query("SELECT DISTINCT r.id_rapport, r.nom_rapport, r.theme_rapport, r.date_rapport, r.etape_validation, e.nom_etu, e.prenom_etu
+            FROM rapport_etudiants r
+            JOIN etudiants e ON r.num_etu = e.num_etu
+            JOIN approuver a ON r.id_rapport = a.id_rapport
+            ORDER BY r.date_rapport DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère tous les membres de la commission (personnel_admin)
+     */
+    public static function getMembresCommission() {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query("SELECT id_pers_admin, nom_pers_admin, prenom_pers_admin FROM personnel_admin ORDER BY nom_pers_admin, prenom_pers_admin");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère tous les avis de la table approuver
+     */
+    public static function getTousAvis() {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query("SELECT id_rapport, id_pers_admin, decision, commentaire_approv FROM approuver");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 } 

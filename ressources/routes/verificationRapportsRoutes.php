@@ -75,7 +75,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
                         echo '<div><strong>Nom du rapport:</strong> ' . htmlspecialchars($rapport->nom_rapport) . '</div>';
                         echo '<div><strong>Thème:</strong> ' . htmlspecialchars($rapport->theme_rapport) . '</div>';
                         echo '<div><strong>Date de dépôt:</strong> ' . ($rapport->date_depot ? date('d/m/Y H:i', strtotime($rapport->date_depot)) : 'Non déposé') . '</div>';
-                        echo '<div><strong>Statut:</strong> <span class="font-semibold ' . ($rapport->statut_rapport === 'valide' ? 'text-green-600' : ($rapport->statut_rapport === 'rejete' ? 'text-red-600' : ($rapport->statut_rapport === 'en_cours' ? 'text-blue-600' : 'text-yellow-600'))) . '">' . ($rapport->statut_rapport === 'valider' ? 'Validé' : ($rapport->statut_rapport === 'rejeter' ? 'Rejeté' : ($rapport->statut_rapport === 'en_cours' ? 'En cours' : 'En attente'))) . '</span></div>';
+                        echo '<div><strong>Statut:</strong> <span class="font-semibold ' . ($rapport->statut_rapport === 'valider' ? 'text-green-600' : ($rapport->statut_rapport === 'rejeter' ? 'text-red-600' : ($rapport->statut_rapport === 'en_cours' ? 'text-blue-600' : 'text-yellow-600'))) . '">' . ($rapport->statut_rapport === 'valider' ? 'Validé' : ($rapport->statut_rapport === 'rejeter' ? 'Rejeté' : ($rapport->statut_rapport === 'en_cours' ? 'En cours' : 'En attente'))) . '</span></div>';
                         echo '</div>';
                         
                         // Bouton de téléchargement PDF
@@ -197,7 +197,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
                                     <div><strong>Nom du rapport:</strong> ' . htmlspecialchars($rapport->nom_rapport) . '</div>
                                     <div><strong>Thème:</strong> ' . htmlspecialchars($rapport->theme_rapport) . '</div>
                                     <div><strong>Date de dépôt:</strong> ' . ($rapport->date_depot ? date('d/m/Y H:i', strtotime($rapport->date_depot)) : 'Non déposé') . '</div>
-                                    <div><strong>Statut:</strong> ' . ($rapport->statut_rapport === 'valide' ? 'Validé' : ($rapport->statut_rapport === 'rejete' ? 'Rejeté' : ($rapport->statut_rapport === 'en_cours' ? 'En cours' : 'En attente'))) . '</div>
+                                    <div><strong>Statut:</strong> ' . ($rapport->statut_rapport === 'valider' ? 'Validé' : ($rapport->statut_rapport === 'rejeter' ? 'Rejeté' : ($rapport->statut_rapport === 'en_cours' ? 'En cours' : 'En attente'))) . '</div>
                                 </div>
                                 
                                 <div class="content">
