@@ -19,13 +19,20 @@ class RapportEtudiant {
 
     public function getRapportById($id_rapport) {
         $stmt = $this->pdo->prepare("
-            SELECT r.*, e.nom_etu, e.prenom_etu, e.email_etu 
+            SELECT 
+                r.*, 
+                e.nom_etu, 
+                e.prenom_etu, 
+                e.email_etu,
+                e.promotion_etu,
+                d.date_depot
             FROM rapport_etudiants r
             JOIN etudiants e ON r.num_etu = e.num_etu
+            LEFT JOIN deposer d ON r.id_rapport = d.id_rapport
             WHERE r.id_rapport = ?
         ");
         $stmt->execute([$id_rapport]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getRapportDetail($id_rapport) {

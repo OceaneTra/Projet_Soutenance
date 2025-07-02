@@ -27,8 +27,9 @@ function getTimeAgo($date) {
 
 function getStatusClass($status) {
     switch ($status) {
-        case 'valide': return 'bg-green-100 text-green-800';
-        case 'rejete': return 'bg-red-100 text-red-800';
+        case 'valider': return 'bg-green-100 text-green-800';
+        case 'rejeter': return 'bg-red-100 text-red-800';
+        case 'en_attente': return 'bg-blue-100 text-blue-800';
         case 'en_cours': return 'bg-orange-100 text-orange-800';
         default: return 'bg-gray-100 text-gray-800';
     }
@@ -47,7 +48,7 @@ foreach ($evolutionData as $data) {
 
 $statusLabels = [];
 $statusData = [];
-$statusColors = ['#ef4444','#10b981', '#f59e0b', '#6b7280'];
+$statusColors = ['#10b981','#ef4444', '#f59e0b', '#6b7280', '#3b82f6'];
 
 foreach ($repartitionData as $data) {
     $statusLabels[] = ucfirst($data['statut']);
@@ -139,10 +140,7 @@ foreach ($repartitionData as $data) {
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Total Comptes Rendus</p>
                                 <p class="metric-value"><?php echo $totalRapports; ?></p>
-                                <div class="flex items-center mt-2">
-                                    <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
-                                    <span class="text-sm text-green-600">+12% ce mois</span>
-                                </div>
+                                
                             </div>
                             <div class="p-3 rounded-full bg-blue-100">
                                 <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
@@ -155,10 +153,7 @@ foreach ($repartitionData as $data) {
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Taux de Validation</p>
                                 <p class="metric-value"><?php echo $tauxValidation; ?>%</p>
-                                <div class="flex items-center mt-2">
-                                    <i class="fas fa-arrow-up text-sm trend-up mr-1"></i>
-                                    <span class="text-sm text-green-600">+3% ce mois</span>
-                                </div>
+                                
                             </div>
                             <div class="p-3 rounded-full bg-green-100">
                                 <i class="fas fa-check-circle text-green-600 text-2xl"></i>
@@ -171,10 +166,7 @@ foreach ($repartitionData as $data) {
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Temps Moyen</p>
                                 <p class="metric-value"><?php echo $tempsMoyen; ?>j</p>
-                                <div class="flex items-center mt-2">
-                                    <i class="fas fa-arrow-down text-sm trend-up mr-1"></i>
-                                    <span class="text-sm text-green-600">-8% ce mois</span>
-                                </div>
+                                
                             </div>
                             <div class="p-3 rounded-full bg-purple-100">
                                 <i class="fas fa-clock text-purple-600 text-2xl"></i>
@@ -187,10 +179,7 @@ foreach ($repartitionData as $data) {
                             <div>
                                 <p class="text-sm font-medium text-gray-600">En Attente</p>
                                 <p class="metric-value"><?php echo $enAttente; ?></p>
-                                <div class="flex items-center mt-2">
-                                    <i class="fas fa-minus text-sm trend-stable mr-1"></i>
-                                    <span class="text-sm text-gray-600">Stable</span>
-                                </div>
+                               
                             </div>
                             <div class="p-3 rounded-full bg-orange-100">
                                 <i class="fas fa-hourglass-half text-orange-600 text-2xl"></i>
@@ -304,101 +293,37 @@ foreach ($repartitionData as $data) {
                     </div>
                 </div>
 
-                <!-- Detailed Stats -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Performance by Category -->
-                    <div class="bg-white rounded-lg shadow p-6 fade-in">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                            <i class="fas fa-tags text-purple-600 mr-2"></i>
-                            Performance par Catégorie
-                        </h3>
-                        <div class="space-y-4">
-                            <?php if (!empty($performanceData)): ?>
-                                <?php foreach ($performanceData as $category): ?>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
-                                        <span class="text-sm font-medium"><?php echo ucfirst($category['categorie']); ?></span>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-20 bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: <?php echo $category['taux']; ?>%"></div>
-                                        </div>
-                                        <span class="text-sm font-semibold"><?php echo $category['taux']; ?>%</span>
-                                    </div>
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-lg shadow p-6 fade-in mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-history text-indigo-600 mr-2"></i>
+                        Activité Récente
+                    </h3>
+                    <div class="space-y-3">
+                        <?php if (!empty($activitesData)): ?>
+                            <?php foreach ($activitesData as $activite): ?>
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                                <div class="p-2 <?php echo $activite['statut'] === 'valider' ? 'bg-green-100' : 'bg-red-100'; ?> rounded-full">
+                                    <i class="fas fa-<?php echo $activite['statut'] === 'valider' ? 'check' : 'times'; ?> text-<?php echo $activite['statut'] === 'valider' ? 'green' : 'red'; ?>-600 text-xs"></i>
                                 </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="text-center text-gray-500 py-4">
-                                    <i class="fas fa-chart-bar text-2xl mb-2"></i>
-                                    <p>Aucune donnée disponible</p>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">Rapport <?php echo ucfirst($activite['statut']); ?></p>
+                                    <p class="text-xs text-gray-500">
+                                        <?php echo $activite['titre']; ?> - <?php echo $activite['prenom_etudiant'] . ' ' . $activite['nom_etudiant']; ?>
+                                    </p>
+                                    <p class="text-xs text-gray-400">
+                                        Par <?php echo $activite['prenom_enseignant'] . ' ' . $activite['nom_enseignant']; ?>
+                                    </p>
                                 </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity -->
-                    <div class="bg-white rounded-lg shadow p-6 fade-in">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                            <i class="fas fa-history text-indigo-600 mr-2"></i>
-                            Activité Récente
-                        </h3>
-                        <div class="space-y-3">
-                            <?php if (!empty($activitesData)): ?>
-                                <?php foreach ($activitesData as $activite): ?>
-                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                                    <div class="p-2 <?php echo $activite['statut'] === 'valider' ? 'bg-green-100' : 'bg-red-100'; ?> rounded-full">
-                                        <i class="fas fa-<?php echo $activite['statut'] === 'valider' ? 'check' : 'times'; ?> text-<?php echo $activite['statut'] === 'valider' ? 'green' : 'red'; ?>-600 text-xs"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium">Rapport <?php echo ucfirst($activite['statut']); ?></p>
-                                        <p class="text-xs text-gray-500">
-                                            <?php echo $activite['titre']; ?> - <?php echo $activite['prenom_etudiant'] . ' ' . $activite['nom_etudiant']; ?>
-                                        </p>
-                                        <p class="text-xs text-gray-400">
-                                            Par <?php echo $activite['prenom_enseignant'] . ' ' . $activite['nom_enseignant']; ?>
-                                        </p>
-                                    </div>
-                                    <span class="text-xs text-gray-400"><?php echo getTimeAgo($activite['date_validation']); ?></span>
-                                </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="text-center text-gray-500 py-4">
-                                    <i class="fas fa-history text-2xl mb-2"></i>
-                                    <p>Aucune activité récente</p>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="bg-white rounded-lg shadow p-6 fade-in">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                            <i class="fas fa-bolt text-yellow-600 mr-2"></i>
-                            Actions Rapides
-                        </h3>
-                        <div class="space-y-3">
-                            <button onclick="generateReport()"
-                                class="w-full flex items-center justify-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
-                                <i class="fas fa-chart-bar mr-2"></i>
-                                Générer Rapport Mensuel
-                            </button>
-                            <button onclick="exportData()"
-                                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50">
-                                <i class="fas fa-download mr-2"></i>
-                                Exporter Données
-                            </button>
-                            <button onclick="viewArchives()"
-                                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50">
-                                <i class="fas fa-archive mr-2"></i>
-                                Consulter Archives
-                            </button>
-                            <button onclick="settings()"
-                                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50">
-                                <i class="fas fa-cog mr-2"></i>
-                                Paramètres
-                            </button>
-                        </div>
+                                <span class="text-xs text-gray-400"><?php echo getTimeAgo($activite['date_validation']); ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="text-center text-gray-500 py-4">
+                                <i class="fas fa-history text-2xl mb-2"></i>
+                                <p>Aucune activité récente</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -575,37 +500,12 @@ foreach ($repartitionData as $data) {
         });
     }
 
-    // Fonctions d'action
+    // Fonction d'action
     function refreshCharts() {
         showNotification('Actualisation des données...', 'info');
         setTimeout(() => {
             showNotification('Données actualisées avec succès', 'success');
         }, 1500);
-    }
-
-    function generateReport() {
-        showNotification('Génération du rapport mensuel...', 'info');
-        setTimeout(() => {
-            showNotification('Rapport mensuel généré avec succès', 'success');
-        }, 3000);
-    }
-
-    function exportData() {
-        showNotification('Export des données en cours...', 'info');
-        setTimeout(() => {
-            showNotification('Données exportées au format Excel', 'success');
-        }, 2000);
-    }
-
-    function viewArchives() {
-        showNotification('Redirection vers les archives...', 'info');
-        setTimeout(() => {
-            showNotification('Ouverture de la section archives', 'success');
-        }, 1000);
-    }
-
-    function settings() {
-        showNotification('Ouverture des paramètres...', 'info');
     }
 
     // Système de notifications

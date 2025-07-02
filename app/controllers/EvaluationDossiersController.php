@@ -184,9 +184,9 @@ class EvaluationDossiersController {
                 return;
             }
             
-            // Désactivé temporairement : mise à jour du statut du rapport
-            // $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'valide', statut_rapport = 'valider' WHERE id_rapport = ?");
-            // $stmt->execute([$id_rapport]);
+            // Mise à jour du statut du rapport
+            $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'valide', statut_rapport = 'valider' WHERE id_rapport = ?");
+            $stmt->execute([$id_rapport]);
             
             Valider::insererDecision($id_enseignant, $id_rapport, 'valider', 'Validé par la commission');
             
@@ -214,9 +214,9 @@ class EvaluationDossiersController {
                 return;
             }
             
-            // Désactivé temporairement : mise à jour du statut du rapport
-            // $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'desapprouve_commission', statut_rapport = 'rejeter' WHERE id_rapport = ?");
-            // $stmt->execute([$id_rapport]);
+            // Mise à jour du statut du rapport
+            $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'desapprouve_commission', statut_rapport = 'rejeter' WHERE id_rapport = ?");
+            $stmt->execute([$id_rapport]);
             
             Valider::insererDecision($id_enseignant, $id_rapport, 'rejeter', $commentaire);
             
@@ -311,9 +311,9 @@ class EvaluationDossiersController {
             
             if ($decision === 'valider') {
                 $pdo = Database::getConnection();
-                // Désactivé temporairement : mise à jour du statut du rapport
-                // $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'valide', statut_rapport = 'valider' WHERE id_rapport = ?");
-                // $stmt->execute([$id_rapport]);
+                // Mise à jour du statut du rapport
+                $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'valide', statut_rapport = 'valider' WHERE id_rapport = ?");
+                $stmt->execute([$id_rapport]);
                 
                 Valider::insererDecision($id_enseignant, $id_rapport, 'valider', 'Validé par consensus de la commission');
                 
@@ -321,9 +321,9 @@ class EvaluationDossiersController {
                 
             } elseif ($decision === 'rejeter') {
                 $pdo = Database::getConnection();
-                // Désactivé temporairement : mise à jour du statut du rapport
-                // $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'desapprouve_commission', statut_rapport = 'rejeter' WHERE id_rapport = ?");
-                // $stmt->execute([$id_rapport]);
+                // Mise à jour du statut du rapport
+                $stmt = $pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'desapprouve_commission', statut_rapport = 'rejeter' WHERE id_rapport = ?");
+                $stmt->execute([$id_rapport]);
                 
                 Valider::insererDecision($id_enseignant, $id_rapport, 'rejeter', 'Rejeté par la commission');
                 
@@ -337,7 +337,9 @@ class EvaluationDossiersController {
     }
     
     public function detail($id_rapport) {
-        $rapport = RapportEtudiants::getById($id_rapport);
+        $pdo = Database::getConnection();
+        $rapportEtudiant = new RapportEtudiant($pdo);
+        $rapport = $rapportEtudiant->getRapportById($id_rapport);
         $decisions = Valider::getByRapport($id_rapport);
         return [
             'rapport' => $rapport,

@@ -199,12 +199,12 @@ class ProcessusValidationController {
                     ];
                 } elseif($totalVotes == 4){
                     return [
-                        'statut' => 'terminé',
-                        'message' => "Terminé (4/4 votes)",
+                        'statut' => 'pret_a_finaliser',
+                        'message' => "Prêt à finaliser (4/4 votes)",
                         'total_votes' => 4,
-                        'votes_valider' => 4,
-                        'votes_rejeter' => 0,
-                        'finalise' => true
+                        'votes_valider' => $votesValider,
+                        'votes_rejeter' => $votesRejeter,
+                        'finalise' => false
                     ];
                 } else {
                     return [
@@ -268,21 +268,60 @@ class ProcessusValidationController {
     }
     
     /**
+     * Vérifie si un ID enseignant existe dans la table enseignants
+     */
+    public function verifierIdEnseignant($id_enseignant) {
+        try {
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) as count FROM enseignants WHERE id_enseignant = ?");
+            $stmt->execute([$id_enseignant]);
+            $result = $stmt->fetch();
+            return $result['count'] > 0;
+        } catch (Exception $e) {
+            error_log("Erreur vérification ID enseignant: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Finalise la décision pour un rapport
      */
-    public function finaliserRapport($id_rapport, $id_enseignant) {
-        // Compter le nombre de validations 'valider'
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) as total FROM evaluations_rapports WHERE id_rapport = ? AND decision_evaluation = 'valider'");
-        $stmt->execute([$id_rapport]);
-        $row = $stmt->fetch();
-        $totalValide = $row['total'];
-        // Décision
-        $decision = ($totalValide >= 4) ? 'valider' : 'rejeter';
-        // Insérer dans la table valider
-        $stmtInsert = $this->pdo->prepare("INSERT INTO valider (id_enseignant, id_rapport, date_validation, commentaire_validation, decision_validation) VALUES (?, ?, NOW(), ?, ?)");
-        $stmtInsert->execute([$id_enseignant, $id_rapport, 'Décision finale automatique', $decision]);
-        // Mettre à jour le statut du rapport
-        $stmtUpdate = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = ? WHERE id_rapport = ?");
-        $stmtUpdate->execute([$decision, $id_rapport]);
+    public function finaliserRapport($id_rapport, $id_enseignant, $commentaire = null) {
+        try {
+            // Compter le nombre de validations 'valider'
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) as total FROM evaluations_rapports WHERE id_rapport = ? AND decision_evaluation = 'valider'");
+            $stmt->execute([$id_rapport]);
+            $row = $stmt->fetch();
+            $totalValide = $row['total'];
+            
+            // Décision
+            $decision = ($totalValide >= 4) ? 'valider' : 'rejeter';
+            
+            // Préparer le commentaire
+            $commentaireFinal = $commentaire ? trim($commentaire) : 'Décision finale automatique';
+            if (empty($commentaireFinal)) {
+                $commentaireFinal = 'Décision finale automatique';
+            }
+            
+            // Insérer dans la table valider
+            $stmtInsert = $this->pdo->prepare("INSERT INTO valider (id_enseignant, id_rapport, date_validation, commentaire_validation, decision_validation) VALUES (?, ?, NOW(), ?, ?)");
+            $stmtInsert->execute([$id_enseignant, $id_rapport, $commentaireFinal, $decision]);
+            
+            // Mettre à jour le statut du rapport et l'étape de validation
+            $etapeValidation = ($decision === 'valider') ? 'valide' : 'desapprouve_commission';
+            $stmtUpdate = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = ?, etape_validation = ? WHERE id_rapport = ?");
+            $stmtUpdate->execute([$decision, $etapeValidation, $id_rapport]);
+            
+            return [
+                'success' => true,
+                'message' => 'Rapport finalisé avec succès. Décision : ' . ($decision === 'valider' ? 'Validé' : 'Rejeté') . ' (' . $totalValide . '/4 votes favorables)'
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Erreur lors de la finalisation: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Erreur lors de la finalisation : ' . $e->getMessage()
+            ];
+        }
     }
 } 

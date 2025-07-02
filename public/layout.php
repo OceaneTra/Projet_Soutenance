@@ -23,6 +23,7 @@ include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
 include __DIR__ . '/../ressources/routes/notesResultatsRoutes.php';
+include __DIR__ . '/../ressources/routes/archivesDossiersSoutenanceRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -602,6 +603,9 @@ switch (true) {
          break;
     case ($currentMenuSlug === 'gestion_etudiants' && $currentAction):
             $backLink = '?page=gestion_etudiants';
+        break;
+    case ($currentMenuSlug === 'archives_dossiers_soutenance' && $currentAction):
+            $backLink = '?page=archives_dossiers_soutenance';
         break;
 }
 
