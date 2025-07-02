@@ -24,6 +24,7 @@ include __DIR__ . '/../ressources/routes/gestionReclamationsScolariteRoutes.php'
 include __DIR__ . '/../ressources/routes/evaluationDossiersRoutes.php';
 include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
+include __DIR__ . '/../ressources/routes/notesResultatsRoutes.php';
 include __DIR__ . '/../ressources/routes/auditRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
