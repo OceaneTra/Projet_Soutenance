@@ -24,6 +24,7 @@ include __DIR__ . '/../ressources/routes/gestionDossiersCandidaturesRoutes.php';
 include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
 include __DIR__ . '/../ressources/routes/notesResultatsRoutes.php';
 include __DIR__ . '/../ressources/routes/archivesDossiersSoutenanceRoutes.php';
+include __DIR__ . '/../ressources/routes/redactionCompteRenduRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -349,6 +350,14 @@ switch ($currentMenuSlug) {
         $contentFile = ''; // Réinitialiser si le fichier n'existe pas
     }
 break;
+}
+
+// Debug temporaire
+if (isset($_GET['page'])) {
+    error_log('PAGE DEMANDEE : ' . $_GET['page']);
+    foreach ($traitements as $t) {
+        error_log('TRAITEMENT AUTORISE : ' . $t['lib_traitement']);
+    }
 }
 
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mer. 02 juil. 2025 à 02:20
+-- Généré le : mer. 02 juil. 2025 à 15:39
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -302,8 +302,21 @@ CREATE TABLE `compte_rendu` (
     `id_CR` int NOT NULL,
     `num_etu` int NOT NULL,
     `nom_CR` varchar(70) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `contenu_CR` text COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `chemin_fichier_pdf` varchar(255) COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
     `date_CR` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `compte_rendu_rapport`
+--
+
+CREATE TABLE `compte_rendu_rapport` (
+    `id_CR` int NOT NULL,
+    `id_rapport` int NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -5842,6 +5855,13 @@ ADD PRIMARY KEY (`id_CR`),
 ADD KEY `fk_etudiant` (`num_etu`);
 
 --
+-- Index pour la table `compte_rendu_rapport`
+--
+ALTER TABLE `compte_rendu_rapport`
+ADD PRIMARY KEY (`id_CR`, `id_rapport`),
+ADD KEY `id_rapport` (`id_rapport`);
+
+--
 -- Index pour la table `deposer`
 --
 ALTER TABLE `deposer`
@@ -6367,6 +6387,13 @@ ADD CONSTRAINT `candidature_soutenance_ibfk_2` FOREIGN KEY (`id_pers_admin`) REF
 --
 ALTER TABLE `compte_rendu`
 ADD CONSTRAINT `fk_etudiant` FOREIGN KEY (`num_etu`) REFERENCES `etudiants` (`num_etu`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `compte_rendu_rapport`
+--
+ALTER TABLE `compte_rendu_rapport`
+ADD CONSTRAINT `compte_rendu_rapport_ibfk_1` FOREIGN KEY (`id_CR`) REFERENCES `compte_rendu` (`id_CR`) ON DELETE CASCADE,
+ADD CONSTRAINT `compte_rendu_rapport_ibfk_2` FOREIGN KEY (`id_rapport`) REFERENCES `rapport_etudiants` (`id_rapport`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `deposer`
