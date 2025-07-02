@@ -50,21 +50,28 @@ foreach ($repartitionNiveaux as $niveau => $nb) {
 }
 // Pour affichage des cours
 $mes_cours = [];
+$niveauIds = [];
 foreach ($ues as $ue) {
+    if (isset($ue->id_niveau_etude) && !in_array($ue->id_niveau_etude, $niveauIds)) {
+        $niveauIds[] = $ue->id_niveau_etude;
+    }
     $mes_cours[] = [
         'nom' => $ue->lib_ue,
         'niveau' => $ue->lib_niv_etude,
         'nombre_etudiants' => array_reduce($etudiantModel->getAllListeEtudiants(), function($carry, $etu) use ($ue) {
-            return $carry + (($etu->id_niv_etude == $ue->id_niveau_etude) ? 1 : 0);
+            return $carry + ((isset($ue->id_niveau_etude) && $etu->id_niv_etude == $ue->id_niveau_etude) ? 1 : 0);
         }, 0)
     ];
 }
 foreach ($ecues as $ecue) {
+    if (isset($ecue->id_niveau_etude) && !in_array($ecue->id_niveau_etude, $niveauIds)) {
+        $niveauIds[] = $ecue->id_niveau_etude;
+    }
     $mes_cours[] = [
         'nom' => $ecue->lib_ecue,
         'niveau' => $ecue->lib_niv_etude,
         'nombre_etudiants' => array_reduce($etudiantModel->getAllListeEtudiants(), function($carry, $etu) use ($ecue) {
-            return $carry + (($etu->id_niv_etude == $ecue->id_niveau_etude) ? 1 : 0);
+            return $carry + ((isset($ecue->id_niveau_etude) && $etu->id_niv_etude == $ecue->id_niveau_etude) ? 1 : 0);
         }, 0)
     ];
 }

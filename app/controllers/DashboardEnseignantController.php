@@ -81,12 +81,12 @@ class DashboardEnseignantController
         // Récupérer tous les niveaux concernés par les UE/ECUE pris en charge
         $niveauIds = [];
         foreach ($ues as $ue) {
-            if (!in_array($ue->id_niveau_etude, $niveauIds)) {
+            if (isset($ue->id_niveau_etude) && !in_array($ue->id_niveau_etude, $niveauIds)) {
                 $niveauIds[] = $ue->id_niveau_etude;
             }
         }
         foreach ($ecues as $ecue) {
-            if (!in_array($ecue->id_niveau_etude, $niveauIds)) {
+            if (isset($ecue->id_niveau_etude) && !in_array($ecue->id_niveau_etude, $niveauIds)) {
                 $niveauIds[] = $ecue->id_niveau_etude;
             }
         }
@@ -112,7 +112,7 @@ class DashboardEnseignantController
                 'nom' => $ue->lib_ue,
                 'niveau' => $ue->lib_niv_etude,
                 'nombre_etudiants' => array_reduce($etudiantsSuivantCours, function($carry, $etu) use ($ue) {
-                    return $carry + (($etu->id_niv_etude == $ue->id_niveau_etude) ? 1 : 0);
+                    return $carry + ((isset($ue->id_niveau_etude) && $etu->id_niv_etude == $ue->id_niveau_etude) ? 1 : 0);
                 }, 0)
             ];
         }
@@ -121,7 +121,7 @@ class DashboardEnseignantController
                 'nom' => $ecue->lib_ecue,
                 'niveau' => $ecue->lib_niv_etude,
                 'nombre_etudiants' => array_reduce($etudiantsSuivantCours, function($carry, $etu) use ($ecue) {
-                    return $carry + (($etu->id_niv_etude == $ecue->id_niveau_etude) ? 1 : 0);
+                    return $carry + ((isset($ecue->id_niveau_etude) && $etu->id_niv_etude == $ecue->id_niveau_etude) ? 1 : 0);
                 }, 0)
             ];
         }
