@@ -209,7 +209,16 @@ class DashboardCommissionController
                         v.decision_validation as statut,
                         COUNT(DISTINCT v.id_rapport) as nombre
                       FROM valider v
-                      GROUP BY v.decision_validation";
+                      GROUP BY v.decision_validation
+                      
+                      UNION ALL
+                      
+                      SELECT 
+                        'en_attente' as statut,
+                        COUNT(DISTINCT a.id_rapport) as nombre
+                      FROM approuver a
+                      LEFT JOIN valider v ON a.id_rapport = v.id_rapport
+                      WHERE v.id_rapport IS NULL";
             $stmt = Database::getConnection()->prepare($query);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

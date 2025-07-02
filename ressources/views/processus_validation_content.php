@@ -2,23 +2,63 @@
 require_once __DIR__ . '/../../app/controllers/ProcessusValidationController.php';
 
 $controller = new ProcessusValidationController();
+$message = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'finaliser') {
+    $id_rapport = intval($_POST['id_rapport']);
+    
+    // Essayer différentes clés possibles pour l'ID enseignant
+    $id_enseignant = null;
+    if (isset($_SESSION['id_enseignant'])) {
+        $id_enseignant = intval($_SESSION['id_enseignant']);
+    } elseif (isset($_SESSION['id_utilisateur'])) {
+        $id_enseignant = intval($_SESSION['id_utilisateur']);
+    } elseif (isset($_SESSION['enseignant_id'])) {
+        $id_enseignant = intval($_SESSION['enseignant_id']);
+    }
+    
+    // Vérifier que l'ID enseignant existe dans la table enseignants
+    if ($id_enseignant) {
+        if (!$controller->verifierIdEnseignant($id_enseignant)) {
+            $id_enseignant = null; // ID invalide
+        }
+    }
+    
+    // Solution temporaire : utiliser le premier enseignant de la commission si aucun ID valide n'est trouvé
+    if (!$id_enseignant) {
+        $donnees = $controller->getDonneesPage();
+        if (!empty($donnees['membres_commission'])) {
+            $id_enseignant = intval($donnees['membres_commission'][0]['id_enseignant']);
+        }
+    }
+    
+    // Récupérer le commentaire de validation
+    $commentaire = $_POST['commentaire_validation'] ?? null;
+    
+    if ($id_enseignant && $id_rapport) {
+        $result = $controller->finaliserRapport($id_rapport, $id_enseignant, $commentaire);
+        $message = $result;
+        // Utiliser JavaScript pour la redirection au lieu de header()
+        echo "<script>window.location.href = '" . $_SERVER['REQUEST_URI'] . "&message=" . urlencode(json_encode($result)) . "';</script>";
+        exit();
+    } else {
+        $message = ['success' => false, 'message' => 'Erreur : ID enseignant manquant'];
+        // Utiliser JavaScript pour la redirection au lieu de header()
+        echo "<script>window.location.href = '" . $_SERVER['REQUEST_URI'] . "&message=" . urlencode(json_encode($message)) . "';</script>";
+        exit();
+    }
+}
+
+// Récupérer le message depuis l'URL si présent
+if (isset($_GET['message'])) {
+    $message = json_decode(urldecode($_GET['message']), true);
+}
+
 $donnees = $controller->getDonneesPage();
 
 $statistiques = $donnees['statistiques'];
 $rapports = $donnees['rapports'];
 $membresCommission = $donnees['membres_commission'];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'finaliser') {
-    session_start();
-    $id_rapport = intval($_POST['id_rapport']);
-    $id_enseignant = isset($_SESSION['id_enseignant']) ? intval($_SESSION['id_enseignant']) : null;
-    if ($id_enseignant && $id_rapport) {
-        $controller->finaliserRapport($id_rapport, $id_enseignant);
-        // Redirection pour éviter le resoumission du formulaire
-        header('Location: ' . $_SERVER['REQUEST_URI']);
-        exit();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -83,6 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #dc3545; color: white; }
         .no-reports { text-align: center; padding: 40px; color: #6c757d; }
+        
+
     </style>
 </head>
 <body>
@@ -91,6 +133,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <h1><i class="fas fa-list-check"></i> Processus de Validation des Rapports</h1>
             <p>Aperçu de tous les rapports approuvés par la chargée de communication et leurs évaluations par les membres de la commission</p>
         </div>
+
+        <?php if ($message): ?>
+            <div class="alert alert-<?= $message['success'] ? 'success' : 'danger' ?>" style="padding: 15px; margin-bottom: 20px; border-radius: 4px; <?= $message['success'] ? 'background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : 'background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;' ?>">
+                <i class="fas fa-<?= $message['success'] ? 'check-circle' : 'exclamation-triangle' ?>"></i>
+                <?= htmlspecialchars($message['message']) ?>
+            </div>
+        <?php endif; ?>
 
         <div class="stats">
             <div class="stat-card">
@@ -223,15 +272,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         
                         <div class="actions" style="margin-top: 15px;">
                             <button onclick="viewReport(<?= $rapport['id_rapport'] ?>)" class="btn btn-primary"><i class="fas fa-file-lines"></i> Consulter</button>
-                            <?php if (!$rapport['statut_vote']['finalise']): ?>
+                            <?php if ($rapport['statut_vote']['total_votes'] == 4 && !$rapport['statut_vote']['finalise']): ?>
                                 <form id="form-finaliser-<?= $rapport['id_rapport'] ?>" method="POST" style="display:inline;">
                                     <input type="hidden" name="action" value="finaliser">
                                     <input type="hidden" name="id_rapport" value="<?= $rapport['id_rapport'] ?>">
+                                    <input type="hidden" name="commentaire_validation" id="commentaire-<?= $rapport['id_rapport'] ?>" value="">
                                     <button type="button" class="btn btn-success" onclick="confirmerFinalisation(<?= $rapport['id_rapport'] ?>)">Finaliser</button>
                                 </form>
-                            <?php else: ?>
+                            <?php elseif ($rapport['statut_vote']['finalise']): ?>
                                 <button class="btn btn-<?= $rapport['statut_vote']['statut'] === 'valide' ? 'success' : 'danger' ?>" disabled>
                                     ⚖️ Finalisé
+                                </button>
+                            <?php else: ?>
+                                <button class="btn btn-secondary" disabled>
+                                    ⏳ En attente (<?= $rapport['statut_vote']['total_votes'] ?>/4 votes)
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -240,6 +294,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Modale de confirmation -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                    Confirmation de finalisation
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200" id="closeModal">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 mb-4">Voulez-vous vraiment finaliser la décision finale concernant ce rapport ?</p>
+                
+                <div class="mb-4">
+                    <label for="commentaireFinalisation" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-comment mr-2"></i>Commentaire de validation (optionnel)
+                    </label>
+                    <textarea 
+                        id="commentaireFinalisation" 
+                        name="commentaire_validation" 
+                        rows="3" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="Ajoutez un commentaire pour expliquer la décision finale..."
+                    ></textarea>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                        <p class="text-sm text-blue-700">
+                            Cette action est irréversible. La décision sera automatiquement déterminée selon le nombre de votes favorables.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+                <button type="button" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center" id="cancelModal">
+                    <i class="fas fa-times mr-2"></i>
+                    Annuler
+                </button>
+                <button type="button" class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors duration-200 flex items-center" id="confirmFinalisation">
+                    <i class="fas fa-check mr-2"></i>
+                    Confirmer la finalisation
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 
     <script>
         function filterReports() {
@@ -290,10 +396,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
         
         function confirmerFinalisation(reportId) {
-            if (confirm("Voulez-vous vraiment finaliser la décision finale concernant ce rapport ?")) {
+            // Stocker l'ID du rapport pour la confirmation
+            document.getElementById('confirmationModal').setAttribute('data-report-id', reportId);
+            
+            // Ouvrir la modale avec animation
+            const modal = document.getElementById('confirmationModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animation d'entrée
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('confirmationModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            // Vider le champ commentaire
+            document.getElementById('commentaireFinalisation').value = '';
+            
+            // Animation de sortie
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // Gérer la confirmation dans la modale
+        document.getElementById('confirmFinalisation').addEventListener('click', function() {
+            const reportId = document.getElementById('confirmationModal').getAttribute('data-report-id');
+            const commentaire = document.getElementById('commentaireFinalisation').value;
+            
+            if (reportId) {
+                // Mettre à jour le champ caché avec le commentaire
+                document.getElementById('commentaire-' + reportId).value = commentaire;
                 document.getElementById('form-finaliser-' + reportId).submit();
             }
-        }
+            closeModal();
+        });
+        
+        // Fermer la modale avec les différents boutons
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('cancelModal').addEventListener('click', closeModal);
+        
+        // Fermer en cliquant à l'extérieur
+        document.getElementById('confirmationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html> 

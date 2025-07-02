@@ -105,14 +105,14 @@
                         Détail du dossier de soutenance
                     </h2>
                     <div class="mb-4">
-                        <span class="font-semibold">Étudiant :</span> <?= htmlspecialchars($detail['rapport']['prenom_etu'] . ' ' . $detail['rapport']['nom_etu']) ?> <br>
-                        <span class="font-semibold">Email :</span> <?= htmlspecialchars($detail['rapport']['email_etu']) ?> <br>
-                        <span class="font-semibold">Promotion :</span> <?= htmlspecialchars($detail['rapport']['promotion_etu']) ?> <br>
-                        <span class="font-semibold">Sujet :</span> <?= htmlspecialchars($detail['rapport']['theme_rapport']) ?> <br>
-                        <span class="font-semibold">Date de dépôt :</span> <?= $detail['rapport']['date_depot'] ? date('d/m/Y', strtotime($detail['rapport']['date_depot'])) : 'Non déposé' ?>
+                        <span class="font-semibold">Étudiant :</span> <?= htmlspecialchars(($detail['rapport']['prenom_etu'] ?? '') . ' ' . ($detail['rapport']['nom_etu'] ?? '')) ?> <br>
+                        <span class="font-semibold">Email :</span> <?= htmlspecialchars($detail['rapport']['email_etu'] ?? 'Non renseigné') ?> <br>
+                        <span class="font-semibold">Promotion :</span> <?= htmlspecialchars($detail['rapport']['promotion_etu'] ?? 'Non renseignée') ?> <br>
+                        <span class="font-semibold">Sujet :</span> <?= htmlspecialchars($detail['rapport']['theme_rapport'] ?? 'Non renseigné') ?> <br>
+                        <span class="font-semibold">Date de dépôt :</span> <?= !empty($detail['rapport']['date_depot']) ? date('d/m/Y', strtotime($detail['rapport']['date_depot'])) : 'Non déposé' ?>
                     </div>
                     <div class="mb-4">
-                        <span class="font-semibold">Statut actuel :</span> <?= htmlspecialchars($detail['rapport']['etape_validation']) ?>
+                        <span class="font-semibold">Statut actuel :</span> <?= htmlspecialchars($detail['rapport']['etape_validation'] ?? 'Non défini') ?>
                     </div>
                     <div class="mb-4">
                         <span class="font-semibold">Historique des décisions :</span>
@@ -132,14 +132,14 @@
                     </div>
 
                     <!-- Formulaire de décision pour la commission -->
-                    <?php if ($detail['rapport']['etape_validation'] === 'approuve_communication'): ?>
+                    <?php if (($detail['rapport']['etape_validation'] ?? '') === 'approuve_communication'): ?>
                     <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">
                             <i class="fas fa-gavel text-yellow-600 mr-2"></i>
                             Décision de la Commission
                         </h3>
                         <form id="decisionForm" class="space-y-4">
-                            <input type="hidden" name="id_rapport" value="<?= $detail['rapport']['id_rapport'] ?>">
+                            <input type="hidden" name="id_rapport" value="<?= $detail['rapport']['id_rapport'] ?? '' ?>">
 
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
@@ -199,7 +199,7 @@
                         <a href="?page=evaluations_dossiers_soutenance" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
                             <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
                         </a>
-                        <a href="?page=evaluations_dossiers_soutenance&fichier=<?= $detail['rapport']['id_rapport'] ?>" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <a href="?page=evaluations_dossiers_soutenance&fichier=<?= $detail['rapport']['id_rapport'] ?? '' ?>" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             <i class="fas fa-file-pdf mr-1"></i> Lire le rapport
                         </a>
                     </div>

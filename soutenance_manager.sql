@@ -3976,11 +3976,11 @@ VALUES (
         '2025-06-25 11:20:16',
         'theme testes de rapport',
         'rapport_2.html',
-        'rejeter',
+        'valider',
         '2025-06-26 10:13:13',
         1137,
         1,
-        'approuve_communication'
+        'valide'
     ),
     (
         5,
@@ -3989,11 +3989,11 @@ VALUES (
         '2025-06-27 02:24:49',
         'Intégration d\'une base intelligente',
         'rapport_5.html',
-        'valider',
+        'rejeter',
         '2025-06-27 02:24:49',
         11780,
         1,
-        'approuve_communication'
+        'desapprouve_commission'
     ),
     (
         8,
@@ -4585,7 +4585,7 @@ VALUES (
     (
         39,
         'archives_dossiers_soutenance',
-        'Archives des dossiers de soutenance',
+        'Archives des rapports de soutenance',
         'fa-inbox',
         5
     ),
@@ -5587,6 +5587,33 @@ CREATE TABLE `valider` (
     `commentaire_validation` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
     `decision_validation` enum('valider', 'rejeter') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL DEFAULT 'valider'
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+--
+-- Déchargement des données de la table `valider`
+--
+
+INSERT INTO
+    `valider` (
+        `id_enseignant`,
+        `id_rapport`,
+        `date_validation`,
+        `commentaire_validation`,
+        `decision_validation`
+    )
+VALUES (
+        2,
+        2,
+        '2025-07-02 00:44:32',
+        'le rapport est bien structurer et tout est bien',
+        'valider'
+    ),
+    (
+        2,
+        5,
+        '2025-07-01 22:59:34',
+        'Décision finale automatique',
+        'rejeter'
+    );
 
 -- --------------------------------------------------------
 

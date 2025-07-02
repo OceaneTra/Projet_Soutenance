@@ -208,20 +208,25 @@
                                     Modèles de compte rendu
                                 </h3>
                                 <div class="space-y-2">
-                                    <button onclick="loadTemplate('standard')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
-                                        <i class="fas fa-file-alt text-yellow-600 mr-2"></i>
-                                        <span class="font-medium">Modèle standard</span>
-                                        <p class="text-xs text-gray-600 mt-1">Modèle classique pour rapports académiques</p>
+                                    <button onclick="loadTemplate('miage')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
+                                        <i class="fas fa-graduation-cap text-yellow-600 mr-2"></i>
+                                        <span class="font-medium">Modèle MIAGE Standard</span>
+                                        <p class="text-xs text-gray-600 mt-1">Modèle officiel pour les comptes rendus MIAGE</p>
                                     </button>
                                     <button onclick="loadTemplate('detailed')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
                                         <i class="fas fa-file-medical-alt text-yellow-600 mr-2"></i>
                                         <span class="font-medium">Modèle détaillé</span>
-                                        <p class="text-xs text-gray-600 mt-1">Pour les rapports nécessitant plus d'analyse</p>
+                                        <p class="text-xs text-gray-600 mt-1">Pour les rapports nécessitant une analyse approfondie</p>
                                     </button>
                                     <button onclick="loadTemplate('synthesis')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
                                         <i class="fas fa-file-contract text-yellow-600 mr-2"></i>
                                         <span class="font-medium">Modèle synthèse</span>
-                                        <p class="text-xs text-gray-600 mt-1">Version condensée et synthétique</p>
+                                        <p class="text-xs text-gray-600 mt-1">Version condensée pour évaluation rapide</p>
+                                    </button>
+                                    <button onclick="loadTemplate('technical')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
+                                        <i class="fas fa-cogs text-yellow-600 mr-2"></i>
+                                        <span class="font-medium">Modèle technique</span>
+                                        <p class="text-xs text-gray-600 mt-1">Spécialisé pour les projets techniques</p>
                                     </button>
                                 </div>
                             </div>
@@ -276,39 +281,116 @@
                                 <!-- Editor Content -->
                                 <div class="p-6">
                                     <div id="editorContent" class="editor-content w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" contenteditable="true" style="min-height: 500px;">
-                                        <div class="text-center mb-6">
-                                            <h1 class="text-2xl font-bold mb-2">COMPTE RENDU D'ÉVALUATION</h1>
-                                            <h2 class="text-lg font-semibold text-gray-700">Commission de Validation des Rapports</h2>
-                                            <p class="text-gray-600 mt-2">Université Félix Houphouët-Boigny</p>
+                                        <div class="text-center mb-8">
+                                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU D'ÉVALUATION</h1>
+                                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Rapports de Soutenance</h2>
+                                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
+                                            <p class="text-gray-600">Institut de Formation et de Recherche en Informatique</p>
+                                            <p class="text-gray-600">Département MIAGE</p>
                                         </div>
 
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">I. INFORMATIONS GÉNÉRALES</h3>
-                                            <p><strong>Titre du rapport :</strong> [À compléter]</p>
-                                            <p><strong>Étudiant(e) :</strong> [À compléter]</p>
-                                            <p><strong>Encadrant :</strong> [À compléter]</p>
-                                            <p><strong>Date d'évaluation :</strong> [À compléter]</p>
-                                            <p><strong>Membres de la commission :</strong> [À compléter]</p>
+                                        <div class="mb-8">
+                                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <p><strong class="text-gray-700">Titre du rapport :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Niveau d'études :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Promotion :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                </div>
+                                                <div>
+                                                    <p><strong class="text-gray-700">Encadrant principal :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Co-encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Date de soumission :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4">
+                                                <p><strong class="text-gray-700">Membres de la commission d'évaluation :</strong></p>
+                                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                                    <li>[À compléter]</li>
+                                                    <li>[À compléter]</li>
+                                                    <li>[À compléter]</li>
+                                                    <li>[À compléter]</li>
+                                                </ul>
+                                            </div>
                                         </div>
 
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">II. RÉSUMÉ DU RAPPORT</h3>
-                                            <p class="text-gray-500 italic">[Cliquez ici pour ajouter un résumé du rapport...]</p>
+                                        <div class="mb-8">
+                                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. PRÉSENTATION DU TRAVAIL</h3>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Contexte et problématique</h4>
+                                                <p class="text-gray-600 italic">[Présentation du contexte et de la problématique abordée dans le rapport...]</p>
+                                            </div>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Objectifs et méthodologie</h4>
+                                                <p class="text-gray-600 italic">[Description des objectifs poursuivis et de la méthodologie adoptée...]</p>
+                                            </div>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Résultats obtenus</h4>
+                                                <p class="text-gray-600 italic">[Synthèse des principaux résultats obtenus...]</p>
+                                            </div>
                                         </div>
 
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">III. ÉVALUATIONS DES MEMBRES</h3>
-                                            <p class="text-gray-500 italic">[Les évaluations seront automatiquement insérées ici...]</p>
+                                        <div class="mb-8">
+                                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ÉVALUATIONS DES MEMBRES DE LA COMMISSION</h3>
+                                            <p class="text-gray-600 italic mb-4">[Les évaluations détaillées de chaque membre seront automatiquement insérées ici...]</p>
+                                            
+                                            <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                                <h4 class="font-semibold text-gray-700 mb-2">Résumé des votes :</h4>
+                                                <p class="text-sm text-gray-600">Votes favorables : [X]/4</p>
+                                                <p class="text-sm text-gray-600">Votes défavorables : [X]/4</p>
+                                            </div>
                                         </div>
 
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">IV. SYNTHÈSE ET RECOMMANDATIONS</h3>
-                                            <p class="text-gray-500 italic">[Cliquez ici pour ajouter votre synthèse...]</p>
+                                        <div class="mb-8">
+                                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. ANALYSE ET SYNTHÈSE</h3>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.1 Points forts du travail</h4>
+                                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                                    <li>[Point fort 1]</li>
+                                                    <li>[Point fort 2]</li>
+                                                    <li>[Point fort 3]</li>
+                                                </ul>
+                                            </div>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.2 Points à améliorer</h4>
+                                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                                    <li>[Point à améliorer 1]</li>
+                                                    <li>[Point à améliorer 2]</li>
+                                                    <li>[Point à améliorer 3]</li>
+                                                </ul>
+                                            </div>
+                                            <div class="mb-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.3 Recommandations</h4>
+                                                <p class="text-gray-600 italic">[Recommandations pour l'amélioration du travail...]</p>
+                                            </div>
                                         </div>
 
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">V. DÉCISION FINALE</h3>
-                                            <p class="text-gray-500 italic">[La décision finale sera ajoutée ici...]</p>
+                                        <div class="mb-8">
+                                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">V. DÉCISION DE LA COMMISSION</h3>
+                                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                                <p class="text-lg font-semibold text-gray-800 mb-2">Décision finale :</p>
+                                                <p class="text-gray-600 italic">[La décision finale sera ajoutée ici : VALIDÉ / REJETÉ]</p>
+                                            </div>
+                                            <div class="mt-4">
+                                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Justification de la décision :</h4>
+                                                <p class="text-gray-600 italic">[Justification détaillée de la décision prise par la commission...]</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-12 text-center">
+                                            <p class="text-gray-600 mb-4">Fait à Abidjan, le [DATE]</p>
+                                            <div class="flex justify-center space-x-8">
+                                                <div class="text-center">
+                                                    <p class="font-semibold text-gray-700">Président de la Commission</p>
+                                                    <p class="text-gray-600">[Signature]</p>
+                                                </div>
+                                                <div class="text-center">
+                                                    <p class="font-semibold text-gray-700">Rapporteur</p>
+                                                    <p class="text-gray-600">[Signature]</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -488,107 +570,325 @@
             let template = '';
             
             switch(templateType) {
-                case 'standard':
+                case 'miage':
                     template = `
-                        <div class="text-center mb-6">
-                            <h1 class="text-2xl font-bold mb-2">COMPTE RENDU D'ÉVALUATION</h1>
-                            <h2 class="text-lg font-semibold text-gray-700">Commission de Validation des Rapports</h2>
-                            <p class="text-gray-600 mt-2">Université Félix Houphouët-Boigny</p>
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU D'ÉVALUATION</h1>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Rapports de Soutenance</h2>
+                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
+                            <p class="text-gray-600">Institut de Formation et de Recherche en Informatique</p>
+                            <p class="text-gray-600">Département MIAGE</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">I. INFORMATIONS GÉNÉRALES</h3>
-                            <p><strong>Titre du rapport :</strong> [À compléter]</p>
-                            <p><strong>Étudiant(e) :</strong> [À compléter]</p>
-                            <p><strong>Encadrant :</strong> [À compléter]</p>
-                            <p><strong>Date d'évaluation :</strong> [À compléter]</p>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong class="text-gray-700">Titre du rapport :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Niveau d'études :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Promotion :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">II. RÉSUMÉ DU RAPPORT</h3>
-                            <p>[Résumé du contenu du rapport...]</p>
+                                <div>
+                                    <p><strong class="text-gray-700">Encadrant principal :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Co-encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date de soumission :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">III. ÉVALUATIONS</h3>
-                            <p>[Évaluations des membres de la commission...]</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">IV. DÉCISION FINALE</h3>
-                            <p>[Décision de la commission...]</p>
+                            <div class="mt-4">
+                                <p><strong class="text-gray-700">Membres de la commission d'évaluation :</strong></p>
+                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                    <li>[À compléter]</li>
+                                    <li>[À compléter]</li>
+                                    <li>[À compléter]</li>
+                                    <li>[À compléter]</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. PRÉSENTATION DU TRAVAIL</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Contexte et problématique</h4>
+                                <p class="text-gray-600 italic">[Présentation du contexte et de la problématique abordée dans le rapport...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Objectifs et méthodologie</h4>
+                                <p class="text-gray-600 italic">[Description des objectifs poursuivis et de la méthodologie adoptée...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Résultats obtenus</h4>
+                                <p class="text-gray-600 italic">[Synthèse des principaux résultats obtenus...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ÉVALUATIONS DES MEMBRES DE LA COMMISSION</h3>
+                            <p class="text-gray-600 italic mb-4">[Les évaluations détaillées de chaque membre seront automatiquement insérées ici...]</p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                <h4 class="font-semibold text-gray-700 mb-2">Résumé des votes :</h4>
+                                <p class="text-sm text-gray-600">Votes favorables : [X]/4</p>
+                                <p class="text-sm text-gray-600">Votes défavorables : [X]/4</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. ANALYSE ET SYNTHÈSE</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.1 Points forts du travail</h4>
+                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                    <li>[Point fort 1]</li>
+                                    <li>[Point fort 2]</li>
+                                    <li>[Point fort 3]</li>
+                                </ul>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.2 Points à améliorer</h4>
+                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                    <li>[Point à améliorer 1]</li>
+                                    <li>[Point à améliorer 2]</li>
+                                    <li>[Point à améliorer 3]</li>
+                                </ul>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.3 Recommandations</h4>
+                                <p class="text-gray-600 italic">[Recommandations pour l'amélioration du travail...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">V. DÉCISION DE LA COMMISSION</h3>
+                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <p class="text-lg font-semibold text-gray-800 mb-2">Décision finale :</p>
+                                <p class="text-gray-600 italic">[La décision finale sera ajoutée ici : VALIDÉ / REJETÉ]</p>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Justification de la décision :</h4>
+                                <p class="text-gray-600 italic">[Justification détaillée de la décision prise par la commission...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 text-center">
+                            <p class="text-gray-600 mb-4">Fait à Abidjan, le [DATE]</p>
+                            <div class="flex justify-center space-x-8">
+                                <div class="text-center">
+                                    <p class="font-semibold text-gray-700">Président de la Commission</p>
+                                    <p class="text-gray-600">[Signature]</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-semibold text-gray-700">Rapporteur</p>
+                                    <p class="text-gray-600">[Signature]</p>
+                                </div>
+                            </div>
                         </div>
                     `;
                     break;
                     
                 case 'detailed':
                     template = `
-                        <div class="text-center mb-6">
-                            <h1 class="text-2xl font-bold mb-2">COMPTE RENDU DÉTAILLÉ D'ÉVALUATION</h1>
-                            <h2 class="text-lg font-semibold text-gray-700">Commission de Validation des Rapports</h2>
-                            <p class="text-gray-600 mt-2">Université Félix Houphouët-Boigny</p>
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU DÉTAILLÉ D'ÉVALUATION</h1>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Rapports</h2>
+                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
+                            <p class="text-gray-600">Institut de Formation et de Recherche en Informatique</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">I. INFORMATIONS GÉNÉRALES</h3>
-                            <p><strong>Titre du rapport :</strong> [À compléter]</p>
-                            <p><strong>Étudiant(e) :</strong> [À compléter]</p>
-                            <p><strong>Niveau d'études :</strong> [À compléter]</p>
-                            <p><strong>Encadrant principal :</strong> [À compléter]</p>
-                            <p><strong>Co-encadrant :</strong> [À compléter]</p>
-                            <p><strong>Date de soumission :</strong> [À compléter]</p>
-                            <p><strong>Date d'évaluation :</strong> [À compléter]</p>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong class="text-gray-700">Titre du rapport :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Niveau d'études :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Promotion :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">II. CONTEXTE ET OBJECTIFS</h3>
-                            <p><strong>Problématique :</strong> [Présentation de la problématique...]</p>
-                            <p><strong>Objectifs :</strong> [Objectifs de la recherche...]</p>
-                            <p><strong>Méthodologie :</strong> [Approche méthodologique...]</p>
+                                <div>
+                                    <p><strong class="text-gray-700">Encadrant principal :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Co-encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date de soumission :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">III. ANALYSE DÉTAILLÉE</h3>
-                            <h4 class="font-semibold mb-2">3.1 Qualité du contenu</h4>
-                            <p>[Analyse du contenu...]</p>
-                            <h4 class="font-semibold mb-2 mt-4">3.2 Méthodologie</h4>
-                            <p>[Évaluation de la méthodologie...]</p>
-                            <h4 class="font-semibold mb-2 mt-4">3.3 Résultats et discussion</h4>
-                            <p>[Analyse des résultats...]</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">IV. ÉVALUATIONS INDIVIDUELLES</h3>
-                            <p>[Évaluations détaillées par membre...]</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">V. SYNTHÈSE ET RECOMMANDATIONS</h3>
-                            <p><strong>Points forts :</strong></p>
-                            <ul><li>[Point fort 1]</li><li>[Point fort 2]</li></ul>
-                            <p><strong>Points à améliorer :</strong></p>
-                            <ul><li>[Point à améliorer 1]</li><li>[Point à améliorer 2]</li></ul>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. CONTEXTE ET OBJECTIFS</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Problématique</h4>
+                                <p class="text-gray-600 italic">[Présentation détaillée de la problématique...]</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">VI. DÉCISION FINALE</h3>
-                            <p>[Décision motivée de la commission...]</p>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Objectifs</h4>
+                                <p class="text-gray-600 italic">[Objectifs spécifiques de la recherche...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Méthodologie</h4>
+                                <p class="text-gray-600 italic">[Approche méthodologique détaillée...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ANALYSE DÉTAILLÉE</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.1 Qualité du contenu</h4>
+                                <p class="text-gray-600 italic">[Analyse approfondie du contenu...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.2 Méthodologie</h4>
+                                <p class="text-gray-600 italic">[Évaluation détaillée de la méthodologie...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.3 Résultats et discussion</h4>
+                                <p class="text-gray-600 italic">[Analyse critique des résultats...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.4 Innovation et contribution</h4>
+                                <p class="text-gray-600 italic">[Évaluation de l'innovation et de la contribution...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. ÉVALUATIONS INDIVIDUELLES</h3>
+                            <p class="text-gray-600 italic">[Évaluations détaillées par membre de la commission...]</p>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">V. SYNTHÈSE ET RECOMMANDATIONS</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.1 Points forts</h4>
+                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                    <li>[Point fort 1]</li>
+                                    <li>[Point fort 2]</li>
+                                    <li>[Point fort 3]</li>
+                                </ul>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.2 Points à améliorer</h4>
+                                <ul class="list-disc list-inside text-gray-600 ml-4">
+                                    <li>[Point à améliorer 1]</li>
+                                    <li>[Point à améliorer 2]</li>
+                                    <li>[Point à améliorer 3]</li>
+                                </ul>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.3 Recommandations spécifiques</h4>
+                                <p class="text-gray-600 italic">[Recommandations détaillées pour l'amélioration...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">VI. DÉCISION FINALE</h3>
+                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <p class="text-lg font-semibold text-gray-800 mb-2">Décision motivée :</p>
+                                <p class="text-gray-600 italic">[Décision motivée de la commission...]</p>
+                            </div>
                         </div>
                     `;
                     break;
                     
                 case 'synthesis':
                     template = `
-                        <div class="text-center mb-6">
-                            <h1 class="text-2xl font-bold mb-2">SYNTHÈSE D'ÉVALUATION</h1>
-                            <h2 class="text-lg font-semibold text-gray-700">Commission de Validation</h2>
-                            <p class="text-gray-600 mt-2">Université Félix Houphouët-Boigny</p>
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold mb-3 text-gray-800">SYNTHÈSE D'ÉVALUATION</h1>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation</h2>
+                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
+                            <p class="text-gray-600">Département MIAGE</p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">RAPPORT ÉVALUÉ</h3>
-                            <p><strong>Titre :</strong> [À compléter]</p>
-                            <p><strong>Auteur :</strong> [À compléter]</p>
-                            <p><strong>Date :</strong> [À compléter]</p>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">RAPPORT ÉVALUÉ</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong class="text-gray-700">Titre :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Auteur :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">SYNTHÈSE DES ÉVALUATIONS</h3>
-                            <p><strong>Consensus :</strong> [Résumé du consensus...]</p>
-                            <p><strong>Points de divergence :</strong> [Points de désaccord...]</p>
+                                <div>
+                                    <p><strong class="text-gray-700">Encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                         </div>
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b border-gray-300 pb-2 mb-3">DÉCISION</h3>
-                            <p><strong>Résultat :</strong> [Accepté/Rejeté/Révision]</p>
-                            <p><strong>Justification :</strong> [Justification de la décision...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">SYNTHÈSE DES ÉVALUATIONS</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Consensus de la commission</h4>
+                                <p class="text-gray-600 italic">[Résumé du consensus général...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Points de divergence</h4>
+                                <p class="text-gray-600 italic">[Points de désaccord entre les évaluateurs...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">DÉCISION</h3>
+                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <p><strong class="text-gray-700">Résultat :</strong> [Accepté/Rejeté/Révision]</p>
+                                <p><strong class="text-gray-700">Justification :</strong> [Justification concise de la décision...]</p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'technical':
+                    template = `
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU TECHNIQUE D'ÉVALUATION</h1>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Projets Techniques</h2>
+                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
+                            <p class="text-gray-600">Département MIAGE</p>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS DU PROJET</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong class="text-gray-700">Titre du projet :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Technologies utilisées :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                </div>
+                                <div>
+                                    <p><strong class="text-gray-700">Encadrant technique :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Durée du projet :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. ÉVALUATION TECHNIQUE</h3>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Architecture et conception</h4>
+                                <p class="text-gray-600 italic">[Évaluation de l'architecture et de la conception...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Implémentation</h4>
+                                <p class="text-gray-600 italic">[Évaluation de l'implémentation technique...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Tests et validation</h4>
+                                <p class="text-gray-600 italic">[Évaluation des tests et de la validation...]</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.4 Documentation</h4>
+                                <p class="text-gray-600 italic">[Évaluation de la documentation technique...]</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ÉVALUATIONS DES EXPERTS</h3>
+                            <p class="text-gray-600 italic mb-4">[Évaluations techniques détaillées...]</p>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. DÉCISION TECHNIQUE</h3>
+                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <p class="text-lg font-semibold text-gray-800 mb-2">Validation technique :</p>
+                                <p class="text-gray-600 italic">[Décision de validation technique...]</p>
+                            </div>
                         </div>
                     `;
                     break;
