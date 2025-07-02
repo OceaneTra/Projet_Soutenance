@@ -5,6 +5,7 @@ require_once __DIR__ . "/../models/Utilisateur.php";
 require_once __DIR__ . "/../models/Etudiant.php";
 require_once __DIR__ . "/../models/Enseignant.php";
 require_once __DIR__ . "/../models/PersAdmin.php";
+require_once __DIR__ . "/../models/AuditLog.php";
 
 /**
  * Contrôleur du tableau de bord
@@ -31,6 +32,9 @@ class DashboardController
     /** @var PersAdmin */
     private $personnel;
 
+    /** @var AuditLog */
+    private $auditLog;
+
     /** @var string */
     private $baseViewPath;
 
@@ -45,6 +49,7 @@ class DashboardController
         $this->etudiant = new Etudiant(Database::getConnection());
         $this->enseignant = new Enseignant(Database::getConnection());
         $this->personnel = new PersAdmin(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
     }
 
     /**
@@ -53,6 +58,9 @@ class DashboardController
      */
     public function index()
     {
+        // Audit logging pour l'accès au tableau de bord
+        $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Accès', 'tableau_de_bord', 'Succès');
+        
         // Récupération des statistiques globales
         $this->getGlobalStats();
         

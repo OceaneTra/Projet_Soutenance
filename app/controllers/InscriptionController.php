@@ -2,17 +2,20 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Scolarite.php';
 require_once __DIR__ . '/../models/AnneeAcademique.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 
 class InscriptionController {
     private $db;
     private $scolarite;
     private $anneeAcademique;
+    private $auditLog;
 
     public function __construct() {
         $this->db = Database::getConnection();
         $this->scolarite = new Scolarite($this->db);
         $this->anneeAcademique = new AnneeAcademique($this->db);
+        $this->auditLog = new AuditLog($this->db);
     }
 
     public function index() {
@@ -77,10 +80,13 @@ class InscriptionController {
                 
                 // Envoyer le PDF au navigateur
                 $dompdf->stream("recu_paiement_" . $inscription['id_inscription'] . ".pdf", array("Attachment" => false));
+
+                $this->auditLog->logImpression($_SESSION['id_utilisateur'], 'inscriptions', 'Succès');
                 
                 exit;
             } else {
                 $GLOBALS['messageErreur'] = "Inscription non trouvée.";
+                $this->auditLog->logImpression($_SESSION['id_utilisateur'], 'inscriptions', 'Erreur');
             }
         }
 
@@ -88,8 +94,10 @@ class InscriptionController {
         if (isset($_GET['modalAction']) && $_GET['modalAction'] === 'supprimer' && isset($_GET['id'])) {
             if ($this->scolarite->supprimerInscription($_GET['id'])) {
                 $GLOBALS['messageSuccess'] = "Inscription supprimée avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'inscriptions', 'Succès');
             } else {
                 $GLOBALS['messageErreur'] = "Erreur lors de la suppression de l'inscription.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'inscriptions', 'Erreur');
             }
         }
 
@@ -155,6 +163,7 @@ class InscriptionController {
             // Vérifier si l'étudiant est déjà inscrit pour cette année académique
             if ($this->scolarite->estEtudiantInscritPourAnnee($id_etudiant, $id_annee_acad)) {
                 $GLOBALS['messageErreur'] = "Cet étudiant est déjà inscrit pour cette année académique.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "inscriptions", 'Erreur');
                 return;
             }
 
@@ -187,8 +196,10 @@ class InscriptionController {
                 }
 
                 $GLOBALS['messageSuccess'] = "Inscription créée avec succès.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur']    , "inscriptions", 'Succès');
             } else {
                 $GLOBALS['messageErreur'] = "Erreur lors de la création de l'inscription.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "inscriptions", 'Erreur');
             }
         } catch (Exception $e) {
             $GLOBALS['messageErreur'] = "Une erreur est survenue : " . $e->getMessage();
@@ -228,8 +239,10 @@ class InscriptionController {
                 }
 
                 $GLOBALS['messageSuccess'] = "Inscription modifiée avec succès.";
+                $this->auditLog->logModification($_SESSION['id_utilisateur'], "inscriptions", 'Succès');
             } else {
                 $GLOBALS['messageErreur'] = "Erreur lors de la modification de l'inscription.";
+                $this->auditLog->logModification($_SESSION['id_utilisateur'], "inscriptions", 'Erreur');
             }
         } catch (Exception $e) {
             $GLOBALS['messageErreur'] = "Une erreur est survenue : " . $e->getMessage();

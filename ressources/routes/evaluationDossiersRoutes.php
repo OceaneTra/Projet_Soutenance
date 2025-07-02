@@ -1,7 +1,8 @@
 <?php
-if ($_GET['page'] === 'evaluations_dossiers_soutenance') {
+if (isset($_GET['page']) && $_GET['page'] === 'evaluations_dossiers_soutenance') {
+    require_once __DIR__ . '/../../app/config/database.php';
     require_once __DIR__ . '/../../app/controllers/EvaluationDossiersController.php';
-    $controller = new EvaluationDossiersController();
+    $controller = new EvaluationDossiersController(Database::getConnection());
     
     // Si on demande un fichier de rapport
     if (isset($_GET['fichier'])) {

@@ -1,12 +1,15 @@
 <?php
 require_once __DIR__ . '/../models/Reclamation.php';
 require_once __DIR__ . '/../config/database.php';
-
+require_once __DIR__ . '/../models/AuditLog.php';
 class GestionReclamationsScolariteController {
     private $reclamationModel;
-
+    private $auditLog;
+    private $db;    
     public function __construct() {
         $this->reclamationModel = new Reclamation();
+        $this->auditLog = new AuditLog($this->db);
+        $this->db = Database::getConnection();
     }
 
     public function index() {
@@ -35,6 +38,9 @@ class GestionReclamationsScolariteController {
             $id = (int)$_GET['id'];
             $nouveauStatut = $_POST['nouveau_statut'];
             $this->reclamationModel->updateStatut($id, $nouveauStatut);
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Succès');
+        }else{
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Erreur');
         }
         header('Location: ?page=gestion_reclamations_scolarite');
         exit;

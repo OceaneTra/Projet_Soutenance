@@ -6,6 +6,7 @@ require_once __DIR__ . "/../models/Utilisateur.php";
 require_once __DIR__ . "/../models/TypeUtilisateur.php";
 require_once __DIR__ . "/../models/GroupeUtilisateur.php";
 require_once __DIR__ . "/../models/NiveauAccesDonnees.php";
+require_once __DIR__ . "/../models/AuditLog.php";
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -21,6 +22,7 @@ class GestionUtilisateurController
     private $groupeUtilisateur;
 
     private $niveauAcces;
+    private $auditLog;
 
 
 
@@ -32,6 +34,7 @@ class GestionUtilisateurController
         $this->groupeUtilisateur = new GroupeUtilisateur(Database::getConnection());
         $this->typeUtilisateur = new TypeUtilisateur(Database::getConnection());
         $this->niveauAcces = new NiveauAccesDonnees(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
 
     }
 
@@ -101,9 +104,11 @@ class GestionUtilisateurController
                             )) {
                                 if($this->envoyerEmailInscriptionPHPMailer($login_utilisateur, $nom_utilisateur, $login_utilisateur, $mdp)){
                                     $messageSuccess = "Utilisateur ajouté avec succès et email envoyé.";
+                                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'utilisateur', 'Succès');
                                 }
                             } else {
                                 $messageErreur = "Erreur lors de l'ajout de l'utilisateur.";
+                                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                             }
                         }
                     }
@@ -169,12 +174,15 @@ class GestionUtilisateurController
                                     $utilisateur['mdp']
                                 )) {
                                     $messageSuccess= count($utilisateursAjoutes) . " utilisateur(s) ajouté(s) avec succès et emails envoyés.";
+                                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'utilisateur', 'Succès');
                                 } else {
                                     $messageErreur = "Utilisateurs ajoutés mais erreur lors de l'envoi des emails.";
+                                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                                 }
                             }
                         } catch (Exception $e) {
                             $messageErreur = "Erreur lors de l'ajout en masse : " . $e->getMessage();
+                            $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                         }
                     } else {
                         $messageErreur= "Aucun utilisateur valide à ajouter";
@@ -209,9 +217,10 @@ class GestionUtilisateurController
                             $id_utilisateur
                         )) {
                             $messageSuccess = "Utilisateur modifié avec succès.";
-                           
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Succès');
                         } else {
                             $messageErreur = "Erreur lors de la modification de l'utilisateur.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                         }
                     }
                     
@@ -229,8 +238,10 @@ class GestionUtilisateurController
                         }
                         if ($success) {
                             $messageSuccess = "Utilisateurs activés avec succès.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Succès');
                         } else {
                             $messageErreur = "Erreur lors de l'activation des utilisateurs.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                         }
                     } elseif (isset($_POST['submit_disable_multiple']) && $_POST['submit_disable_multiple']==2 ) {
                         $success = true;
@@ -242,8 +253,10 @@ class GestionUtilisateurController
                         }
                         if ($success) {
                             $messageSuccess = "Utilisateurs désactivés avec succès.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Succès');
                         } else {
                             $messageErreur = "Erreur lors de la désactivation des utilisateurs.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur');
                         }
                     }
                 }

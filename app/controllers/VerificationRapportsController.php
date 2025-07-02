@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
 require_once __DIR__ . '/../models/Approuver.php';
 require_once __DIR__ . '/../models/PersAdmin.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 require_once __DIR__ . '/../utils/EmailService.php';
 
 class VerificationRapportsController {
@@ -11,6 +12,7 @@ class VerificationRapportsController {
     private $rapportModel;
     private $approbationModel;
     private $persAdminModel;
+    private $auditLog;
     private $pdo;
     
     public function __construct() {
@@ -18,6 +20,7 @@ class VerificationRapportsController {
         $this->rapportModel = new RapportEtudiant($this->pdo);
         $this->approbationModel = new Approuver($this->pdo);
         $this->persAdminModel = new PersAdmin($this->pdo);
+        $this->auditLog = new AuditLog($this->pdo);
     }
     
     public function index() {
@@ -140,6 +143,9 @@ class VerificationRapportsController {
                 // Envoyer un email à l'étudiant
                 $this->envoyerEmailNotification($id_rapport, 'approuve', $commentaire);
                 
+                // Log l'action dans le journal des audits
+                $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
+                
                 return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
             } else {
                 return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
@@ -208,6 +214,9 @@ class VerificationRapportsController {
                 
                 // Envoyer un email à l'étudiant
                 $this->envoyerEmailNotification($id_rapport, 'desapprouve', $commentaire);
+                
+                // Log l'action dans le journal des audits
+                $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
                 
                 return ['success' => true, 'message' => 'Rapport rejeté avec succès'];
             } else {

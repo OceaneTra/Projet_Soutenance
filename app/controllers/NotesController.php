@@ -8,6 +8,7 @@ require_once __DIR__ . '/../models/NiveauEtude.php';
 require_once __DIR__ . '/../models/Semestre.php';
 require_once __DIR__ . '/../models/Ue.php';
 require_once __DIR__ . '/../models/Ecue.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 
 
@@ -19,6 +20,7 @@ class NotesController {
     private $ueModel;
     private $ecueModel;
     private $db;
+    private $auditLog;
 
     public function __construct() {
         $this->db = Database::getConnection();
@@ -28,6 +30,7 @@ class NotesController {
         $this->niveauModel = new NiveauEtude($this->db);
         $this->ecueModel = new Ecue($this->db);
         $this->semestreModel = new Semestre($this->db);
+        $this->auditLog = new AuditLog($this->db);
     }
 
     public function index() {
@@ -155,8 +158,10 @@ class NotesController {
                 
                 if ($success) {
                     $_SESSION['success'] = "Les notes ont été enregistrées avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], "notes", "Succès  ");
                 } else {
                     $_SESSION['error'] = "Une erreur est survenue lors de l'enregistrement des notes.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], "notes", "Erreur");
                 }
                 
                 // Rediriger vers la même page avec les mêmes paramètres
@@ -172,6 +177,7 @@ class NotesController {
             } catch (Exception $e) {
                
                 $_SESSION['error'] = "Une erreur est survenue lors de l'enregistrement des notes: " . $e->getMessage();
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "notes", "Erreur");
                 
                 // Rediriger vers la même page avec les mêmes paramètres
                 $redirectUrl = "?page=gestion_notes_evaluations";

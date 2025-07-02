@@ -1,16 +1,19 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Reclamation.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 class GestionReclamationsController {
 
     private $baseViewPath;
     private $reclamationModel;
+    private $auditLog;
 
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_reclamations/';
         $this->reclamationModel = new Reclamation();
+        $this->auditLog = new AuditLog(Database::getConnection());
 
         // Vérifier que l'utilisateur est connecté et est un étudiant
         if (!isset($_SESSION['num_etu'])) {
@@ -105,10 +108,12 @@ class GestionReclamationsController {
             $reclamationId = $this->reclamationModel->creer($donnees);
 
             if ($reclamationId) {
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'reclamation', 'Succès');
                 $this->afficherMessage('Réclamation soumise avec succès. Numéro de référence : REC-' . $reclamationId, 'success');
                 header('Location: ?page=gestion_reclamations');
                 exit;
             } else {
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'reclamation', 'Erreur');
                 $this->afficherMessage('Erreur lors de la soumission de la réclamation. Veuillez réessayer.', 'error');
                 header('Location: ?page=gestion_reclamations&action=soumettre_reclamation');
                 exit;

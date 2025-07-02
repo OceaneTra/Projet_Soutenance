@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mar. 01 juil. 2025 à 00:10
+-- Généré le : mar. 01 juil. 2025 à 16:43
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -982,13 +982,8 @@ CREATE TABLE `pister` (
   `id_piste` int NOT NULL,
   `id_utilisateur` int NOT NULL,
   `action` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type d''action (CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.)',
-  `table_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nom de la table concernée',
-  `record_id` int DEFAULT NULL COMMENT 'ID de l''enregistrement concerné',
-  `details` text COLLATE utf8mb4_unicode_ci COMMENT 'Détails de l''action (anciennes/nouvelles valeurs, etc.)',
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Adresse IP de l''utilisateur',
-  `user_agent` text COLLATE utf8mb4_unicode_ci COMMENT 'User agent du navigateur',
-  `session_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de session',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `nom_table` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nom de la table concernée',
+  `date_creation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1691,8 +1686,8 @@ ALTER TABLE `pister`
   ADD PRIMARY KEY (`id_piste`),
   ADD KEY `idx_utilisateur` (`id_utilisateur`),
   ADD KEY `idx_action` (`action`),
-  ADD KEY `idx_table` (`table_name`),
-  ADD KEY `idx_created_at` (`created_at`),
+  ADD KEY `idx_table` (`nom_table`),
+  ADD KEY `idx_created_at` (`date_creation`),
   ADD KEY `idx_utilisateur_action` (`id_utilisateur`,`action`),
   ADD KEY `id_action` (`action`),
   ADD KEY `id_action_2` (`action`);

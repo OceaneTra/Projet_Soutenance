@@ -19,6 +19,7 @@ require_once __DIR__ . '/../models/Entreprise.php';
 require_once __DIR__ . '/../models/Message.php';
 require_once __DIR__ . '/../models/Attribution.php';
 require_once __DIR__ . '/../models/Enseignant.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 class ParametreController
 {
@@ -43,6 +44,7 @@ class ParametreController
 
     private $attribution;
     private $enseignant;
+    private $auditLog;
 
     public function __construct()
     {
@@ -66,6 +68,7 @@ class ParametreController
         $this->message = new Message(Database::getConnection());
         $this->attribution = new Attribution(Database::getConnection());
         $this->enseignant = new Enseignant(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
     }
 
 
@@ -83,14 +86,7 @@ class ParametreController
             $annee1 = date("Y", strtotime($dateDebut));
             $annee2 = date("Y", strtotime($dateFin));
 
-            // Vérification que la durée ne dépasse pas 1 an
-            $dateDebutObj = new DateTime($dateDebut);
-            $dateFinObj = new DateTime($dateFin);
-            $interval = $dateDebutObj->diff($dateFinObj);
-            
-            if ($interval->y > 0 || ($interval->y == 0 && $interval->m > 0)) {
-                $messageErreur = "L'année académique ne peut pas dépasser 1 an.";
-            } else if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
+           if (($annee1 == $annee2) || ($dateDebut >= $dateFin)) {
                 $messageErreur = "Les dates de début et de fin ne sont pas valides.";
             } else {
                 // Calculer le nouvel ID basé sur les nouvelles dates
@@ -98,10 +94,12 @@ class ParametreController
                 
                 if ($this->anneeAcademique->isAnneeAcademiqueExist($nouvel_id, $dateDebut, $dateFin)) {
                     $messageErreur = "Cette année académique existe déjà.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'annee_academique', 'Erreur');
                 }
                 // Vérification de l'existence de l'année académique
                 if ($this->anneeAcademique->isAnneeAcademiqueInUse($nouvel_id)) {
                     $messageErreur = "Cette année académique est déjà utilisée.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'annee_academique', 'Erreur');
                 }
 
                 if (empty($messageErreur)) {
@@ -109,15 +107,19 @@ class ParametreController
                         // MODIFICATION
                         if ($this->anneeAcademique->updateAnneeAcademique($nouvel_id, $dateDebut, $dateFin)) {
                             $messageSuccess = "Année académique modifiée avec succès.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'annee_academique', 'Succès');
                         } else {
                             $messageErreur = "Erreur lors de la mise à jour de l'année académique.";
+                            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'annee_academique', 'Erreur');
                         }
                     } else {
                         // AJOUT
                         if ($this->anneeAcademique->ajouterAnneeAcademique($dateDebut, $dateFin)) {
                             $messageSuccess = "Année académique ajoutée avec succès.";
+                            $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'annee_academique', 'Succès');
                         } else {
                             $messageErreur = "Erreur lors de l'ajout de l'année académique.";
+                            $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'annee_academique', 'Erreur');
                         }
                     }
                 }
@@ -136,8 +138,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Années académiques supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'annee_academique', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des années académiques.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'annee_academique', 'Erreur');
             }
         }
 
@@ -170,15 +174,19 @@ class ParametreController
                 // MODIFICATION
                 if ($this->grade->updateGrade($_POST['id_grade'], $lib_grade)) {
                     $messageSuccess = "Grade modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'grade', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du grade.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'grade', 'Erreur');
                 }
             } else {
                 // AJOUT
                 if ($this->grade->ajouterGrade($lib_grade)) {
                     $messageSuccess = "Grade ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'grade', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du grade.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'grade', 'Erreur');
                 }
             }
         }
@@ -195,8 +203,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Grades supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'grade', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des grades.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'grade', 'Erreur');
             }
         }
 
@@ -232,14 +242,18 @@ class ParametreController
                 if (!empty($_POST['id_groupe'])) {
                     if ($this->groupeUtilisateur->updateGroupeUtilisateur($_POST['id_groupe'], $lib_groupe)) {
                         $messageSuccess = "Groupe utilisateur modifié avec succès.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de la modification du groupe utilisateur.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Erreur');
                     }
                 } else {
                     if ($this->groupeUtilisateur->ajouterGroupeUtilisateur($lib_groupe)) {
                         $messageSuccess = "Groupe utilisateur ajouté avec succès.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du groupe utilisateur.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Erreur');
                     }
                 }
             }
@@ -256,8 +270,10 @@ class ParametreController
 
                 if ($success) {
                     $messageSuccess = "Groupes utilisateurs supprimés avec succès.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la suppression des groupes utilisateurs.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'groupe_utilisateur', 'Erreur');
                 }
             }
 
@@ -279,14 +295,18 @@ class ParametreController
                 if (!empty($_POST['id_type_utilisateur'])) {
                     if ($this->typeUtilisateur->updateTypeUtilisateur($_POST['id_type_utilisateur'], $lib_type)) {
                         $messageSuccess = "Type utilisateur modifié avec succès.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'type_utilisateur', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de la modification du type utilisateur.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'type_utilisateur', 'Erreur');
                     }
                 } else {
                     if ($this->typeUtilisateur->ajouterTypeUtilisateur($lib_type)) {
                         $messageSuccess = "Type utilisateur ajouté avec succès.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'type_utilisateur', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du type utilisateur.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'type_utilisateur', 'Erreur');
                     }
                 }
             }
@@ -303,8 +323,10 @@ class ParametreController
 
                 if ($success) {
                     $messageSuccess = "Types utilisateurs supprimés avec succès.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'type_utilisateur', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la suppression des types utilisateurs.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'type_utilisateur', 'Erreur');
                 }
             }
 
@@ -339,14 +361,18 @@ class ParametreController
             if (!empty($_POST['id_specialite'])) {
                 if ($this->specialite->updateSpecialite($_POST['id_specialite'], $lib_specialite)) {
                     $messageSuccess = "Spécialité modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'specialite', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de la spécialité.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'specialite', 'Erreur');
                 }
             } else {
                 if ($this->specialite->ajouterSpecialite($lib_specialite)) {
                     $messageSuccess = "Spécialité ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'specialite', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de la spécialité.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'specialite', 'Erreur');
                 }
             }
         }
@@ -363,8 +389,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Spécialités supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'specialite', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des spécialités.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'specialite', 'Erreur');
             }
         }
 
@@ -398,14 +426,18 @@ class ParametreController
             if (!empty($_POST['id_niv_etude'])) {
                 if ($this->niveauEtude->updateNiveauEtude($_POST['id_niv_etude'], $lib_niveau, $montant_scolarite, $montant_inscription, $id_enseignant)) {
                     $messageSuccess = "Niveau d'étude modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_etude', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'étude.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_etude', 'Erreur');
                 }
             } else {
                 if ($this->niveauEtude->ajouterNiveauEtude($lib_niveau, $montant_scolarite, $montant_inscription, $id_enseignant)) {
                     $messageSuccess = "Niveau d'étude ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_etude', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'étude.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_etude', 'Erreur');
                 }
             }
         }
@@ -421,8 +453,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Niveaux d'étude supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_etude', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des niveaux d'étude.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_etude', 'Erreur');
             }
         }
 
@@ -457,14 +491,18 @@ class ParametreController
             if (!empty($_POST['id_ue'])) {
                 if ($this->ue->updateUe($_POST['id_ue'], $lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit, $id_enseignant)) {
                     $messageSuccess = "UE modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'ue', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'UE.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'ue', 'Erreur');
                 }
             } else {
                 if ($this->ue->ajouterUe($lib_ue, $id_niveau_etude, $id_semestre, $id_annee, $credit, $id_enseignant)) {
                     $messageSuccess = "UE ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'ue', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'UE.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'ue', 'Erreur');
                 }
             }
         }
@@ -480,8 +518,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "UEs supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'ue', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des UEs.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'ue', 'Erreur');
             }
         }
 
@@ -517,14 +557,18 @@ class ParametreController
             if (!empty($_POST['id_ecue'])) {
                 if ($this->ecue->updateEcue($_POST['id_ecue'], $id_ue, $lib_ecue, $credit, $id_enseignant)) {
                     $messageSuccess = "ECUE modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'ecue', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'ECUE.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'ecue', 'Erreur');
                 }
             } else {
                 if ($this->ecue->ajouterEcue($id_ue, $lib_ecue, $credit, $id_enseignant)) {
                     $messageSuccess = "ECUE ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'ecue', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'ECUE.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'ecue', 'Erreur');
                 }
             }
         }
@@ -540,8 +584,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "ECUEs supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'ecue', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des ECUEs.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'ecue', 'Erreur');
             }
         }
 
@@ -572,14 +618,18 @@ class ParametreController
             if (!empty($_POST['id_statut_jury'])) {
                 if ($this->statutJury->updateStatutJury($_POST['id_statut_jury'], $lib_statut)) {
                     $messageSuccess = "Statut jury modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'statut_jury', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du statut jury.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'statut_jury', 'Erreur');
                 }
             } else {
                 if ($this->statutJury->ajouterStatutJury($lib_statut)) {
                     $messageSuccess = "Statut jury ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'statut_jury', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du statut jury.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'statut_jury', 'Erreur');
                 }
             }
         }
@@ -595,8 +645,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Statuts jury supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'statut_jury', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des statuts jury.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'statut_jury', 'Erreur');
             }
         }
 
@@ -625,14 +677,18 @@ class ParametreController
             if (!empty($_POST['id_approb'])) {
                 if ($this->niveauApprobation->updateNiveauApprobation($_POST['id_approb'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'approbation modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_approbation', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'approbation.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_approbation', 'Erreur');
                 }
             } else {
                 if ($this->niveauApprobation->ajouterNiveauApprobation($lib_niveau)) {
                     $messageSuccess = "Niveau d'approbation ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_approbation', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'approbation.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_approbation', 'Erreur');
                 }
             }
         }
@@ -648,8 +704,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Niveaux d'approbation supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_approbation', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des niveaux d'approbation.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_approbation', 'Erreur');
             }
         }
 
@@ -679,14 +737,18 @@ class ParametreController
             if (!empty($_POST['id_semestre'])) {
                 if ($this->semestre->updateSemestre($_POST['id_semestre'], $lib_semestre, $id_niv_etude)) {
                     $messageSuccess = "Semestre modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'semestre', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du semestre.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'semestre', 'Erreur');
                 }
             } else {
                 if ($this->semestre->ajouterSemestre($lib_semestre, $id_niv_etude)) {
                     $messageSuccess = "Semestre ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'semestre', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du semestre.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'semestre', 'Erreur');
                 }
             }
         }
@@ -702,8 +764,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Semestres supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'semestre', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des semestres.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'semestre', 'Erreur');
             }
         }
 
@@ -733,14 +797,18 @@ class ParametreController
             if (!empty($_POST['id_niveau_acces_donnees'])) {
                 if ($this->niveauAccesDonnees->updateNiveauAccesDonnees($_POST['id_niveau_acces_donnees'], $lib_niveau)) {
                     $messageSuccess = "Niveau d'accès modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du niveau d'accès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Erreur');
                 }
             } else {
                 if ($this->niveauAccesDonnees->ajouterNiveauAccesDonnees($lib_niveau)) {
                     $messageSuccess = "Niveau d'accès ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du niveau d'accès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Erreur');
                 }
             }
         }
@@ -756,8 +824,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Niveaux d'accès supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des niveaux d'accès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'niveau_acces_donnees', 'Erreur');
             }
         }
 
@@ -790,14 +860,18 @@ class ParametreController
             if (!empty($_POST['id_traitement'])) {
                 if ($this->traitement->updateTraitement($_POST['id_traitement'], $lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'traitement', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du traitement.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'traitement', 'Erreur');
                 }
             } else {
                 if ($this->traitement->addTraitement($lib_traitement, $label_traitement, $icone_traitement, $ordre_traitement)) {
                     $messageSuccess = "Traitement ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'traitement', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du traitement.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'traitement', 'Erreur');
                 }
             }
         }
@@ -814,8 +888,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Traitements supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'traitement', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des traitements.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'traitement', 'Erreur');
             }
         }
 
@@ -844,14 +920,18 @@ class ParametreController
             if (!empty($_POST['id_entreprise'])) {
                 if ($this->entreprise->updateEntreprise($_POST['id_entreprise'], $lib_entreprise)) {
                     $messageSuccess = "Entreprise modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'entreprise', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'entreprise.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'entreprise', 'Erreur');
                 }
             } else {
                 if ($this->entreprise->ajouterEntreprise($lib_entreprise)) {
                     $messageSuccess = "Entreprise ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'entreprise', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'entreprise.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'entreprise', 'Erreur');
                 }
             }
         }
@@ -867,8 +947,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Entreprises supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'entreprise', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des entreprises.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'entreprise', 'Erreur');
             }
         }
 
@@ -896,14 +978,18 @@ class ParametreController
             if (!empty($_POST['id_action'])) {
                 if ($this->action->updateAction($_POST['id_action'], $lib_action)) {
                     $messageSuccess = "Action modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'action', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de l'action.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'action', 'Erreur');
                 }
             } else {
                 if ($this->action->ajouterAction($lib_action)) {
                     $messageSuccess = "Action ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'action', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de l'action.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'action', 'Erreur');
                 }
             }
         }
@@ -919,8 +1005,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Actions supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'action', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des actions.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'action', 'Erreur');
             }
         }
 
@@ -948,14 +1036,18 @@ class ParametreController
             if (!empty($_POST['id_fonction'])) {
                 if ($this->fonction->updateFonction($_POST['id_fonction'], $lib_fonction)) {
                     $messageSuccess = "Fonction modifiée avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'fonction', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification de la fonction.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'fonction', 'Erreur');
                 }
             } else {
                 if ($this->fonction->ajouterFonction($lib_fonction)) {
                     $messageSuccess = "Fonction ajoutée avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'fonction', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout de la fonction.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'fonction', 'Erreur');
                 }
             }
         }
@@ -971,8 +1063,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Fonctions supprimées avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'fonction', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des fonctions.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'fonction', 'Erreur');
             }
         }
 
@@ -1002,14 +1096,18 @@ class ParametreController
             if (!empty($_POST['id_message'])) {
                 if ($this->message->updateMessage($_POST['id_message'], $contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message modifié avec succès.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'message', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la modification du message.";
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'message', 'Erreur');
                 }
             } else {
                 if ($this->message->ajouterMessage($contenu_message, $lib_message, $type_message)) {
                     $messageSuccess = "Message ajouté avec succès.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'message', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de l'ajout du message.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'message', 'Erreur');
                 }
             }
         }
@@ -1025,8 +1123,10 @@ class ParametreController
 
             if ($success) {
                 $messageSuccess = "Messages supprimés avec succès.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'message', 'Succès');
             } else {
                 $messageErreur = "Erreur lors de la suppression des messages.";
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'message', 'Erreur');
             }
         }
 
@@ -1110,10 +1210,12 @@ class ParametreController
                 $this->attribution->ajouterAttribution($groupeId, $traitementId);
             }
 
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'attribution', 'Succès');
             // Rediriger avec un message de succès
             header('Location: ?page=parametres_generaux&action=gestion_attribution&groupe=' . $groupeId . '&success=1');
             exit;
         } catch (Exception $e) {
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'attribution', 'Erreur');
             // Rediriger avec un message d'erreur
             header('Location: ?page=parametres_generaux&action=gestion_attribution&groupe=' . $groupeId . '&error=1');
             exit;

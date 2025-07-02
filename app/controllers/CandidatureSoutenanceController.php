@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Entreprise.php';
 require_once __DIR__ . '/../models/InfoStage.php';
+require_once __DIR__ . '/../models/AuditLog.php';   
 
 
 class CandidatureSoutenanceController {
@@ -17,7 +18,7 @@ class CandidatureSoutenanceController {
 
   private $db;
 
-
+    private $auditLog;
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/candidature_soutenance/';
@@ -25,7 +26,7 @@ class CandidatureSoutenanceController {
         $this->etudiant = new Etudiant($this->db);
         $this->entreprise = new Entreprise($this->db);
         $this->stage = new InfoStage($this->db);
-       
+        $this->auditLog = new AuditLog($this->db);
     }
 
   public function index()
@@ -78,6 +79,7 @@ class CandidatureSoutenanceController {
             
             if ($existing_candidature && ($status === 'En attente' || $status === 'Validée')) {
                 $_SESSION['error'] = "Vous avez déjà soumis une candidature.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
                 return;
             }
 
@@ -85,6 +87,7 @@ class CandidatureSoutenanceController {
             $stage_info = $this->stage->getStageInfo($etudiant_id);
             if (!$stage_info) {
                 $_SESSION['error'] = "Veuillez d'abord remplir les informations de stage.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
                 return;
             }
 
@@ -93,8 +96,10 @@ class CandidatureSoutenanceController {
             
             if ($result) {
                 $_SESSION['success'] = "Votre candidature a été soumise avec succès. Vous recevrez une réponse après l'évaluation de votre dossier.";
+                    $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Succès");
             } else {
                 $_SESSION['error'] = "Une erreur est survenue lors de la soumission de votre candidature.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
             }
             
            
@@ -109,7 +114,7 @@ class CandidatureSoutenanceController {
         
         if (!$compte_rendu) {
             $_SESSION['error'] = "Aucun compte rendu disponible pour le moment. Veuillez patienter jusqu'à ce que la commission d'évaluation ait examiné votre dossier.";
-            
+            $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
         }
         
        
@@ -158,8 +163,10 @@ class CandidatureSoutenanceController {
             
             if ($result) {
                 $_SESSION['success'] = "Les informations du stage ont été enregistrées avec succès.";
-            } else {
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Succès");
+                } else {
                 $_SESSION['error'] = "Une erreur est survenue lors de l'enregistrement des informations.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
             }
         }
     }

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Scolarite.php';
 require_once __DIR__ . '/../models/InfoStage.php';
 require_once __DIR__ . '/../models/PersAdmin.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 require_once __DIR__ . '/../utils/EmailService.php';
 
 class GestionCandidaturesController {
@@ -11,8 +12,8 @@ class GestionCandidaturesController {
     private $etudiant;
     private $scolarite;
     private $emailService;
-
     private $pers_admin;
+    private $auditLog;
 
     public function __construct() {
         $this->db = Database::getConnection();
@@ -20,6 +21,7 @@ class GestionCandidaturesController {
         $this->scolarite = new Scolarite($this->db);
         $this->emailService = new EmailService();
         $this->pers_admin = new PersAdmin($this->db);
+        $this->auditLog = new AuditLog($this->db);
     }
     
     public function index() {
@@ -44,6 +46,9 @@ class GestionCandidaturesController {
             $etapeValidee = $_POST['etape'] ?? '';
             $_SESSION['etapes_validation'][$examiner][$etapeValidee] = 'validé';
             
+            // Audit logging
+            $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'candidature_soutenance', 'Succès');
+            
             // Si c'est la dernière étape, aller au résumé final
             if ($etapeValidee == 3) {
                 header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=4");
@@ -59,6 +64,9 @@ class GestionCandidaturesController {
             $etapeRejetee = $_POST['etape'] ?? '';
             $_SESSION['etapes_validation'][$examiner][$etapeRejetee] = 'rejeté';
             
+            // Audit logging
+            $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'candidature_soutenance', 'Succès');
+            
             // Passer à l'étape suivante même en cas de rejet
             if ($etapeRejetee < 3) {
                 header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=" . ($etapeRejetee + 1));
@@ -72,6 +80,7 @@ class GestionCandidaturesController {
         // Nouvelle action pour envoyer les résultats
         if ($action === 'envoyer_resultats' && $examiner) {
             $this->envoyerResultatsFinaux($examiner);
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Envoi résultats', 'candidature_soutenance', 'Succès');
             header("Location: ?page=gestion_candidatures_soutenance&examiner=$examiner&etape=4&email_envoye=1");
             exit;
         }

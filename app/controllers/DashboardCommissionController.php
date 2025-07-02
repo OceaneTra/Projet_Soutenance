@@ -297,26 +297,7 @@ class DashboardCommissionController
         }
     }
 
-    /**
-     * Récupère les données pour les graphiques en format JSON
-     * @return string
-     */
-    public function getChartData()
-    {
-        try {
-            $data = [
-                'evolution' => $this->getEvolutionMensuelle(),
-                'statuts' => $this->getRepartitionStatuts(),
-                'categories' => $this->getPerformanceCategories()
-            ];
-            
-            header('Content-Type: application/json');
-            echo json_encode($data);
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
-    }
+  
 
     /**
      * Affiche le tableau de bord

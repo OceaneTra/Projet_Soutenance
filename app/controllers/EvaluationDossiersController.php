@@ -5,9 +5,19 @@ require_once __DIR__ . '/../models/Valider.php';
 require_once __DIR__ . '/../models/Approuver.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/EvaluationRapport.php';
+require_once __DIR__ . '/../models/AuditLog.php';   
 
 class EvaluationDossiersController {
-    
+    private $auditLog;
+    private $db;
+    private $rapportEtudiant;
+    private $evaluationRapport;
+    public function __construct($pdo) {
+        $this->auditLog = new AuditLog($this->db);
+        $this->db = Database::getConnection();
+        $this->rapportEtudiant = new RapportEtudiant($this->db);
+        $this->evaluationRapport = new EvaluationRapport($this->db);
+    }
     public function index() {
         $stats = $this->getStatistiques();
         $dossiers = $this->getDossiersAEvaluer();
@@ -199,11 +209,13 @@ class EvaluationDossiersController {
             $stmt->execute([$id_rapport]);
             
             Valider::insererDecision($id_enseignant, $id_rapport, 'valider', 'Validé par la commission');
+            $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
             
             echo json_encode(['success' => true, 'message' => 'Rapport validé avec succès']);
             
         } catch (Exception $e) {
             error_log("Erreur validerDossier: " . $e->getMessage());
+            $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Erreur');
             echo json_encode(['success' => false, 'message' => 'Erreur lors de la validation: ' . $e->getMessage()]);
         }
     }
@@ -232,11 +244,13 @@ class EvaluationDossiersController {
             $stmt->execute([$id_rapport]);
             
             Valider::insererDecision($id_enseignant, $id_rapport, 'rejeter', $commentaire);
+            $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
             
             echo json_encode(['success' => true, 'message' => 'Rapport rejeté avec succès']);
             
         } catch (Exception $e) {
             error_log("Erreur rejeterDossier: " . $e->getMessage());
+            $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Erreur');
             echo json_encode(['success' => false, 'message' => 'Erreur lors du rejet: ' . $e->getMessage()]);
         }
     }
@@ -332,6 +346,7 @@ class EvaluationDossiersController {
                 $stmt->execute([$id_rapport]);
                 
                 Valider::insererDecision($id_enseignant, $id_rapport, 'valider', 'Validé par consensus de la commission');
+                $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
                 
                 echo json_encode(['success' => true, 'message' => 'Rapport validé par consensus de la commission']);
                 
@@ -345,18 +360,20 @@ class EvaluationDossiersController {
                 $stmt->execute([$id_rapport]);
                 
                 Valider::insererDecision($id_enseignant, $id_rapport, 'rejeter', 'Rejeté par la commission');
+                $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
                 
                 echo json_encode(['success' => true, 'message' => 'Rapport rejeté par la commission']);
             }
             
         } catch (Exception $e) {
             error_log("Erreur lors de la finalisation: " . $e->getMessage());
+            $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Erreur');
             echo json_encode(['success' => false, 'message' => 'Erreur lors de la finalisation: ' . $e->getMessage()]);
         }
     }
     
     public function detail($id_rapport) {
-        $rapport = RapportEtudiants::getById($id_rapport);
+        $rapport = RapportEtudiant::getById($id_rapport);
         $decisions = Valider::getByRapport($id_rapport);
         return [
             'rapport' => $rapport,

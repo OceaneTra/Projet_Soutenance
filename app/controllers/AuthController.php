@@ -8,6 +8,7 @@ require_once __DIR__ . '/../models/PersAdmin.php';
 require_once __DIR__ . '/../models/Grade.php';
 require_once __DIR__ . '/../models/Fonction.php';
 require_once __DIR__ . '/../models/Specialite.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 // Si nécessaire pour d'autres opérations
 
@@ -16,12 +17,14 @@ class AuthController {
     private $enseignantModel;
     private $persAdminModel;
     private $etudiantModel;
+    private $auditLog;
 
     public function __construct($db) {
         $this->db = $db;
         $this->enseignantModel = new Enseignant($db);
         $this->persAdminModel = new PersAdmin($db);
         $this->etudiantModel = new Etudiant($db);
+        $this->auditLog = new AuditLog($db);
         
        
     }
@@ -74,13 +77,16 @@ class AuthController {
                     $_SESSION['num_etu'] = $etudiant->num_etu;
                 }
             }
+            $this->auditLog->logConnexion($infoUtilisateur['id_utilisateur'], 'utilisateur', 'Succès');
             return true;
         } 
+        $this->auditLog->logConnexion(null, 'utilisateur', 'Erreur');
         return false;
     }
 
     public function logout()
     {
+        $this->auditLog->logDeconnexion($_SESSION['id_utilisateur'] ?? null, 'utilisateur', 'Succès');
        
 
         // Détruire toutes les données de session
@@ -109,7 +115,7 @@ class AuthController {
         if (!password_verify($currentPassword, $user->mdp_utilisateur)) {
             $messageErreur = 'Le mot de passe actuel est incorrect.';
             $GLOBALS['messageErreur'] = $messageErreur;
-            
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
         
             return false;
         }
@@ -118,6 +124,7 @@ class AuthController {
         if ($newPassword !== $confirmPassword) {
             $messageErreur = 'Les mots de passe ne correspondent pas.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
             
             return false;
         }
@@ -126,7 +133,7 @@ class AuthController {
         if (password_verify($newPassword, $user->mdp_utilisateur)) {
             $messageErreur = 'Le nouveau mot de passe doit être différent de l\'ancien.';
             $GLOBALS['messageErreur'] = $messageErreur;
-            
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
             
             return false;
         }
@@ -135,7 +142,7 @@ class AuthController {
         if (strlen($newPassword) < 8) {
             $messageErreur = 'Le mot de passe doit contenir au moins 8 caractères.';
             $GLOBALS['messageErreur'] = $messageErreur;
-            
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
             
             return false;
         }
@@ -144,6 +151,7 @@ class AuthController {
         if (!preg_match('/[A-Z]/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins une majuscule.';
             $GLOBALS['messageErreur'] = $messageErreur;
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
             
             return false;
         }
@@ -152,7 +160,7 @@ class AuthController {
         if (!preg_match('/[0-9]/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins un chiffre.';
             $GLOBALS['messageErreur'] = $messageErreur;
-            
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
          
             return false;
         }
@@ -161,7 +169,7 @@ class AuthController {
         if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]+/', $newPassword)) {
             $messageErreur = 'Le mot de passe doit contenir au moins un caractère spécial.';
             $GLOBALS['messageErreur'] = $messageErreur;
-            
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Erreur'); 
           
             return false;
         }
@@ -173,7 +181,7 @@ class AuthController {
         if ($utilisateur->updatePassword($hashedPassword, $_SESSION['id_utilisateur'])) {
             $messageSuccess = 'Mot de passe mis à jour avec succès.';
             $GLOBALS['messageSuccess'] = $messageSuccess;
-      
+            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'utilisateur', 'Succès'); 
             return true;
         }
 

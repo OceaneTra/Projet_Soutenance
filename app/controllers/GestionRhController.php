@@ -6,6 +6,7 @@ require_once __DIR__ . "/../models/PersAdmin.php";
 require_once __DIR__ . "/../models/Grade.php";
 require_once __DIR__ . "/../models/Fonction.php";
 require_once __DIR__ . "/../models/Specialite.php";
+require_once __DIR__ . "/../models/AuditLog.php";
 
 class GestionRhController
 {
@@ -15,6 +16,7 @@ class GestionRhController
     private $gradeModel;
     private $fonctionModel;
     private $specialiteModel;
+    private $auditLog;
 
     public function __construct()
     {
@@ -24,6 +26,7 @@ class GestionRhController
         $this->gradeModel = new Grade(Database::getConnection());
         $this->fonctionModel = new Fonction(Database::getConnection());
         $this->specialiteModel = new Specialite(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
     }
 
     public function index()
@@ -52,16 +55,20 @@ class GestionRhController
                     if ($this->enseignantModel->modifierEnseignant($_POST['id_enseignant'], $nom, $prenom, $email, 
                         $id_grade, $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant)) {
                         $messageSuccess = "Enseignant modifié avec succès.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'enseignant', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de la modification de l'enseignant.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'enseignant', 'Erreur');
                     }
                 } else {
                     // Ajout
                     if ($this->enseignantModel->ajouterEnseignant($nom, $prenom, $email, $id_grade, 
                         $id_specialite, $id_fonction, $date_grade, $date_fonction,$type_enseignant)) {
                         $messageSuccess = "Enseignant ajouté avec succès.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'enseignant', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de l'ajout de l'enseignant.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'enseignant', 'Erreur');
                     }
                 }
             }
@@ -78,8 +85,10 @@ class GestionRhController
 
                 if ($success) {
                     $messageSuccess = "Enseignants supprimés avec succès.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'enseignant', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la suppression des enseignants.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'enseignant', 'Erreur');
                 }
             }
 
@@ -105,15 +114,19 @@ class GestionRhController
                     // Modification
                     if ($this->persAdminModel->modifierPersAdmin($_POST['id_pers_admin'], $nom, $prenom, $email, $telephone, $poste, $date_embauche)) {
                         $messageSuccess = "Personnel administratif modifié avec succès.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'pers_admin', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de la modification du personnel administratif.";
+                        $this->auditLog->logModification($_SESSION['id_utilisateur'], 'pers_admin', 'Erreur');
                     }
                 } else {
                     // Ajout
                     if ($this->persAdminModel->ajouterPersAdmin($nom, $prenom, $email, $telephone, $poste, $date_embauche)) {
                         $messageSuccess = "Personnel administratif ajouté avec succès.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'pers_admin', 'Succès');
                     } else {
                         $messageErreur = "Erreur lors de l'ajout du personnel administratif.";
+                        $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'pers_admin', 'Erreur');
                     }
                 }
             }
@@ -130,8 +143,10 @@ class GestionRhController
 
                 if ($success) {
                     $messageSuccess = "Personnel administratif supprimé avec succès.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'pers_admin', 'Succès');
                 } else {
                     $messageErreur = "Erreur lors de la suppression du personnel administratif.";
+                    $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'pers_admin', 'Erreur');
                 }
             }
 

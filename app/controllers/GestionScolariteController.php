@@ -2,15 +2,18 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Scolarite.php';
 require_once __DIR__ . '/../models/AnneeAcademique.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 class GestionScolariteController {
     private $scolariteModel;
     private $anneeAcademique;
+    private $auditLog;
     
 
     public function __construct() {
         $this->scolariteModel = new Scolarite(Database::getConnection());
         $this->anneeAcademique = new AnneeAcademique(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
     }
 
     public function index() {
@@ -100,6 +103,9 @@ class GestionScolariteController {
 
             // Enregistrer le versement
             if ($this->scolariteModel->addVersement($data)) {
+                // Audit logging
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versement', 'Succès');
+                
                 // Récupérer les informations mises à jour
                 $inscriptionMiseAJour = $this->scolariteModel->getInscriptionByEtudiantId($_POST['id_etudiant']);
                 if ($inscriptionMiseAJour) {
@@ -109,6 +115,7 @@ class GestionScolariteController {
                 }
                 $GLOBALS['messageSuccess'] = "Versement enregistré avec succès.";
             } else {
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versement', 'Erreur');
                 $GLOBALS['messageErreur'] = "Erreur lors de l'enregistrement du versement.";
             }
         } catch (Exception $e) {
@@ -171,6 +178,8 @@ class GestionScolariteController {
 
                 // Mettre à jour le versement
                 if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
+                    // Audit logging
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Succès');
                     
                     // Récupérer les informations mises à jour
                     $inscriptionMiseAJour = $this->scolariteModel->getInscriptionById($inscription['id_inscription']);
@@ -182,6 +191,7 @@ class GestionScolariteController {
                     
                     $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
                 } else {
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Erreur');
                     $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
                 }
             } else {
@@ -193,8 +203,10 @@ class GestionScolariteController {
                 ];
 
                 if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Succès');
                     $GLOBALS['messageSuccess'] = "Méthode de paiement mise à jour avec succès.";
                 } else {
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Erreur');
                     $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour de la méthode de paiement.";
                 }
             }

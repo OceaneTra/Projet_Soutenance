@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/RapportEtudiant.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Approuver.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 
 class GestionRapportController {
@@ -11,12 +12,14 @@ class GestionRapportController {
     private $rapportModel;
 
     private $etudiant;
+    private $auditLog;
 
     public function __construct()
     {
         $this->baseViewPath = __DIR__ . '/../../ressources/views/gestion_rapports/';
         $this->rapportModel = new RapportEtudiant(Database::getConnection());
         $this->etudiant = new Etudiant(Database::getConnection());
+        $this->auditLog = new AuditLog(Database::getConnection());
 
 
         // Vérifier que l'utilisateur est connecté
@@ -208,6 +211,7 @@ class GestionRapportController {
 
             if ($action === 'save_rapport') {
                 $this->sauvegarderRapport();
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "rapport", "Succès");
             } elseif ($action === 'deposer_rapport') {
                 $id_rapport = $_POST['id_rapport'] ?? null;
                 if (!$id_rapport && isset($_POST['edit_id'])) {
@@ -220,22 +224,28 @@ class GestionRapportController {
                 }
                 $result = $this->enregistrerDepotRapport($id_rapport);
                 if ($result) {
+                    $this->auditLog->logDepot($_SESSION['id_utilisateur'], "rapport", "Succès");
                     header('Location: ?page=gestion_rapports&message=depot_ok');
                     exit;
                 } else {
                     // Vérifier la raison de l'échec
                     if ($this->aUnRapportEnCours($_SESSION['num_etu'])) {
+                        $this->auditLog->logDepot($_SESSION['id_utilisateur'], "rapport", "Erreur");
                         header('Location: ?page=gestion_rapports&message=depot_en_cours');
                         exit;
                     } else {
+                        $this->auditLog->logDepot($_SESSION['id_utilisateur'], "rapport", "Erreur");
                         header('Location: ?page=gestion_rapports&message=depot_fail');
                         exit;
                     }
                 }
             } elseif ($action === 'export_pdf') {
                 $this->exporterRapport();
+                $this->auditLog->logExportation($_SESSION['id_utilisateur'], "rapport", "Succès");
             } else {
+                $this->auditLog->logDepot($_SESSION['id_utilisateur'], "rapport", "Erreur");
                 throw new Exception("Action non reconnue.");
+                
             }
 
         } catch (Exception $e) {
@@ -311,6 +321,7 @@ class GestionRapportController {
         if ($result) {
             $this->sauvegarderContenuRapport($rapport_id, $donneesRapport['contenu_rapport']);
             $this->afficherMessage($message, 'success');
+            $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
             $this->sendJsonResponse([
                 'success' => true,
                 'message' => $message,
@@ -904,8 +915,10 @@ class GestionRapportController {
                     unlink($filename);
                 }
 
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
                 $this->sendJsonResponse(['success' => true, 'message' => 'Rapport supprimé avec succès']);
             } else {
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Erreur');
                 $this->sendJsonResponse(['success' => false, 'message' => 'Rapport non trouvé ou non autorisé']);
             }
         } catch (Exception $e) {
@@ -1133,10 +1146,12 @@ class GestionRapportController {
             $success = $this->rapportModel->deleteRapport($rapportId, $numEtu);
 
             if ($success) {
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
                 // Rediriger avec un message de succès
                 header('Location: ?page=gestion_rapports&message=suppression_ok');
                 exit;
             } else {
+                $this->auditLog->logSuppression($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Erreur');
                 $this->afficherErreur('Erreur lors de la suppression du rapport');
             }
 

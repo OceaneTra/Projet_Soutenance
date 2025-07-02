@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/RapportEtudiant.php';
 require_once __DIR__ . '/../models/Etudiant.php';
 require_once __DIR__ . '/../models/Approuver.php';
 require_once __DIR__ . '/../models/PersAdmin.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 class GestionDossiersCandidaturesController {
     private $db;
@@ -11,6 +12,7 @@ class GestionDossiersCandidaturesController {
     private $etudiant;
     private $approuver;
     private $persAdmin;
+    private $auditLog;
 
     public function __construct() {
         $this->db = Database::getConnection();
@@ -18,6 +20,7 @@ class GestionDossiersCandidaturesController {
         $this->etudiant = new Etudiant($this->db);
         $this->approuver = new Approuver($this->db);
         $this->persAdmin = new PersAdmin($this->db);
+        $this->auditLog = new AuditLog($this->db);
     }
 
     public function index() {
@@ -204,6 +207,9 @@ class GestionDossiersCandidaturesController {
         // Générer le nom du fichier
         $nomFichier = 'rapport_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $rapport['nom_rapport']) . '_' . date('Y-m-d_H-i-s') . '.pdf';
         
+        // Audit logging pour le téléchargement
+        $this->auditLog->logImpression($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
+        
         // Nettoyer tout output et envoyer le PDF
         ob_end_clean();
         header('Content-Type: application/pdf');
@@ -255,6 +261,9 @@ class GestionDossiersCandidaturesController {
         }
 
         $contenu = file_get_contents($fichierContenu);
+        
+        // Audit logging pour la consultation
+        $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Consultation', 'rapport_etudiants', 'Succès');
         
         // Nettoyer tout output et afficher le rapport
         ob_end_clean();

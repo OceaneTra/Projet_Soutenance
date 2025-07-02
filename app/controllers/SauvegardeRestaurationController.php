@@ -1,9 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/AuditLog.php';
 
 class SauvegardeRestaurationController {
     private $backupDir;
     private $auditService;
+    private $auditLog;
 
     public function __construct() {
         // Utiliser un chemin absolu pour le dossier de sauvegarde
@@ -13,6 +15,8 @@ class SauvegardeRestaurationController {
         if (!is_dir($this->backupDir)) {
             mkdir($this->backupDir, 0777, true);
         }
+        
+        $this->auditLog = new AuditLog(Database::getConnection());
     }
 
     // Obtient la configuration de la base de données
@@ -124,7 +128,7 @@ class SauvegardeRestaurationController {
         // Essayer d'abord avec la méthode PHP (plus fiable)
         if ($this->createBackupWithPHP($filepath, $this->getDbConfig())) {
             // Enregistrer l'action d'audit
-            $this->auditService->logDatabaseBackup($filename);
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Sauvegarde', 'base_de_donnees', 'Succès');
             
             header('Location: ?page=sauvegarde_restauration&success=1');
             exit;
@@ -151,7 +155,7 @@ class SauvegardeRestaurationController {
                 // Vérifier si le fichier a été créé et n'est pas vide
                 if ($retval === 0 && file_exists($filepath) && filesize($filepath) > 0) {
                     // Enregistrer l'action d'audit
-                    $this->auditService->logDatabaseBackup($filename);
+                    $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Sauvegarde', 'base_de_donnees', 'Succès');
                     
                     header('Location: ?page=sauvegarde_restauration&success=1');
                     exit;
@@ -163,6 +167,7 @@ class SauvegardeRestaurationController {
         if (file_exists($filepath)) {
             unlink($filepath);
         }
+        $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Sauvegarde', 'base_de_donnees', 'Erreur');
         header('Location: ?page=sauvegarde_restauration&error=backup_failed');
         exit;
     }
@@ -205,7 +210,7 @@ class SauvegardeRestaurationController {
         // Essayer d'abord avec PHP PDO
         if ($this->restoreBackupWithPHP($filepath, $dbConfig)) {
             // Enregistrer l'action d'audit
-            $this->auditService->logDatabaseRestore($filename);
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Restauration', 'base_de_donnees', 'Succès');
             
             header('Location: ?page=sauvegarde_restauration&restored=1');
             exit;
@@ -231,7 +236,7 @@ class SauvegardeRestaurationController {
                 system($cmd, $retval);
                 if ($retval === 0) {
                     // Enregistrer l'action d'audit
-                    $this->auditService->logDatabaseRestore($filename);
+                    $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Restauration', 'base_de_donnees', 'Succès');
                     
                     header('Location: ?page=sauvegarde_restauration&restored=1');
                     exit;
@@ -244,6 +249,7 @@ class SauvegardeRestaurationController {
         }
 
         // Si toutes les tentatives échouent
+        $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Restauration', 'base_de_donnees', 'Erreur');
         header('Location: ?page=sauvegarde_restauration&error=1');
         exit;
     }
@@ -484,8 +490,10 @@ class SauvegardeRestaurationController {
         $filepath = $this->backupDir . $filename;
         if (file_exists($filepath)) {
             unlink($filepath);
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Suppression', 'sauvegarde', 'Succès');
             header('Location: ?page=sauvegarde_restauration&deleted=1');
         } else {
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Suppression', 'sauvegarde', 'Erreur');
             header('Location: ?page=sauvegarde_restauration&error=1');
         }
         exit;
@@ -505,6 +513,7 @@ class SauvegardeRestaurationController {
         $filename = basename($_GET['filename']);
         $filepath = $this->backupDir . $filename;
         if (file_exists($filepath)) {
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Téléchargement', 'sauvegarde', 'Succès');
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -515,6 +524,7 @@ class SauvegardeRestaurationController {
             readfile($filepath);
             exit;
         } else {
+            $this->auditLog->logAction($_SESSION['id_utilisateur'], 'Téléchargement', 'sauvegarde', 'Erreur');
             header('Location: ?page=sauvegarde_restauration&error=1');
             exit;
         }

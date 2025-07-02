@@ -2,15 +2,17 @@
 
 require_once __DIR__ . '/../models/DossierAcademique.php';
 require_once __DIR__ . '/../../app/config/database.php';
+require_once __DIR__ . '/../models/AuditLog.php';   
 
 
 class DossierAcademiqueController {
     private $model;
-
+    private $auditLog;
     private $db;
     public function __construct($pdo) {
         $this->model = new DossierAcademique($pdo);
         $this->db = Database::getConnection();
+        $this->auditLog = new AuditLog($this->db);
     }
 
     public function index(){
@@ -31,6 +33,11 @@ class DossierAcademiqueController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $_POST;
             $success = $this->model->saveOrUpdate($data);
+            if($success){
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "dossiers_academiques", "Succès");
+            }else{
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "dossiers_academiques", "Erreur");
+            }
             // Redirection vers la page d'origine avec message
             $redirect = $_SERVER['HTTP_REFERER'] ?? '/';
             $sep = (strpos($redirect, '?') === false) ? '?' : '&';
