@@ -350,7 +350,6 @@ class Etudiant {
                    JOIN niveau_etude n ON i.id_niveau = n.id_niv_etude
                    JOIN semestre s ON n.id_niv_etude = s.id_niv_etude
                    WHERE i.id_etudiant = :num_etu
-                   AND i.id_annee_acad = (SELECT MAX(id_annee_acad) FROM annee_academique)
                    ORDER BY s.lib_semestre ASC";
             
             $stmt = $this->db->prepare($sql);

@@ -1257,10 +1257,7 @@ foreach ($candidatures as $c) {
                             </button>
                         </form>
                         <?php endif; ?>
-                        <?php elseif ($etape == 4): ?>
-                        <?php if (isset($_GET['email_envoye']) && $_GET['email_envoye'] == '1'): ?>
-                        <!-- Bouton masqué car email déjà envoyé -->
-                        <?php else: ?>
+                        <?php if ($etape == 4): ?>
                         <form method="post"
                             action="?page=gestion_candidatures_soutenance&action=envoyer_resultats&examiner=<?php echo $examiner; ?>"
                             style="display: inline;">
