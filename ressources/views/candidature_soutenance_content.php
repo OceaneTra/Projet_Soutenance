@@ -72,7 +72,7 @@ foreach ($candidatures_etudiant as $cand) {
         </div>
 
 
-        <div class="cards-container grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="cards-container grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <!-- Card 1 - Informations du stage -->
             <div class="card bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div class="card-content p-6 py-6 flex flex-col items-center text-center h-full">
@@ -144,37 +144,7 @@ foreach ($candidatures_etudiant as $cand) {
                 </div>
             </div>
 
-            <!-- Card 3 - Compte rendu -->
-            <div class="card bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div class="card-content p-6 py-6 flex flex-col items-center text-center h-full">
-                    <div class="card-icon text-purple-500 mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-text-dark mb-3">Compte rendu</h2>
-                    <p class="text-text-light mb-6 flex-grow text-base leading-relaxed">Consultez le compte rendu
-                        détaillé
-                        des évaluations et des recommandations formulées par les membres de la commission suite à votre
-                        demande.</p>
 
-                    <a href="<?php echo empty($stage_info) ? '#' : ($compte_rendu ? '?page=candidature_soutenance&action=compte_rendu_etudiant' : '#'); ?>"
-                        onclick="<?php echo empty($stage_info) ? 'event.preventDefault(); showWarningMessage();' : (empty($compte_rendu) ? 'event.preventDefault(); showNoCompteRenduMessage();' : ''); ?>"
-                        class="card-btn <?php echo empty($stage_info) || empty($compte_rendu) ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600'; ?> text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm">
-                        <span class="flex items-center">
-                            Consulter mon compte rendu
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="ml-2">
-                                <path d="M5 12h14"></path>
-                                <path d="M12 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 

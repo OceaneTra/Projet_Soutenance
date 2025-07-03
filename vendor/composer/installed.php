@@ -3,7 +3,7 @@
         'name' => 'ocean/projet-soutenance',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '35fd0bbb1f2ca4986cd6870df988b742a70a134c',
+        'reference' => '4b246d99ca8747c5f8ead66734ad43731edda41a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -85,7 +85,7 @@
         'ocean/projet-soutenance' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '35fd0bbb1f2ca4986cd6870df988b742a70a134c',
+            'reference' => '4b246d99ca8747c5f8ead66734ad43731edda41a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -145,6 +145,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'smalot/pdfparser' => array(
+            'pretty_version' => 'v2.12.0',
+            'version' => '2.12.0.0',
+            'reference' => '8440edbf58c8596074e78ada38dcb0bd041a5948',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../smalot/pdfparser',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/polyfill-mbstring' => array(
             'pretty_version' => 'v1.32.0',
             'version' => '1.32.0.0',
@@ -152,7 +161,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/polyfill-mbstring',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'symfony/var-dumper' => array(
             'pretty_version' => 'v7.2.6',

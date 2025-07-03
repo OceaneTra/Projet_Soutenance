@@ -5,7 +5,11 @@ require_once __DIR__ . '/../../app/controllers/RedactionCompteRenduController.ph
 if (isset($_GET['page']) && $_GET['page'] === 'redaction_compte_rendu') {
     $controller = new RedactionCompteRenduController();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller->enregistrer();
+        if (isset($_GET['action']) && $_GET['action'] === 'export_pdf') {
+            $controller->exporterPDF();
+        } else {
+            $controller->enregistrer();
+        }
     } else {
         $controller->index();
     }

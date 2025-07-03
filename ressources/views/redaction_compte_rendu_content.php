@@ -17,13 +17,9 @@ if (!empty($_SESSION['success'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rédaction des Comptes Rendus | Mr. Diarra</title>
+    <title>Rédaction des Comptes Rendus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar-hover:hover {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
-        }
         .fade-in {
             animation: fadeIn 0.3s ease-in;
         }
@@ -65,6 +61,71 @@ if (!empty($_SESSION['success'])) {
         .preview-content {
             font-family: 'Times New Roman', serif;
             line-height: 1.6;
+        }
+        
+        /* Styles pour masquer les éléments lors de l'impression */
+        @media print {
+            /* Masquer seulement les éléments d'interface */
+            .editor-toolbar,
+            .template-section,
+            #toastNotif,
+            button,
+            select,
+            input,
+            .bg-gray-50,
+            .bg-white,
+            .shadow,
+            .rounded-lg,
+            .flex,
+            .grid,
+            .lg\\:col-span-2,
+            .lg\\:grid-cols-3,
+            .space-y-6,
+            .space-y-3,
+            .space-y-2,
+            .space-y-4,
+            .space-x-3,
+            .space-x-2,
+            .p-6,
+            .px-6,
+            .py-3,
+            .py-4,
+            .mb-8,
+            .mb-4,
+            .mt-4,
+            .mt-12,
+            .max-w-7xl,
+            .mx-auto,
+            .overflow-hidden,
+            .border-t,
+            .border-gray-200 {
+                display: none !important;
+            }
+            
+            /* Reset du body */
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+            
+            /* Formatage du contenu de l'éditeur */
+            #editorContent {
+                position: static !important;
+                left: auto !important;
+                top: auto !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
+                font-family: 'Times New Roman', serif !important;
+                line-height: 1.6 !important;
+                color: black !important;
+            }
         }
     </style>
 </head>
@@ -306,11 +367,8 @@ if (!empty($_SESSION['success'])) {
                                             </button>
                                         </div>
                                         <div class="flex items-center space-x-3">
-                                            <button onclick="previewReport()" class="flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700">
-                                                <i class="fas fa-eye mr-2"></i>Aperçu
-                                            </button>
-                                            <button onclick="finalizeReport()" class="flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
-                                                <i class="fas fa-check mr-2"></i>Finaliser
+                                            <button onclick="printReport()" class="flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
+                                                <i class="fas fa-print mr-2"></i>Imprimer
                                             </button>
                                         </div>
                                     </div>
@@ -650,18 +708,15 @@ if (!empty($_SESSION['success'])) {
             const editor = document.getElementById('editorContent');
             let template = `
                 <style>
-                .editor-content { font-family: 'Times New Roman', Times, serif; }
-                .header-logos { width: 100%; margin-bottom: 1em; }
-                .header-logos img { height: 60px; }
-                .header-logos .left { float: left; }
+                .editor-content { font-family: 'Times New Roman', Times, serif; }             
                 .header-logos .right { float: right; }
                 .header-logos .center { text-align: center; margin: 0 auto; }
-                h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
-                h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
-                h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }
+                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
+                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
+                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }
                 .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }
-                p { margin-bottom: 0.7em; }
-                ul { margin-left: 1.5em; margin-bottom: 0.7em; }
+                .editor-content p { margin-bottom: 0.7em; }
+                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }
                 .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
                 .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
                 .cas-titre { font-weight: bold; margin-bottom: 0.5em; }
@@ -670,12 +725,10 @@ if (!empty($_SESSION['success'])) {
                 .italic { font-style: italic; }
                 </style>
                 <div class="header-logos">
-                    <img src="images/FHB.png" class="left" alt="Logo UFHB">
                     <div class="center">
                         <div style="font-size:13px; font-weight:bold; letter-spacing:1px;">REPUBLIQUE DE COTE D'IVOIRE</div>
                         <div style="font-size:12px;">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</div>
                         </div>
-                    <img src="images/logo_mathInfo_fond_blanc.png" class="right" alt="Logo UFR MI">
                         </div>
                 <h1>Procès-Verbal de séance de validation de thèmes</h1>
                 <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>
@@ -817,7 +870,7 @@ if (!empty($_SESSION['success'])) {
                     <title>Compte Rendu d'Évaluation</title>
                     <style>
                         body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; }
-                        h1, h2, h3, h4 { color: #333; }
+                        h2, h3, h4 { color: #333; }
                         .border-b { border-bottom: 1px solid #ccc; }
                         .mb-6 { margin-bottom: 24px; }
                         .mb-4 { margin-bottom: 16px; }
@@ -848,32 +901,154 @@ if (!empty($_SESSION['success'])) {
             }, 2000);
         }
 
-        // Finalisation du rapport
-        function finalizeReport() {
+        // Impression du rapport
+        function printReport() {
             const content = document.getElementById('editorContent').innerHTML;
-            const reportId = document.getElementById('reportSelect').value;
             
-            if (!reportId) {
-                showNotification('Veuillez sélectionner un rapport avant de finaliser', 'error');
+            if (!content || content.trim() === '') {
+                showNotification('Aucun contenu à imprimer', 'error');
                 return;
             }
             
-            if (content.includes('[À compléter]') || content.includes('[Cliquez ici')) {
-                if (!confirm('Le rapport contient encore des sections à compléter. Voulez-vous vraiment le finaliser ?')) {
-                    return;
-                }
-            }
-            
-            if (confirm('Êtes-vous sûr de vouloir finaliser ce compte rendu ? Cette action est irréversible.')) {
-                // Simulation de finalisation
-                localStorage.setItem(`final_${reportId}`, content);
-                localStorage.removeItem(`draft_${reportId}`);
-                
-                showNotification('Compte rendu finalisé avec succès', 'success');
-                
-                // Mise à jour des étapes de progression
-                updateProgressSteps(4);
-            }
+            // Créer une nouvelle fenêtre pour l'impression
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Compte Rendu - Impression</title>
+                    <style>
+                        body {
+                            font-family: 'Times New Roman', serif;
+                            line-height: 1.6;
+                            margin: 20px;
+                            color: black;
+                            background: white;
+                        }
+                        h1 {
+                            font-size: 2.2em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                            text-align: center;
+                        }
+                        h2 {
+                            font-size: 1.5em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                            text-align: center;
+                        }
+                        h3 {
+                            font-size: 1.2em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                        }
+                        p {
+                            margin-bottom: 0.7em;
+                        }
+                        ul {
+                            margin-left: 1.5em;
+                            margin-bottom: 0.7em;
+                        }
+                        li {
+                            margin-bottom: 0.3em;
+                        }
+                        .text-center {
+                            text-align: center;
+                        }
+                        .font-bold {
+                            font-weight: bold;
+                        }
+                        .font-semibold {
+                            font-weight: 600;
+                        }
+                        .mb-8 {
+                            margin-bottom: 2em;
+                        }
+                        .mb-4 {
+                            margin-bottom: 1em;
+                        }
+                        .mt-4 {
+                            margin-top: 1em;
+                        }
+                        .mt-12 {
+                            margin-top: 3em;
+                        }
+                        .bg-blue-50 {
+                            background-color: #eff6ff;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #3b82f6;
+                        }
+                        .bg-gray-50 {
+                            background-color: #f9fafb;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #3b82f6;
+                        }
+                        .bg-yellow-50 {
+                            background-color: #fffbeb;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #f59e0b;
+                        }
+                        .border-b-2 {
+                            border-bottom: 2px solid #374151;
+                            padding-bottom: 0.75em;
+                        }
+                        .text-gray-800 {
+                            color: #1f2937;
+                        }
+                        .text-gray-700 {
+                            color: #374151;
+                        }
+                        .text-gray-600 {
+                            color: #4b5563;
+                        }
+                        .text-lg {
+                            font-size: 1.125em;
+                        }
+                        .text-xl {
+                            font-size: 1.25em;
+                        }
+                        .text-3xl {
+                            font-size: 1.875em;
+                        }
+                        .italic {
+                            font-style: italic;
+                        }
+                        .list-disc {
+                            list-style-type: disc;
+                        }
+                        .list-inside {
+                            list-style-position: inside;
+                        }
+                        .ml-4 {
+                            margin-left: 1em;
+                        }
+                        .flex {
+                            display: flex;
+                        }
+                        .justify-center {
+                            justify-content: center;
+                        }
+                        .space-x-8 > * + * {
+                            margin-left: 2em;
+                        }
+                        @media print {
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         // Mise à jour des étapes de progression

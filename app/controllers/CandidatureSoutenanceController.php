@@ -107,12 +107,12 @@ class CandidatureSoutenanceController {
         $etudiant_id = $_SESSION['num_etu'];
         $compte_rendu = $this->etudiant->getCompteRendu($etudiant_id);
         
+        // Mettre la variable dans les GLOBALS pour qu'elle soit accessible dans la vue
+        $GLOBALS['compte_rendu'] = $compte_rendu;
+        
         if (!$compte_rendu) {
             $_SESSION['error'] = "Aucun compte rendu disponible pour le moment. Veuillez patienter jusqu'à ce que la commission d'évaluation ait examiné votre dossier.";
-            
         }
-        
-       
     }
 
       //=============================ENREGISTRER/ MODIFIER LES INFOS DE STAGE =============================
