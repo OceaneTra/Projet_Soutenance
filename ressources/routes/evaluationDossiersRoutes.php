@@ -1,4 +1,5 @@
 <?php
+// Vérifier que la page est définie et correspond à celle attendue
 if (isset($_GET['page']) && $_GET['page'] === 'evaluations_dossiers_soutenance') {
     require_once __DIR__ . '/../../app/config/database.php';
     require_once __DIR__ . '/../../app/controllers/EvaluationDossiersController.php';
@@ -45,7 +46,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'evaluations_dossiers_soutenance')
 }
 
 // Route pour la page processus de validation
-if ($_GET['page'] === 'processus_validation') {
+if (isset($_GET['page']) && $_GET['page'] === 'processus_validation') {
     // La page utilise directement le contrôleur ProcessusValidationController
     // et récupère les données dans la vue
 } 

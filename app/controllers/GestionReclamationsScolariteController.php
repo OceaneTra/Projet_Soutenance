@@ -7,9 +7,9 @@ class GestionReclamationsScolariteController {
     private $auditLog;
     private $db;    
     public function __construct() {
+        $this->db = Database::getConnection();
         $this->reclamationModel = new Reclamation();
         $this->auditLog = new AuditLog($this->db);
-        $this->db = Database::getConnection();
     }
 
     public function index() {
@@ -35,12 +35,15 @@ class GestionReclamationsScolariteController {
 
     public function changerStatut() {
         if (isset($_GET['id']) && isset($_POST['nouveau_statut'])) {
-            $id = (int)$_GET['id'];
+            $id = (int) $_GET['id'];
             $nouveauStatut = $_POST['nouveau_statut'];
-            $this->reclamationModel->updateStatut($id, $nouveauStatut);
-            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Succès');
-        }else{
-            $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Erreur');
+            if ($this->reclamationModel->updateStatut($id, $nouveauStatut)) {
+                
+                // Log de l'audit
+                $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Succès');
+            } else {
+                $this->auditLog->logModification($_SESSION['id_utilisateur'], 'reclamations', 'Erreur');
+            }
         }
         header('Location: ?page=gestion_reclamations_scolarite');
         exit;

@@ -104,7 +104,7 @@ class GestionScolariteController {
             // Enregistrer le versement
             if ($this->scolariteModel->addVersement($data)) {
                 // Audit logging
-                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versement', 'Succès');
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versements', 'Succès');
                 
                 // Récupérer les informations mises à jour
                 $inscriptionMiseAJour = $this->scolariteModel->getInscriptionByEtudiantId($_POST['id_etudiant']);
@@ -115,7 +115,7 @@ class GestionScolariteController {
                 }
                 $GLOBALS['messageSuccess'] = "Versement enregistré avec succès.";
             } else {
-                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versement', 'Erreur');
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], 'versements', 'Erreur');
                 $GLOBALS['messageErreur'] = "Erreur lors de l'enregistrement du versement.";
             }
         } catch (Exception $e) {
@@ -191,7 +191,7 @@ class GestionScolariteController {
                     
                     $GLOBALS['messageSuccess'] = "Versement mis à jour avec succès.";
                 } else {
-                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Erreur');
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versements', 'Erreur');
                     $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour du versement.";
                 }
             } else {
@@ -203,10 +203,10 @@ class GestionScolariteController {
                 ];
 
                 if ($this->scolariteModel->updateVersement($_POST['id_versement'], $data)) {
-                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Succès');
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versements', 'Succès');
                     $GLOBALS['messageSuccess'] = "Méthode de paiement mise à jour avec succès.";
                 } else {
-                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versement', 'Erreur');
+                    $this->auditLog->logModification($_SESSION['id_utilisateur'], 'versements', 'Erreur');
                     $GLOBALS['messageErreur'] = "Erreur lors de la mise à jour de la méthode de paiement.";
                 }
             }

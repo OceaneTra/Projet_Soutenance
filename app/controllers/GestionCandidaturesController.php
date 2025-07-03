@@ -147,20 +147,14 @@ class GestionCandidaturesController {
                             $semestreText = implode(', ', $semestres);
                         }
                         
-                        // Vérifier si les résultats sont disponibles
-                        $moyenneText = 'Résultats pas encore disponibles';
-                        $unitesText = 'Résultats pas encore disponibles';
-                        
-                        if ($notes['resultats_disponibles']) {
-                            $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
-                            $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
-                        }
+                        // Afficher les résultats directement
+                        $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
+                        $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
                         
                         $etapeData = [
                             'semestre' => $semestreText,
                             'moyenne' => $moyenneText,
-                            'unites' => $unitesText,
-                            'resultats_disponibles' => $notes['resultats_disponibles'] ?? false
+                            'unites' => $unitesText
                         ];
                         break;
                         
@@ -243,21 +237,15 @@ class GestionCandidaturesController {
             $semestreText = implode(', ', $semestres);
         }
         
-        // Vérifier si les résultats sont disponibles
-        $moyenneText = 'Résultats pas encore disponibles';
-        $unitesText = 'Résultats pas encore disponibles';
-        
-        if ($notes['resultats_disponibles']) {
-            $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
-            $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
-        }
+        // Afficher les résultats directement
+        $moyenneText = number_format($notes['moyenne'] ?? 0, 2) . '/20';
+        $unitesText = ($notes['unites_validees'] ?? 0) . '/' . ($notes['total_unites'] ?? 0) . ' crédits validés';
         
         $resume['semestre'] = [
             'semestre' => $semestreText,
             'moyenne' => $moyenneText,
             'unites' => $unitesText,
-            'validation' => $_SESSION['etapes_validation'][$examiner][3] ?? 'Non évalué',
-            'resultats_disponibles' => $notes['resultats_disponibles'] ?? false
+            'validation' => $_SESSION['etapes_validation'][$examiner][3] ?? 'Non évalué'
         ];
         
         return $resume;

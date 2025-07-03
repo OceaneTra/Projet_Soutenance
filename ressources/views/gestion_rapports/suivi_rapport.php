@@ -202,67 +202,67 @@
 </head>
 
 <body>
-<div class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="bg-gray-100 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
 
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Suivi des Rapports</h1>
-                <p class="text-gray-600 mt-2">Suivez l'avancement de vos rapports en temps réel</p>
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Suivi des Rapports</h1>
+                    <p class="text-gray-600 mt-2">Suivez l'avancement de vos rapports en temps réel</p>
+                </div>
+
             </div>
-
-        </div>
-    <div class="container">
-        <!-- Statistiques -->
-        <?php if (isset($statistiques)): ?>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-500">
-                            <i class="fas fa-file-alt text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-gray-500 text-sm">Total</h3>
-                            <p class="text-2xl font-semibold text-gray-700"><?= $statistiques['total'] ?? 0 ?></p>
+            <div class="container">
+                <!-- Statistiques -->
+                <?php if (isset($statistiques)): ?>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                                <i class="fas fa-file-alt text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total</h3>
+                                <p class="text-2xl font-semibold text-gray-700"><?= $statistiques['total'] ?? 0 ?></p>
+                            </div>
                         </div>
                     </div>
+                    <!-- Répéter pour les autres statistiques... -->
                 </div>
-                <!-- Répéter pour les autres statistiques... -->
-            </div>
-        <?php endif; ?>
+                <?php endif; ?>
 
-        <!-- Contenu principal -->
-        <div class="main-content">
-            <h2 style="margin: 0 0 20px;">Suivi des Rapports</h2>
+                <!-- Contenu principal -->
+                <div class="main-content">
+                    <h2 style="margin: 0 0 20px;">Suivi des Rapports</h2>
 
-            <!-- Filtres -->
-            <div class="filters">
+                    <!-- Filtres -->
+                    <div class="filters">
                         <select class="border-2 border-gray-300 rounded-md p-2 outline-green-500">
-                    <option value="">Tous les statuts</option>
+                            <option value="">Tous les statuts</option>
                             <option value="en_attente">En attente</option>
-                    <option value="en_cours">En cours</option>
+                            <option value="en_cours">En cours</option>
                             <option value="rejete">Rejeté</option>
-                    <option value="valide">Validé</option>
-                </select>
-                <div style="position: relative; flex: 1;">
-                    <i class="fas fa-search search-icon"></i>
+                            <option value="valide">Validé</option>
+                        </select>
+                        <div style="position: relative; flex: 1;">
+                            <i class="fas fa-search search-icon"></i>
                             <input class="border-2 border-gray-300 rounded-md p-2 outline-green-500" type="text"
                                 placeholder="Rechercher un rapport...">
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-            <!-- Liste des rapports -->
-            <div class="reports-list">
-                <?php foreach ($rapports as $rapport): ?>
-                    <div class="report-item">
-                        <div class="report-header">
-                            <div>
-                                <h3 class="report-title"><?= htmlspecialchars($rapport['nom_rapport']) ?></h3>
+                    <!-- Liste des rapports -->
+                    <div class="reports-list">
+                        <?php foreach ($rapports as $rapport): ?>
+                        <div class="report-item">
+                            <div class="report-header">
+                                <div>
+                                    <h3 class="report-title"><?= htmlspecialchars($rapport['nom_rapport']) ?></h3>
                                     <p class="report-date">Soumis le
                                         <?= date('d M Y', strtotime($rapport['date_rapport'])) ?></p>
-                            </div>
-                            <?php
+                                </div>
+                                <?php
                                 // Statut global
                                 $status_class = 'en-attente';
                                 $status_label = 'En attente';
@@ -276,11 +276,11 @@
                                     $status_class = 'en-cours';
                                     $status_label = 'En cours';
                                 }
-                            ?> 
-                            <span class="status <?= $status_class ?>"><?= $status_label ?></span>
-                        </div>
+                            ?>
+                                <span class="status <?= $status_class ?>"><?= $status_label ?></span>
+                            </div>
 
-                        <div class="timeline">
+                            <div class="timeline">
                                 <!-- Étape 1 : Enregistrement du rapport -->
                                 <?php
                             // Vérifier si le rapport a été déposé
@@ -291,7 +291,7 @@
                             $enregistrementColor = '#1976d2'; // Toujours complété car le rapport existe
                             $enregistrementIcon = 'fa-check';
                             ?>
-                            <div class="timeline-item">
+                                <div class="timeline-item">
                                     <div class="timeline-dot" style="background: <?= $enregistrementColor ?>;">
                                         <i class="fas <?= $enregistrementIcon ?>"></i>
                                     </div>
@@ -318,9 +318,9 @@
                                 <div class="timeline-item">
                                     <div class="timeline-dot" style="background: <?= $soumissionColor ?>;">
                                         <i class="fas <?= $soumissionIcon ?>"></i>
-                                </div>
-                                <div class="timeline-content">
-                                    <h4 class="timeline-title">Soumission du rapport</h4>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h4 class="timeline-title">Soumission du rapport</h4>
                                         <p class="timeline-date">
                                             <?= $soumissionDate ?>
                                         </p>
@@ -329,50 +329,12 @@
                                             Cliquez sur "Déposer" pour soumettre votre rapport
                                         </p>
                                         <?php endif; ?>
+                                    </div>
                                 </div>
-                            </div>
 
-                                <!-- Étape 3 : Vérification initiale (chargée de com) -->
-                            <?php
-                            $verif = null;
-                            foreach ($rapport['decisions'] as $decision) {
-                                if ($decision['lib_approb'] === 'Niveau 1') {
-                                    $verif = $decision;
-                                    break;
-                                }
-                            }
-                            $verifColor = '#9e9e9e';
-                            $verifIcon = 'fa-hourglass';
-                            if ($verif) {
-                                if ($verif['decision'] === 'approuve') {
-                                    $verifColor = '#1976d2';
-                                    $verifIcon = 'fa-check';
-                                } elseif ($verif['decision'] === 'desapprouve') {
-                                    $verifColor = '#d32f2f';
-                                    $verifIcon = 'fa-times';
-                                }
-                            }
-                            ?>
-                            <div class="timeline-item">
-                                <div class="timeline-dot" style="background: <?= $verifColor ?>;">
-                                    <i class="fas <?= $verifIcon ?>"></i>
-                                </div>
-                                <div class="timeline-content">
-                                    <h4 class="timeline-title">Vérification initiale</h4>
-                                    <p class="timeline-date">
-                                        <?= $verif ? date('d M Y - H:i', strtotime($verif['date_approv'])) : 'En attente' ?>
-                                    </p>
-                                    <?php if ($verif): ?>
-                                        <p
-                                            style="margin: 5px 0 0; font-size: 13px; color: <?= $verif['decision'] === 'approuve' ? '#666' : '#d32f2f' ?>;">
-                                            <?= htmlspecialchars($verif['commentaire_approv']) ?>
-                                        </p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
 
-                                <!-- Étape 4 : Évaluation par la commission -->
-                            <?php
+                                <!-- Étape 3 : Évaluation par la chargé de communication -->
+                                <?php
                             $eval = null;
                             foreach ($rapport['decisions'] as $decision) {
                                 if ($decision['lib_approb'] === 'Niveau 2') {
@@ -392,59 +354,59 @@
                                 }
                             }
                             ?>
-                            <div class="timeline-item">
-                                <div class="timeline-dot" style="background: <?= $evalColor ?>;">
-                                    <i class="fas <?= $evalIcon ?>"></i>
-                                </div>
-                                <div class="timeline-content">
-                                    <h4 class="timeline-title">Évaluation par la commission</h4>
-                                    <p class="timeline-date">
-                                        <?= $eval ? date('d M Y - H:i', strtotime($eval['date_approv'])) : 'En attente' ?>
-                                    </p>
-                                    <?php if ($eval): ?>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot" style="background: <?= $evalColor ?>;">
+                                        <i class="fas <?= $evalIcon ?>"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h4 class="timeline-title">Évaluation par la chargé de communication</h4>
+                                        <p class="timeline-date">
+                                            <?= $eval ? date('d M Y - H:i', strtotime($eval['date_approv'])) : 'En attente' ?>
+                                        </p>
+                                        <?php if ($eval): ?>
                                         <p
                                             style="margin: 5px 0 0; font-size: 13px; color: <?= $eval['decision'] === 'approuve' ? '#666' : '#d32f2f' ?>;">
                                             <?= htmlspecialchars($eval['commentaire_approv']) ?>
                                         </p>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                            </div>
 
-                                <!-- Étape 5 : Validation finale -->
-                            <?php
+                                <!-- Étape 4 : Décision finale de la commission -->
+                                <?php
                             $finalColor = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valider') ? '#388e3c' : '#9e9e9e';
                             $finalLabel = ($eval && $eval['decision'] === 'approuve' && $rapport['statut_rapport'] === 'valider') ? 'Validé' : 'En attente';
                             ?>
-                            <div class="timeline-item">
-                                <div class="timeline-dot" style="background: <?= $finalColor ?>;">
-                                    <i class="fas fa-hourglass"></i>
-                                </div>
-                                <div class="timeline-content">
-                                    <h4 class="timeline-title">Validation finale</h4>
-                                    <p class="timeline-date">
-                                        <?= $finalLabel ?>
-                                    </p>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot" style="background: <?= $finalColor ?>;">
+                                        <i class="fas fa-hourglass"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h4 class="timeline-title">Décision finale de la commission</h4>
+                                        <p class="timeline-date">
+                                            <?= $finalLabel ?>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterSelect = document.querySelector('select');
-        const searchInput = document.querySelector('input[type="text"]');
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const filterSelect = document.querySelector('select');
+                const searchInput = document.querySelector('input[type="text"]');
                 const reportItems = document.querySelectorAll('.report-item');
 
-        filterSelect.addEventListener('change', filterReports);
-        searchInput.addEventListener('input', filterReports);
+                filterSelect.addEventListener('change', filterReports);
+                searchInput.addEventListener('input', filterReports);
 
-        function filterReports() {
-            const status = filterSelect.value;
-            const search = searchInput.value.toLowerCase();
+                function filterReports() {
+                    const status = filterSelect.value;
+                    const search = searchInput.value.toLowerCase();
 
                     reportItems.forEach(item => {
                         const title = item.querySelector('.report-title').textContent.toLowerCase();
@@ -504,9 +466,9 @@
                             noResultsMessage.style.display = 'none';
                         }
                     }
-        }
-    });
-    </script>
+                }
+            });
+            </script>
 </body>
 
 </html>

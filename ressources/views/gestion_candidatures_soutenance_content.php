@@ -1202,24 +1202,21 @@ foreach ($candidatures as $c) {
                         </div>
                         <div class="info-item">
                             <strong>Moyenne générale:</strong>
-                            <span
-                                class="<?php echo $etapeData['resultats_disponibles'] ? 'text-success' : 'text-warning'; ?>">
+                            <span class="text-success">
                                 <?php echo htmlspecialchars($etapeData['moyenne']); ?>
                             </span>
                         </div>
                         <div class="info-item">
                             <strong>Unités validées:</strong>
-                            <span
-                                class="<?php echo $etapeData['resultats_disponibles'] ? 'text-success' : 'text-warning'; ?>">
+                            <span class="text-success">
                                 <?php echo htmlspecialchars($etapeData['unites']); ?>
                             </span>
                         </div>
-                        <?php if (!$etapeData['resultats_disponibles']): ?>
+                        <?php if (empty($etapeData['moyenne']) || $etapeData['moyenne'] == '0'): ?>
                         <div class="alert alert-warning mt-3"
                             style="background-color: #FEF3C7; border: 1px solid #F59E0B; color: #92400E; padding: 12px; border-radius: 8px;">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Note :</strong> Les résultats ne sont pas encore disponibles car l'étudiant n'a pas
-                            de notes dans toutes les UE de son niveau.
+                            <strong>Note :</strong> Aucune note n'a été trouvée pour cet étudiant.
                         </div>
                         <?php endif; ?>
                         <?php endif; ?>

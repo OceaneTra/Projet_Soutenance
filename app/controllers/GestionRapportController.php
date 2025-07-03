@@ -174,7 +174,7 @@ class GestionRapportController {
                 }
 
                 // Vérifier que le rapport appartient à l'étudiant connecté
-                if ($rapport->num_etu != $_SESSION['num_etu']) {
+                if ($rapport['num_etu'] != $_SESSION['num_etu']) {
                     $this->afficherErreur("Accès non autorisé à ce rapport.");
                     return;
                 }
@@ -394,7 +394,18 @@ class GestionRapportController {
 
     private function exporterRapport()
     {
+        // Nettoyer tout output précédent pour éviter "headers already sent"
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        ob_start();
+        
         try {
+            // Vérifier que l'utilisateur est connecté et est un étudiant
+            if (!$this->isEtudiant()) {
+                throw new Exception('Accès non autorisé. Seuls les étudiants peuvent exporter leurs rapports.');
+            }
+            
             // Vérifier que DOMPDF est disponible
             if (!class_exists('\Dompdf\Dompdf')) {
                 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -406,6 +417,28 @@ class GestionRapportController {
             
             $contenu_rapport = $_POST['contenu_rapport'] ?? '';
             $nom_rapport = $_POST['nom_rapport'] ?? 'rapport';
+            $edit_id = $_POST['edit_id'] ?? null;
+
+            // Si on est en mode édition (rapport existant), vérifier les permissions
+            if ($edit_id) {
+                $rapport = $this->rapportModel->getRapportById($edit_id);
+                if (!$rapport) {
+                    throw new Exception('Rapport non trouvé.');
+                }
+                
+                // Vérifier que le rapport appartient à l'étudiant connecté
+                if ($rapport['num_etu'] != $_SESSION['num_etu']) {
+                    throw new Exception('Accès non autorisé à ce rapport.');
+                }
+                
+                // Si le contenu est vide, essayer de le récupérer depuis le fichier
+                if (empty($contenu_rapport)) {
+                    $fichierContenu = __DIR__ . "/../../ressources/uploads/rapports/rapport_{$edit_id}.html";
+                    if (file_exists($fichierContenu)) {
+                        $contenu_rapport = file_get_contents($fichierContenu);
+                    }
+                }
+            }
 
             if (empty($contenu_rapport)) {
                 throw new Exception('Le contenu du rapport est vide.');
@@ -689,6 +722,11 @@ class GestionRapportController {
         } catch (Exception $e) {
             error_log("Erreur lors de l'export PDF: " . $e->getMessage());
             error_log("Stack trace: " . $e->getTraceAsString());
+            
+            // Nettoyer tout output précédent
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
             
             // Retourner une réponse JSON en cas d'erreur
             header('Content-Type: application/json');
@@ -1130,7 +1168,7 @@ class GestionRapportController {
 
             // Vérifier que le rapport appartient à l'étudiant
             $rapport = $this->rapportModel->getRapportById($rapportId);
-            if (!$rapport || $rapport->num_etu != $numEtu) {
+            if (!$rapport || $rapport['num_etu'] != $numEtu) {
                 $this->afficherErreur('Rapport non trouvé ou accès non autorisé');
                 return;
             }

@@ -86,7 +86,7 @@ class AuthController {
 
     public function logout()
     {
-        $this->auditLog->logDeconnexion($_SESSION['id_utilisateur'] ?? null, 'utilisateur', 'Succès');
+        $this->auditLog->logDeconnexion($_SESSION['id_utilisateur'] , 'utilisateur', 'Succès');
        
 
         // Détruire toutes les données de session
