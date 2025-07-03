@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mar. 01 juil. 2025 à 16:43
+-- Généré le : jeu. 03 juil. 2025 à 11:06
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -290,6 +290,15 @@ VALUES (
         '2025-06-25 13:41:42',
         6,
         'Évaluation complète terminée'
+    ),
+    (
+        10,
+        2003006,
+        '2025-07-03 08:46:06',
+        'Validée',
+        '2025-07-03 10:02:39',
+        6,
+        'Évaluation complète terminée'
     );
 
 -- --------------------------------------------------------
@@ -385,6 +394,11 @@ VALUES (
         2003003,
         2,
         '2025-06-25 14:49:28'
+    ),
+    (
+        2003006,
+        12,
+        '2025-07-03 10:05:55'
     ),
     (
         2004003,
@@ -1014,6 +1028,7 @@ INSERT INTO
         `lib_entreprise`
     )
 VALUES (3, 'Deloitte Côte d\'Ivoire'),
+    (9, 'DIGICORP'),
     (5, 'Orange Côte d\'Ivoire'),
     (8, 'QuanTech Côte d\'Ivoire'),
     (7, 'Tuzzo Côte d\'Ivoire');
@@ -3383,6 +3398,18 @@ VALUES (
         'Yao Ferdinand',
         'yaoferdinand@gmail.com',
         '+2250711489473'
+    ),
+    (
+        6,
+        2003006,
+        9,
+        '2024-07-31',
+        '2025-03-01',
+        'Developpement IA generative',
+        'blablablablablabalba',
+        'Kouamé Jean',
+        'kj@gmail.com',
+        '0105030604'
     );
 
 -- --------------------------------------------------------
@@ -3486,8 +3513,8 @@ VALUES (
         '2025-06-03 00:55:05',
         'En cours',
         2,
-        565000.00,
-        670000.00
+        0.00,
+        1235000.00
     ),
     (
         18,
@@ -3840,6 +3867,96 @@ VALUES (
         'Excellent',
         '2025-06-25 17:24:51',
         '2025-06-25 17:24:51'
+    ),
+    (
+        16,
+        2003006,
+        73,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        17,
+        2003006,
+        81,
+        NULL,
+        13.00,
+        'bien',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        18,
+        2003006,
+        76,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        19,
+        2003006,
+        77,
+        NULL,
+        15.00,
+        'bien',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        20,
+        2003006,
+        74,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        21,
+        2003006,
+        79,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        22,
+        2003006,
+        75,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        23,
+        2003006,
+        80,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        24,
+        2003006,
+        78,
+        NULL,
+        10.00,
+        'passable',
+        '2025-07-03 08:52:07',
+        '2025-07-03 08:52:07'
     );
 
 -- --------------------------------------------------------
@@ -3950,12 +4067,427 @@ VALUES (
 --
 
 CREATE TABLE `pister` (
-  `id_piste` int NOT NULL,
-  `id_utilisateur` int NOT NULL,
-  `action` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type d''action (CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.)',
-  `nom_table` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nom de la table concernée',
-  `date_creation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `id_piste` int NOT NULL,
+    `id_utilisateur` int NOT NULL,
+    `action` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type d''action (CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.)',
+    `statut_action` enum('Erreur', 'Succès') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    `nom_table` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nom de la table concernée',
+    `date_creation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `pister`
+--
+
+INSERT INTO
+    `pister` (
+        `id_piste`,
+        `id_utilisateur`,
+        `action`,
+        `statut_action`,
+        `nom_table`,
+        `date_creation`
+    )
+VALUES (
+        19,
+        83,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:09:23'
+    ),
+    (
+        20,
+        89,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:09:30'
+    ),
+    (
+        21,
+        89,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:09:41'
+    ),
+    (
+        22,
+        83,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:09:45'
+    ),
+    (
+        23,
+        83,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:15:14'
+    ),
+    (
+        24,
+        5,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 01:15:18'
+    ),
+    (
+        25,
+        5,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 08:21:21'
+    ),
+    (
+        26,
+        5,
+        'Accès',
+        'Succès',
+        'tableau_de_bord',
+        '2025-07-03 08:27:38'
+    ),
+    (
+        27,
+        5,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 08:41:20'
+    ),
+    (
+        28,
+        35,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 08:42:48'
+    ),
+    (
+        29,
+        85,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 08:44:07'
+    ),
+    (
+        30,
+        85,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:45:57'
+    ),
+    (
+        31,
+        85,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:46:06'
+    ),
+    (
+        32,
+        85,
+        'Création',
+        'Erreur',
+        'candidature_soutenance',
+        '2025-07-03 08:46:07'
+    ),
+    (
+        33,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 08:46:28'
+    ),
+    (
+        34,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 08:47:43'
+    ),
+    (
+        35,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:48:56'
+    ),
+    (
+        36,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:49:16'
+    ),
+    (
+        37,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:49:33'
+    ),
+    (
+        38,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:49:40'
+    ),
+    (
+        39,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:01'
+    ),
+    (
+        40,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:04'
+    ),
+    (
+        41,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:07'
+    ),
+    (
+        42,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:36'
+    ),
+    (
+        43,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:39'
+    ),
+    (
+        44,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:50:42'
+    ),
+    (
+        45,
+        35,
+        'Création',
+        'Succès',
+        'notes',
+        '2025-07-03 08:52:07'
+    ),
+    (
+        46,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:52:43'
+    ),
+    (
+        47,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:52:46'
+    ),
+    (
+        48,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 08:52:50'
+    ),
+    (
+        49,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 09:01:09'
+    ),
+    (
+        50,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 09:01:10'
+    ),
+    (
+        51,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 09:01:10'
+    ),
+    (
+        52,
+        34,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 09:01:59'
+    ),
+    (
+        53,
+        34,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 09:20:31'
+    ),
+    (
+        54,
+        35,
+        'Rejet',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 09:59:25'
+    ),
+    (
+        55,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 09:59:27'
+    ),
+    (
+        56,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 09:59:29'
+    ),
+    (
+        57,
+        79,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 10:01:16'
+    ),
+    (
+        58,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 10:01:49'
+    ),
+    (
+        59,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 10:02:16'
+    ),
+    (
+        60,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 10:02:28'
+    ),
+    (
+        61,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 10:02:33'
+    ),
+    (
+        62,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 10:02:36'
+    ),
+    (
+        63,
+        35,
+        'Envoi résultats',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 10:02:45'
+    ),
+    (
+        64,
+        85,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 10:04:09'
+    ),
+    (
+        65,
+        85,
+        'Création',
+        'Succès',
+        'rapport_etudiants',
+        '2025-07-03 10:05:45'
+    ),
+    (
+        66,
+        85,
+        'Dépôt',
+        'Succès',
+        'rapport',
+        '2025-07-03 10:05:55'
+    ),
+    (
+        67,
+        35,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:00:01'
+    ),
+    (
+        68,
+        5,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:00:06'
+    );
 
 -- --------------------------------------------------------
 
@@ -4071,6 +4603,19 @@ VALUES (
         'rapport_10.html',
         'en_attente',
         '2025-06-28 20:10:04',
+        11771,
+        1,
+        'en_cours'
+    ),
+    (
+        12,
+        2003006,
+        'IA générative et son impact sur l\'art moderne',
+        '2025-07-03 10:05:45',
+        'Impact de l\'IA générative',
+        'rapport_12.html',
+        'en_cours',
+        '2025-07-03 10:05:55',
         11771,
         1,
         'en_cours'
@@ -4307,6 +4852,14 @@ VALUES (
         '{\"scolarite\":{\"statut\":\"\\u00c0 jour\",\"montant_total\":\"1 235 000 FCFA\",\"montant_paye\":\"1 235 000 FCFA\",\"dernier_paiement\":\"25\\/06\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"Tuzzo C\\u00f4te d\'Ivoire\",\"sujet\":\"D\\u00e9veloppement d\'application mobile\",\"periode\":\"04\\/05\\/2024 - 05\\/11\\/2024\",\"encadrant\":\"Tra Bi Herv\\u00e9\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Non renseign\\u00e9\",\"moyenne\":\"0.00\\/20\",\"unites\":\"0\\/30 cr\\u00e9dits du Master 2 valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
         'Validée',
         '2025-06-25 13:41:42'
+    ),
+    (
+        6,
+        2003006,
+        10,
+        '{\"scolarite\":{\"statut\":\"\\u00c0 jour\",\"montant_total\":\"1 235 000 FCFA\",\"montant_paye\":\"1 235 000 FCFA\",\"dernier_paiement\":\"03\\/07\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"DIGICORP\",\"sujet\":\"Developpement IA generative\",\"periode\":\"31\\/07\\/2024 - 01\\/03\\/2025\",\"encadrant\":\"Kouam\\u00e9 Jean\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Semestre 9\",\"moyenne\":\"10.89\\/20\",\"unites\":\"30\\/30 cr\\u00e9dits valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
+        'Validée',
+        '2025-07-03 10:02:39'
     );
 
 -- --------------------------------------------------------
@@ -5839,6 +6392,38 @@ VALUES (
         '2025-06-25 12:13:45',
         'Tranche',
         'Carte bancaire'
+    ),
+    (
+        57,
+        17,
+        100000.00,
+        '2025-07-03 08:46:28',
+        'Tranche',
+        'Espèce'
+    ),
+    (
+        58,
+        17,
+        300000.00,
+        '2025-07-03 08:47:43',
+        'Tranche',
+        'Espèce'
+    ),
+    (
+        59,
+        17,
+        135000.00,
+        '2025-07-03 10:01:49',
+        'Tranche',
+        'Espèce'
+    ),
+    (
+        60,
+        17,
+        30000.00,
+        '2025-07-03 10:02:16',
+        'Tranche',
+        'Virement'
     );
 
 --
@@ -6048,14 +6633,14 @@ ALTER TABLE `personnel_admin` ADD PRIMARY KEY (`id_pers_admin`);
 -- Index pour la table `pister`
 --
 ALTER TABLE `pister`
-  ADD PRIMARY KEY (`id_piste`),
-  ADD KEY `idx_utilisateur` (`id_utilisateur`),
-  ADD KEY `idx_action` (`action`),
-  ADD KEY `idx_table` (`nom_table`),
-  ADD KEY `idx_created_at` (`date_creation`),
-  ADD KEY `idx_utilisateur_action` (`id_utilisateur`,`action`),
-  ADD KEY `id_action` (`action`),
-  ADD KEY `id_action_2` (`action`);
+ADD PRIMARY KEY (`id_piste`),
+ADD KEY `idx_utilisateur` (`id_utilisateur`),
+ADD KEY `idx_action` (`action`),
+ADD KEY `idx_table` (`nom_table`),
+ADD KEY `idx_created_at` (`date_creation`),
+ADD KEY `idx_utilisateur_action` (`id_utilisateur`, `action`),
+ADD KEY `id_action` (`action`),
+ADD KEY `id_action_2` (`action`);
 
 --
 -- Index pour la table `rapport_etudiants`
@@ -6183,7 +6768,7 @@ AUTO_INCREMENT = 29901;
 --
 ALTER TABLE `candidature_soutenance`
 MODIFY `id_candidature` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 10;
+AUTO_INCREMENT = 11;
 
 --
 -- AUTO_INCREMENT pour la table `compte_rendu`
@@ -6225,7 +6810,7 @@ AUTO_INCREMENT = 18;
 --
 ALTER TABLE `entreprises`
 MODIFY `id_entreprise` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 9;
+AUTO_INCREMENT = 10;
 
 --
 -- AUTO_INCREMENT pour la table `etudiants`
@@ -6239,7 +6824,7 @@ AUTO_INCREMENT = 20250003;
 --
 ALTER TABLE `evaluations_rapports`
 MODIFY `id_evaluation` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 10;
+AUTO_INCREMENT = 13;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`
@@ -6267,7 +6852,7 @@ AUTO_INCREMENT = 19;
 --
 ALTER TABLE `informations_stage`
 MODIFY `id_info_stage` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 6;
+AUTO_INCREMENT = 7;
 
 --
 -- AUTO_INCREMENT pour la table `inscriptions`
@@ -6309,7 +6894,7 @@ AUTO_INCREMENT = 16;
 --
 ALTER TABLE `notes`
 MODIFY `id` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 16;
+AUTO_INCREMENT = 25;
 
 --
 -- AUTO_INCREMENT pour la table `personnel_admin`
@@ -6319,11 +6904,18 @@ MODIFY `id_pers_admin` int NOT NULL AUTO_INCREMENT,
 AUTO_INCREMENT = 9;
 
 --
+-- AUTO_INCREMENT pour la table `pister`
+--
+ALTER TABLE `pister`
+MODIFY `id_piste` int NOT NULL AUTO_INCREMENT,
+AUTO_INCREMENT = 69;
+
+--
 -- AUTO_INCREMENT pour la table `rapport_etudiants`
 --
 ALTER TABLE `rapport_etudiants`
 MODIFY `id_rapport` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 12;
+AUTO_INCREMENT = 13;
 
 --
 -- AUTO_INCREMENT pour la table `reclamations`
@@ -6337,7 +6929,7 @@ AUTO_INCREMENT = 5;
 --
 ALTER TABLE `resume_candidature`
 MODIFY `id` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 6;
+AUTO_INCREMENT = 7;
 
 --
 -- AUTO_INCREMENT pour la table `semestre`
@@ -6393,7 +6985,7 @@ AUTO_INCREMENT = 91;
 --
 ALTER TABLE `versements`
 MODIFY `id_versement` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 57;
+AUTO_INCREMENT = 61;
 
 --
 -- Contraintes pour les tables déchargées
@@ -6521,7 +7113,6 @@ ADD CONSTRAINT `fk_occuper_fonction` FOREIGN KEY (`id_fonction`) REFERENCES `fon
 -- Contraintes pour la table `pister`
 --
 ALTER TABLE `pister`
-ADD CONSTRAINT `fk_pister_traitement` FOREIGN KEY (`id_traitement`) REFERENCES `traitement` (`id_traitement`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_pister_utilisateur` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

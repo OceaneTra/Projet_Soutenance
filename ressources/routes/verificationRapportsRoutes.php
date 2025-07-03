@@ -33,16 +33,24 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_rapport = $_POST['id_rapport'] ?? 0;
                     $commentaire = $_POST['commentaire'] ?? '';
-                    
+
+                    header('Content-Type: application/json');
                     if ($id_rapport && $commentaire) {
                         $_POST['id_rapport'] = (int)$id_rapport;
                         $result = $controller->validerRapport();
-                        header('Content-Type: application/json');
+                        if ($result['success']) {
+                            http_response_code(200);
+                        } else {
+                            http_response_code(400);
+                        }
                         echo json_encode($result);
                     } else {
-                        header('Content-Type: application/json');
+                        http_response_code(422);
                         echo json_encode(['success' => false, 'message' => 'Paramètres manquants']);
                     }
+                } else {
+                    http_response_code(405);
+                    echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
                 }
                 exit;
                 
@@ -50,16 +58,24 @@ if (isset($_GET['page']) && $_GET['page'] === 'verification_candidatures_soutena
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_rapport = $_POST['id_rapport'] ?? 0;
                     $commentaire = $_POST['commentaire'] ?? '';
-                    
+
+                    header('Content-Type: application/json');
                     if ($id_rapport && $commentaire) {
                         $_POST['id_rapport'] = (int)$id_rapport;
                         $result = $controller->rejeterRapport();
-                        header('Content-Type: application/json');
+                        if ($result['success']) {
+                            http_response_code(200);
+                        } else {
+                            http_response_code(400);
+                        }
                         echo json_encode($result);
                     } else {
-                        header('Content-Type: application/json');
+                        http_response_code(422);
                         echo json_encode(['success' => false, 'message' => 'Paramètres manquants']);
                     }
+                } else {
+                    http_response_code(405);
+                    echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
                 }
                 exit;
                 

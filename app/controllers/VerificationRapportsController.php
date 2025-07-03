@@ -87,34 +87,36 @@ class VerificationRapportsController {
         try {
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
-            $id_admin = $_SESSION['id_utilisateur'] ?? 0;
-            
+            $id_approb = 4; // Niveau 2 (id_approb=4 dans la table niveau_approbation)
+            $id_admin = 7; // Forcé pour debug (Seri Marie Christine)
+
             if (!$id_rapport || !$commentaire || !$id_admin) {
-                return ['success' => false, 'message' => 'Paramètres manquants'];
+                return ['success' => false, 'message' => 'Paramètres manquants ou administrateur non reconnu'];
             }
-            
-            // Insérer l'évaluation dans la table evaluations_rapports
+
+            // Insérer l'approbation dans la table approuver
             $stmt = $this->pdo->prepare("
-                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
-                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
+                INSERT INTO approuver (id_rapport, id_pers_admin, commentaire_approv, decision, date_approv, id_approb)
+                VALUES (?, ?, ?, 'approuve', NOW(), ?)
             ");
-            
-            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
-                // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'valider' WHERE id_rapport = ?");
+
+            if ($stmt->execute([$id_rapport, $id_admin, $commentaire, $id_approb])) {
+                // Mettre à jour l'étape de validation du rapport
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'approuve_communication' WHERE id_rapport = ?");
                 $updateStmt->execute([$id_rapport]);
-                
-                // Log l'action dans le journal des audits
-                $this->auditLog->logValidation($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
-                
+
+                // Suppression du log d'audit (pister)
+                // $this->auditLog->logValidation($id_admin, 'rapport_etudiants', 'Succès');
+
                 return ['success' => true, 'message' => 'Rapport approuvé avec succès'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
+                $errorInfo = $stmt->errorInfo();
+                error_log('APPROBATION SQL ERROR: ' . $errorInfo[2]);
+                return ['success' => false, 'message' => "Erreur lors de l'approbation : " . $errorInfo[2]];
             }
-            
         } catch (Exception $e) {
             error_log("Erreur approbation rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de l\'approbation'];
+            return ['success' => false, 'message' => "Exception : " . $e->getMessage()];
         }
     }
     
@@ -125,33 +127,36 @@ class VerificationRapportsController {
         try {
             $id_rapport = $_POST['id_rapport'] ?? 0;
             $commentaire = $_POST['commentaire'] ?? '';
-            $id_admin = $_SESSION['id_utilisateur'] ?? 0;
-            
+            $id_approb = 4; // Niveau 2 (id_approb=4 dans la table niveau_approbation)
+            $id_admin = 7; // Forcé pour debug (Seri Marie Christine)
+
             if (!$id_rapport || !$commentaire || !$id_admin) {
-                return ['success' => false, 'message' => 'Paramètres manquants'];
+                return ['success' => false, 'message' => 'Paramètres manquants ou administrateur non reconnu'];
             }
-            
-            // Insérer l'évaluation dans la table evaluations_rapports
+
+            // Insérer le rejet dans la table approuver
             $stmt = $this->pdo->prepare("
-                INSERT INTO evaluations_rapports (id_rapport, id_evaluateur, type_evaluateur, commentaire, statut_evaluation, date_evaluation) 
-                VALUES (?, ?, 'personnel_admin', ?, 'terminee', NOW())
+                INSERT INTO approuver (id_rapport, id_pers_admin, commentaire_approv, decision, date_approv, id_approb)
+                VALUES (?, ?, ?, 'desapprouve', NOW(), ?)
             ");
-            
-            if ($stmt->execute([$id_rapport, $id_admin, $commentaire])) {
-                // Mettre à jour le statut du rapport
-                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET statut_rapport = 'rejeter' WHERE id_rapport = ?");
+
+            if ($stmt->execute([$id_rapport, $id_admin, $commentaire, $id_approb])) {
+                // Mettre à jour l'étape de validation du rapport
+                $updateStmt = $this->pdo->prepare("UPDATE rapport_etudiants SET etape_validation = 'approuve_communication' WHERE id_rapport = ?");
                 $updateStmt->execute([$id_rapport]);
-                
-                // Log l'action dans le journal des audits
-                $this->auditLog->logRejet($_SESSION['id_utilisateur'], 'rapport_etudiants', 'Succès');
-                
+
+                // Suppression du log d'audit (pister)
+                // $this->auditLog->logRejet($id_admin, 'rapport_etudiants', 'Succès');
+
                 return ['success' => true, 'message' => 'Rapport rejeté avec succès'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors de la désapprobation.'];
+                $errorInfo = $stmt->errorInfo();
+                error_log('APPROBATION SQL ERROR: ' . $errorInfo[2]);
+                return ['success' => false, 'message' => "Erreur lors de la désapprobation : " . $errorInfo[2]];
             }
         } catch (Exception $e) {
             error_log("Erreur désapprobation rapport: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la désapprobation'];
+            return ['success' => false, 'message' => "Exception : " . $e->getMessage()];
         }
     }
     
