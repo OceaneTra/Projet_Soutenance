@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mer. 02 juil. 2025 à 15:39
+-- Généré le : jeu. 03 juil. 2025 à 00:26
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -302,10 +302,40 @@ CREATE TABLE `compte_rendu` (
     `id_CR` int NOT NULL,
     `num_etu` int NOT NULL,
     `nom_CR` varchar(70) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_mysql500_ci NOT NULL,
-    `contenu_CR` text COLLATE utf8mb3_general_mysql500_ci NOT NULL,
+    `contenu_CR` longtext COLLATE utf8mb3_general_mysql500_ci,
     `chemin_fichier_pdf` varchar(255) COLLATE utf8mb3_general_mysql500_ci DEFAULT NULL,
     `date_CR` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3 COLLATE = utf8mb3_general_mysql500_ci;
+
+--
+-- Déchargement des données de la table `compte_rendu`
+--
+
+INSERT INTO
+    `compte_rendu` (
+        `id_CR`,
+        `num_etu`,
+        `nom_CR`,
+        `contenu_CR`,
+        `chemin_fichier_pdf`,
+        `date_CR`
+    )
+VALUES (
+        22,
+        2003003,
+        'Compte rendu séance du 02/07/2025',
+        '\r\n                <style>\r\n                .editor-content { font-family: \'Times New Roman\', Times, serif; }\r\n                .header-logos { width: 100%; margin-bottom: 1em; }\r\n                .header-logos img { height: 60px; }\r\n                .header-logos .left { float: left; }\r\n                .header-logos .right { float: right; }\r\n                .header-logos .center { text-align: center; margin: 0 auto; }\r\n                h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }\r\n                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }\r\n                p { margin-bottom: 0.7em; }\r\n                ul { margin-left: 1.5em; margin-bottom: 0.7em; }\r\n                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }\r\n                .cas-footer { margin-top: 1em; font-size: 1em; }\r\n                .text-center { text-align: center; }\r\n                .italic { font-style: italic; }\r\n                </style>\r\n                <div class=\"header-logos\">\r\n                    <div class=\"center\">\r\n                        <div style=\"font-size:13px; font-weight:bold; letter-spacing:1px;\">REPUBLIQUE DE COTE D\'IVOIRE</div>\r\n                        <div style=\"font-size:12px;\">Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique</div>\r\n                        </div>\r\n                        </div>\r\n                <h1>Procès-Verbal de séance de validation de thèmes</h1>\r\n                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>\r\n                <div class=\"text-center\" style=\"margin-bottom:1em;\">\r\n                    Université Félix Houphouët-Boigny<br>\r\n                    UFR Mathématiques et Informatique\r\n                        </div>\r\n                <h3 class=\"section-title\">CONTEXTE DE LA SÉANCE</h3>\r\n                <p>Dans le bureau du Prof KOUA Brou à l\'UFR MI, le [DATE] s\'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>\r\n                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>\r\n                <div class=\"encadre\">\r\n                    <strong>Ordre du jour :</strong>\r\n                    <ul>\r\n                        <li>Informations</li>\r\n                        <li>Validation de thèmes</li>\r\n                        <li>Divers</li>\r\n                                </ul>\r\n                            </div>\r\n                <h3 class=\"section-title\">1. INFORMATIONS</h3>\r\n                <p class=\"italic\">[Le responsable de la filière a exposé sur l\'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>\r\n                <p class=\"italic\">[L\'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>\r\n                <h3 class=\"section-title\">2. VALIDATION DE THÈMES</h3>\r\n                <div id=\"casDynamique\">\r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 1</div>\r\n                    <strong>Étudiant :</strong> Gondo Patrick Diomandé<br>\r\n                    <strong>Thème :</strong> theme testes de rapport<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                \r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 2</div>\r\n                    <strong>Étudiant :</strong> Prince Aka<br>\r\n                    <strong>Thème :</strong> Intégration d\'une base intelligente<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                </div>\r\n                <h3 class=\"section-title\">3. DIVERS</h3>\r\n                <p class=\"italic\">[La commission a recommandé au Directeur de la filière d\'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>\r\n                <strong>Recommandations aux étudiants :</strong>\r\n                <ul>\r\n                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>\r\n                    <li>Joindre un CV contenant une photo d\'identité</li>\r\n                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d\'une pénalité</li>\r\n                                </ul>\r\n                <div class=\"text-center\" style=\"margin-top:2em;\">\r\n                    Les travaux de la commission ont pris fin à 12 h 30.<br>\r\n                    Fait à Abidjan, le [DATE]<br>\r\n                    <strong>La commission</strong>\r\n                        </div>\r\n                    ',
+        'ressources/uploads/comptes_rendus/CR_20250702_224732.pdf',
+        '2025-07-02 22:47:31'
+    ),
+    (
+        23,
+        2003003,
+        'Compte rendu séance du 03/07/2025',
+        '\r\n                <style>\r\n                .editor-content { font-family: \'Times New Roman\', Times, serif; }             \r\n                .header-logos .right { float: right; }\r\n                .header-logos .center { text-align: center; margin: 0 auto; }\r\n                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }\r\n                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }\r\n                .editor-content p { margin-bottom: 0.7em; }\r\n                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }\r\n                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }\r\n                .cas-footer { margin-top: 1em; font-size: 1em; }\r\n                .text-center { text-align: center; }\r\n                .italic { font-style: italic; }\r\n                </style>\r\n                <div class=\"header-logos\">\r\n                    <div class=\"center\">\r\n                        <div style=\"font-size:13px; font-weight:bold; letter-spacing:1px;\">REPUBLIQUE DE COTE D\'IVOIRE</div>\r\n                        <div style=\"font-size:12px;\">Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique</div>\r\n                        </div>\r\n                        </div>\r\n                <h1>Procès-Verbal de séance de validation de thèmes</h1>\r\n                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>\r\n                <div class=\"text-center\" style=\"margin-bottom:1em;\">\r\n                    Université Félix Houphouët-Boigny<br>\r\n                    UFR Mathématiques et Informatique\r\n                        </div>\r\n                <h3 class=\"section-title\">CONTEXTE DE LA SÉANCE</h3>\r\n                <p>Dans le bureau du Prof KOUA Brou à l\'UFR MI, le [DATE] s\'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>\r\n                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>\r\n                <div class=\"encadre\">\r\n                    <strong>Ordre du jour :</strong>\r\n                    <ul>\r\n                        <li>Informations</li>\r\n                        <li>Validation de thèmes</li>\r\n                        <li>Divers</li>\r\n                                </ul>\r\n                            </div>\r\n                <h3 class=\"section-title\">1. INFORMATIONS</h3>\r\n                <p class=\"italic\">[Le responsable de la filière a exposé sur l\'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>\r\n                <p class=\"italic\">[L\'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>\r\n                <h3 class=\"section-title\">2. VALIDATION DE THÈMES</h3>\r\n                <div id=\"casDynamique\">\r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 1</div>\r\n                    <strong>Étudiant :</strong> Gondo Patrick Diomandé<br>\r\n                    <strong>Thème :</strong> theme testes de rapport<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                \r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 2</div>\r\n                    <strong>Étudiant :</strong> Prince Aka<br>\r\n                    <strong>Thème :</strong> Intégration d\'une base intelligente<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème trop ancien</li>\r\n                        <li>mais rejeté</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                </div>\r\n                <h3 class=\"section-title\">3. DIVERS</h3>\r\n                <p class=\"italic\">[La commission a recommandé au Directeur de la filière d\'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>\r\n                <strong>Recommandations aux étudiants :</strong>\r\n                <ul>\r\n                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>\r\n                    <li>Joindre un CV contenant une photo d\'identité</li>\r\n                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d\'une pénalité</li>\r\n                                </ul>\r\n                <div class=\"text-center\" style=\"margin-top:2em;\">\r\n                    Les travaux de la commission ont pris fin à 12 h 30.<br>\r\n                    Fait à Abidjan, le [DATE]<br>\r\n                    <strong>La commission</strong>\r\n                        </div>\r\n                    ',
+        'ressources/uploads/comptes_rendus/CR_20250703_001908.pdf',
+        '2025-07-03 00:19:07'
+    );
 
 -- --------------------------------------------------------
 
@@ -317,6 +347,17 @@ CREATE TABLE `compte_rendu_rapport` (
     `id_CR` int NOT NULL,
     `id_rapport` int NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `compte_rendu_rapport`
+--
+
+INSERT INTO
+    `compte_rendu_rapport` (`id_CR`, `id_rapport`)
+VALUES (22, 2),
+    (23, 2),
+    (22, 5),
+    (23, 5);
 
 -- --------------------------------------------------------
 
@@ -4052,63 +4093,55 @@ CREATE TABLE `rattacher` (
 
 INSERT INTO
     `rattacher` (`id_GU`, `id_traitement`)
-VALUES (13, 12),
-    (13, 13),
-    (13, 20),
-    (13, 16),
-    (13, 15),
-    (13, 19),
+VALUES (11, 35),
+    (11, 36),
+    (11, 38),
+    (11, 39),
+    (11, 19),
+    (11, 42),
+    (11, 43),
+    (7, 31),
+    (7, 32),
+    (7, 29),
+    (7, 19),
     (12, 27),
     (12, 28),
-    (12, 16),
     (12, 19),
+    (13, 12),
+    (13, 13),
+    (13, 20),
+    (13, 15),
+    (13, 19),
     (9, 27),
     (9, 29),
-    (9, 16),
     (9, 19),
     (10, 27),
     (10, 30),
-    (10, 16),
     (10, 19),
-    (6, 33),
-    (6, 34),
-    (6, 29),
-    (6, 16),
-    (6, 19),
-    (7, 32),
-    (7, 29),
-    (7, 16),
-    (7, 19),
-    (7, 31),
     (8, 23),
-    (8, 25),
     (8, 6),
-    (8, 26),
-    (8, 41),
     (8, 24),
-    (8, 16),
+    (8, 25),
+    (8, 41),
+    (8, 26),
     (8, 19),
-    (11, 39),
-    (11, 35),
-    (11, 36),
-    (11, 16),
-    (11, 40),
-    (11, 38),
-    (11, 19),
-    (11, 42),
-    (5, 5),
+    (6, 33),
+    (6, 29),
+    (6, 34),
+    (6, 19),
     (5, 35),
-    (5, 36),
+    (5, 5),
     (5, 8),
+    (5, 36),
     (5, 38),
     (5, 7),
     (5, 9),
-    (5, 16),
-    (5, 10),
     (5, 39),
+    (5, 10),
     (5, 19),
     (5, 11),
-    (5, 40);
+    (5, 42),
+    (5, 43);
 
 -- --------------------------------------------------------
 
@@ -4622,6 +4655,13 @@ VALUES (
         'Rédaction du compte rendu',
         'fa-file',
         6
+    ),
+    (
+        43,
+        'archive_comptes_rendus',
+        'Archive des comptes rendus',
+        'fa-book',
+        9
     );
 
 -- --------------------------------------------------------
@@ -6143,7 +6183,8 @@ AUTO_INCREMENT = 10;
 -- AUTO_INCREMENT pour la table `compte_rendu`
 --
 ALTER TABLE `compte_rendu`
-MODIFY `id_CR` int NOT NULL AUTO_INCREMENT;
+MODIFY `id_CR` int NOT NULL AUTO_INCREMENT,
+AUTO_INCREMENT = 24;
 
 --
 -- AUTO_INCREMENT pour la table `dossier_academique`
@@ -6318,7 +6359,7 @@ AUTO_INCREMENT = 8;
 --
 ALTER TABLE `traitement`
 MODIFY `id_traitement` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 43;
+AUTO_INCREMENT = 44;
 
 --
 -- AUTO_INCREMENT pour la table `type_utilisateur`
