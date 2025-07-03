@@ -1,15 +1,25 @@
+<?php
+$rapports_valides = $GLOBALS['rapports_valides'] ?? [];
+$notifType = '';
+$notifMsg = '';
+if (!empty($_SESSION['success'])) {
+    $notifType = 'success';
+    $notifMsg = $_SESSION['success'];
+    unset($_SESSION['success']);
+} elseif (!empty($_SESSION['error'])) {
+    $notifType = 'error';
+    $notifMsg = $_SESSION['error'];
+    unset($_SESSION['error']);
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rédaction des Comptes Rendus | Mr. Diarra</title>
+    <title>Rédaction des Comptes Rendus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar-hover:hover {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
-        }
         .fade-in {
             animation: fadeIn 0.3s ease-in;
         }
@@ -52,36 +62,77 @@
             font-family: 'Times New Roman', serif;
             line-height: 1.6;
         }
+        
+        /* Styles pour masquer les éléments lors de l'impression */
+        @media print {
+            /* Masquer seulement les éléments d'interface */
+            .editor-toolbar,
+            .template-section,
+            #toastNotif,
+            button,
+            select,
+            input,
+            .bg-gray-50,
+            .bg-white,
+            .shadow,
+            .rounded-lg,
+            .flex,
+            .grid,
+            .lg\\:col-span-2,
+            .lg\\:grid-cols-3,
+            .space-y-6,
+            .space-y-3,
+            .space-y-2,
+            .space-y-4,
+            .space-x-3,
+            .space-x-2,
+            .p-6,
+            .px-6,
+            .py-3,
+            .py-4,
+            .mb-8,
+            .mb-4,
+            .mt-4,
+            .mt-12,
+            .max-w-7xl,
+            .mx-auto,
+            .overflow-hidden,
+            .border-t,
+            .border-gray-200 {
+                display: none !important;
+            }
+            
+            /* Reset du body */
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+            
+            /* Formatage du contenu de l'éditeur */
+            #editorContent {
+                position: static !important;
+                left: auto !important;
+                top: auto !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
+                font-family: 'Times New Roman', serif !important;
+                line-height: 1.6 !important;
+                color: black !important;
+            }
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="flex h-screen overflow-hidden">
         <!-- Main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
-            <!-- Top navigation -->
-            <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-white shadow-sm">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-semibold text-gray-800">Rédaction de Compte Rendu</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="saveAsDraft()" class="flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800">
-                        <i class="fas fa-save mr-1"></i>Sauvegarder
-                    </button>
-                    <button onclick="previewReport()" class="flex items-center px-3 py-1 text-sm text-green-600 hover:text-green-800">
-                        <i class="fas fa-eye mr-1"></i>Aperçu
-                    </button>
-                    <div class="relative">
-                        <button class="flex items-center space-x-2 focus:outline-none">
-                            <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/55.jpg" alt="Mr. Diarra">
-                            <span class="text-sm font-medium text-gray-700">Mr. Diarra</span>
-                            <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-
-
             <!-- Main content area -->
             <div class="flex-1 overflow-y-auto bg-gray-50">
                 <div class="max-w-7xl mx-auto p-6">
@@ -98,15 +149,15 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Ajouter un rapport</label>
                                         <div class="flex items-center space-x-2">
-                                            <select id="reportSelect" class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" style="height:36px;">
-                                                <option value="">Sélectionner un rapport...</option>
+                                            <select id="reportSelect" class="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" style="height:36px; width: 100px;">
+                                            <option value="">Sélectionner un rapport...</option>
                                                 <?php foreach (
                                                     $rapports_valides as $rapport): ?>
                                                     <option value="<?= htmlspecialchars($rapport['id_rapport']) ?>">
                                                         <?= htmlspecialchars($rapport['theme_rapport']) ?> - <?= htmlspecialchars($rapport['prenom_etu'] . ' ' . $rapport['nom_etu']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
-                                            </select>
+                                        </select>
                                             <button onclick="addReport()"
                                                 class="bg-blue-200 text-gray-700 rounded-full hover:bg-gray-300 focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
                                                 style="height:28px; width:28px; min-width:28px;">
@@ -148,15 +199,10 @@
                             </div>
 
                             <!-- Templates -->
-                            <div class="template-section p-6 rounded-lg shadow mb-8">
-                                <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center"><i class="fas fa-file-alt mr-2"></i> Modèle de compte rendu</h2>
-                                <div class="grid grid-cols-1 gap-4">
-                                    <button onclick="loadTemplate('validation_seance')" class="w-full text-left p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 transition-colors">
-                                        <i class="fas fa-video text-yellow-600 mr-2"></i>
-                                        <span class="font-medium">Modèle de séance de validation</span>
-                                        <p class="text-xs text-gray-600 mt-1">Pour les comptes rendus de séance de validation</p>
+                            <div class="template-section p-6 rounded-lg shadow mb-8 text-center">
+                                <button onclick="loadTemplate('validation_seance')" class="px-6 py-3 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 transition-colors font-semibold text-lg">
+                                    <i class="fas fa-file-import mr-2"></i>Charger le modèle
                                     </button>
-                                </div>
                             </div>
                         </div>
 
@@ -215,15 +261,15 @@
                                             <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
                                             <div class="mb-4">
                                                 <p><strong class="text-gray-700">Nombre de rapports évalués :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                                <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
+                                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
                                                 <p><strong class="text-gray-700">Membres de la commission d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                            </div>
+                                                </div>
                                             
                                             <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                                                 <h4 class="font-semibold text-gray-700 mb-2">Rapports évalués :</h4>
                                                 <div class="text-gray-600">
                                                     [À compléter]
-                                                </div>
+                                            </div>
                                             </div>
                                         </div>
 
@@ -321,11 +367,8 @@
                                             </button>
                                         </div>
                                         <div class="flex items-center space-x-3">
-                                            <button onclick="previewReport()" class="flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700">
-                                                <i class="fas fa-eye mr-2"></i>Aperçu
-                                            </button>
-                                            <button onclick="finalizeReport()" class="flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
-                                                <i class="fas fa-check mr-2"></i>Finaliser
+                                            <button onclick="printReport()" class="flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
+                                                <i class="fas fa-print mr-2"></i>Imprimer
                                             </button>
                                         </div>
                                     </div>
@@ -371,6 +414,24 @@
         </div>
     </div>
 
+    <form id="formCR" method="POST" action="?page=redaction_compte_rendu">
+        <input type="hidden" name="num_etu" id="num_etu" value="">
+        <input type="hidden" name="nom_CR" id="nom_CR" value="">
+        <input type="hidden" name="contenu_CR" id="contenu_CR" value="">
+        <div class="flex justify-end mt-6">
+            <button type="button" onclick="submitCR()" class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-colors font-semibold text-lg">
+                <i class="fas fa-save mr-2"></i>Enregistrer le compte rendu
+            </button>
+        </div>
+    </form>
+
+    <div id="toastNotif" style="display:none; position:fixed; top:30px; right:30px; z-index:9999; min-width:250px;" class="transition-opacity duration-500">
+        <div id="toastContent" class="px-4 py-3 rounded shadow-lg flex items-center">
+            <span id="toastIcon" class="mr-3"></span>
+            <span id="toastMsg"></span>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let currentReportData = null;
@@ -393,11 +454,11 @@
             const select = document.getElementById('reportSelect');
             const id = select.value;
             if (!id) return;
-            // Vérifier si déjà ajouté
-            if (document.getElementById('rapport-cas-' + id)) return;
+            if (selectedReports.find(r => r.id_rapport == id)) return;
             const rapport = getRapportById(id);
             if (!rapport) return;
-            // Ajouter à la liste des rapports sélectionnés
+            selectedReports.push(rapport);
+            // Ajouter à la liste des rapports sélectionnés (affichage)
             const reportsList = document.getElementById('reportsList');
             const div = document.createElement('div');
             div.id = 'rapport-cas-' + id;
@@ -405,15 +466,17 @@
             div.innerHTML = `<span><b>Thème :</b> ${rapport.theme_rapport} <br><b>Étudiant :</b> ${rapport.prenom_etu} ${rapport.nom_etu}</span>
                 <button onclick="removeReport('${id}')" class="ml-2 text-red-500 hover:text-red-700"><i class='fas fa-times'></i></button>`;
             reportsList.appendChild(div);
-            // Afficher les infos détaillées dans le bloc info
             showReportDetails();
+            updateEditorWithReportData();
         }
 
         // Supprimer un rapport de la liste
         function removeReport(id) {
+            selectedReports = selectedReports.filter(r => r.id_rapport != id);
             const div = document.getElementById('rapport-cas-' + id);
             if (div) div.remove();
             showReportDetails();
+            updateEditorWithReportData();
         }
 
         // Mettre à jour la liste des rapports
@@ -455,33 +518,33 @@
                 evaluationsSummary.classList.add('hidden');
                 return;
             }
-            
-            // Données simulées des rapports
+
+        // Données simulées des rapports
             const reportData = {
-                '1': {
+            '1': {
                     title: 'IA Diagnostic Médical',
-                    student: 'Marie Lambert',
+                student: 'Marie Lambert',
                     supervisor: 'Dr. Martin Dubois',
                     date: '15 Janvier 2025',
                     duration: '45 minutes',
                     grade: '16/20',
                     status: 'Validé',
-                    evaluations: [
+                evaluations: [
                         { evaluator: 'Dr. Kouassi', decision: 'Validé', comment: 'Excellent travail technique' },
                         { evaluator: 'Dr. Koné', decision: 'Validé', comment: 'Méthodologie solide' },
                         { evaluator: 'Pr. Assan', decision: 'Validé', comment: 'Présentation claire' },
                         { evaluator: 'Dr. Bamba', decision: 'Validé', comment: 'Résultats convaincants' }
-                    ]
-                },
-                '2': {
+                ]
+            },
+            '2': {
                     title: 'Blockchain Sécurité',
-                    student: 'Jean Dupont',
+                student: 'Jean Dupont',
                     supervisor: 'Prof. Sophie Martin',
                     date: '12 Janvier 2025',
                     duration: '50 minutes',
                     grade: '14/20',
                     status: 'Validé',
-                    evaluations: [
+                evaluations: [
                         { evaluator: 'Dr. Kouassi', decision: 'Validé', comment: 'Approche innovante' },
                         { evaluator: 'Dr. Koné', decision: 'Validé', comment: 'Bonne analyse' },
                         { evaluator: 'Pr. Assan', decision: 'Rejeté', comment: 'Manque de profondeur' },
@@ -569,9 +632,9 @@
                                 <div><span class="font-medium text-gray-700">Durée :</span> <span class="text-gray-900">${data.duration}</span></div>
                                 <div><span class="font-medium text-gray-700">Note :</span> <span class="text-gray-900 font-semibold">${data.grade}</span></div>
                             </div>
-                        </div>
-                    `;
-                    
+                    </div>
+                `;
+                
                     // Ajouter les évaluations pour ce rapport
                     allEvaluationsHTML += `
                         <div class="mb-4">
@@ -579,30 +642,30 @@
                     `;
                     
                     data.evaluations.forEach(eval => {
-                        const bgColor = eval.decision === 'Validé' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
-                        const textColor = eval.decision === 'Validé' ? 'text-green-800' : 'text-red-800';
-                        
+                    const bgColor = eval.decision === 'Validé' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+                    const textColor = eval.decision === 'Validé' ? 'text-green-800' : 'text-red-800';
+                    
                         allEvaluationsHTML += `
                             <div class="p-3 border rounded-lg ${bgColor} mb-2">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-medium text-sm">${eval.evaluator}</span>
-                                    <span class="px-2 py-1 text-xs rounded-full ${bgColor} ${textColor}">
-                                        ${eval.decision}
-                                    </span>
-                                </div>
-                                <p class="text-xs text-gray-600">${eval.comment}</p>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-medium text-sm">${eval.evaluator}</span>
+                                <span class="px-2 py-1 text-xs rounded-full ${bgColor} ${textColor}">
+                                    ${eval.decision}
+                                </span>
                             </div>
-                        `;
-                    });
-                    
+                            <p class="text-xs text-gray-600">${eval.comment}</p>
+                        </div>
+                    `;
+                });
+                
                     allEvaluationsHTML += `</div>`;
                 }
             });
-            
+                
             reportDetails.innerHTML = html;
             document.getElementById('evaluationsContent').innerHTML = allEvaluationsHTML;
-            evaluationsSummary.classList.remove('hidden');
-            
+                evaluationsSummary.classList.remove('hidden');
+                
             // Mettre à jour l'éditeur si le modèle de séance de validation est chargé
             const editor = document.getElementById('editorContent');
             if (editor.innerHTML.includes('Procès-Verbal de séance de validation de thèmes')) {
@@ -612,544 +675,100 @@
 
         // Mise à jour de l'éditeur avec les données des rapports
         function updateEditorWithReportData() {
-            if (selectedReports.length === 0) return;
-            
+            // Génère dynamiquement les cas à partir des rapports sélectionnés
+            let casHTML = '';
+            selectedReports.forEach((rapport, idx) => {
+                casHTML += `
+                <div class="cas">
+                    <div class="cas-titre">Cas ${idx + 1}</div>
+                    <strong>Étudiant :</strong> ${rapport.prenom_etu} ${rapport.nom_etu}<br>
+                    <strong>Thème :</strong> ${rapport.theme_rapport}<br>
+                    <strong>Recommandations de la commission :</strong>
+                    <ul>
+                        <li>thème valide</li>
+                        <li>bien décrire le processus de règlement de chèques</li>
+                        <li>décrire exactement le contexte</li>
+                    </ul>
+                    <div class="cas-footer">
+                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;
+                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice
+                    </div>
+                </div>
+                `;
+            });
+            // Remplacer le contenu de #casDynamique dans l'éditeur
             const editor = document.getElementById('editorContent');
-            let content = editor.innerHTML;
-            
-            // Données simulées des rapports
-            const reportData = {
-                '1': { 
-                    title: 'IA Diagnostic Médical', 
-                    student: 'Marie Lambert', 
-                    supervisor: 'Dr. Martin Dubois',
-                    theme: 'Mise en place d\'une plateforme Web pour le suivi des règlements des chèques impayés : cas CIE',
-                    recommendations: [
-                        'thème valide',
-                        'bien décrire le processus de règlement de chèques',
-                        'décrire exactement le contexte'
-                    ],
-                    directeur: 'Prof. KOUAKOU Mathias',
-                    encadreur: 'M. BROU Patrice'
-                },
-                '2': { 
-                    title: 'Blockchain Sécurité', 
-                    student: 'Jean Dupont', 
-                    supervisor: 'Prof. Sophie Martin',
-                    theme: 'Conception et mise en œuvre d\'une application de gestion intégrée de déclaration de biens et de taxes municipales : automatisation de la facturation et de paiement : cas mairie de Cocody',
-                    recommendations: [
-                        'thème valide',
-                        'reformuler le thème en accord avec l\'encadreur pédagogique',
-                        'thème trop long'
-                    ],
-                    directeur: 'Prof. FEUTO Justin',
-                    encadreur: 'M. WAH Médard'
-                },
-                '3': { 
-                    title: 'Réseaux Neurones', 
-                    student: 'Thomas Moreau', 
-                    supervisor: 'Dr. Pierre Rousseau',
-                    theme: 'Conception et réalisation d\'un logiciel de gestion et de suivi des développements d\'états de reporting pour l\'ERP ORACLE FUSION',
-                    recommendations: [
-                        'thème valide',
-                        'reformuler le thème'
-                    ],
-                    directeur: 'Prof. Akéké Éric',
-                    encadreur: 'Dr MAMADOU Diarra'
-                },
-                '4': { 
-                    title: 'Machine Learning', 
-                    student: 'Sophie Martin', 
-                    supervisor: 'Dr. Claire Dubois',
-                    theme: 'Développement d\'un système intelligent de prédiction des tendances de consommation énergétique',
-                    recommendations: [
-                        'thème valide',
-                        'préciser les algorithmes de ML à utiliser',
-                        'définir les métriques d\'évaluation'
-                    ],
-                    directeur: 'Prof. KOUA Brou',
-                    encadreur: 'Dr. MAMADOU Diarra'
-                },
-                '5': { 
-                    title: 'Cybersécurité', 
-                    student: 'Pierre Dubois', 
-                    supervisor: 'Prof. Jean Martin',
-                    theme: 'Mise en place d\'un système de détection d\'intrusion basé sur l\'intelligence artificielle',
-                    recommendations: [
-                        'thème valide',
-                        'spécifier les types d\'attaques à détecter',
-                        'définir les seuils d\'alerte'
-                    ],
-                    directeur: 'Prof. KOUA Brou',
-                    encadreur: 'M. WAH Médard'
-                },
-                '6': { 
-                    title: 'Intelligence Artificielle', 
-                    student: 'Claire Rousseau', 
-                    supervisor: 'Dr. Thomas Moreau',
-                    theme: 'Conception d\'un chatbot intelligent pour l\'assistance clientèle',
-                    recommendations: [
-                        'thème valide',
-                        'préciser le domaine d\'application',
-                        'définir les fonctionnalités principales'
-                    ],
-                    directeur: 'Prof. KOUA Brou',
-                    encadreur: 'M. BROU Patrice'
-                }
-            };
-            
-            // Remplacer les placeholders généraux
-            content = content.replace(/\[DATE\]/g, new Date().toLocaleDateString('fr-FR'));
-            content = content.replace(/\[HEURE_DEBUT\]/g, '11 h 00');
-            content = content.replace(/\[HEURE_FIN\]/g, '12 h 30');
-            content = content.replace(/\[RESPONSABLE\]/g, 'Prof KOUA Brou');
-            content = content.replace(/\[MEMBRES_PRESENTS\]/g, 'Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice');
-            content = content.replace(/\[NOMBRE_DOSSIERS\]/g, selectedReports.length);
-            
-            // Générer les sections de validation de thèmes
-            if (content.includes('themesValidation')) {
-                let themesHTML = '';
-                selectedReports.forEach((report, index) => {
-                    const data = reportData[report.id];
-                    if (data) {
-                        themesHTML += `
-                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-3">Cas ${index + 1}</h4>
-                                
-                                <div class="mb-3">
-                                    <p class="text-gray-700"><strong>Étudiant :</strong> ${data.student}</p>
-                                    <p class="text-gray-700"><strong>Thème :</strong> ${data.theme}</p>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <p class="text-gray-700 font-semibold">Recommandations de la commission :</p>
-                                    <ul class="list-disc list-inside text-gray-600 ml-4">
-                                        ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p class="text-gray-700"><strong>Directeur de mémoire :</strong> ${data.directeur}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-700"><strong>Encadreur pédagogique :</strong> ${data.encadreur}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                
-                content = content.replace('<div id="themesValidation" class="space-y-6">', `<div id="themesValidation" class="space-y-6">${themesHTML}`);
-            }
-            
+            let content = window.baseTemplate;
+            content = content.replace('<div id="casDynamique"></div>', `<div id="casDynamique">${casHTML}</div>`);
             editor.innerHTML = content;
         }
 
         // Chargement des modèles
         function loadTemplate(templateType) {
             const editor = document.getElementById('editorContent');
-            let template = '';
-            
-            switch(templateType) {
-                case 'miage':
-                    template = `
-                        <div class="text-center mb-8">
-                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU D'ÉVALUATION</h1>
-                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Rapports de Soutenance</h2>
-                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
-                            <p class="text-gray-600">Institut de Formation et de Recherche en Informatique</p>
-                            <p class="text-gray-600">Département MIAGE</p>
+            let template = `
+                <style>
+                .editor-content { font-family: 'Times New Roman', Times, serif; }             
+                .header-logos .right { float: right; }
+                .header-logos .center { text-align: center; margin: 0 auto; }
+                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
+                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
+                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }
+                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }
+                .editor-content p { margin-bottom: 0.7em; }
+                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }
+                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
+                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
+                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }
+                .cas-footer { margin-top: 1em; font-size: 1em; }
+                .text-center { text-align: center; }
+                .italic { font-style: italic; }
+                </style>
+                <div class="header-logos">
+                    <div class="center">
+                        <div style="font-size:13px; font-weight:bold; letter-spacing:1px;">REPUBLIQUE DE COTE D'IVOIRE</div>
+                        <div style="font-size:12px;">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</div>
                         </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
-                            <div class="mb-4">
-                                <p><strong class="text-gray-700">Nombre de rapports évalués :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                <p><strong class="text-gray-700">Membres de la commission d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                            </div>
-                            
-                            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                                <h4 class="font-semibold text-gray-700 mb-2">Rapports évalués :</h4>
-                                <div class="text-gray-600">
-                                    [À compléter]
-                                </div>
-                            </div>
                         </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. PRÉSENTATION DES TRAVAUX</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Contexte général</h4>
-                                <p class="text-gray-600 italic">[Présentation du contexte général et des problématiques abordées dans les rapports...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Objectifs et méthodologies</h4>
-                                <p class="text-gray-600 italic">[Description des objectifs poursuivis et des méthodologies adoptées dans les différents travaux...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Résultats obtenus</h4>
-                                <p class="text-gray-600 italic">[Synthèse des principaux résultats obtenus dans l'ensemble des travaux...]</p>
-                            </div>
+                <h1>Procès-Verbal de séance de validation de thèmes</h1>
+                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>
+                <div class="text-center" style="margin-bottom:1em;">
+                    Université Félix Houphouët-Boigny<br>
+                    UFR Mathématiques et Informatique
                         </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ÉVALUATIONS PAR RAPPORT</h3>
-                            <p class="text-gray-600 italic mb-4">[Les évaluations détaillées de chaque rapport seront automatiquement insérées ici...]</p>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
-                                <h4 class="font-semibold text-gray-700 mb-2">Résumé global des votes :</h4>
-                                <p class="text-sm text-gray-600">Total des votes favorables : [X]/[Total]</p>
-                                <p class="text-sm text-gray-600">Total des votes défavorables : [X]/[Total]</p>
-                                <p class="text-sm text-gray-600">Taux de validation global : [X]%</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. ANALYSE ET SYNTHÈSE GLOBALES</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.1 Points forts de l'ensemble des travaux</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>[Point fort global 1]</li>
-                                    <li>[Point fort global 2]</li>
-                                    <li>[Point fort global 3]</li>
+                <h3 class="section-title">CONTEXTE DE LA SÉANCE</h3>
+                <p>Dans le bureau du Prof KOUA Brou à l'UFR MI, le [DATE] s'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>
+                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>
+                <div class="encadre">
+                    <strong>Ordre du jour :</strong>
+                    <ul>
+                        <li>Informations</li>
+                        <li>Validation de thèmes</li>
+                        <li>Divers</li>
                                 </ul>
                             </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.2 Points à améliorer</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>[Point à améliorer global 1]</li>
-                                    <li>[Point à améliorer global 2]</li>
-                                    <li>[Point à améliorer global 3]</li>
+                <h3 class="section-title">1. INFORMATIONS</h3>
+                <p class="italic">[Le responsable de la filière a exposé sur l'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>
+                <p class="italic">[L'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>
+                <h3 class="section-title">2. VALIDATION DE THÈMES</h3>
+                <div id="casDynamique"></div>
+                <h3 class="section-title">3. DIVERS</h3>
+                <p class="italic">[La commission a recommandé au Directeur de la filière d'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>
+                <strong>Recommandations aux étudiants :</strong>
+                <ul>
+                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>
+                    <li>Joindre un CV contenant une photo d'identité</li>
+                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d'une pénalité</li>
                                 </ul>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">4.3 Recommandations générales</h4>
-                                <p class="text-gray-600 italic">[Recommandations pour l'amélioration de l'ensemble des travaux...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">V. DÉCISIONS DE LA COMMISSION</h3>
-                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                                <p class="text-lg font-semibold text-gray-800 mb-2">Décisions finales par rapport :</p>
-                                <div class="text-gray-600">
-                                    [Les décisions finales pour chaque rapport seront ajoutées ici]
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Justification des décisions :</h4>
-                                <p class="text-gray-600 italic">[Justification détaillée des décisions prises par la commission pour chaque rapport...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-12 text-center">
-                            <p class="text-gray-600 mb-4">Fait à Abidjan, le [DATE]</p>
-                            <div class="flex justify-center space-x-8">
-                                <div class="text-center">
-                                    <p class="font-semibold text-gray-700">Président de la Commission</p>
-                                    <p class="text-gray-600">[Signature]</p>
-                                </div>
-                                <div class="text-center">
-                                    <p class="font-semibold text-gray-700">Rapporteur</p>
-                                    <p class="text-gray-600">[Signature]</p>
-                                </div>
-                            </div>
+                <div class="text-center" style="margin-top:2em;">
+                    Les travaux de la commission ont pris fin à 12 h 30.<br>
+                    Fait à Abidjan, le [DATE]<br>
+                    <strong>La commission</strong>
                         </div>
                     `;
-                    break;
-                    
-                case 'detailed':
-                    template = `
-                        <div class="text-center mb-8">
-                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU DÉTAILLÉ D'ÉVALUATION</h1>
-                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Rapports</h2>
-                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
-                            <p class="text-gray-600">Institut de Formation et de Recherche en Informatique</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS GÉNÉRALES</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <p><strong class="text-gray-700">Titre du rapport :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Niveau d'études :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Promotion :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                                <div>
-                                    <p><strong class="text-gray-700">Encadrant principal :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Co-encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Date de soumission :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. CONTEXTE ET OBJECTIFS</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Problématique</h4>
-                                <p class="text-gray-600 italic">[Présentation détaillée de la problématique...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Objectifs</h4>
-                                <p class="text-gray-600 italic">[Objectifs spécifiques de la recherche...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Méthodologie</h4>
-                                <p class="text-gray-600 italic">[Approche méthodologique détaillée...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ANALYSE DÉTAILLÉE</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.1 Qualité du contenu</h4>
-                                <p class="text-gray-600 italic">[Analyse approfondie du contenu...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.2 Méthodologie</h4>
-                                <p class="text-gray-600 italic">[Évaluation détaillée de la méthodologie...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.3 Résultats et discussion</h4>
-                                <p class="text-gray-600 italic">[Analyse critique des résultats...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">3.4 Innovation et contribution</h4>
-                                <p class="text-gray-600 italic">[Évaluation de l'innovation et de la contribution...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. ÉVALUATIONS INDIVIDUELLES</h3>
-                            <p class="text-gray-600 italic">[Évaluations détaillées par membre de la commission...]</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">V. SYNTHÈSE ET RECOMMANDATIONS</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.1 Points forts</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>[Point fort 1]</li>
-                                    <li>[Point fort 2]</li>
-                                    <li>[Point fort 3]</li>
-                                </ul>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.2 Points à améliorer</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>[Point à améliorer 1]</li>
-                                    <li>[Point à améliorer 2]</li>
-                                    <li>[Point à améliorer 3]</li>
-                                </ul>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">5.3 Recommandations spécifiques</h4>
-                                <p class="text-gray-600 italic">[Recommandations détaillées pour l'amélioration...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">VI. DÉCISION FINALE</h3>
-                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                                <p class="text-lg font-semibold text-gray-800 mb-2">Décision motivée :</p>
-                                <p class="text-gray-600 italic">[Décision motivée de la commission...]</p>
-                            </div>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'synthesis':
-                    template = `
-                        <div class="text-center mb-8">
-                            <h1 class="text-3xl font-bold mb-3 text-gray-800">SYNTHÈSE D'ÉVALUATION</h1>
-                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation</h2>
-                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
-                            <p class="text-gray-600">Département MIAGE</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">RAPPORT ÉVALUÉ</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <p><strong class="text-gray-700">Titre :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Auteur :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                                <div>
-                                    <p><strong class="text-gray-700">Encadrant :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Date :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">SYNTHÈSE DES ÉVALUATIONS</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Consensus de la commission</h4>
-                                <p class="text-gray-600 italic">[Résumé du consensus général...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Points de divergence</h4>
-                                <p class="text-gray-600 italic">[Points de désaccord entre les évaluateurs...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">DÉCISION</h3>
-                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                                <p><strong class="text-gray-700">Résultat :</strong> [Accepté/Rejeté/Révision]</p>
-                                <p><strong class="text-gray-700">Justification :</strong> [Justification concise de la décision...]</p>
-                            </div>
-                        </div>
-                    `;
-                    break;
-
-                case 'technical':
-                    template = `
-                        <div class="text-center mb-8">
-                            <h1 class="text-3xl font-bold mb-3 text-gray-800">COMPTE RENDU TECHNIQUE D'ÉVALUATION</h1>
-                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Commission de Validation des Projets Techniques</h2>
-                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
-                            <p class="text-gray-600">Département MIAGE</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">I. INFORMATIONS DU PROJET</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <p><strong class="text-gray-700">Titre du projet :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Étudiant(e) :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Technologies utilisées :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                                <div>
-                                    <p><strong class="text-gray-700">Encadrant technique :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Durée du projet :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                    <p><strong class="text-gray-700">Date d'évaluation :</strong><br><span class="text-gray-600">[À compléter]</span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">II. ÉVALUATION TECHNIQUE</h3>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.1 Architecture et conception</h4>
-                                <p class="text-gray-600 italic">[Évaluation de l'architecture et de la conception...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.2 Implémentation</h4>
-                                <p class="text-gray-600 italic">[Évaluation de l'implémentation technique...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.3 Tests et validation</h4>
-                                <p class="text-gray-600 italic">[Évaluation des tests et de la validation...]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">2.4 Documentation</h4>
-                                <p class="text-gray-600 italic">[Évaluation de la documentation technique...]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">III. ÉVALUATIONS DES EXPERTS</h3>
-                            <p class="text-gray-600 italic mb-4">[Évaluations techniques détaillées...]</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">IV. DÉCISION TECHNIQUE</h3>
-                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                                <p class="text-lg font-semibold text-gray-800 mb-2">Validation technique :</p>
-                                <p class="text-gray-600 italic">[Décision de validation technique...]</p>
-                            </div>
-                        </div>
-                    `;
-                    break;
-
-                case 'validation_seance':
-                    template = `
-                        <div class="flex items-center justify-between mb-2">
-                            <img src="/images/FHB.png" alt="Logo UFHB" style="height:60px; width:auto;">
-                            <div class="text-center flex-1">
-                                <div style="font-size:13px; font-weight:bold; letter-spacing:1px;">REPUBLIQUE DE COTE D'IVOIRE</div>
-                                <div style="font-size:12px;">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</div>
-                            </div>
-                            <img src="/images/logo_mathInfo_fond_blanc.png" alt="Logo UFR MI" style="height:60px; width:auto;">
-                        
-                        </div>
-                        <div class="text-center mb-8 mt-2">
-                            <h1 class="text-3xl font-bold mb-3 text-gray-800">Procès-Verbal de séance de validation de thèmes</h1>
-                            <h2 class="text-xl font-semibold text-gray-700 mb-2">Thèmes de Soutenance - Filière MIAGE-GI</h2>
-                            <p class="text-gray-600 text-lg">Université Félix Houphouët-Boigny</p>
-                            <p class="text-gray-600">UFR Mathématiques et Informatique</p>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">CONTEXTE DE LA SÉANCE</h3>
-                            <div class="mb-4">
-                                <p class="text-gray-600">Dans le bureau du Prof KOUA Brou à l'UFR MI, le [DATE] s'est tenue de [HEURE_DEBUT] à [HEURE_FIN] une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>
-                                <p class="text-gray-600 mt-2">La réunion était animée par [RESPONSABLE] le responsable de ladite filière. Etaient présents [MEMBRES_PRESENTS]. Les membres de la commission de validation ont examiné [NOMBRE_DOSSIERS] dossiers.</p>
-                            </div>
-                            
-                            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                                <h4 class="font-semibold text-gray-700 mb-2">Ordre du jour :</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>Informations</li>
-                                    <li>Validation de thèmes</li>
-                                    <li>Divers</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">1. INFORMATIONS</h3>
-                            <div class="mb-4">
-                                <p class="text-gray-600 italic">[Le responsable de la filière a exposé sur l'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>
-                                <p class="text-gray-600 italic mt-2">[L'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">2. VALIDATION DE THÈMES</h3>
-                            <div id="themesValidation" class="space-y-6">
-                                <!-- Les thèmes seront ajoutés ici dynamiquement -->
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold border-b-2 border-gray-400 pb-3 mb-4 text-gray-800">3. DIVERS</h3>
-                            <div class="mb-4">
-                                <p class="text-gray-600 italic">[La commission a recommandé au Directeur de la filière d'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>
-                            </div>
-                            <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2 text-gray-700">Recommandations aux étudiants :</h4>
-                                <ul class="list-disc list-inside text-gray-600 ml-4">
-                                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>
-                                    <li>Joindre un CV contenant une photo d'identité</li>
-                                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d'une pénalité</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="mt-12 text-center">
-                            <p class="text-gray-600 mb-4">Les travaux de la commission ont pris fin à [HEURE_FIN].</p>
-                            <p class="text-gray-600 mb-4">Fait à Abidjan, le [DATE]</p>
-                            <div class="text-center">
-                                <p class="font-semibold text-gray-700">La commission</p>
-                            </div>
-                        </div>
-                    `;
-                    break;
-            }
-            
             editor.innerHTML = template;
-            
-            // Mettre à jour avec les données des rapports si c'est le modèle de séance de validation
-            if (templateType === 'validation_seance') {
+            window.baseTemplate = template;
                 updateEditorWithReportData();
-            }
         }
 
         // Fonctions de formatage de texte
@@ -1251,7 +870,7 @@
                     <title>Compte Rendu d'Évaluation</title>
                     <style>
                         body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; }
-                        h1, h2, h3, h4 { color: #333; }
+                        h2, h3, h4 { color: #333; }
                         .border-b { border-bottom: 1px solid #ccc; }
                         .mb-6 { margin-bottom: 24px; }
                         .mb-4 { margin-bottom: 16px; }
@@ -1282,32 +901,154 @@
             }, 2000);
         }
 
-        // Finalisation du rapport
-        function finalizeReport() {
+        // Impression du rapport
+        function printReport() {
             const content = document.getElementById('editorContent').innerHTML;
-            const reportId = document.getElementById('reportSelect').value;
             
-            if (!reportId) {
-                showNotification('Veuillez sélectionner un rapport avant de finaliser', 'error');
+            if (!content || content.trim() === '') {
+                showNotification('Aucun contenu à imprimer', 'error');
                 return;
             }
             
-            if (content.includes('[À compléter]') || content.includes('[Cliquez ici')) {
-                if (!confirm('Le rapport contient encore des sections à compléter. Voulez-vous vraiment le finaliser ?')) {
-                    return;
-                }
-            }
-            
-            if (confirm('Êtes-vous sûr de vouloir finaliser ce compte rendu ? Cette action est irréversible.')) {
-                // Simulation de finalisation
-                localStorage.setItem(`final_${reportId}`, content);
-                localStorage.removeItem(`draft_${reportId}`);
-                
-                showNotification('Compte rendu finalisé avec succès', 'success');
-                
-                // Mise à jour des étapes de progression
-                updateProgressSteps(4);
-            }
+            // Créer une nouvelle fenêtre pour l'impression
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Compte Rendu - Impression</title>
+                    <style>
+                        body {
+                            font-family: 'Times New Roman', serif;
+                            line-height: 1.6;
+                            margin: 20px;
+                            color: black;
+                            background: white;
+                        }
+                        h1 {
+                            font-size: 2.2em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                            text-align: center;
+                        }
+                        h2 {
+                            font-size: 1.5em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                            text-align: center;
+                        }
+                        h3 {
+                            font-size: 1.2em;
+                            font-weight: bold;
+                            margin-bottom: 0.5em;
+                        }
+                        p {
+                            margin-bottom: 0.7em;
+                        }
+                        ul {
+                            margin-left: 1.5em;
+                            margin-bottom: 0.7em;
+                        }
+                        li {
+                            margin-bottom: 0.3em;
+                        }
+                        .text-center {
+                            text-align: center;
+                        }
+                        .font-bold {
+                            font-weight: bold;
+                        }
+                        .font-semibold {
+                            font-weight: 600;
+                        }
+                        .mb-8 {
+                            margin-bottom: 2em;
+                        }
+                        .mb-4 {
+                            margin-bottom: 1em;
+                        }
+                        .mt-4 {
+                            margin-top: 1em;
+                        }
+                        .mt-12 {
+                            margin-top: 3em;
+                        }
+                        .bg-blue-50 {
+                            background-color: #eff6ff;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #3b82f6;
+                        }
+                        .bg-gray-50 {
+                            background-color: #f9fafb;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #3b82f6;
+                        }
+                        .bg-yellow-50 {
+                            background-color: #fffbeb;
+                            padding: 1em;
+                            border-radius: 4px;
+                            border-left: 4px solid #f59e0b;
+                        }
+                        .border-b-2 {
+                            border-bottom: 2px solid #374151;
+                            padding-bottom: 0.75em;
+                        }
+                        .text-gray-800 {
+                            color: #1f2937;
+                        }
+                        .text-gray-700 {
+                            color: #374151;
+                        }
+                        .text-gray-600 {
+                            color: #4b5563;
+                        }
+                        .text-lg {
+                            font-size: 1.125em;
+                        }
+                        .text-xl {
+                            font-size: 1.25em;
+                        }
+                        .text-3xl {
+                            font-size: 1.875em;
+                        }
+                        .italic {
+                            font-style: italic;
+                        }
+                        .list-disc {
+                            list-style-type: disc;
+                        }
+                        .list-inside {
+                            list-style-position: inside;
+                        }
+                        .ml-4 {
+                            margin-left: 1em;
+                        }
+                        .flex {
+                            display: flex;
+                        }
+                        .justify-center {
+                            justify-content: center;
+                        }
+                        .space-x-8 > * + * {
+                            margin-left: 2em;
+                        }
+                        @media print {
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         // Mise à jour des étapes de progression
@@ -1409,6 +1150,56 @@
                 }
             });
         }
+
+        function submitCR() {
+            if (selectedReports.length === 0) {
+                alert("Veuillez sélectionner au moins un rapport.");
+                return;
+            }
+            document.getElementById('contenu_CR').value = document.getElementById('editorContent').innerHTML;
+            let selected = selectedReports[0] || {};
+            document.getElementById('num_etu').value = selected.num_etu || '';
+            document.getElementById('nom_CR').value = 'Compte rendu séance du ' + (new Date()).toLocaleDateString('fr-FR');
+            let rapportsIds = selectedReports.map(r => r.id_rapport);
+            // Supprimer les anciens inputs rapports[]
+            document.querySelectorAll('input[name="rapports[]"]').forEach(e => e.remove());
+            // Ajouter un input caché pour chaque rapport sélectionné
+            let form = document.getElementById('formCR');
+            rapportsIds.forEach(id => {
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'rapports[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            console.log("num_etu envoyé :", selected.num_etu);
+            document.getElementById('formCR').submit();
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            var notifType = <?php echo json_encode($notifType); ?>;
+            var notifMsg = <?php echo json_encode($notifMsg); ?>;
+            if (notifType && notifMsg) {
+                var toast = document.getElementById('toastNotif');
+                var toastContent = document.getElementById('toastContent');
+                var toastIcon = document.getElementById('toastIcon');
+                var toastMsg = document.getElementById('toastMsg');
+                toastMsg.textContent = notifMsg;
+                if (notifType === 'success') {
+                    toastContent.className = 'bg-green-500 text-white px-4 py-3 rounded shadow-lg flex items-center';
+                    toastIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                } else {
+                    toastContent.className = 'bg-red-500 text-white px-4 py-3 rounded shadow-lg flex items-center';
+                    toastIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                }
+                toast.style.display = 'block';
+                toast.style.opacity = 1;
+                setTimeout(function() {
+                    toast.style.opacity = 0;
+                    setTimeout(function() { toast.style.display = 'none'; }, 500);
+                }, 3000);
+            }
+        });
     </script>
 </body>
 </html>

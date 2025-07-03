@@ -705,10 +705,11 @@ class GestionRapportController {
     {
         global $rapports;
         // Récupérer les rapports de l'étudiant
-        $rapports = RapportEtudiant::getByEtudiant($num_etu);
+        $rapports = $this->rapportModel->getRapportsByEtudiant($num_etu);
 
-        // Pour chaque rapport, récupérer l'historique des décisions
+        // Convertir les objets en tableaux et récupérer l'historique des décisions
         foreach ($rapports as &$rapport) {
+            $rapport = (array) $rapport;
             $rapport['decisions'] = Approuver::getByRapport($rapport['id_rapport']);
         }
     }

@@ -1,7 +1,7 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -39,6 +39,7 @@ class EmailService {
     public function sendEmail($to, $subject, $message, $isHTML = false) {
         try {
             $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
             $this->mailer->addAddress($to);
             $this->mailer->Subject = $subject;
             
@@ -53,6 +54,35 @@ class EmailService {
             return $this->mailer->send();
         } catch (Exception $e) {
             error_log("Erreur d'envoi d'email: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function sendEmailWithAttachment($to, $subject, $message, $attachmentPath, $attachmentName = null, $isHTML = false) {
+        try {
+            $this->mailer->clearAddresses();
+            $this->mailer->clearAttachments();
+            $this->mailer->addAddress($to);
+            $this->mailer->Subject = $subject;
+            
+            if ($isHTML) {
+                $this->mailer->isHTML(true);
+                $this->mailer->Body = $message;
+                $this->mailer->AltBody = strip_tags($message);
+            } else {
+                $this->mailer->Body = $message;
+            }
+
+            // Ajouter la pièce jointe
+            if (file_exists($attachmentPath)) {
+                $this->mailer->addAttachment($attachmentPath, $attachmentName);
+            } else {
+                error_log("Fichier pièce jointe non trouvé: " . $attachmentPath);
+            }
+
+            return $this->mailer->send();
+        } catch (Exception $e) {
+            error_log("Erreur d'envoi d'email avec pièce jointe: " . $e->getMessage());
             return false;
         }
     }

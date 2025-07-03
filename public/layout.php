@@ -27,6 +27,8 @@ include __DIR__ . '/../ressources/routes/sauvegardeRestaurationRoutes.php';
 include __DIR__ . '/../ressources/routes/notesResultatsRoutes.php';
 include __DIR__ . '/../ressources/routes/archivesDossiersSoutenanceRoutes.php';
 include __DIR__ . '/../ressources/routes/auditRoutes.php';
+include __DIR__ . '/../ressources/routes/redactionCompteRenduRoutes.php';
+include __DIR__ . '/../ressources/routes/archivesCompteRenduRoutes.php';
 
 // Si l'utilisateur n'est pas connecté, rediriger vers la page de login
 if (!isset($_SESSION['id_utilisateur'])) {
@@ -50,6 +52,15 @@ if (isset($_GET['page'])) {
             $currentMenuSlug = $traitement['lib_traitement'];
             $currentPageLabel = $traitement['label_traitement'];
             break;
+        }
+    }
+    
+    // Exception pour les pages spéciales qui ne sont pas dans les traitements
+    if (empty($currentMenuSlug)) {
+        $specialPages = ['archive_comptes_rendus', 'redaction_compte_rendu'];
+        if (in_array($_GET['page'], $specialPages)) {
+            $currentMenuSlug = $_GET['page'];
+            $currentPageLabel = ($_GET['page'] === 'archive_comptes_rendus') ? 'Archives des comptes rendus' : 'Rédaction de compte rendu';
         }
     }
 }
@@ -336,6 +347,13 @@ switch ($currentMenuSlug) {
             $currentPageLabel = 'Évaluations des dossiers de soutenance';
             break;
 
+        case 'archive_comptes_rendus':
+            // Le fichier de routes est déjà inclus au début
+            // Afficher directement la page des archives de comptes rendus
+            $contentFile = $partialsBasePath . 'redaction_compte_rendu/archives_compte_rendu_content.php';
+            $currentPageLabel = 'Archives des comptes rendus';
+            break;
+
         default:
        
    $groupeUtilisateur = $_SESSION['lib_GU'];
@@ -352,6 +370,14 @@ switch ($currentMenuSlug) {
         $contentFile = ''; // Réinitialiser si le fichier n'existe pas
     }
 break;
+}
+
+// Debug temporaire
+if (isset($_GET['page'])) {
+    error_log('PAGE DEMANDEE : ' . $_GET['page']);
+    foreach ($traitements as $t) {
+        error_log('TRAITEMENT AUTORISE : ' . $t['lib_traitement']);
+    }
 }
 
 
