@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : jeu. 03 juil. 2025 à 11:06
+-- Généré le : mar. 15 juil. 2025 à 22:50
 -- Version du serveur : 8.0.42
 -- Version de PHP : 8.2.27
 
@@ -185,6 +185,30 @@ VALUES (
         '2025-06-29 17:37:00',
         'blablbalb',
         4
+    ),
+    (
+        7,
+        12,
+        'approuve',
+        '2025-07-03 11:19:30',
+        'de',
+        4
+    ),
+    (
+        7,
+        13,
+        'approuve',
+        '2025-07-03 12:00:16',
+        'bon rapport',
+        4
+    ),
+    (
+        7,
+        14,
+        'approuve',
+        '2025-07-03 12:24:00',
+        'rapport bien rediger',
+        4
     );
 
 -- --------------------------------------------------------
@@ -299,6 +323,24 @@ VALUES (
         '2025-07-03 10:02:39',
         6,
         'Évaluation complète terminée'
+    ),
+    (
+        11,
+        20230001,
+        '2025-07-03 11:57:17',
+        'Validée',
+        '2025-07-03 11:59:04',
+        6,
+        'Évaluation complète terminée'
+    ),
+    (
+        12,
+        20240001,
+        '2025-07-03 12:15:41',
+        'Validée',
+        '2025-07-03 12:19:39',
+        6,
+        'Évaluation complète terminée'
     );
 
 -- --------------------------------------------------------
@@ -344,6 +386,22 @@ VALUES (
         '\r\n                <style>\r\n                .editor-content { font-family: \'Times New Roman\', Times, serif; }             \r\n                .header-logos .right { float: right; }\r\n                .header-logos .center { text-align: center; margin: 0 auto; }\r\n                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }\r\n                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }\r\n                .editor-content p { margin-bottom: 0.7em; }\r\n                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }\r\n                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }\r\n                .cas-footer { margin-top: 1em; font-size: 1em; }\r\n                .text-center { text-align: center; }\r\n                .italic { font-style: italic; }\r\n                </style>\r\n                <div class=\"header-logos\">\r\n                    <div class=\"center\">\r\n                        <div style=\"font-size:13px; font-weight:bold; letter-spacing:1px;\">REPUBLIQUE DE COTE D\'IVOIRE</div>\r\n                        <div style=\"font-size:12px;\">Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique</div>\r\n                        </div>\r\n                        </div>\r\n                <h1>Procès-Verbal de séance de validation de thèmes</h1>\r\n                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>\r\n                <div class=\"text-center\" style=\"margin-bottom:1em;\">\r\n                    Université Félix Houphouët-Boigny<br>\r\n                    UFR Mathématiques et Informatique\r\n                        </div>\r\n                <h3 class=\"section-title\">CONTEXTE DE LA SÉANCE</h3>\r\n                <p>Dans le bureau du Prof KOUA Brou à l\'UFR MI, le [DATE] s\'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>\r\n                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>\r\n                <div class=\"encadre\">\r\n                    <strong>Ordre du jour :</strong>\r\n                    <ul>\r\n                        <li>Informations</li>\r\n                        <li>Validation de thèmes</li>\r\n                        <li>Divers</li>\r\n                                </ul>\r\n                            </div>\r\n                <h3 class=\"section-title\">1. INFORMATIONS</h3>\r\n                <p class=\"italic\">[Le responsable de la filière a exposé sur l\'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>\r\n                <p class=\"italic\">[L\'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>\r\n                <h3 class=\"section-title\">2. VALIDATION DE THÈMES</h3>\r\n                <div id=\"casDynamique\">\r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 1</div>\r\n                    <strong>Étudiant :</strong> Gondo Patrick Diomandé<br>\r\n                    <strong>Thème :</strong> theme testes de rapport<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                \r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 2</div>\r\n                    <strong>Étudiant :</strong> Prince Aka<br>\r\n                    <strong>Thème :</strong> Intégration d\'une base intelligente<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème trop ancien</li>\r\n                        <li>mais rejeté</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                </div>\r\n                <h3 class=\"section-title\">3. DIVERS</h3>\r\n                <p class=\"italic\">[La commission a recommandé au Directeur de la filière d\'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>\r\n                <strong>Recommandations aux étudiants :</strong>\r\n                <ul>\r\n                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>\r\n                    <li>Joindre un CV contenant une photo d\'identité</li>\r\n                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d\'une pénalité</li>\r\n                                </ul>\r\n                <div class=\"text-center\" style=\"margin-top:2em;\">\r\n                    Les travaux de la commission ont pris fin à 12 h 30.<br>\r\n                    Fait à Abidjan, le [DATE]<br>\r\n                    <strong>La commission</strong>\r\n                        </div>\r\n                    ',
         'ressources/uploads/comptes_rendus/CR_20250703_001908.pdf',
         '2025-07-03 00:19:07'
+    ),
+    (
+        24,
+        2003006,
+        'Compte rendu séance du 03/07/2025',
+        '\r\n                <style>\r\n                .editor-content { font-family: \'Times New Roman\', Times, serif; }             \r\n                .header-logos .right { float: right; }\r\n                .header-logos .center { text-align: center; margin: 0 auto; }\r\n                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }\r\n                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }\r\n                .editor-content p { margin-bottom: 0.7em; }\r\n                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }\r\n                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }\r\n                .cas-footer { margin-top: 1em; font-size: 1em; }\r\n                .text-center { text-align: center; }\r\n                .italic { font-style: italic; }\r\n                </style>\r\n                <div class=\"header-logos\">\r\n                    <div class=\"center\">\r\n                        <div style=\"font-size:13px; font-weight:bold; letter-spacing:1px;\">REPUBLIQUE DE COTE D\'IVOIRE</div>\r\n                        <div style=\"font-size:12px;\">Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique</div>\r\n                        </div>\r\n                        </div>\r\n                <h1>Procès-Verbal de séance de validation de thèmes</h1>\r\n                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>\r\n                <div class=\"text-center\" style=\"margin-bottom:1em;\">\r\n                    Université Félix Houphouët-Boigny<br>\r\n                    UFR Mathématiques et Informatique\r\n                        </div>\r\n                <h3 class=\"section-title\">CONTEXTE DE LA SÉANCE</h3>\r\n                <p>Dans le bureau du Prof KOUA Brou à l\'UFR MI, le [DATE] s\'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>\r\n                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>\r\n                <div class=\"encadre\">\r\n                    <strong>Ordre du jour :</strong>\r\n                    <ul>\r\n                        <li>Informations</li>\r\n                        <li>Validation de thèmes</li>\r\n                        <li>Divers</li>\r\n                                </ul>\r\n                            </div>\r\n                <h3 class=\"section-title\">1. INFORMATIONS</h3>\r\n                <p class=\"italic\">[Le responsable de la filière a exposé sur l\'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>\r\n                <p class=\"italic\">[L\'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>\r\n                <h3 class=\"section-title\">2. VALIDATION DE THÈMES</h3>\r\n                <div id=\"casDynamique\">\r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 1</div>\r\n                    <strong>Étudiant :</strong> Arnaud Kévin Boris Guiégui<br>\r\n                    <strong>Thème :</strong> Impact de l\'IA générative<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                </div>\r\n                <h3 class=\"section-title\">3. DIVERS</h3>\r\n                <p class=\"italic\">[La commission a recommandé au Directeur de la filière d\'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>\r\n                <strong>Recommandations aux étudiants :</strong>\r\n                <ul>\r\n                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>\r\n                    <li>Joindre un CV contenant une photo d\'identité</li>\r\n                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d\'une pénalité</li>\r\n                                </ul>\r\n                <div class=\"text-center\" style=\"margin-top:2em;\">\r\n                    Les travaux de la commission ont pris fin à 12 h 30.<br>\r\n                    Fait à Abidjan, le [DATE]<br>\r\n                    <strong>La commission</strong>\r\n                        </div>\r\n                    ',
+        'ressources/uploads/comptes_rendus/CR_20250703_113745.pdf',
+        '2025-07-03 11:37:44'
+    ),
+    (
+        25,
+        2003003,
+        'Compte rendu séance du 03/07/2025',
+        '\r\n                <style>\r\n                .editor-content { font-family: \'Times New Roman\', Times, serif; }             \r\n                .header-logos .right { float: right; }\r\n                .header-logos .center { text-align: center; margin: 0 auto; }\r\n                .editor-content h1 { font-size: 2.2em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; text-align: center; }\r\n                .editor-content h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; }\r\n                .section-title { border-bottom: 2px solid #222; margin-bottom: 0.7em; margin-top: 1.5em; }\r\n                .editor-content p { margin-bottom: 0.7em; }\r\n                .editor-content ul { margin-left: 1.5em; margin-bottom: 0.7em; }\r\n                .encadre { background: #f6faff; border: 2px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas { background: #fff; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1em; margin-bottom: 1em; }\r\n                .cas-titre { font-weight: bold; margin-bottom: 0.5em; }\r\n                .cas-footer { margin-top: 1em; font-size: 1em; }\r\n                .text-center { text-align: center; }\r\n                .italic { font-style: italic; }\r\n                </style>\r\n                <div class=\"header-logos\">\r\n                    <div class=\"center\">\r\n                        <div style=\"font-size:13px; font-weight:bold; letter-spacing:1px;\">REPUBLIQUE DE COTE D\'IVOIRE</div>\r\n                        <div style=\"font-size:12px;\">Ministère de l\'Enseignement Supérieur et de la Recherche Scientifique</div>\r\n                        </div>\r\n                        </div>\r\n                <h1>Procès-Verbal de séance de validation de thèmes</h1>\r\n                <h2>Thèmes de Soutenance - Filière MIAGE-GI</h2>\r\n                <div class=\"text-center\" style=\"margin-bottom:1em;\">\r\n                    Université Félix Houphouët-Boigny<br>\r\n                    UFR Mathématiques et Informatique\r\n                        </div>\r\n                <h3 class=\"section-title\">CONTEXTE DE LA SÉANCE</h3>\r\n                <p>Dans le bureau du Prof KOUA Brou à l\'UFR MI, le [DATE] s\'est tenue de 11 h 00 à 12 h 30 une séance de validation de thèmes de soutenance des étudiants en fin de cycle de la filière MIAGE-GI.</p>\r\n                <p>La réunion était animée par Prof KOUA Brou le responsable de ladite filière. Etaient présents Prof. KOUA Brou, Dr MAMADOU Diarra, M. WAH Médard et M. BROU Patrice. Les membres de la commission de validation ont examiné [N] dossiers.</p>\r\n                <div class=\"encadre\">\r\n                    <strong>Ordre du jour :</strong>\r\n                    <ul>\r\n                        <li>Informations</li>\r\n                        <li>Validation de thèmes</li>\r\n                        <li>Divers</li>\r\n                                </ul>\r\n                            </div>\r\n                <h3 class=\"section-title\">1. INFORMATIONS</h3>\r\n                <p class=\"italic\">[Le responsable de la filière a exposé sur l\'intérêt des séances de validation. Il a donné des informations sur le choix des thèmes niveau ingénieur et la tenue mensuelle des séances de validation.]</p>\r\n                <p class=\"italic\">[L\'organisation des séances de validation permet de faire le point des encadrements, le contenu potentiel de thèmes, et le suivi des mémoires par des encadreurs pédagogiques.]</p>\r\n                <h3 class=\"section-title\">2. VALIDATION DE THÈMES</h3>\r\n                <div id=\"casDynamique\">\r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 1</div>\r\n                    <strong>Étudiant :</strong> Gondo Patrick Diomandé<br>\r\n                    <strong>Thème :</strong> theme testes de rapport<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                \r\n                <div class=\"cas\">\r\n                    <div class=\"cas-titre\">Cas 2</div>\r\n                    <strong>Étudiant :</strong> Prince Aka<br>\r\n                    <strong>Thème :</strong> Intégration d\'une base intelligente<br>\r\n                    <strong>Recommandations de la commission :</strong>\r\n                    <ul>\r\n                        <li>thème valide</li>\r\n                        <li>bien décrire le processus de règlement de chèques</li>\r\n                        <li>décrire exactement le contexte</li>\r\n                    </ul>\r\n                    <div class=\"cas-footer\">\r\n                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;\r\n                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice\r\n                    </div>\r\n                </div>\r\n                </div>\r\n                <h3 class=\"section-title\">3. DIVERS</h3>\r\n                <p class=\"italic\">[La commission a recommandé au Directeur de la filière d\'améliorer le partenariat avec les entreprises car elles le souhaitent compte tenu du rendement des stagiaires déjà reçus.]</p>\r\n                <strong>Recommandations aux étudiants :</strong>\r\n                <ul>\r\n                    <li>Respecter toutes les rubriques du template de présentation de thème en possession de la chargée de communication</li>\r\n                    <li>Joindre un CV contenant une photo d\'identité</li>\r\n                    <li>Soutenir au plus tard à la session suivante pour ne pas tomber sous le coup d\'une pénalité</li>\r\n                                </ul>\r\n                <div class=\"text-center\" style=\"margin-top:2em;\">\r\n                    Les travaux de la commission ont pris fin à 12 h 30.<br>\r\n                    Fait à Abidjan, le [DATE]<br>\r\n                    <strong>La commission</strong>\r\n                        </div>\r\n                    ',
+        'ressources/uploads/comptes_rendus/CR_20250703_122832.pdf',
+        '2025-07-03 12:28:29'
     );
 
 -- --------------------------------------------------------
@@ -365,8 +423,11 @@ INSERT INTO
     `compte_rendu_rapport` (`id_CR`, `id_rapport`)
 VALUES (22, 2),
     (23, 2),
+    (25, 2),
     (22, 5),
-    (23, 5);
+    (23, 5),
+    (25, 5),
+    (24, 12);
 
 -- --------------------------------------------------------
 
@@ -404,6 +465,16 @@ VALUES (
         2004003,
         5,
         '2025-06-27 20:09:26'
+    ),
+    (
+        20230001,
+        13,
+        '2025-07-03 11:59:56'
+    ),
+    (
+        20240001,
+        14,
+        '2025-07-03 12:22:53'
     );
 
 -- --------------------------------------------------------
@@ -1031,6 +1102,7 @@ VALUES (3, 'Deloitte Côte d\'Ivoire'),
     (9, 'DIGICORP'),
     (5, 'Orange Côte d\'Ivoire'),
     (8, 'QuanTech Côte d\'Ivoire'),
+    (10, 'SODECI'),
     (7, 'Tuzzo Côte d\'Ivoire');
 
 -- --------------------------------------------------------
@@ -3114,6 +3186,24 @@ VALUES (
         '1998-01-05',
         'Homme',
         '2019-2020'
+    ),
+    (
+        20230001,
+        'Krouma',
+        'Franck',
+        'kf@gmail.com',
+        '1998-12-22',
+        'Homme',
+        '2023-2024'
+    ),
+    (
+        20240001,
+        'goa',
+        'Harley',
+        'goaharley@gmail.com',
+        '1998-05-24',
+        'Homme',
+        '2024-2025'
     );
 
 -- --------------------------------------------------------
@@ -3216,6 +3306,60 @@ VALUES (
         'valider',
         'bien',
         '2025-07-01 14:37:24',
+        NULL
+    ),
+    (
+        13,
+        12,
+        7,
+        'valider',
+        'oui j\'aime ce rapport',
+        '2025-07-03 11:21:02',
+        NULL
+    ),
+    (
+        14,
+        12,
+        2,
+        'valider',
+        'le rapport est bon',
+        '2025-07-03 11:34:07',
+        NULL
+    ),
+    (
+        15,
+        12,
+        16,
+        'valider',
+        'ouii',
+        '2025-07-03 11:35:43',
+        NULL
+    ),
+    (
+        16,
+        12,
+        12,
+        'valider',
+        'oui très bon rapport',
+        '2025-07-03 11:36:38',
+        NULL
+    ),
+    (
+        17,
+        13,
+        7,
+        'valider',
+        'oui',
+        '2025-07-03 12:00:51',
+        NULL
+    ),
+    (
+        18,
+        14,
+        7,
+        'valider',
+        'valide',
+        '2025-07-03 12:25:33',
         NULL
     );
 
@@ -3410,6 +3554,30 @@ VALUES (
         'Kouamé Jean',
         'kj@gmail.com',
         '0105030604'
+    ),
+    (
+        7,
+        20230001,
+        10,
+        '2023-09-02',
+        '2025-02-03',
+        'Developpement  de ia',
+        'le stage etait bon',
+        'Badro Celeste',
+        'bdc@gmail.com',
+        '0708090605'
+    ),
+    (
+        8,
+        20240001,
+        10,
+        '2024-05-14',
+        '2024-01-16',
+        'Developpement  de ia',
+        'Candidature ',
+        'Badro Celeste',
+        'bdc@gmail.com',
+        '0708090605'
     );
 
 -- --------------------------------------------------------
@@ -3577,6 +3745,28 @@ VALUES (
         9,
         21817,
         '2025-06-16 00:48:39',
+        'En cours',
+        1,
+        0.00,
+        1235000.00
+    ),
+    (
+        31,
+        20230001,
+        9,
+        22423,
+        '2025-07-03 11:42:46',
+        'En cours',
+        1,
+        0.00,
+        1235000.00
+    ),
+    (
+        32,
+        20240001,
+        9,
+        22524,
+        '2025-07-03 12:11:43',
         'En cours',
         1,
         0.00,
@@ -3957,6 +4147,186 @@ VALUES (
         'passable',
         '2025-07-03 08:52:07',
         '2025-07-03 08:52:07'
+    ),
+    (
+        25,
+        20230001,
+        73,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        26,
+        20230001,
+        81,
+        NULL,
+        15.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        27,
+        20230001,
+        76,
+        NULL,
+        12.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        28,
+        20230001,
+        77,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        29,
+        20230001,
+        74,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        30,
+        20230001,
+        79,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        31,
+        20230001,
+        75,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        32,
+        20230001,
+        80,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        33,
+        20230001,
+        78,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 11:58:43',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        34,
+        20240001,
+        73,
+        NULL,
+        14.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        35,
+        20240001,
+        81,
+        NULL,
+        12.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        36,
+        20240001,
+        76,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        37,
+        20240001,
+        77,
+        NULL,
+        8.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        38,
+        20240001,
+        74,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        39,
+        20240001,
+        79,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        40,
+        20240001,
+        75,
+        NULL,
+        10.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        41,
+        20240001,
+        80,
+        NULL,
+        16.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        42,
+        20240001,
+        78,
+        NULL,
+        13.00,
+        '',
+        '2025-07-03 12:19:00',
+        '2025-07-03 12:19:00'
     );
 
 -- --------------------------------------------------------
@@ -4487,6 +4857,398 @@ VALUES (
         'Succès',
         'utilisateur',
         '2025-07-03 11:00:06'
+    ),
+    (
+        71,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:32:43'
+    ),
+    (
+        72,
+        81,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:32:53'
+    ),
+    (
+        73,
+        81,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:33:11'
+    ),
+    (
+        74,
+        36,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:33:19'
+    ),
+    (
+        75,
+        36,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:34:31'
+    ),
+    (
+        76,
+        89,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:35:23'
+    ),
+    (
+        77,
+        89,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:36:13'
+    ),
+    (
+        78,
+        90,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:36:22'
+    ),
+    (
+        79,
+        90,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:36:43'
+    ),
+    (
+        80,
+        89,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:36:45'
+    ),
+    (
+        81,
+        79,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:38:50'
+    ),
+    (
+        82,
+        85,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:39:14'
+    ),
+    (
+        83,
+        89,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:39:48'
+    ),
+    (
+        84,
+        35,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:40:14'
+    ),
+    (
+        85,
+        35,
+        'Création',
+        'Succès',
+        'etudiants',
+        '2025-07-03 11:40:55'
+    ),
+    (
+        86,
+        35,
+        'Création',
+        'Succès',
+        'inscriptions',
+        '2025-07-03 11:42:46'
+    ),
+    (
+        87,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:50:31'
+    ),
+    (
+        88,
+        85,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:50:31'
+    ),
+    (
+        89,
+        79,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:50:58'
+    ),
+    (
+        90,
+        5,
+        'Création',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:55:29'
+    ),
+    (
+        91,
+        91,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 11:55:51'
+    ),
+    (
+        92,
+        91,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:57:13'
+    ),
+    (
+        93,
+        91,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:57:17'
+    ),
+    (
+        94,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 11:58:07'
+    ),
+    (
+        95,
+        35,
+        'Création',
+        'Succès',
+        'notes',
+        '2025-07-03 11:58:43'
+    ),
+    (
+        96,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:58:56'
+    ),
+    (
+        97,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:58:59'
+    ),
+    (
+        98,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:59:01'
+    ),
+    (
+        99,
+        35,
+        'Envoi résultats',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 11:59:09'
+    ),
+    (
+        100,
+        91,
+        'Création',
+        'Succès',
+        'rapport_etudiants',
+        '2025-07-03 11:59:50'
+    ),
+    (
+        101,
+        91,
+        'Dépôt',
+        'Succès',
+        'rapport',
+        '2025-07-03 11:59:56'
+    ),
+    (
+        102,
+        36,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 12:02:18'
+    ),
+    (
+        103,
+        5,
+        'Accès',
+        'Succès',
+        'tableau_de_bord',
+        '2025-07-03 12:08:44'
+    ),
+    (
+        104,
+        35,
+        'Création',
+        'Succès',
+        'etudiants',
+        '2025-07-03 12:10:48'
+    ),
+    (
+        105,
+        35,
+        'Création',
+        'Succès',
+        'inscriptions',
+        '2025-07-03 12:11:43'
+    ),
+    (
+        106,
+        5,
+        'Création',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 12:12:42'
+    ),
+    (
+        107,
+        91,
+        'Déconnexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 12:13:07'
+    ),
+    (
+        108,
+        92,
+        'Connexion',
+        'Succès',
+        'utilisateur',
+        '2025-07-03 12:13:47'
+    ),
+    (
+        109,
+        92,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:15:27'
+    ),
+    (
+        110,
+        92,
+        'Création',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:15:41'
+    ),
+    (
+        111,
+        35,
+        'Création',
+        'Succès',
+        'versements',
+        '2025-07-03 12:17:54'
+    ),
+    (
+        112,
+        35,
+        'Création',
+        'Succès',
+        'notes',
+        '2025-07-03 12:19:00'
+    ),
+    (
+        113,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:19:19'
+    ),
+    (
+        114,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:19:25'
+    ),
+    (
+        115,
+        35,
+        'Validation',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:19:30'
+    ),
+    (
+        116,
+        35,
+        'Envoi résultats',
+        'Succès',
+        'candidature_soutenance',
+        '2025-07-03 12:19:45'
+    ),
+    (
+        117,
+        92,
+        'Création',
+        'Erreur',
+        'candidature_soutenance',
+        '2025-07-03 12:21:19'
+    ),
+    (
+        118,
+        92,
+        'Création',
+        'Succès',
+        'rapport_etudiants',
+        '2025-07-03 12:22:12'
+    ),
+    (
+        119,
+        92,
+        'Dépôt',
+        'Succès',
+        'rapport',
+        '2025-07-03 12:22:53'
     );
 
 -- --------------------------------------------------------
@@ -4614,11 +5376,37 @@ VALUES (
         '2025-07-03 10:05:45',
         'Impact de l\'IA générative',
         'rapport_12.html',
-        'en_cours',
+        'valider',
         '2025-07-03 10:05:55',
         11771,
         1,
-        'en_cours'
+        'valide'
+    ),
+    (
+        13,
+        20230001,
+        'Raport test',
+        '2025-07-03 11:59:50',
+        'test theme',
+        'rapport_13.html',
+        'en_cours',
+        '2025-07-03 11:59:56',
+        11771,
+        1,
+        'approuve_communication'
+    ),
+    (
+        14,
+        20240001,
+        'Raport test',
+        '2025-07-03 12:22:12',
+        'test theme',
+        'rapport_14.html',
+        'en_cours',
+        '2025-07-03 12:22:53',
+        11771,
+        1,
+        'approuve_communication'
     );
 
 -- --------------------------------------------------------
@@ -4860,6 +5648,22 @@ VALUES (
         '{\"scolarite\":{\"statut\":\"\\u00c0 jour\",\"montant_total\":\"1 235 000 FCFA\",\"montant_paye\":\"1 235 000 FCFA\",\"dernier_paiement\":\"03\\/07\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"DIGICORP\",\"sujet\":\"Developpement IA generative\",\"periode\":\"31\\/07\\/2024 - 01\\/03\\/2025\",\"encadrant\":\"Kouam\\u00e9 Jean\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Semestre 9\",\"moyenne\":\"10.89\\/20\",\"unites\":\"30\\/30 cr\\u00e9dits valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
         'Validée',
         '2025-07-03 10:02:39'
+    ),
+    (
+        7,
+        20230001,
+        11,
+        '{\"scolarite\":{\"statut\":\"\\u00c0 jour\",\"montant_total\":\"1 235 000 FCFA\",\"montant_paye\":\"1 235 000 FCFA\",\"dernier_paiement\":\"03\\/07\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"SODECI\",\"sujet\":\"Developpement  de ia\",\"periode\":\"02\\/09\\/2023 - 03\\/02\\/2025\",\"encadrant\":\"Badro Celeste\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Semestre 9\",\"moyenne\":\"10.78\\/20\",\"unites\":\"30\\/30 cr\\u00e9dits valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
+        'Validée',
+        '2025-07-03 11:59:04'
+    ),
+    (
+        8,
+        20240001,
+        12,
+        '{\"scolarite\":{\"statut\":\"\\u00c0 jour\",\"montant_total\":\"1 235 000 FCFA\",\"montant_paye\":\"1 235 000 FCFA\",\"dernier_paiement\":\"03\\/07\\/2025\",\"validation\":\"valid\\u00e9\"},\"stage\":{\"entreprise\":\"SODECI\",\"sujet\":\"Developpement  de ia\",\"periode\":\"14\\/05\\/2024 - 16\\/01\\/2024\",\"encadrant\":\"Badro Celeste\",\"validation\":\"valid\\u00e9\"},\"semestre\":{\"semestre\":\"Semestre 9\",\"moyenne\":\"11.44\\/20\",\"unites\":\"30\\/30 cr\\u00e9dits valid\\u00e9s\",\"validation\":\"valid\\u00e9\"}}',
+        'Validée',
+        '2025-07-03 12:19:39'
     );
 
 -- --------------------------------------------------------
@@ -6178,6 +6982,26 @@ VALUES (
         'Actif',
         'wahmedard@gmail.com',
         '$2y$10$S5rM7r6EGutGxCot0BVfneN7kNueWfWrUnU2U4vJDaej41aMEIF2e'
+    ),
+    (
+        91,
+        'Krouma Franck',
+        7,
+        13,
+        5,
+        'Actif',
+        'kf@gmail.com',
+        '$2y$10$JI5/y9HR1sJAOfUrq7ownevcqDoNZ9OuWIHS6dyLELrcJmHFO/wwi'
+    ),
+    (
+        92,
+        'goa Harley',
+        7,
+        13,
+        5,
+        'Actif',
+        'goaharley@gmail.com',
+        '$2y$10$UeEak2JVOxpj/6wm1KxIQuhWHsJE6eqzTMbza2IcA3Kl2BBEQXWbi'
     );
 
 -- --------------------------------------------------------
@@ -6219,6 +7043,13 @@ VALUES (
         '2025-07-01 22:59:34',
         'Décision finale automatique',
         'rejeter'
+    ),
+    (
+        2,
+        12,
+        '2025-07-03 11:37:13',
+        'Le rapport est bon dans l\'ensemble et il y a rien a ajouté',
+        'valider'
     );
 
 -- --------------------------------------------------------
@@ -6424,6 +7255,38 @@ VALUES (
         '2025-07-03 10:02:16',
         'Tranche',
         'Virement'
+    ),
+    (
+        61,
+        31,
+        670000.00,
+        '2025-07-03 11:42:46',
+        'Premier versement',
+        'Espèce'
+    ),
+    (
+        62,
+        31,
+        565000.00,
+        '2025-07-03 11:58:07',
+        'Tranche',
+        'Espèce'
+    ),
+    (
+        63,
+        32,
+        670000.00,
+        '2025-07-03 12:11:43',
+        'Premier versement',
+        'Espèce'
+    ),
+    (
+        64,
+        32,
+        565000.00,
+        '2025-07-03 12:17:54',
+        'Tranche',
+        'Carte bancaire'
     );
 
 --
@@ -6768,14 +7631,14 @@ AUTO_INCREMENT = 29901;
 --
 ALTER TABLE `candidature_soutenance`
 MODIFY `id_candidature` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 11;
+AUTO_INCREMENT = 13;
 
 --
 -- AUTO_INCREMENT pour la table `compte_rendu`
 --
 ALTER TABLE `compte_rendu`
 MODIFY `id_CR` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 24;
+AUTO_INCREMENT = 26;
 
 --
 -- AUTO_INCREMENT pour la table `dossier_academique`
@@ -6810,7 +7673,7 @@ AUTO_INCREMENT = 18;
 --
 ALTER TABLE `entreprises`
 MODIFY `id_entreprise` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 10;
+AUTO_INCREMENT = 11;
 
 --
 -- AUTO_INCREMENT pour la table `etudiants`
@@ -6824,7 +7687,7 @@ AUTO_INCREMENT = 20250003;
 --
 ALTER TABLE `evaluations_rapports`
 MODIFY `id_evaluation` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 13;
+AUTO_INCREMENT = 19;
 
 --
 -- AUTO_INCREMENT pour la table `fonction`
@@ -6852,14 +7715,14 @@ AUTO_INCREMENT = 19;
 --
 ALTER TABLE `informations_stage`
 MODIFY `id_info_stage` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 7;
+AUTO_INCREMENT = 9;
 
 --
 -- AUTO_INCREMENT pour la table `inscriptions`
 --
 ALTER TABLE `inscriptions`
 MODIFY `id_inscription` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 31;
+AUTO_INCREMENT = 33;
 
 --
 -- AUTO_INCREMENT pour la table `messages`
@@ -6894,7 +7757,7 @@ AUTO_INCREMENT = 16;
 --
 ALTER TABLE `notes`
 MODIFY `id` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 25;
+AUTO_INCREMENT = 43;
 
 --
 -- AUTO_INCREMENT pour la table `personnel_admin`
@@ -6908,14 +7771,14 @@ AUTO_INCREMENT = 9;
 --
 ALTER TABLE `pister`
 MODIFY `id_piste` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 69;
+AUTO_INCREMENT = 120;
 
 --
 -- AUTO_INCREMENT pour la table `rapport_etudiants`
 --
 ALTER TABLE `rapport_etudiants`
 MODIFY `id_rapport` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 13;
+AUTO_INCREMENT = 15;
 
 --
 -- AUTO_INCREMENT pour la table `reclamations`
@@ -6929,7 +7792,7 @@ AUTO_INCREMENT = 5;
 --
 ALTER TABLE `resume_candidature`
 MODIFY `id` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 7;
+AUTO_INCREMENT = 9;
 
 --
 -- AUTO_INCREMENT pour la table `semestre`
@@ -6978,14 +7841,14 @@ AUTO_INCREMENT = 86;
 --
 ALTER TABLE `utilisateur`
 MODIFY `id_utilisateur` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 91;
+AUTO_INCREMENT = 93;
 
 --
 -- AUTO_INCREMENT pour la table `versements`
 --
 ALTER TABLE `versements`
 MODIFY `id_versement` int NOT NULL AUTO_INCREMENT,
-AUTO_INCREMENT = 61;
+AUTO_INCREMENT = 65;
 
 --
 -- Contraintes pour les tables déchargées

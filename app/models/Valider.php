@@ -104,12 +104,25 @@ class Valider {
     }
     
     /**
-     * Récupère la liste des rapports validés (décision la plus récente = 'valider')
+     * Récupère la liste des rapports validés ou rejetés (décision la plus récente)
+     * Exclut les rapports qui ont déjà un compte rendu
      */
     public static function getRapportsValides() {
         $pdo = Database::getConnection();
         $stmt = $pdo->query("
-            SELECT r.id_rapport,r.num_etu, r.theme_rapport, e.prenom_etu, e.nom_etu FROM rapport_etudiants r JOIN etudiants e ON r.num_etu = e.num_etu JOIN ( SELECT id_rapport, MAX(date_validation) as last_validation FROM valider GROUP BY id_rapport ) v1 ON r.id_rapport = v1.id_rapport JOIN valider v2 ON v2.id_rapport = v1.id_rapport AND v2.date_validation = v1.last_validation;
+            SELECT r.id_rapport, r.num_etu, r.theme_rapport, e.prenom_etu, e.nom_etu, v2.decision_validation
+            FROM rapport_etudiants r 
+            JOIN etudiants e ON r.num_etu = e.num_etu 
+            JOIN (
+                SELECT id_rapport, MAX(date_validation) as last_validation 
+                FROM valider 
+                GROUP BY id_rapport
+            ) v1 ON r.id_rapport = v1.id_rapport 
+            JOIN valider v2 ON v2.id_rapport = v1.id_rapport AND v2.date_validation = v1.last_validation
+            LEFT JOIN compte_rendu_rapport crr ON r.id_rapport = crr.id_rapport
+            WHERE v2.decision_validation IN ('valider', 'rejeter')
+            AND crr.id_rapport IS NULL
+            ORDER BY v2.decision_validation DESC, r.theme_rapport
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

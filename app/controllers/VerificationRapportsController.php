@@ -49,33 +49,29 @@ class VerificationRapportsController {
      */
     private function getStatsRapports() {
         try {
-            // Récupérer les rapports déposés
             $rapports = $this->rapportModel->getRapportsDeposes();
-            
             $stats = [
-                'total' => count($rapports),
-                'en_attente' => 0,
-                'en_cours' => 0,
-                'valider' => 0,
-                'rejeter' => 0
+                'total' => 0, // en_attente_communication
+                'approuves' => 0, // approuve_communication
+                'desapprouves' => 0 // desapprouve_communication
             ];
-            
             foreach ($rapports as $rapport) {
-                $statut = $rapport->statut_rapport ?? 'en_attente';
-                if (isset($stats[$statut])) {
-                    $stats[$statut]++;
+                $etape = $rapport->etape_validation ?? '';
+                if ($etape === 'en_attente_communication') {
+                    $stats['total']++;
+                } elseif ($etape === 'approuve_communication') {
+                    $stats['approuves']++;
+                } elseif ($etape === 'desapprouve_communication') {
+                    $stats['desapprouves']++;
                 }
             }
-            
             return $stats;
         } catch (Exception $e) {
             error_log("Erreur lors du calcul des statistiques: " . $e->getMessage());
             return [
                 'total' => 0,
-                'en_attente' => 0,
-                'en_cours' => 0,
-                'valider' => 0,
-                'rejeter' => 0
+                'approuves' => 0,
+                'desapprouves' => 0
             ];
         }
     }

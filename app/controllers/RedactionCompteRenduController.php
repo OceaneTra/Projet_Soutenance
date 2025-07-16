@@ -8,6 +8,9 @@ use Dompdf\Dompdf;
 class RedactionCompteRenduController {
     public function index() {
         $GLOBALS['rapports_valides'] = Valider::getRapportsValides();
+        require_once __DIR__ . '/../models/Enseignant.php';
+        $enseignantModel = new Enseignant(\Database::getConnection());
+        $GLOBALS['enseignants'] = $enseignantModel->getAllEnseignants();
         // Ne pas inclure la vue ici, le layout s'en charge
     }
 
@@ -18,6 +21,8 @@ class RedactionCompteRenduController {
             $contenu_CR = $_POST['contenu_CR'] ?? '';
             $rapports = isset($_POST['rapports']) ? $_POST['rapports'] : [];
             $date_CR = date('Y-m-d H:i:s');
+            $encadrants = $_POST['encadrant_pedagogique'] ?? [];
+            $directeurs = $_POST['directeur_memoire'] ?? [];
 
             if (empty($num_etu)) {
                 $_SESSION['error'] = "Aucun étudiant sélectionné.";
@@ -44,6 +49,22 @@ class RedactionCompteRenduController {
             // Enregistrement en BD
             $id_CR = CompteRendu::creer($num_etu, $nom_CR, $contenu_CR, $chemin_pdf, $date_CR, $rapports);
             if ($id_CR) {
+                // Enregistrement des affectations encadrant/directeur
+                $pdo = \Database::getConnection();
+                foreach ($rapports as $id_rapport) {
+                    // Encadrant pédagogique
+                    if (!empty($encadrants[$id_rapport])) {
+                        $id_enseignant = $encadrants[$id_rapport];
+                        $stmt = $pdo->prepare("INSERT INTO affecter (id_enseignant, id_rapport, id_jury, role) VALUES (?, ?, NULL, 'encadrant')");
+                        $stmt->execute([$id_enseignant, $id_rapport]);
+                    }
+                    // Directeur de mémoire
+                    if (!empty($directeurs[$id_rapport])) {
+                        $id_enseignant = $directeurs[$id_rapport];
+                        $stmt = $pdo->prepare("INSERT INTO affecter (id_enseignant, id_rapport, id_jury, role) VALUES (?, ?, NULL, 'directeur')");
+                        $stmt->execute([$id_enseignant, $id_rapport]);
+                    }
+                }
                 $_SESSION['success'] = 'Compte rendu enregistré avec succès !';
                 // Envoi d'un email à chaque étudiant concerné
                 require_once __DIR__ . '/../models/RapportEtudiant.php';

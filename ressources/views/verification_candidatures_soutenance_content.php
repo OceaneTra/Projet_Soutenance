@@ -361,39 +361,7 @@ function traduireStatut($statut) {
                 </div>
 
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="stat-card">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">Total</p>
-                                <p class="text-2xl font-bold"><?= $nbRapports ?></p>
-                            </div>
-                            <i class="fas fa-file-alt text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-
-                    <?php if (!empty($statsRapports)): ?>
-                    <div class="stat-card green">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">Rapports approuvés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['approuve'] ?? 0 ?></p>
-                            </div>
-                            <i class="fas fa-check-circle text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-
-                    <div class="stat-card red">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm opacity-90">Rapports désapprouvés</p>
-                                <p class="text-2xl font-bold"><?= $statsRapports['desapprouve'] ?? 0 ?></p>
-                            </div>
-                            <i class="fas fa-times-circle text-2xl opacity-80"></i>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
+                
             </div>
         </div>
 

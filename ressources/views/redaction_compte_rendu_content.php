@@ -1,5 +1,6 @@
 <?php
 $rapports_valides = $GLOBALS['rapports_valides'] ?? [];
+$enseignants = $GLOBALS['enseignants'] ?? [];
 $notifType = '';
 $notifMsg = '';
 if (!empty($_SESSION['success'])) {
@@ -184,6 +185,17 @@ if (!empty($_SESSION['success'])) {
                                 </h3>
                                 <div id="reportDetails" class="space-y-4">
                                     <!-- Content will be loaded dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Attribution dynamique des encadrants/directeurs -->
+                            <div id="attribution-enseignants" class="bg-white rounded-lg shadow p-6 fade-in mt-6 mb-8">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-user-tie text-blue-600 mr-2"></i>
+                                    Attribution des encadrants et directeurs de mémoire
+                                </h3>
+                                <div id="enseignants-par-rapport-js" class="flex flex-col gap-4">
+                                    <!-- Les sélecteurs seront ajoutés ici dynamiquement -->
                                 </div>
                             </div>
 
@@ -466,6 +478,7 @@ if (!empty($_SESSION['success'])) {
             div.innerHTML = `<span><b>Thème :</b> ${rapport.theme_rapport} <br><b>Étudiant :</b> ${rapport.prenom_etu} ${rapport.nom_etu}</span>
                 <button onclick="removeReport('${id}')" class="ml-2 text-red-500 hover:text-red-700"><i class='fas fa-times'></i></button>`;
             reportsList.appendChild(div);
+            updateAttributionEnseignants();
             showReportDetails();
             updateEditorWithReportData();
         }
@@ -475,6 +488,7 @@ if (!empty($_SESSION['success'])) {
             selectedReports = selectedReports.filter(r => r.id_rapport != id);
             const div = document.getElementById('rapport-cas-' + id);
             if (div) div.remove();
+            updateAttributionEnseignants();
             showReportDetails();
             updateEditorWithReportData();
         }
@@ -678,6 +692,8 @@ if (!empty($_SESSION['success'])) {
             // Génère dynamiquement les cas à partir des rapports sélectionnés
             let casHTML = '';
             selectedReports.forEach((rapport, idx) => {
+                const encadrant = rapport.encadrant_nom || '<span class="text-gray-400">[Non attribué]</span>';
+                const directeur = rapport.directeur_nom || '<span class="text-gray-400">[Non attribué]</span>';
                 casHTML += `
                 <div class="cas">
                     <div class="cas-titre">Cas ${idx + 1}</div>
@@ -690,8 +706,8 @@ if (!empty($_SESSION['success'])) {
                         <li>décrire exactement le contexte</li>
                     </ul>
                     <div class="cas-footer">
-                        <strong>Directeur de mémoire :</strong> Prof. KOUAKOU Mathias &nbsp;&nbsp;
-                        <strong>Encadreur pédagogique :</strong> M. BROU Patrice
+                        <strong>Directeur de mémoire :</strong> ${directeur} &nbsp;&nbsp;
+                        <strong>Encadrant pédagogique :</strong> ${encadrant}
                     </div>
                 </div>
                 `;
@@ -1151,6 +1167,52 @@ if (!empty($_SESSION['success'])) {
             });
         }
 
+        const enseignantsData = <?php echo json_encode($enseignants); ?>;
+
+        // Ajoute dynamiquement les sélecteurs pour chaque rapport sélectionné
+        function updateAttributionEnseignants() {
+            const container = document.getElementById('enseignants-par-rapport-js');
+            container.innerHTML = '';
+            selectedReports.forEach((rapport, idx) => {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col bg-blue-50 border border-blue-200 rounded-lg p-6 gap-4 mb-4';
+                div.innerHTML = `
+                    <div class="text-center mb-2">
+                        <h4 class="text-lg font-semibold text-gray-800">Cas ${idx + 1}</h4>
+                        <p class="text-gray-700">${rapport.theme_rapport}</p>
+                        <p class="text-gray-500 text-sm">(${rapport.prenom_etu} ${rapport.nom_etu})</p>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="encadrant_${rapport.id_rapport}" class="font-medium text-gray-700 text-center">Encadrant pédagogique</label>
+                            <select name="encadrant_pedagogique[${rapport.id_rapport}]" id="encadrant_${rapport.id_rapport}" class="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-center">
+                                <option value="">-- Choisir un encadrant --</option>
+                                ${enseignantsData.map(ens => `<option value="${ens.id_enseignant}">${ens.prenom_enseignant} ${ens.nom_enseignant}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="directeur_${rapport.id_rapport}" class="font-medium text-gray-700 text-center">Directeur de mémoire</label>
+                            <select name="directeur_memoire[${rapport.id_rapport}]" id="directeur_${rapport.id_rapport}" class="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 text-center">
+                                <option value="">-- Choisir un directeur --</option>
+                                ${enseignantsData.map(ens => `<option value="${ens.id_enseignant}">${ens.prenom_enseignant} ${ens.nom_enseignant}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+
+                // Ajout des listeners pour mettre à jour l'éditeur dynamiquement
+                div.querySelector(`#encadrant_${rapport.id_rapport}`).addEventListener('change', function() {
+                    rapport.encadrant_nom = this.options[this.selectedIndex].text;
+                    updateEditorWithReportData();
+                });
+                div.querySelector(`#directeur_${rapport.id_rapport}`).addEventListener('change', function() {
+                    rapport.directeur_nom = this.options[this.selectedIndex].text;
+                    updateEditorWithReportData();
+                });
+            });
+        }
+
         function submitCR() {
             if (selectedReports.length === 0) {
                 alert("Veuillez sélectionner au moins un rapport.");
@@ -1171,6 +1233,23 @@ if (!empty($_SESSION['success'])) {
                 input.name = 'rapports[]';
                 input.value = id;
                 form.appendChild(input);
+            });
+            // Ajouter les encadrants/directeurs sélectionnés
+            selectedReports.forEach(rapport => {
+                if (rapport.encadrant_nom) {
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `encadrant_pedagogique[${rapport.id_rapport}]`;
+                    input.value = document.getElementById(`encadrant_${rapport.id_rapport}`).value;
+                    form.appendChild(input);
+                }
+                if (rapport.directeur_nom) {
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `directeur_memoire[${rapport.id_rapport}]`;
+                    input.value = document.getElementById(`directeur_${rapport.id_rapport}`).value;
+                    form.appendChild(input);
+                }
             });
             console.log("num_etu envoyé :", selected.num_etu);
             document.getElementById('formCR').submit();
