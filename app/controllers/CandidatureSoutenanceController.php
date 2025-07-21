@@ -38,9 +38,6 @@ class CandidatureSoutenanceController {
                 case 'demande_candidature':
                     $this->demande_candidature();
                     break;
-                case 'compte_rendu_etudiant':
-                    $this->compteRenduRapport();
-                    break;
                 case 'info_stage':
                     $this->infoStage();
                     break;
@@ -106,20 +103,6 @@ class CandidatureSoutenanceController {
         }
     }
     
-      //=============================COMPTE RENDU DE RAPPORTS =============================
-    public function compteRenduRapport()
-    {
-        $etudiant_id = $_SESSION['num_etu'];
-        $compte_rendu = $this->etudiant->getCompteRendu($etudiant_id);
-        
-        // Mettre la variable dans les GLOBALS pour qu'elle soit accessible dans la vue
-        $GLOBALS['compte_rendu'] = $compte_rendu;
-        
-        if (!$compte_rendu) {
-            $_SESSION['error'] = "Aucun compte rendu disponible pour le moment. Veuillez patienter jusqu'à ce que la commission d'évaluation ait examiné votre dossier.";
-            $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
-        }
-    }
 
       //=============================ENREGISTRER/ MODIFIER LES INFOS DE STAGE =============================
       public function infoStage()
@@ -128,6 +111,20 @@ class CandidatureSoutenanceController {
             $etudiant_id = $_SESSION['num_etu'];
 
             $nom_entreprise = $_POST['entreprise'];
+
+            // Contrôle des dates de début et de fin
+            $date_debut = $_POST['date_debut'];
+            $date_fin = $_POST['date_fin'];
+            if (empty($date_debut) || empty($date_fin)) {
+                $_SESSION['error'] = "Veuillez renseigner les dates de début et de fin du stage.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
+                return;
+            }
+            if (strtotime($date_debut) > strtotime($date_fin)) {
+                $_SESSION['error'] = "La date de début du stage ne peut pas être postérieure à la date de fin.";
+                $this->auditLog->logCreation($_SESSION['id_utilisateur'], "candidature_soutenance", "Erreur");
+                return;
+            }
 
             //Vérifier si cette entreprise est déjà enregistrer dans la base de donnée
             $entreprise = $this->entreprise->getEntrepriseByLibelle($nom_entreprise);
